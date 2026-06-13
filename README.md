@@ -56,9 +56,10 @@ copyrighted assets.
   character automatically seeks the nearest monster, attacks, and casts ready skills.
 - **Minimap**: a top-down radar showing you, other players, NPCs, monsters and the boss.
 - **Multiple maps**: travel between **Prontera Field**, **Payon Forest** (Spores, Wolves),
-  **Poring Cave**, **Glast Heim** (Zombies, Skeletons & Baphomet), the end-game **Endless Tower**
-  (Wraiths, Gargoyles & the Dark Lord), and the **PvP Arena** via portals; each map has its own
-  theme, monsters and boss, and is networked independently.
+  **Poring Cave**, **Glast Heim** (Zombies, Skeletons & Baphomet), **Aldebaran Clock Tower**
+  (Punks, Clocks & the Clock Tower Manager), the end-game **Endless Tower** (Wraiths, Gargoyles
+  & the Dark Lord), and the **PvP Arena** via portals; each map has its own theme, monsters and
+  boss, and is networked independently.
 - **PvP**: in the Arena, click another player to fight them; defeating one announces it and
   respawns the loser.
 - **HUD & chat**: HP/SP/EXP bars, level, Zeny, stat panel, a hotkey **skill bar** with

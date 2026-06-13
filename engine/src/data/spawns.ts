@@ -99,6 +99,33 @@ export const MONSTER_TEMPLATES: Record<string, MonsterTemplate> = {
     respawnMs: 120000,
     boss: true,
   },
+  // ---- Aldebaran / Clock Tower ----
+  punk: {
+    id: "punk",
+    name: "Punk",
+    level: 38,
+    stats: makeStats({ str: 42, agi: 30, vit: 26, int: 20, dex: 38, luk: 18 }),
+    baseHp: 900,
+    baseExp: 1600,
+  },
+  clock: {
+    id: "clock",
+    name: "Clock",
+    level: 52,
+    stats: makeStats({ str: 64, agi: 34, vit: 50, int: 24, dex: 50, luk: 22 }),
+    baseHp: 2000,
+    baseExp: 3400,
+  },
+  clock_tower_manager: {
+    id: "clock_tower_manager",
+    name: "Clock Tower Manager",
+    level: 72,
+    stats: makeStats({ str: 100, agi: 50, vit: 90, int: 50, dex: 75, luk: 45 }),
+    baseHp: 24000,
+    baseExp: 30000,
+    respawnMs: 150000,
+    boss: true,
+  },
   // ---- Endless Tower (end-game grind to 130) ----
   wraith: {
     id: "wraith",

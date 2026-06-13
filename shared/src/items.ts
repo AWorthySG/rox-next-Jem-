@@ -175,6 +175,17 @@ export const ITEMS: Record<string, ItemDef> = {
     sellPrice: 2500,
   },
 
+  // ---- Aldebaran / Clock Tower ----
+  clock_gear: {
+    id: "clock_gear",
+    name: "Clock Gear",
+    type: ItemType.Accessory,
+    slot: EquipSlot.Accessory,
+    desc: "A precise mechanism. AGI +5, DEX +4.",
+    bonusStats: { agi: 5, dex: 4 },
+    sellPrice: 1800,
+  },
+
   // ---- Endless Tower tier ----
   valkyrie_armor: {
     id: "valkyrie_armor",
@@ -287,6 +298,20 @@ export const DROP_TABLES: Record<string, DropEntry[]> = {
     { itemId: "claymore", chance: 0.5 },
     { itemId: "saint_robe", chance: 0.5 },
     { itemId: "baphomet_egg", chance: 0.25 },
+  ],
+  punk: [
+    { itemId: "red_potion", chance: 0.35 },
+    { itemId: "blue_potion", chance: 0.2 },
+  ],
+  clock: [
+    { itemId: "red_potion", chance: 0.4 },
+    { itemId: "clock_gear", chance: 0.05 },
+  ],
+  clock_tower_manager: [
+    { itemId: "red_potion", chance: 1, qty: 6 },
+    { itemId: "clock_gear", chance: 0.7 },
+    { itemId: "claymore", chance: 0.4 },
+    { itemId: "saint_robe", chance: 0.4 },
   ],
   wraith: [
     { itemId: "red_potion", chance: 0.4 },

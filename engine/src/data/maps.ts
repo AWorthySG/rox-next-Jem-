@@ -79,6 +79,22 @@ export const MAPS: Record<string, GameMap> = {
     ],
     npcs: [
       { name: "Glast Heim Exit", role: "portal", x: 0, z: 26, dest: { toMap: "cave", toX: 0, toZ: -44 } },
+      { name: "Aldebaran Portal", role: "portal", x: 0, z: -50, dest: { toMap: "aldebaran", toX: 0, toZ: 20 } },
+    ],
+  },
+  aldebaran: {
+    id: "aldebaran",
+    name: "Aldebaran Clock Tower",
+    theme: { ground: 0x6b5d3e, fog: 0x2a2418, sky: 0x3c3424 },
+    spawn: { x: 0, z: 20 },
+    zones: [
+      { id: "ct-punk", templateId: "punk", cx: -20, cz: 2, radius: 13, count: 8 },
+      { id: "ct-clock", templateId: "clock", cx: 20, cz: -2, radius: 13, count: 7 },
+      { id: "ct-punk-2", templateId: "punk", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "ct-manager", templateId: "clock_tower_manager", cx: 0, cz: -46, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Aldebaran Exit", role: "portal", x: 0, z: 26, dest: { toMap: "glast_heim", toX: 0, toZ: -44 } },
       { name: "Tower Portal", role: "portal", x: 0, z: -50, dest: { toMap: "tower", toX: 0, toZ: 20 } },
     ],
   },
@@ -93,7 +109,7 @@ export const MAPS: Record<string, GameMap> = {
       { id: "tower-wraith-2", templateId: "wraith", cx: -2, cz: -28, radius: 12, count: 7 },
       { id: "tower-darklord", templateId: "dark_lord", cx: 0, cz: -46, radius: 4, count: 1 },
     ],
-    npcs: [{ name: "Tower Exit", role: "portal", x: 0, z: 26, dest: { toMap: "glast_heim", toX: 0, toZ: -44 } }],
+    npcs: [{ name: "Tower Exit", role: "portal", x: 0, z: 26, dest: { toMap: "aldebaran", toX: 0, toZ: -44 } }],
   },
   arena: {
     id: "arena",
