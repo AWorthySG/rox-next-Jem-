@@ -9,6 +9,7 @@ export interface GameMap {
   spawn: { x: number; z: number }; // where players arrive
   zones: SpawnZone[];
   npcs: NpcSpawn[];
+  pvp?: boolean; // players can attack each other here
 }
 
 // The overworld field (town + Poring fields + boss arena) and a tougher cave.
@@ -31,6 +32,7 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Guide", role: "guide", x: -5, z: 4, facing: Math.PI },
       { name: "Blacksmith", role: "refine", x: 0, z: 7, facing: Math.PI },
       { name: "Cave Portal", role: "portal", x: 14, z: 0, dest: { toMap: "cave", toX: 0, toZ: 18 } },
+      { name: "Arena Portal", role: "portal", x: -14, z: 0, dest: { toMap: "arena", toX: 0, toZ: 0 } },
     ],
   },
   cave: {
@@ -45,6 +47,15 @@ export const MAPS: Record<string, GameMap> = {
       { id: "cave-king", templateId: "poring_king", cx: 0, cz: -44, radius: 4, count: 1 },
     ],
     npcs: [{ name: "Exit Portal", role: "portal", x: 0, z: 26, dest: { toMap: "field", toX: 16, toZ: 2 } }],
+  },
+  arena: {
+    id: "arena",
+    name: "PvP Arena",
+    theme: { ground: 0x9a3030, fog: 0x401016, sky: 0x551b22 },
+    spawn: { x: 0, z: 0 },
+    zones: [],
+    npcs: [{ name: "Arena Exit", role: "portal", x: 0, z: 22, dest: { toMap: "field", toX: -16, toZ: 2 } }],
+    pvp: true,
   },
 };
 

@@ -137,8 +137,20 @@ export class World {
     const conn = this.connections.get(player.connId);
     if (!conn) return;
     const map = MAPS[player.mapId] ?? MAPS.field;
-    conn.send({ t: MsgType.MapChange, mapId: map.id, name: map.name, theme: map.theme, x: player.x, z: player.z });
+    conn.send({
+      t: MsgType.MapChange,
+      mapId: map.id,
+      name: map.name,
+      theme: map.theme,
+      pvp: !!map.pvp,
+      x: player.x,
+      z: player.z,
+    });
     this.spawnAllFor(conn);
+  }
+
+  isPvp(mapId: string): boolean {
+    return !!MAPS[mapId]?.pvp;
   }
 
   travelPlayer(player: Player, dest: PortalDest): void {

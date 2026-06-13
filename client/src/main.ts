@@ -36,6 +36,7 @@ const miniMap = new MiniMap();
 
 // Skill bar: casts on the current target (or nearest monster); heals target self.
 let currentTargetId: number | null = null;
+let pvpMap = false;
 function attackMonster(id: number): void {
   currentTargetId = id;
   transport?.send({ t: MsgType.AttackIntent, targetId: id });
@@ -219,10 +220,14 @@ const input = new InputController(
         transport?.send({ t: MsgType.EnterPortal, npcId: id });
         return;
       }
-      // Clicking another player invites them to a party.
+      // Clicking another player: attack them in a PvP map, else invite to party.
       if (gameState.isRemotePlayer(id)) {
-        transport?.send({ t: MsgType.PartyInvite, targetId: id });
-        chat.system("Party invite sent.");
+        if (pvpMap) {
+          attackMonster(id);
+        } else {
+          transport?.send({ t: MsgType.PartyInvite, targetId: id });
+          chat.system("Party invite sent.");
+        }
         return;
       }
       attackMonster(id);
@@ -299,10 +304,11 @@ function handleMessage(msg: ServerMessage): void {
       break;
     case MsgType.MapChange:
       currentTargetId = null;
+      pvpMap = msg.pvp;
       gameState.clearExceptSelf();
       gameState.self?.teleport(msg.x, msg.z);
       scene.setTheme(msg.theme);
-      chat.system(`Entered ${msg.name}.`);
+      chat.system(msg.pvp ? `Entered ${msg.name} — PvP enabled!` : `Entered ${msg.name}.`);
       break;
     case MsgType.DamageEvent:
       onDamage(msg);

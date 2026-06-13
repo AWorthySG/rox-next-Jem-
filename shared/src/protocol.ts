@@ -128,6 +128,7 @@ export interface MapChangeMsg {
   mapId: string;
   name: string;
   theme: MapTheme;
+  pvp: boolean;
   x: number;
   z: number;
 }

@@ -201,6 +201,12 @@ export class CombatSystem {
 
   private updatePlayerAttack(p: Player): void {
     if (p.attackTargetId == null) return;
+    // PvP: the target may be another player on a PvP map.
+    const pvpTarget = this.world.players.get(p.attackTargetId);
+    if (pvpTarget && this.world.isPvp(p.mapId) && pvpTarget.mapId === p.mapId && pvpTarget.id !== p.id) {
+      this.updatePvpAttack(p, pvpTarget);
+      return;
+    }
     const target = this.world.monsters.get(p.attackTargetId);
     if (!target || target.isDead || target.mapId !== p.mapId) {
       p.attackTargetId = null;
@@ -239,6 +245,44 @@ export class CombatSystem {
       target.aiState = MonsterAIState.Aggro;
     }
     if (target.hp <= 0) this.killMonster(target, p);
+  }
+
+  // Player-vs-player auto-attack in a PvP map.
+  private updatePvpAttack(p: Player, target: Player): void {
+    const d = dist2d(p.x, p.z, target.x, target.z);
+    if (d > PLAYER_ATTACK_RANGE) {
+      p.moveTarget = { x: target.x, z: target.z };
+      return;
+    }
+    p.moveTarget = null;
+    p.facing = Math.atan2(target.x - p.x, target.z - p.z);
+    if (p.attackCooldown > 0) return;
+    p.attackCooldown = PLAYER_ATTACK_COOLDOWN_MS;
+
+    const kind = p.isMagic ? DamageKind.Magic : DamageKind.Physical;
+    const buffMul = p.buffMul(kind === DamageKind.Magic ? "matk" : "atk", Date.now());
+    const result = resolveAttack(p.derived, target.derived, kind, Math.random, buffMul);
+    this.world.broadcastToMap(p.mapId, {
+      t: MsgType.DamageEvent,
+      sourceId: p.id,
+      targetId: target.id,
+      amount: result.amount,
+      crit: result.crit,
+      miss: result.miss,
+      kind: result.kind,
+    });
+    if (result.miss) return;
+    target.hp -= result.amount;
+    if (target.hp <= 0) {
+      this.world.broadcastToMap(p.mapId, {
+        t: MsgType.ChatBroadcast,
+        fromId: p.id,
+        name: "Arena",
+        text: `${p.name} defeated ${target.name}!`,
+      });
+      this.respawnPlayer(target);
+      p.attackTargetId = null;
+    }
   }
 
   // ---- shared outcomes ----

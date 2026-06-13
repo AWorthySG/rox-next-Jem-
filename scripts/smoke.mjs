@@ -19,14 +19,18 @@ function check(cond, label) {
 
 function client(name, job) {
   const ws = new WebSocket(`ws://127.0.0.1:${PORT}`);
-  const st = { name, self: null, monsters: new Map(), seenPlayers: new Set(), counts: {}, lastSelf: null, lastChat: null, ws };
+  const st = { name, self: null, monsters: new Map(), seenPlayers: new Set(), counts: {}, lastSelf: null, lastChat: null, portals: {}, dmg: [], ws };
   ws.on("open", () => ws.send(JSON.stringify({ t: "join", name, job })));
   ws.on("message", (raw) => {
     const m = JSON.parse(raw.toString());
     st.counts[m.t] = (st.counts[m.t] || 0) + 1;
     if (m.t === "joinAck") { st.self = m.selfId; st.lastSelf = m.self; }
     if (m.t === "spawn" && m.entity.kind === "monster") st.monsters.set(m.entity.id, m.entity);
-    if (m.t === "spawn" && m.entity.npcRole === "portal") st.portal = { id: m.entity.id, x: m.entity.x, z: m.entity.z };
+    if (m.t === "spawn" && m.entity.npcRole === "portal") {
+      st.portal = { id: m.entity.id, x: m.entity.x, z: m.entity.z };
+      st.portals[m.entity.name] = { id: m.entity.id, x: m.entity.x, z: m.entity.z };
+    }
+    if (m.t === "damage") { st.dmg.push({ sourceId: m.sourceId, targetId: m.targetId }); if (st.dmg.length > 200) st.dmg.shift(); }
     if (m.t === "mapChange") st.map = m.mapId;
     if (m.t === "spawn" && m.entity.kind === "player") st.seenPlayers.add(m.entity.id);
     if (m.t === "despawn") st.monsters.delete(m.id);
@@ -124,15 +128,38 @@ async function main() {
   const t = client("Traveler", "novice");
   await wait(1500);
   check(t.map === "field", "new player starts on the field map");
-  check(t.portal != null, "field has a cave portal NPC");
-  if (t.portal) {
-    t.ws.send(JSON.stringify({ t: "move", x: t.portal.x, z: t.portal.z }));
+  const cavePortal = t.portals["Cave Portal"];
+  check(cavePortal != null, "field has a cave portal NPC");
+  if (cavePortal) {
+    t.ws.send(JSON.stringify({ t: "move", x: cavePortal.x, z: cavePortal.z }));
     await wait(2600); // walk to the portal
-    t.ws.send(JSON.stringify({ t: "enterPortal", npcId: t.portal.id }));
+    t.ws.send(JSON.stringify({ t: "enterPortal", npcId: cavePortal.id }));
     await wait(700);
   }
   check(t.map === "cave", "entering the portal moves the player to the cave map");
 
+  // PvP: two duelists travel to the arena; one attacks the other.
+  const d1 = client("Duelist1", "swordsman");
+  const d2 = client("Duelist2", "swordsman");
+  await wait(1500);
+  const arenaPortal = d1.portals["Arena Portal"];
+  check(arenaPortal != null, "field has an arena portal");
+  if (arenaPortal) {
+    for (const d of [d1, d2]) d.ws.send(JSON.stringify({ t: "move", x: arenaPortal.x, z: arenaPortal.z }));
+    await wait(2700);
+    for (const d of [d1, d2]) d.ws.send(JSON.stringify({ t: "enterPortal", npcId: arenaPortal.id }));
+    await wait(800);
+  }
+  check(d1.map === "arena" && d2.map === "arena", "both duelists reach the PvP arena");
+  for (let i = 0; i < 10; i++) {
+    d1.ws.send(JSON.stringify({ t: "attack", targetId: d2.self }));
+    await wait(200);
+    if (d1.dmg.some((x) => x.sourceId === d1.self && x.targetId === d2.self)) break;
+  }
+  check(d1.dmg.some((x) => x.sourceId === d1.self && x.targetId === d2.self), "PvP: a player can damage another in the arena");
+
+  d1.ws.close();
+  d2.ws.close();
   t.ws.close();
   a.ws.close();
   b.ws.close();

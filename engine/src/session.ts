@@ -33,6 +33,9 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       const p = playerOf(world, link);
       if (p && world.monsters.has(msg.targetId)) {
         p.attackTargetId = msg.targetId;
+      } else if (p && world.isPvp(p.mapId)) {
+        const other = world.players.get(msg.targetId);
+        if (other && other.id !== p.id && other.mapId === p.mapId) p.attackTargetId = msg.targetId;
       }
       break;
     }
