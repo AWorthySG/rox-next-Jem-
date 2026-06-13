@@ -28,7 +28,9 @@ export class Hud {
     const expMax = self.expToNext || 1;
     const expLabel = self.expToNext ? `EXP ${Math.round((self.exp / expMax) * 100)}%` : "MAX";
     this.setBar("exp", self.exp, expMax, expLabel);
-    this.el("hud-zeny").textContent = self.zeny.toLocaleString();
+    const zeny = self.zeny.toLocaleString();
+    this.el("hud-zeny").textContent = zeny;
+    this.el("top-zeny").textContent = zeny;
     this.renderBuffs(self.buffs);
     this.renderStats(self);
   }
