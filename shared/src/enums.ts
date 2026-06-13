@@ -17,6 +17,7 @@ export enum MsgType {
   AcceptQuest = "acceptQuest",
   ClaimQuest = "claimQuest",
   AllocateStat = "allocateStat",
+  LevelSkill = "levelSkill",
   RefineItem = "refineItem",
   Chat = "chat",
   Ping = "ping",

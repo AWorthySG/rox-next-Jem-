@@ -37,8 +37,8 @@ copyrighted assets.
 - **Quests**: a town Guide offers a kill-quest board (Poring Purge → Slay the King). Accept,
   track progress as you hunt, and claim EXP/Zeny/item rewards; quest credit shares with party.
 - **Character building**: spend stat points earned on level-up into STR/AGI/VIT/INT/DEX/LUK
-  from the HUD; visit the Blacksmith to refine equipped gear (+1…+10) with Zeny for flat
-  ATK/MATK/DEF/HP bonuses.
+  from the HUD; level up individual skills (window `K`) with skill points to scale their power;
+  visit the Blacksmith to refine equipped gear (+1…+10) with Zeny for flat ATK/MATK/DEF/HP.
 - **Auto-battle**: the signature ROX convenience — toggle Auto (button or `T`) and your
   character automatically seeks the nearest monster, attacks, and casts ready skills.
 - **Minimap**: a top-down radar showing you, other players, NPCs, monsters and the boss.

@@ -148,6 +148,17 @@ export function getSkill(id: string): SkillDef | undefined {
   return SKILLS[id];
 }
 
+// Skills can be leveled 1..SKILL_MAX_LEVEL; power and SP cost scale with level.
+export const SKILL_MAX_LEVEL = 5;
+
+export function skillPower(def: SkillDef, level: number): number {
+  return def.power * (1 + 0.25 * (Math.max(1, level) - 1));
+}
+
+export function skillSpCost(def: SkillDef, level: number): number {
+  return Math.round(def.spCost * (1 + 0.1 * (Math.max(1, level) - 1)));
+}
+
 // A skill is usable by a job if it appears in that job's kit (covers inherited
 // 1st-job skills on 2nd jobs).
 export function jobHasSkill(job: JobId, skillId: string): boolean {

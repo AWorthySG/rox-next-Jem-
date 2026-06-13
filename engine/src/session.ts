@@ -113,6 +113,11 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       if (p) p.allocateStat(msg.stat);
       break;
     }
+    case MsgType.LevelSkill: {
+      const p = playerOf(world, link);
+      if (p) p.levelSkill(msg.skillId);
+      break;
+    }
     case MsgType.RefineItem: {
       const p = playerOf(world, link);
       if (p && isEquipSlot(msg.slot)) p.refineEquipped(msg.slot);

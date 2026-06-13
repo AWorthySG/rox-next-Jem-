@@ -60,6 +60,8 @@ export interface SelfState {
   zeny: number;
   stats: Stats;
   statPoints: number;
+  skillPoints: number;
+  skillLevels: Array<{ id: string; level: number }>;
   inventory: InventoryEntry[];
   equipped: EquipEntry[];
   refine: Array<{ id: string; level: number }>;

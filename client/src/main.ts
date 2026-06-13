@@ -16,6 +16,7 @@ import { InventoryPanel } from "./ui/InventoryPanel.js";
 import { ShopPanel } from "./ui/ShopPanel.js";
 import { QuestPanel } from "./ui/QuestPanel.js";
 import { RefinePanel } from "./ui/RefinePanel.js";
+import { SkillsPanel } from "./ui/SkillsPanel.js";
 import { JobAdvance } from "./ui/JobAdvance.js";
 import { PartyHud } from "./ui/PartyHud.js";
 import { AutoBattle } from "./ui/AutoBattle.js";
@@ -118,6 +119,10 @@ const quests = new QuestPanel({
 
 const refine = new RefinePanel({
   onRefine: (slot) => transport?.send({ t: MsgType.RefineItem, slot }),
+});
+
+const skills = new SkillsPanel({
+  onLevel: (skillId) => transport?.send({ t: MsgType.LevelSkill, skillId }),
 });
 
 let currentJob: JobId | null = null;
@@ -231,6 +236,7 @@ function handleMessage(msg: ServerMessage): void {
       shop.sync(msg.self);
       quests.sync(msg.self);
       refine.sync(msg.self);
+      skills.sync(msg.self);
       jobAdvance.update(msg.self);
       break;
     case MsgType.Loot: {

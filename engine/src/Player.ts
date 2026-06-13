@@ -7,6 +7,7 @@ import {
   getItem,
   getQuest,
   isStatKey,
+  jobHasSkill,
   JOB_BASE_STATS,
   JOB_GROWTH,
   JobId,
@@ -15,6 +16,8 @@ import {
   MAX_REFINE,
   refineBonus,
   refineCost,
+  SKILL_MAX_LEVEL,
+  SKILLS_BY_JOB,
   STAT_POINTS_PER_LEVEL,
   xpToNext,
   type DerivedStats,
@@ -44,6 +47,8 @@ export class Player {
   sp: number;
 
   statPoints = 0;
+  skillPoints = 0;
+  skillLevels: Record<string, number> = {}; // skillId -> level (>=1 when learned)
   inventory: Record<string, number> = {}; // itemId -> qty
   equipped: Partial<Record<EquipSlot, string>> = {}; // slot -> itemId
   refineByItem: Record<string, number> = {}; // itemId -> refine level
@@ -71,6 +76,27 @@ export class Player {
     this.derived = deriveStats(this.stats, this.level, this.job);
     this.hp = this.derived.maxHp;
     this.sp = this.derived.maxSp;
+    this.learnJobSkills();
+  }
+
+  // Ensure every skill in the current job's kit is known at least at level 1.
+  learnJobSkills(): void {
+    for (const def of SKILLS_BY_JOB[this.job] ?? []) {
+      if (!(def.id in this.skillLevels)) this.skillLevels[def.id] = 1;
+    }
+  }
+
+  skillLevel(skillId: string): number {
+    return this.skillLevels[skillId] ?? 1;
+  }
+
+  levelSkill(skillId: string): boolean {
+    if (!jobHasSkill(this.job, skillId) || this.skillPoints <= 0) return false;
+    const lvl = this.skillLevels[skillId] ?? 1;
+    if (lvl >= SKILL_MAX_LEVEL) return false;
+    this.skillLevels[skillId] = lvl + 1;
+    this.skillPoints -= 1;
+    return true;
   }
 
   get isMagic(): boolean {
@@ -251,6 +277,7 @@ export class Player {
   advanceJob(target: JobId): boolean {
     if (!canAdvanceTo(this.job, target, this.level)) return false;
     this.job = target;
+    this.learnJobSkills();
     // A modest bonus on advancement, then full restore.
     this.stats = addStats(this.stats, JOB_GROWTH[target]);
     this.recompute();
@@ -268,6 +295,7 @@ export class Player {
       this.level += 1;
       this.stats = addStats(this.stats, JOB_GROWTH[this.job]);
       this.statPoints += STAT_POINTS_PER_LEVEL;
+      this.skillPoints += 1;
       this.recompute();
       // Full heal on level-up (classic RO).
       this.hp = this.derived.maxHp;
@@ -323,6 +351,8 @@ export class Player {
       zeny: this.zeny,
       stats: { ...this.stats },
       statPoints: this.statPoints,
+      skillPoints: this.skillPoints,
+      skillLevels: Object.entries(this.skillLevels).map(([id, level]) => ({ id, level })),
       inventory: Object.entries(this.inventory).map(([id, qty]) => ({ id, qty })),
       equipped: Object.entries(this.equipped)
         .filter(([, id]) => !!id)

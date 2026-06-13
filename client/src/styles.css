@@ -854,6 +854,61 @@ body {
   cursor: pointer;
 }
 
+/* ---- skills panel ---- */
+.skills {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 400px;
+  max-width: 92vw;
+  max-height: 78vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 2px solid var(--gold);
+  border-radius: 12px;
+  pointer-events: auto;
+  overflow: hidden;
+  z-index: 30;
+}
+.skills-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  overflow-y: auto;
+}
+.skill-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+}
+.sk-main {
+  flex: 1;
+}
+.sk-name {
+  font-size: 13px;
+  font-weight: 700;
+}
+.sk-lv {
+  color: var(--gold);
+  font-size: 11px;
+}
+.sk-desc {
+  font-size: 11px;
+  opacity: 0.7;
+  margin: 2px 0;
+}
+.sk-meta {
+  font-size: 11px;
+  color: #9be8c0;
+}
+
 /* ---- refine panel ---- */
 .refine {
   position: absolute;

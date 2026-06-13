@@ -125,6 +125,15 @@ async function main(): Promise<void> {
   check(smith.derived.atk > baseAtk2, "refine: ATK increased after refine");
   check(smith.zeny < 10000, "refine: Zeny spent on refine");
 
+  // ---- deterministic skill levels ----
+  const mage = new Player(993, 1, "Wiz", JobId.Mage, 0, 0);
+  check(mage.skillLevel("fire_bolt") === 1, "skills: job skills start at level 1");
+  check(!mage.levelSkill("fire_bolt"), "skills: cannot level without points");
+  mage.skillPoints = 2;
+  check(mage.levelSkill("fire_bolt"), "skills: spend a point to level a skill");
+  check(mage.skillLevel("fire_bolt") === 2 && mage.skillPoints === 1, "skills: level raised, point spent");
+  check(!mage.levelSkill("pierce"), "skills: cannot level a skill outside the job kit");
+
   local.stop();
   if (failures.length) {
     console.error(`\nSOLO TEST FAILED (${failures.length}): ${failures.join("; ")}`);

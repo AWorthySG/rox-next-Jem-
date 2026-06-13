@@ -12,6 +12,8 @@ import {
   RESPAWN_MS,
   resolveAttack,
   rollDrops,
+  skillPower,
+  skillSpCost,
   SP_REGEN_PER_SEC,
   ZENY_MAX,
   ZENY_MIN,
@@ -55,14 +57,16 @@ export class CombatSystem {
       this.clearSkill(p);
       return false;
     }
-    if ((p.skillCooldowns[def.id] ?? 0) > 0 || p.sp < def.spCost) {
+    const lvl = p.skillLevel(def.id);
+    const cost = skillSpCost(def, lvl);
+    if ((p.skillCooldowns[def.id] ?? 0) > 0 || p.sp < cost) {
       this.clearSkill(p);
       return false;
     }
 
     // Self-cast heal.
     if (def.heal) {
-      this.castHeal(p, def);
+      this.castHeal(p, def, lvl, cost);
       this.clearSkill(p);
       return true;
     }
@@ -82,24 +86,24 @@ export class CombatSystem {
     // Cast.
     p.moveTarget = null;
     p.facing = Math.atan2(target.x - p.x, target.z - p.z);
-    p.sp -= def.spCost;
+    p.sp -= cost;
     p.skillCooldowns[def.id] = def.cooldownMs;
 
-    this.applySkillHit(p, target, def);
+    this.applySkillHit(p, target, def, lvl);
     if (def.aoeRadius) {
       for (const m of this.world.monsters.values()) {
         if (m.id === target.id || m.isDead) continue;
-        if (dist2d(m.x, m.z, target.x, target.z) <= def.aoeRadius) this.applySkillHit(p, m, def);
+        if (dist2d(m.x, m.z, target.x, target.z) <= def.aoeRadius) this.applySkillHit(p, m, def, lvl);
       }
     }
     this.clearSkill(p);
     return true;
   }
 
-  private castHeal(p: Player, def: SkillDef): void {
-    p.sp -= def.spCost;
+  private castHeal(p: Player, def: SkillDef, lvl: number, cost: number): void {
+    p.sp -= cost;
     p.skillCooldowns[def.id] = def.cooldownMs;
-    const amount = Math.round(p.derived.maxHp * 0.3 + p.derived.matk);
+    const amount = Math.round((p.derived.maxHp * 0.3 + p.derived.matk) * (1 + 0.2 * (lvl - 1)));
     p.hp = Math.min(p.derived.maxHp, p.hp + amount);
     this.world.broadcast({
       t: MsgType.DamageEvent,
@@ -114,8 +118,8 @@ export class CombatSystem {
     });
   }
 
-  private applySkillHit(p: Player, target: Monster, def: SkillDef): void {
-    const result = resolveAttack(p.derived, target.derived, def.kind, Math.random, def.power);
+  private applySkillHit(p: Player, target: Monster, def: SkillDef, lvl: number): void {
+    const result = resolveAttack(p.derived, target.derived, def.kind, Math.random, skillPower(def, lvl));
     this.world.broadcast({
       t: MsgType.DamageEvent,
       sourceId: p.id,

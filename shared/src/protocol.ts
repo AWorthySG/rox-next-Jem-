@@ -88,6 +88,11 @@ export interface AllocateStatMsg {
   stat: string;
 }
 
+export interface LevelSkillMsg {
+  t: MsgType.LevelSkill;
+  skillId: string;
+}
+
 export interface RefineItemMsg {
   t: MsgType.RefineItem;
   slot: string;
@@ -120,6 +125,7 @@ export type ClientMessage =
   | AcceptQuestMsg
   | ClaimQuestMsg
   | AllocateStatMsg
+  | LevelSkillMsg
   | RefineItemMsg
   | ChatMsg
   | PingMsg;
