@@ -95,6 +95,37 @@ export const MAPS: Record<string, GameMap> = {
     ],
     npcs: [
       { name: "Aldebaran Exit", role: "portal", x: 0, z: 26, dest: { toMap: "glast_heim", toX: 0, toZ: -44 } },
+      { name: "Comodo Portal", role: "portal", x: 0, z: -50, dest: { toMap: "comodo", toX: 0, toZ: 20 } },
+    ],
+  },
+  comodo: {
+    id: "comodo",
+    name: "Comodo Beach",
+    theme: { ground: 0xe8d49a, fog: 0x8fc6e0, sky: 0xbfe4f0 },
+    spawn: { x: 0, z: 20 },
+    zones: [
+      { id: "cm-sandman", templateId: "sandman", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "cm-anolian", templateId: "anolian", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "cm-sandman-2", templateId: "sandman", cx: -2, cz: -28, radius: 12, count: 7 },
+    ],
+    npcs: [
+      { name: "Comodo Exit", role: "portal", x: 0, z: 26, dest: { toMap: "aldebaran", toX: 0, toZ: -44 } },
+      { name: "Umbala Portal", role: "portal", x: 0, z: -42, dest: { toMap: "umbala", toX: 0, toZ: 20 } },
+    ],
+  },
+  umbala: {
+    id: "umbala",
+    name: "Umbala Jungle",
+    theme: { ground: 0x2f5a2c, fog: 0x16301a, sky: 0x244a2e },
+    spawn: { x: 0, z: 20 },
+    zones: [
+      { id: "um-dryad", templateId: "dryad", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "um-stem", templateId: "stem_worm", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "um-dryad-2", templateId: "dryad", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "um-mammoth", templateId: "hardrock_mammoth", cx: 0, cz: -46, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Umbala Exit", role: "portal", x: 0, z: 26, dest: { toMap: "comodo", toX: 0, toZ: -38 } },
       { name: "Tower Portal", role: "portal", x: 0, z: -50, dest: { toMap: "tower", toX: 0, toZ: 20 } },
     ],
   },
@@ -109,7 +140,7 @@ export const MAPS: Record<string, GameMap> = {
       { id: "tower-wraith-2", templateId: "wraith", cx: -2, cz: -28, radius: 12, count: 7 },
       { id: "tower-darklord", templateId: "dark_lord", cx: 0, cz: -46, radius: 4, count: 1 },
     ],
-    npcs: [{ name: "Tower Exit", role: "portal", x: 0, z: 26, dest: { toMap: "aldebaran", toX: 0, toZ: -44 } }],
+    npcs: [{ name: "Tower Exit", role: "portal", x: 0, z: 26, dest: { toMap: "umbala", toX: 0, toZ: -44 } }],
   },
   arena: {
     id: "arena",

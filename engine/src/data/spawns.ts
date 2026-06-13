@@ -126,6 +126,50 @@ export const MONSTER_TEMPLATES: Record<string, MonsterTemplate> = {
     respawnMs: 150000,
     boss: true,
   },
+  // ---- Comodo (beach) ----
+  sandman: {
+    id: "sandman",
+    name: "Sandman",
+    level: 58,
+    stats: makeStats({ str: 72, agi: 30, vit: 60, int: 20, dex: 52, luk: 24 }),
+    baseHp: 2400,
+    baseExp: 4000,
+  },
+  anolian: {
+    id: "anolian",
+    name: "Anolian",
+    level: 66,
+    stats: makeStats({ str: 84, agi: 50, vit: 58, int: 28, dex: 64, luk: 30 }),
+    baseHp: 3200,
+    baseExp: 5600,
+  },
+  // ---- Umbala (jungle) ----
+  dryad: {
+    id: "dryad",
+    name: "Dryad",
+    level: 70,
+    stats: makeStats({ str: 90, agi: 44, vit: 72, int: 40, dex: 66, luk: 30 }),
+    baseHp: 4200,
+    baseExp: 7000,
+  },
+  stem_worm: {
+    id: "stem_worm",
+    name: "Stem Worm",
+    level: 78,
+    stats: makeStats({ str: 100, agi: 70, vit: 66, int: 36, dex: 80, luk: 34 }),
+    baseHp: 5200,
+    baseExp: 9000,
+  },
+  hardrock_mammoth: {
+    id: "hardrock_mammoth",
+    name: "Hardrock Mammoth",
+    level: 85,
+    stats: makeStats({ str: 120, agi: 50, vit: 100, int: 40, dex: 80, luk: 45 }),
+    baseHp: 30000,
+    baseExp: 42000,
+    respawnMs: 160000,
+    boss: true,
+  },
   // ---- Endless Tower (end-game grind to 130) ----
   wraith: {
     id: "wraith",

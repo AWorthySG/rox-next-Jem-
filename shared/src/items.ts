@@ -186,6 +186,27 @@ export const ITEMS: Record<string, ItemDef> = {
     sellPrice: 1800,
   },
 
+  // ---- Comodo / Umbala tier ----
+  tidal_shoes: {
+    id: "tidal_shoes",
+    name: "Tidal Shoes",
+    type: ItemType.Accessory,
+    slot: EquipSlot.Accessory,
+    desc: "Light as sea foam. AGI +6, VIT +3.",
+    bonusStats: { agi: 6, vit: 3 },
+    sellPrice: 2200,
+  },
+  spirit_staff: {
+    id: "spirit_staff",
+    name: "Spirit Staff",
+    type: ItemType.Weapon,
+    slot: EquipSlot.Weapon,
+    desc: "Carved by shamans. MATK +44, INT +4.",
+    matk: 44,
+    bonusStats: { int: 4 },
+    sellPrice: 3200,
+  },
+
   // ---- Endless Tower tier ----
   valkyrie_armor: {
     id: "valkyrie_armor",
@@ -312,6 +333,29 @@ export const DROP_TABLES: Record<string, DropEntry[]> = {
     { itemId: "clock_gear", chance: 0.7 },
     { itemId: "claymore", chance: 0.4 },
     { itemId: "saint_robe", chance: 0.4 },
+  ],
+  sandman: [
+    { itemId: "red_potion", chance: 0.4 },
+    { itemId: "tidal_shoes", chance: 0.04 },
+  ],
+  anolian: [
+    { itemId: "red_potion", chance: 0.4 },
+    { itemId: "tidal_shoes", chance: 0.05 },
+    { itemId: "clock_gear", chance: 0.05 },
+  ],
+  dryad: [
+    { itemId: "red_potion", chance: 0.45 },
+    { itemId: "spirit_staff", chance: 0.04 },
+  ],
+  stem_worm: [
+    { itemId: "red_potion", chance: 0.45 },
+    { itemId: "spirit_staff", chance: 0.05 },
+  ],
+  hardrock_mammoth: [
+    { itemId: "red_potion", chance: 1, qty: 8 },
+    { itemId: "spirit_staff", chance: 0.5 },
+    { itemId: "tidal_shoes", chance: 0.6 },
+    { itemId: "valkyrie_armor", chance: 0.35 },
   ],
   wraith: [
     { itemId: "red_potion", chance: 0.4 },

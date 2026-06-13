@@ -55,11 +55,11 @@ copyrighted assets.
 - **Auto-battle**: the signature ROX convenience — toggle Auto (button or `T`) and your
   character automatically seeks the nearest monster, attacks, and casts ready skills.
 - **Minimap**: a top-down radar showing you, other players, NPCs, monsters and the boss.
-- **Multiple maps**: travel between **Prontera Field**, **Payon Forest** (Spores, Wolves),
-  **Poring Cave**, **Glast Heim** (Zombies, Skeletons & Baphomet), **Aldebaran Clock Tower**
-  (Punks, Clocks & the Clock Tower Manager), the end-game **Endless Tower** (Wraiths, Gargoyles
-  & the Dark Lord), and the **PvP Arena** via portals; each map has its own theme, monsters and
-  boss, and is networked independently.
+- **Multiple maps**: a portal-linked progression — **Prontera Field**, **Payon Forest**,
+  **Poring Cave**, **Glast Heim** (Baphomet), **Aldebaran Clock Tower** (Clock Tower Manager),
+  **Comodo Beach**, **Umbala Jungle** (Hardrock Mammoth), the end-game **Endless Tower**
+  (Dark Lord), plus the **PvP Arena** — each themed, with its own monsters/boss and networked
+  independently.
 - **PvP**: in the Arena, click another player to fight them; defeating one announces it and
   respawns the loser.
 - **HUD & chat**: HP/SP/EXP bars, level, Zeny, stat panel, a hotkey **skill bar** with
