@@ -24,6 +24,7 @@ import type { World } from "./World.js";
 import type { Player } from "./Player.js";
 import type { Monster } from "./Monster.js";
 import { dist2d } from "./MovementSystem.js";
+import { MAPS } from "./data/maps.js";
 
 // Resolves player auto-attacks and skills, applies monster-dealt damage, and
 // handles regen, kills, EXP/Zeny rewards and respawns.
@@ -280,7 +281,7 @@ export class CombatSystem {
         name: "Arena",
         text: `${p.name} defeated ${target.name}!`,
       });
-      this.respawnPlayer(target);
+      this.respawnPlayer(target, p.name);
       p.attackTargetId = null;
     }
   }
@@ -372,14 +373,17 @@ export class CombatSystem {
     });
     if (result.miss) return;
     player.hp -= result.amount;
-    if (player.hp <= 0) this.respawnPlayer(player);
+    if (player.hp <= 0) this.respawnPlayer(player, monster.template.name);
   }
 
-  private respawnPlayer(player: Player): void {
+  private respawnPlayer(player: Player, byName: string): void {
+    // Notify the defeated player, then revive them at their current map's spawn.
+    this.world.connections.get(player.connId)?.send({ t: MsgType.Defeated, byName });
+    const spawn = MAPS[player.mapId]?.spawn ?? { x: 0, z: 0 };
     player.hp = player.derived.maxHp;
     player.sp = player.derived.maxSp;
-    player.x = 0;
-    player.z = 0;
+    player.x = spawn.x;
+    player.z = spawn.z;
     player.moveTarget = null;
     player.attackTargetId = null;
     this.clearSkill(player);
