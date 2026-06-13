@@ -49,6 +49,8 @@ copyrighted assets.
   Magnum Break **slows**, Thunder Storm/Bowling Bash **stun** — resolved server-side.
 - **Self-buffs**: Battle Focus (+30% ATK) and Mystic Focus (+30% MATK) temporarily empower
   the caster, shown as timed chips on the HUD.
+- **Achievements**: milestone goals (kills, levels, boss slays) tracked server-side, unlocked
+  with Zeny rewards and an unlock toast (window `V`).
 - **Pets**: use a pet egg (dropped by Porings, Lunatics, Baphomet, or bought) to summon a
   companion that trails you and grants a passive stat bonus.
 - **Mounts**: buy a Peco Peco Whistle to ride a mount for faster movement (toggle on/off).

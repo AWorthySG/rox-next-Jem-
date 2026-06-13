@@ -888,6 +888,66 @@ body {
   font-size: 10px;
 }
 
+/* ---- achievements panel ---- */
+.achievements {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 380px;
+  max-width: 92vw;
+  max-height: 78vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 2px solid var(--gold);
+  border-radius: 12px;
+  pointer-events: auto;
+  overflow: hidden;
+  z-index: 31;
+}
+.ach-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px;
+  overflow-y: auto;
+}
+.ach-count {
+  font-size: 12px;
+  color: var(--gold);
+  margin-bottom: 4px;
+}
+.ach-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 9px 11px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  opacity: 0.6;
+}
+.ach-row.done {
+  opacity: 1;
+  border-color: var(--gold);
+}
+.ach-main {
+  flex: 1;
+}
+.ach-name {
+  font-size: 13px;
+  font-weight: 700;
+}
+.ach-desc {
+  font-size: 11px;
+  opacity: 0.7;
+}
+.ach-reward {
+  font-size: 12px;
+  color: var(--gold);
+}
+
 /* ---- warp panel ---- */
 .warp {
   position: absolute;

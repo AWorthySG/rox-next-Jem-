@@ -327,6 +327,7 @@ export class CombatSystem {
     const share = Math.max(1, Math.floor(total / recipients.length));
     for (const r of recipients) {
       r.creditKill(target.template.id);
+      r.recordKill(target.template.id, !!target.template.boss);
       if (r.gainExp(share)) {
         this.world.broadcast({
           t: MsgType.LevelUp,
@@ -336,6 +337,18 @@ export class CombatSystem {
           maxSp: r.derived.maxSp,
           stats: { ...r.stats },
           expToNext: r.toSelfState().expToNext,
+        });
+      }
+    }
+
+    // Unlock any achievements newly satisfied by this kill / level-up.
+    for (const r of recipients) {
+      for (const a of r.evaluateAchievements()) {
+        this.world.connections.get(r.connId)?.send({
+          t: MsgType.ChatBroadcast,
+          fromId: 0,
+          name: "Achievement",
+          text: `${a.name} unlocked! +${a.rewardZeny} Zeny`,
         });
       }
     }

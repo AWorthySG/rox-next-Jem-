@@ -67,6 +67,7 @@ export interface SelfState {
   equipped: EquipEntry[];
   refine: Array<{ id: string; level: number }>;
   quests: QuestState;
+  achievements: string[];
   buffs: Array<{ type: string; remainingMs: number }>;
   pet: string | null;
   mounted: boolean;

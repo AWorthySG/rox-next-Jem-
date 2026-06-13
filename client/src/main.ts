@@ -22,6 +22,7 @@ import { JobAdvance } from "./ui/JobAdvance.js";
 import { PartyHud } from "./ui/PartyHud.js";
 import { GuildPanel } from "./ui/GuildPanel.js";
 import { WarpPanel } from "./ui/WarpPanel.js";
+import { AchievementsPanel } from "./ui/AchievementsPanel.js";
 import { AutoBattle } from "./ui/AutoBattle.js";
 import { MiniMap } from "./ui/MiniMap.js";
 import { getItem, JOB_NAME, type SelfState } from "@rox/shared";
@@ -154,6 +155,7 @@ const skills = new SkillsPanel({
 });
 
 const warp = new WarpPanel((npcId, mapId) => transport?.send({ t: MsgType.Warp, npcId, mapId }));
+const achievements = new AchievementsPanel();
 
 let currentJob: JobId | null = null;
 const jobAdvance = new JobAdvance((job) => transport?.send({ t: MsgType.JobAdvance, targetJob: job }));
@@ -298,6 +300,7 @@ function handleMessage(msg: ServerMessage): void {
       quests.sync(msg.self);
       refine.sync(msg.self);
       skills.sync(msg.self);
+      achievements.sync(msg.self);
       petCompanion.setPet(msg.self.pet);
       gameState.self?.setMounted(msg.self.mounted);
       jobAdvance.update(msg.self);
