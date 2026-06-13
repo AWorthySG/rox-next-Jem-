@@ -33,6 +33,7 @@ export interface ItemDef {
   // consumable effects
   healHp?: number;
   healSp?: number;
+  pet?: string; // summons this pet when used
   // economy
   price?: number; // buy cost at the shop (omitted = not sold)
   sellPrice?: number; // Zeny gained when sold
@@ -45,6 +46,11 @@ export const ITEMS: Record<string, ItemDef> = {
   apple: { id: "apple", name: "Apple", type: ItemType.Consumable, desc: "Restores 60 HP.", healHp: 60, price: 15, sellPrice: 4 },
   red_potion: { id: "red_potion", name: "Red Potion", type: ItemType.Consumable, desc: "Restores 150 HP.", healHp: 150, price: 50, sellPrice: 12 },
   blue_potion: { id: "blue_potion", name: "Blue Potion", type: ItemType.Consumable, desc: "Restores 80 SP.", healSp: 80, price: 60, sellPrice: 15 },
+
+  // pet eggs (use to summon a companion)
+  poring_egg: { id: "poring_egg", name: "Poring Egg", type: ItemType.Consumable, desc: "Summons a Poring pet (LUK +3, Max HP +50).", pet: "poring_pet", price: 800, sellPrice: 100 },
+  lunatic_egg: { id: "lunatic_egg", name: "Lunatic Egg", type: ItemType.Consumable, desc: "Summons a Lunatic pet (AGI +3, DEX +2).", pet: "lunatic_pet", sellPrice: 150 },
+  baphomet_egg: { id: "baphomet_egg", name: "Baphomet Egg", type: ItemType.Consumable, desc: "Summons Baphomet Jr. (STR +4, INT +4, Max HP +80).", pet: "baphomet_pet", sellPrice: 1200 },
 
   // weapons
   novice_knife: {
@@ -195,6 +201,7 @@ export const DROP_TABLES: Record<string, DropEntry[]> = {
   poring: [
     { itemId: "apple", chance: 0.25 },
     { itemId: "cotton_shirt", chance: 0.05 },
+    { itemId: "poring_egg", chance: 0.02 },
   ],
   fabre: [
     { itemId: "apple", chance: 0.22 },
@@ -210,6 +217,7 @@ export const DROP_TABLES: Record<string, DropEntry[]> = {
     { itemId: "red_potion", chance: 0.18 },
     { itemId: "leather_armor", chance: 0.06 },
     { itemId: "ring_of_power", chance: 0.05 },
+    { itemId: "lunatic_egg", chance: 0.02 },
   ],
   poring_king: [
     { itemId: "red_potion", chance: 1, qty: 3 },
@@ -240,6 +248,7 @@ export const DROP_TABLES: Record<string, DropEntry[]> = {
     { itemId: "baphomet_horn", chance: 0.7 },
     { itemId: "claymore", chance: 0.5 },
     { itemId: "saint_robe", chance: 0.5 },
+    { itemId: "baphomet_egg", chance: 0.25 },
   ],
 };
 

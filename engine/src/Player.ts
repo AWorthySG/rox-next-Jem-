@@ -5,6 +5,7 @@ import {
   EntityKind,
   EquipSlot,
   getItem,
+  getPet,
   getQuest,
   isStatKey,
   jobHasSkill,
@@ -56,6 +57,7 @@ export class Player {
   partyId: number | null = null;
   guildId: number | null = null;
   guildName: string | null = null;
+  activePet: string | null = null;
   activeQuests: Record<string, number> = {}; // questId -> kill progress
   completedQuests: string[] = [];
 
@@ -145,6 +147,14 @@ export class Player {
       flatDef += rb.def;
       flatHp += rb.maxHp;
     }
+    // active pet bonus
+    const pet = this.activePet ? getPet(this.activePet) : undefined;
+    if (pet) {
+      if (pet.bonusStats) effective = addStats(effective, fullStats(pet.bonusStats));
+      flatAtk += pet.atk ?? 0;
+      flatMatk += pet.matk ?? 0;
+      flatHp += pet.maxHp ?? 0;
+    }
     const d = deriveStats(effective, this.level, this.job);
     this.derived = {
       ...d,
@@ -205,6 +215,11 @@ export class Player {
     if (!item || item.type !== ItemType.Consumable) return false;
     if ((this.inventory[itemId] ?? 0) <= 0) return false;
     this.removeItem(itemId, 1);
+    if (item.pet) {
+      this.activePet = item.pet;
+      this.recompute();
+      return true;
+    }
     if (item.healHp) this.hp = Math.min(this.derived.maxHp, this.hp + item.healHp);
     if (item.healSp) this.sp = Math.min(this.derived.maxSp, this.sp + item.healSp);
     return true;
@@ -348,6 +363,7 @@ export class Player {
     for (const q of s.quests.active) this.activeQuests[q.id] = q.progress;
     this.completedQuests = [...s.quests.completed];
     this.mapId = s.mapId ?? "field";
+    this.activePet = s.pet ?? null;
     this.buffs = [];
     this.learnJobSkills();
     this.recompute();
@@ -414,6 +430,7 @@ export class Player {
       buffs: this.buffs
         .filter((b) => b.expiresAt > Date.now())
         .map((b) => ({ type: b.stat, remainingMs: Math.round(b.expiresAt - Date.now()) })),
+      pet: this.activePet,
       mapId: this.mapId,
       x: round2(this.x),
       z: round2(this.z),

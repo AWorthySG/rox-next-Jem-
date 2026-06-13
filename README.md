@@ -48,6 +48,8 @@ copyrighted assets.
   Magnum Break **slows**, Thunder Storm/Bowling Bash **stun** — resolved server-side.
 - **Self-buffs**: Battle Focus (+30% ATK) and Mystic Focus (+30% MATK) temporarily empower
   the caster, shown as timed chips on the HUD.
+- **Pets**: use a pet egg (dropped by Porings, Lunatics, Baphomet, or bought) to summon a
+  companion that trails you and grants a passive stat bonus.
 - **Auto-battle**: the signature ROX convenience — toggle Auto (button or `T`) and your
   character automatically seeks the nearest monster, attacks, and casts ready skills.
 - **Minimap**: a top-down radar showing you, other players, NPCs, monsters and the boss.

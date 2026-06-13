@@ -186,6 +186,16 @@ async function main(): Promise<void> {
   check(Math.abs(buffed.buffMul("atk", now + 100) - 1.3) < 1e-9, "buff: ATK buff multiplies");
   check(buffed.buffMul("atk", now + 16000) === 1, "buff: expires after duration");
 
+  // ---- deterministic pets ----
+  const tamer = new Player(986, 1, "Tamer", JobId.Swordsman, 0, 0);
+  const baseLuk = tamer.stats.luk;
+  tamer.addItem("poring_egg", 1);
+  check(tamer.useItem("poring_egg"), "pet: using an egg summons a pet");
+  check(tamer.activePet === "poring_pet", "pet: active pet is set");
+  check(tamer.toSelfState().pet === "poring_pet", "pet: surfaced in self state");
+  // pet grants LUK +3 -> crit (derived from luk) should be at least as high as before
+  check(tamer.stats.luk === baseLuk, "pet: base stats unchanged (bonus is derived-only)");
+
   local.stop();
   if (failures.length) {
     console.error(`\nSOLO TEST FAILED (${failures.length}): ${failures.join("; ")}`);

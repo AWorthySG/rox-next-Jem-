@@ -68,6 +68,7 @@ export interface SelfState {
   refine: Array<{ id: string; level: number }>;
   quests: QuestState;
   buffs: Array<{ type: string; remainingMs: number }>;
+  pet: string | null;
   mapId: string;
   x: number;
   z: number;

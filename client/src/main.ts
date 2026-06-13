@@ -11,6 +11,7 @@ import type { NetHandlers, Transport } from "./net/Transport.js";
 import { Hud } from "./ui/Hud.js";
 import { ChatBox } from "./ui/ChatBox.js";
 import { DamageNumbers } from "./ui/DamageNumbers.js";
+import { PetCompanion } from "./entities/PetCompanion.js";
 import { SkillBar } from "./ui/SkillBar.js";
 import { InventoryPanel } from "./ui/InventoryPanel.js";
 import { ShopPanel } from "./ui/ShopPanel.js";
@@ -34,6 +35,7 @@ const gameState = new GameState(scene.scene, buildMonsterAppearances());
 const hud = new Hud((stat) => transport?.send({ t: MsgType.AllocateStat, stat }));
 const damageNumbers = new DamageNumbers(scene.scene);
 const miniMap = new MiniMap();
+const petCompanion = new PetCompanion(scene.scene);
 
 // Skill bar: casts on the current target (or nearest monster); heals target self.
 let currentTargetId: number | null = null;
@@ -296,6 +298,7 @@ function handleMessage(msg: ServerMessage): void {
       quests.sync(msg.self);
       refine.sync(msg.self);
       skills.sync(msg.self);
+      petCompanion.setPet(msg.self.pet);
       jobAdvance.update(msg.self);
       break;
     case MsgType.Loot: {
@@ -393,6 +396,7 @@ new Loop((dt) => {
   miniMap.update(gameState.blips());
   const self = gameState.self;
   if (self) followPos.copy(self.group.position);
+  petCompanion.update(self ? self.group.position : null, dt);
   cameraRig.follow(followPos, dt);
   scene.render(cameraRig.camera);
 }).start();
