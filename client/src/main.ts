@@ -23,6 +23,7 @@ import { PartyHud } from "./ui/PartyHud.js";
 import { GuildPanel } from "./ui/GuildPanel.js";
 import { WarpPanel } from "./ui/WarpPanel.js";
 import { AchievementsPanel } from "./ui/AchievementsPanel.js";
+import { SkillPopup } from "./ui/SkillPopup.js";
 import { AutoBattle } from "./ui/AutoBattle.js";
 import { MiniMap } from "./ui/MiniMap.js";
 import { getItem, JOB_NAME, type SelfState } from "@rox/shared";
@@ -39,6 +40,7 @@ const miniMap = new MiniMap();
 const petCompanion = new PetCompanion(scene.scene);
 
 // Skill bar: casts on the current target (or nearest monster); heals target self.
+const skillPopup = new SkillPopup();
 let currentTargetId: number | null = null;
 let pvpMap = false;
 function attackMonster(id: number): void {
@@ -51,6 +53,7 @@ const skillBar = new SkillBar((skillId) => {
   if (!def) return;
   const targetId = def.heal || def.buff ? selfId : (currentTargetId ?? gameState.nearestMonsterId());
   if (targetId == null) return;
+  skillPopup.show(def.name);
   transport?.send({ t: MsgType.SkillIntent, skillId, targetId });
 });
 

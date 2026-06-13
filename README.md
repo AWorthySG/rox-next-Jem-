@@ -57,6 +57,9 @@ copyrighted assets.
 - **Auto-battle**: the signature ROX convenience — toggle Auto (button or `T`) and your
   character automatically seeks the nearest monster, attacks, and casts ready skills.
 - **Minimap**: a top-down radar showing you, other players, NPCs, monsters and the boss.
+- **ROX-style mobile HUD**: warm amber UI, a circular character portrait with stacked HP/SP/EXP
+  bars, a radial skill cluster of round cooldown buttons (bottom-right), big skill-name cast
+  popups and punchy gold damage numbers.
 - **Multiple maps**: a portal-linked progression — **Prontera Field → Payon Forest → Poring
   Cave → Glast Heim → Aldebaran Clock Tower → Comodo Beach → Umbala Jungle → Juno → Einbroch →
   Rachel → Endless Tower**, plus the **PvP Arena**. Each map is themed, networked independently,
