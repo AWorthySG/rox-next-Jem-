@@ -14,6 +14,7 @@ import { DamageNumbers } from "./ui/DamageNumbers.js";
 import { SkillBar } from "./ui/SkillBar.js";
 import { InventoryPanel } from "./ui/InventoryPanel.js";
 import { ShopPanel } from "./ui/ShopPanel.js";
+import { QuestPanel } from "./ui/QuestPanel.js";
 import { JobAdvance } from "./ui/JobAdvance.js";
 import { PartyHud } from "./ui/PartyHud.js";
 import { getItem, JOB_NAME, type JobId } from "@rox/shared";
@@ -101,6 +102,11 @@ const shop = new ShopPanel({
   onSell: (itemId) => transport?.send({ t: MsgType.SellItem, itemId, qty: 1 }),
 });
 
+const quests = new QuestPanel({
+  onAccept: (questId) => transport?.send({ t: MsgType.AcceptQuest, questId }),
+  onClaim: (questId) => transport?.send({ t: MsgType.ClaimQuest, questId }),
+});
+
 let currentJob: JobId | null = null;
 const jobAdvance = new JobAdvance((job) => transport?.send({ t: MsgType.JobAdvance, targetJob: job }));
 
@@ -142,8 +148,13 @@ const input = new InputController(
     },
     onAttack: (id) => {
       // Clicking the shop NPC opens the shop instead of attacking.
-      if (gameState.npcRoleOf(id) === "shop") {
+      const role = gameState.npcRoleOf(id);
+      if (role === "shop") {
         shop.open();
+        return;
+      }
+      if (role === "guide") {
+        quests.open();
         return;
       }
       // Clicking another player invites them to a party.
@@ -201,6 +212,7 @@ function handleMessage(msg: ServerMessage): void {
       skillBar.setSp(msg.self.sp);
       inventory.sync(msg.self);
       shop.sync(msg.self);
+      quests.sync(msg.self);
       jobAdvance.update(msg.self);
       break;
     case MsgType.Loot: {

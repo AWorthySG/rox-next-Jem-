@@ -217,6 +217,7 @@ export class CombatSystem {
     }
     const share = Math.max(1, Math.floor(total / recipients.length));
     for (const r of recipients) {
+      r.creditKill(target.template.id);
       if (r.gainExp(share)) {
         this.world.broadcast({
           t: MsgType.LevelUp,

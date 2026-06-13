@@ -39,4 +39,5 @@ export interface NpcSpawn {
 // Town NPCs near the spawn point.
 export const NPC_SPAWNS: NpcSpawn[] = [
   { name: "Kafra Employee", role: "shop", x: 5, z: 4, facing: Math.PI },
+  { name: "Guide", role: "guide", x: -5, z: 4, facing: Math.PI },
 ];

@@ -90,6 +90,21 @@ async function main(): Promise<void> {
   check(buyer.sell("red_potion", 1), "shop: sell returns Zeny");
   check(buyer.zeny === 912, "shop: sell credited correct Zeny");
 
+  // ---- deterministic quest checks ----
+  const quester = new Player(996, 1, "Quester", JobId.Swordsman, 0, 0);
+  quester.level = 5;
+  check(quester.acceptQuest("poring_purge"), "quests: accept a quest");
+  check(!quester.acceptQuest("poring_purge"), "quests: cannot double-accept");
+  check(!quester.acceptQuest("slay_the_king"), "quests: blocked below required level");
+  check(quester.claimQuest("poring_purge") === null, "quests: cannot claim before complete");
+  for (let i = 0; i < 10; i++) quester.creditKill("poring");
+  const qZeny = quester.zeny;
+  check(quester.claimQuest("poring_purge") !== null, "quests: claim when objective met");
+  check(quester.zeny === qZeny + 80, "quests: reward Zeny credited");
+  check((quester.toSelfState().inventory.find((i) => i.id === "red_potion")?.qty ?? 0) >= 3, "quests: reward items granted");
+  check(quester.completedQuests.includes("poring_purge"), "quests: marked completed");
+  check(!quester.acceptQuest("poring_purge"), "quests: cannot re-accept completed");
+
   local.stop();
   if (failures.length) {
     console.error(`\nSOLO TEST FAILED (${failures.length}): ${failures.join("; ")}`);

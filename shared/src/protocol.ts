@@ -73,6 +73,16 @@ export interface PartyLeaveMsg {
   t: MsgType.PartyLeave;
 }
 
+export interface AcceptQuestMsg {
+  t: MsgType.AcceptQuest;
+  questId: string;
+}
+
+export interface ClaimQuestMsg {
+  t: MsgType.ClaimQuest;
+  questId: string;
+}
+
 export interface ChatMsg {
   t: MsgType.Chat;
   text: string;
@@ -97,6 +107,8 @@ export type ClientMessage =
   | PartyInviteMsg
   | PartyAcceptMsg
   | PartyLeaveMsg
+  | AcceptQuestMsg
+  | ClaimQuestMsg
   | ChatMsg
   | PingMsg;
 

@@ -1,5 +1,6 @@
 import { EntityKind, EquipSlot, JobId, MonsterAIState } from "./enums.js";
 import type { Stats } from "./stats.js";
+import type { QuestState } from "./quests.js";
 
 export interface InventoryEntry {
   id: string;
@@ -60,6 +61,7 @@ export interface SelfState {
   stats: Stats;
   inventory: InventoryEntry[];
   equipped: EquipEntry[];
+  quests: QuestState;
   x: number;
   z: number;
 }

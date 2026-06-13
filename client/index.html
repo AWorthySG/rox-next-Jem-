@@ -71,7 +71,15 @@
         <div class="stat-row"><span>LUK</span><b id="st-luk">0</b></div>
       </div>
 
-      <div class="hud-help">Click ground to move · Click monsters to attack · Click the ⬥ Kafra to shop · Keys 1–4 skills · I = inventory · Enter chat</div>
+      <div class="hud-help">Move: click ground · Attack: click monster · Shop/Quests: click ⬥ NPCs · Party: click a player · Keys 1–4 skills · I = bag · Enter chat</div>
+
+      <div class="quests hidden" id="quests">
+        <div class="inv-header">
+          <span>Guide — Quest Board</span>
+          <button class="inv-close" id="quests-close">✕</button>
+        </div>
+        <div class="quest-list" id="quest-list"></div>
+      </div>
 
       <div class="shop hidden" id="shop">
         <div class="inv-header">

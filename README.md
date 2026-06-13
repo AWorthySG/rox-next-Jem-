@@ -34,6 +34,8 @@ copyrighted assets.
   and starter gear or sell loot for Zeny, closing the economy loop.
 - **Parties**: click another player to invite them; accept to group up. Party HUD shows live
   member HP, and EXP from kills is shared (with a bonus) among nearby members.
+- **Quests**: a town Guide offers a kill-quest board (Poring Purge → Slay the King). Accept,
+  track progress as you hunt, and claim EXP/Zeny/item rewards; quest credit shares with party.
 - **HUD & chat**: HP/SP/EXP bars, level, Zeny, stat panel, a hotkey **skill bar** with
   cooldown sweeps, nameplates, latency, and live chat.
 

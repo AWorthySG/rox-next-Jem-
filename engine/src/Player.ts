@@ -5,6 +5,7 @@ import {
   EntityKind,
   EquipSlot,
   getItem,
+  getQuest,
   JOB_BASE_STATS,
   JOB_GROWTH,
   JobId,
@@ -40,6 +41,8 @@ export class Player {
   inventory: Record<string, number> = {}; // itemId -> qty
   equipped: Partial<Record<EquipSlot, string>> = {}; // slot -> itemId
   partyId: number | null = null;
+  activeQuests: Record<string, number> = {}; // questId -> kill progress
+  completedQuests: string[] = [];
 
   // intents
   moveTarget: { x: number; z: number } | null = null;
@@ -168,6 +171,41 @@ export class Player {
     return true;
   }
 
+  // ---- quests ----
+
+  acceptQuest(id: string): boolean {
+    const quest = getQuest(id);
+    if (!quest) return false;
+    if (this.level < quest.requiredLevel) return false;
+    if (id in this.activeQuests || this.completedQuests.includes(id)) return false;
+    this.activeQuests[id] = 0;
+    return true;
+  }
+
+  // Credit a kill toward any active quest targeting that monster.
+  creditKill(templateId: string): void {
+    for (const [id, progress] of Object.entries(this.activeQuests)) {
+      const quest = getQuest(id);
+      if (quest && quest.targetTemplate === templateId && progress < quest.count) {
+        this.activeQuests[id] = progress + 1;
+      }
+    }
+  }
+
+  // Turn in a completed quest. Returns whether a level-up occurred (for the
+  // caller to broadcast), or null if the quest could not be claimed.
+  claimQuest(id: string): { leveled: boolean } | null {
+    const quest = getQuest(id);
+    if (!quest) return null;
+    if ((this.activeQuests[id] ?? -1) < quest.count) return null;
+    delete this.activeQuests[id];
+    this.completedQuests.push(id);
+    this.zeny += quest.reward.zeny;
+    for (const it of quest.reward.items ?? []) this.addItem(it.id, it.qty);
+    const leveled = this.gainExp(quest.reward.exp);
+    return { leveled };
+  }
+
   // ---- job advancement ----
 
   // Returns true if the change was applied. Keeps accumulated stats; future
@@ -249,6 +287,10 @@ export class Player {
       equipped: Object.entries(this.equipped)
         .filter(([, id]) => !!id)
         .map(([slot, id]) => ({ slot: slot as EquipSlot, id: id as string })),
+      quests: {
+        active: Object.entries(this.activeQuests).map(([id, progress]) => ({ id, progress })),
+        completed: [...this.completedQuests],
+      },
       x: round2(this.x),
       z: round2(this.z),
     };

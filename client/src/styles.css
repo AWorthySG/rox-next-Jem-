@@ -507,6 +507,86 @@ body {
   border: none;
 }
 
+/* ---- quest panel ---- */
+.quests {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 460px;
+  max-width: 92vw;
+  max-height: 78vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 2px solid var(--gold);
+  border-radius: 12px;
+  pointer-events: auto;
+  overflow: hidden;
+  z-index: 30;
+}
+.quest-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 10px;
+  overflow-y: auto;
+}
+.quest-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+}
+.quest-row.ready {
+  border-color: var(--gold);
+  box-shadow: 0 0 12px rgba(230, 200, 120, 0.3);
+}
+.quest-row.done {
+  opacity: 0.5;
+}
+.quest-row.locked {
+  opacity: 0.55;
+}
+.quest-main {
+  flex: 1;
+}
+.quest-name {
+  font-size: 14px;
+  font-weight: 700;
+}
+.quest-desc {
+  font-size: 11px;
+  opacity: 0.7;
+  margin: 2px 0;
+}
+.quest-meta {
+  font-size: 11px;
+  color: var(--gold);
+  opacity: 0.9;
+}
+.quest-status {
+  font-size: 11px;
+  margin-top: 3px;
+  opacity: 0.85;
+}
+.quest-btn {
+  padding: 8px 14px;
+  font-weight: 700;
+  font-size: 12px;
+  color: #1a1430;
+  background: linear-gradient(180deg, #f4d98a, #d8af44);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.quest-btn.claim {
+  background: linear-gradient(180deg, #9be88f, #4cae3e);
+}
+
 /* ---- shop panel ---- */
 .shop {
   position: absolute;

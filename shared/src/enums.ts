@@ -14,6 +14,8 @@ export enum MsgType {
   PartyInvite = "partyInvite",
   PartyAccept = "partyAccept",
   PartyLeave = "partyLeave",
+  AcceptQuest = "acceptQuest",
+  ClaimQuest = "claimQuest",
   Chat = "chat",
   Ping = "ping",
   // server -> client

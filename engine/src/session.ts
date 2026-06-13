@@ -103,6 +103,29 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       if (p) world.party.leave(p);
       break;
     }
+    case MsgType.AcceptQuest: {
+      const p = playerOf(world, link);
+      if (p) p.acceptQuest(msg.questId);
+      break;
+    }
+    case MsgType.ClaimQuest: {
+      const p = playerOf(world, link);
+      if (p) {
+        const result = p.claimQuest(msg.questId);
+        if (result?.leveled) {
+          world.broadcast({
+            t: MsgType.LevelUp,
+            id: p.id,
+            newLevel: p.level,
+            maxHp: p.derived.maxHp,
+            maxSp: p.derived.maxSp,
+            stats: { ...p.stats },
+            expToNext: p.toSelfState().expToNext,
+          });
+        }
+      }
+      break;
+    }
     case MsgType.Chat: {
       const p = playerOf(world, link);
       const text = (msg.text ?? "").toString().slice(0, 140).trim();
