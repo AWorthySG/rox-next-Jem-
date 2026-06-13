@@ -504,6 +504,48 @@ body {
   filter: brightness(1.08);
 }
 
+/* ---- help ---- */
+.help-btn {
+  position: absolute;
+  top: 18px;
+  right: 180px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  font-weight: 800;
+  font-size: 15px;
+  color: #2a1c10;
+  background: linear-gradient(180deg, #ffe6a8, #d8af44);
+  border: 2px solid var(--gold);
+  cursor: pointer;
+  pointer-events: auto;
+}
+.help-panel {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 420px;
+  max-width: 92vw;
+  background: var(--panel);
+  border: 2px solid var(--gold);
+  border-radius: 12px;
+  pointer-events: auto;
+  z-index: 40;
+  overflow: hidden;
+}
+.help-body {
+  padding: 12px 16px;
+  font-size: 13px;
+  line-height: 1.5;
+}
+.help-body p {
+  margin: 0 0 8px;
+}
+.help-body b {
+  color: var(--gold);
+}
+
 /* ---- auto-battle toggle ---- */
 .auto-btn {
   position: absolute;

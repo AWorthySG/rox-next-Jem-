@@ -4,6 +4,7 @@ import { SceneManager } from "./engine/SceneManager.js";
 import { CameraRig } from "./engine/CameraRig.js";
 import { InputController } from "./engine/InputController.js";
 import { Loop } from "./engine/Loop.js";
+import { ClickMarker } from "./engine/ClickMarker.js";
 import { GameState } from "./state/GameState.js";
 import { NetClient } from "./net/NetClient.js";
 import { LocalServer } from "./net/LocalServer.js";
@@ -45,6 +46,18 @@ const petCompanion = new PetCompanion(scene.scene);
 const skillPopup = new SkillPopup();
 const targetFrame = new TargetFrame();
 const sfx = new Sfx();
+const clickMarker = new ClickMarker(scene.scene);
+
+// Help panel toggle (button + key H).
+const helpPanel = document.getElementById("help-panel")!;
+const toggleHelp = () => helpPanel.classList.toggle("hidden");
+document.getElementById("help-btn")!.addEventListener("click", toggleHelp);
+document.getElementById("help-close")!.addEventListener("click", () => helpPanel.classList.add("hidden"));
+window.addEventListener("keydown", (e) => {
+  const a = document.activeElement;
+  if (a && (a.tagName === "INPUT" || a.tagName === "TEXTAREA")) return;
+  if (e.key === "h" || e.key === "H") toggleHelp();
+});
 let currentTargetId: number | null = null;
 let pvpMap = false;
 function attackMonster(id: number): void {
@@ -209,6 +222,7 @@ const input = new InputController(
     onMoveTo: (x, z) => {
       transport?.send({ t: MsgType.MoveIntent, x, z });
       gameState.self?.setMoveTarget(x, z);
+      clickMarker.ping(x, z);
     },
     onAttack: (id) => {
       // Clicking the shop NPC opens the shop instead of attacking.
@@ -407,6 +421,7 @@ const followPos = new THREE.Vector3();
 new Loop((dt) => {
   autoBattle.update(dt);
   gameState.update(dt);
+  clickMarker.update(dt);
   damageNumbers.update();
   skillBar.update();
   partyHud.update();
