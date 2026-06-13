@@ -7,7 +7,7 @@ import {
   type EntityFull,
   type EntitySnapshot,
 } from "@rox/shared";
-import type { MonsterTemplate } from "../data/spawns.js";
+import type { MonsterTemplate } from "./data/spawns.js";
 
 export class Monster {
   readonly id: number;

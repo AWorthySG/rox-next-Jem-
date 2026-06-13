@@ -3,24 +3,16 @@ import {
   CLIENT_TIMEOUT_MS,
   decodeClient,
   HEARTBEAT_INTERVAL_MS,
-  JobId,
-  MAP_SIZE,
-  MsgType,
-  SNAPSHOT_RATE,
-  TICK_RATE,
-  type ClientMessage,
 } from "@rox/shared";
+import { handleClientMessage, type World } from "@rox/engine";
 import { Connection } from "./Connection.js";
-import type { World } from "../game/World.js";
-import { Player } from "../game/Player.js";
 
-const VALID_JOBS = new Set<string>([JobId.Novice, JobId.Swordsman, JobId.Mage]);
-
-// Accepts WebSocket connections, validates/parses messages, and applies them to
-// the authoritative world as player intents.
+// Accepts WebSocket connections, validates/parses messages, and forwards them to
+// the engine's shared message handler. The gateway is a thin transport adapter;
+// all game logic lives in @rox/engine.
 export class WsGateway {
   private wss: WebSocketServer;
-  private heartbeat: NodeJS.Timeout;
+  private heartbeat: ReturnType<typeof setInterval>;
 
   constructor(
     private world: World,
@@ -28,9 +20,7 @@ export class WsGateway {
   ) {
     this.wss = new WebSocketServer({ port });
     this.wss.on("connection", (socket) => this.onConnection(socket));
-    this.wss.on("listening", () => {
-      console.log(`[ws] listening on :${port}`);
-    });
+    this.wss.on("listening", () => console.log(`[ws] listening on :${port}`));
     this.heartbeat = setInterval(() => this.checkHeartbeats(), HEARTBEAT_INTERVAL_MS);
   }
 
@@ -42,7 +32,7 @@ export class WsGateway {
     socket.on("message", (data) => {
       conn.lastSeen = Date.now();
       const msg = decodeClient(data.toString());
-      if (msg) this.route(conn, msg);
+      if (msg) handleClientMessage(this.world, conn, msg);
     });
     socket.on("pong", () => {
       conn.lastSeen = Date.now();
@@ -57,78 +47,10 @@ export class WsGateway {
     this.world.removeConnection(conn);
   }
 
-  private route(conn: Connection, msg: ClientMessage): void {
-    switch (msg.t) {
-      case MsgType.Join:
-        this.handleJoin(conn, msg.name, msg.job);
-        break;
-      case MsgType.MoveIntent: {
-        const p = this.playerOf(conn);
-        if (p && isFinite(msg.x) && isFinite(msg.z)) {
-          p.moveTarget = { x: clampMap(msg.x), z: clampMap(msg.z) };
-          p.attackTargetId = null; // manual move cancels auto-attack
-        }
-        break;
-      }
-      case MsgType.AttackIntent: {
-        const p = this.playerOf(conn);
-        if (p && this.world.monsters.has(msg.targetId)) {
-          p.attackTargetId = msg.targetId;
-        }
-        break;
-      }
-      case MsgType.Chat: {
-        const p = this.playerOf(conn);
-        const text = (msg.text ?? "").toString().slice(0, 140).trim();
-        if (p && text) {
-          this.world.broadcast({
-            t: MsgType.ChatBroadcast,
-            fromId: p.id,
-            name: p.name,
-            text,
-          });
-        }
-        break;
-      }
-      case MsgType.Ping:
-        conn.send({ t: MsgType.Pong, clientTime: msg.clientTime, serverTime: Date.now() });
-        break;
-    }
-  }
-
-  private handleJoin(conn: Connection, rawName: string, rawJob?: JobId): void {
-    if (conn.playerId != null) return; // already joined
-    const name = sanitizeName(rawName);
-    const job = rawJob && VALID_JOBS.has(rawJob) ? rawJob : JobId.Novice;
-
-    // Spawn at a small random offset around town center so players don't stack.
-    const x = (Math.random() - 0.5) * 6;
-    const z = (Math.random() - 0.5) * 6;
-    const player = new Player(this.world.allocId(), conn.id, name, job, x, z);
-    conn.playerId = player.id;
-
-    conn.send({
-      t: MsgType.JoinAck,
-      selfId: player.id,
-      tickRate: TICK_RATE,
-      snapshotRate: SNAPSHOT_RATE,
-      mapSize: MAP_SIZE,
-      self: player.toSelfState(),
-    });
-    // Existing world to the joiner first, then announce the joiner to everyone.
-    this.world.spawnAllFor(conn);
-    this.world.addPlayer(player);
-    console.log(`[ws] player "${name}" (${job}) joined as entity ${player.id}`);
-  }
-
-  private playerOf(conn: Connection): Player | null {
-    if (conn.playerId == null) return null;
-    return this.world.players.get(conn.playerId) ?? null;
-  }
-
   private checkHeartbeats(): void {
     const now = Date.now();
-    for (const conn of this.world.connections.values()) {
+    for (const link of this.world.connections.values()) {
+      const conn = link as Connection;
       if (now - conn.lastSeen > CLIENT_TIMEOUT_MS) {
         conn.close();
         this.onClose(conn);
@@ -144,14 +66,4 @@ export class WsGateway {
     clearInterval(this.heartbeat);
     this.wss.close();
   }
-}
-
-function sanitizeName(raw: string): string {
-  const cleaned = (raw ?? "").toString().replace(/[^\w \-]/g, "").trim().slice(0, 16);
-  return cleaned || `Adventurer${Math.floor(Math.random() * 1000)}`;
-}
-
-function clampMap(v: number): number {
-  const half = MAP_SIZE / 2;
-  return Math.min(half, Math.max(-half, v));
 }

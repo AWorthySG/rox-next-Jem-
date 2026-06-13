@@ -6,6 +6,7 @@
   "type": "module",
   "workspaces": [
     "shared",
+    "engine",
     "server",
     "client"
   ],
@@ -13,9 +14,10 @@
     "dev": "concurrently -n server,client -c green,cyan \"npm:dev:server\" \"npm:dev:client\"",
     "dev:server": "npm -w @rox/server run dev",
     "dev:client": "npm -w @rox/client run dev",
-    "build": "npm -w @rox/shared run build && npm -w @rox/server run build && npm -w @rox/client run build",
+    "build": "npm -w @rox/shared run build && npm -w @rox/engine run build && npm -w @rox/server run build && npm -w @rox/client run build",
     "start": "npm -w @rox/server run start",
-    "test": "node scripts/smoke.mjs"
+    "test": "node scripts/smoke.mjs",
+    "test:solo": "tsx scripts/solo.test.ts"
   },
   "devDependencies": {
     "concurrently": "^9.1.0",

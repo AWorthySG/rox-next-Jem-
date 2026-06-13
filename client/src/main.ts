@@ -6,6 +6,8 @@ import { InputController } from "./engine/InputController.js";
 import { Loop } from "./engine/Loop.js";
 import { GameState } from "./state/GameState.js";
 import { NetClient } from "./net/NetClient.js";
+import { LocalServer } from "./net/LocalServer.js";
+import type { NetHandlers, Transport } from "./net/Transport.js";
 import { Hud } from "./ui/Hud.js";
 import { ChatBox } from "./ui/ChatBox.js";
 import { DamageNumbers } from "./ui/DamageNumbers.js";
@@ -19,17 +21,58 @@ const gameState = new GameState(scene.scene, makePoringTexture());
 const hud = new Hud();
 const damageNumbers = new DamageNumbers(scene.scene);
 
-// ---- networking ----
+// ---- transport (online WebSocket with automatic solo fallback) ----
 const wsUrl = (import.meta.env.VITE_WS_URL as string) || `ws://${location.hostname}:8080`;
 let selfId = -1;
+let transport: Transport | null = null;
+let mode: "online" | "solo" | null = null;
 
-const net = new NetClient({
-  onOpen: () => setStatus("Connected — ready to enter.", "ok"),
-  onClose: () => setStatus("Disconnected from server.", "err"),
+const enterBtn = document.getElementById("enter-btn") as HTMLButtonElement;
+enterBtn.disabled = true;
+
+const handlers: NetHandlers = {
+  onOpen: () => {
+    enterBtn.disabled = false;
+    setStatus(mode === "solo" ? "Solo mode (offline) — ready." : "Connected (online) — ready.", "ok");
+  },
+  onClose: () => {
+    if (mode === null) fallbackToSolo();
+    else setStatus("Disconnected from server.", "err");
+  },
   onMessage: handleMessage,
-});
+};
 
-const chat = new ChatBox((text) => net.send({ t: MsgType.Chat, text }));
+function settle(m: "online" | "solo"): boolean {
+  if (mode !== null) return false;
+  mode = m;
+  clearTimeout(fallbackTimer);
+  return true;
+}
+
+function fallbackToSolo(): void {
+  if (!settle("solo")) return;
+  const local = new LocalServer(handlers);
+  transport = local;
+  hud.setLatency(0);
+  local.connect();
+}
+
+// Try online first; if it doesn't connect quickly, play solo in-browser.
+const net = new NetClient({
+  onOpen: () => {
+    if (settle("online")) {
+      transport = net;
+      handlers.onOpen?.();
+    }
+  },
+  onClose: handlers.onClose,
+  onMessage: handlers.onMessage,
+});
+const fallbackTimer = window.setTimeout(() => {
+  if (mode === null) fallbackToSolo();
+}, 2500);
+
+const chat = new ChatBox((text) => transport?.send({ t: MsgType.Chat, text }));
 
 // ---- input → intents ----
 const input = new InputController(
@@ -39,11 +82,11 @@ const input = new InputController(
   () => gameState.getPickables(),
   {
     onMoveTo: (x, z) => {
-      net.send({ t: MsgType.MoveIntent, x, z });
+      transport?.send({ t: MsgType.MoveIntent, x, z });
       gameState.self?.setMoveTarget(x, z);
     },
     onAttack: (id) => {
-      net.send({ t: MsgType.AttackIntent, targetId: id });
+      transport?.send({ t: MsgType.AttackIntent, targetId: id });
       gameState.self?.clearMoveTarget();
     },
   },
@@ -59,7 +102,11 @@ function handleMessage(msg: ServerMessage): void {
       hud.update(msg.self);
       hud.show();
       document.getElementById("login")!.classList.add("hidden");
-      chat.system(`Welcome to Prontera Field, ${msg.self.name}!`);
+      chat.system(
+        mode === "solo"
+          ? `Welcome to Prontera Field, ${msg.self.name}! (solo mode)`
+          : `Welcome to Prontera Field, ${msg.self.name}!`,
+      );
       break;
     case MsgType.Spawn:
       gameState.addEntity(msg.entity);
@@ -102,7 +149,6 @@ function onDamage(msg: Extract<ServerMessage, { t: MsgType.DamageEvent }>): void
 // ---- login UI ----
 let selectedJob: JobId = JobId.Novice;
 const nameInput = document.getElementById("name-input") as HTMLInputElement;
-const enterBtn = document.getElementById("enter-btn") as HTMLButtonElement;
 
 document.querySelectorAll<HTMLButtonElement>(".job-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
@@ -118,12 +164,12 @@ nameInput.addEventListener("keydown", (e) => {
 });
 
 function enterWorld(): void {
-  if (!net.connected) {
-    setStatus("Still connecting to the server…", "err");
+  if (!transport || !transport.connected) {
+    setStatus("Still connecting…", "err");
     return;
   }
   const name = nameInput.value.trim() || "Adventurer";
-  net.send({ t: MsgType.Join, name, job: selectedJob });
+  transport.send({ t: MsgType.Join, name, job: selectedJob });
 }
 
 function setStatus(text: string, cls: "ok" | "err" | ""): void {

@@ -7,6 +7,7 @@ export default defineConfig({
   resolve: {
     alias: {
       "@rox/shared": fileURLToPath(new URL("../shared/src/index.ts", import.meta.url)),
+      "@rox/engine": fileURLToPath(new URL("../engine/src/index.ts", import.meta.url)),
     },
   },
   server: {

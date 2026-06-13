@@ -24,3 +24,6 @@ jobs:
 
       - name: Server end-to-end smoke test
         run: npm test
+
+      - name: Solo-engine (in-browser path) test
+        run: npm run test:solo

@@ -2,10 +2,8 @@
   "extends": "../tsconfig.base.json",
   "compilerOptions": {
     "noEmit": true,
-    "types": ["node"],
     "paths": {
-      "@rox/shared": ["../shared/src/index.ts"],
-      "@rox/engine": ["../engine/src/index.ts"]
+      "@rox/shared": ["../shared/src/index.ts"]
     }
   },
   "include": ["src"]

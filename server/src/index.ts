@@ -1,6 +1,5 @@
 import { DEFAULT_PORT } from "@rox/shared";
-import { World } from "./game/World.js";
-import { GameLoop } from "./game/GameLoop.js";
+import { World, GameLoop } from "@rox/engine";
 import { WsGateway } from "./net/WsGateway.js";
 
 const port = Number(process.env.PORT) || DEFAULT_PORT;

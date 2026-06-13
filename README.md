@@ -48,19 +48,41 @@ Monorepo (npm workspaces):
 
 | Package   | Role |
 |-----------|------|
-| `shared/` | Single-sourced contract: network protocol, stats, combat & leveling formulas, constants. Imported by both sides so client predictions match server truth. |
-| `server/` | Authoritative simulation: `ws` gateway, fixed-timestep game loop, movement / monster-AI / combat / snapshot systems. In-memory world. |
-| `client/` | Three.js engine, procedural art (textures + low-poly meshes), entity interpolation, HUD/chat UI, WebSocket net client. |
+| `shared/` | Single-sourced contract: network protocol, stats, combat & leveling formulas, constants. Imported everywhere so client predictions match server truth. |
+| `engine/` | Transport-agnostic authoritative simulation: world, fixed-timestep game loop, movement / monster-AI / combat / snapshot systems, and the client-message handler. Runs **both** on the server and in the browser. |
+| `server/` | Thin `ws` transport adapter around `@rox/engine` (gateway + connection + heartbeat). In-memory world. |
+| `client/` | Three.js rendering, procedural art (textures + low-poly meshes), entity interpolation, HUD/chat UI, and two transports: a WebSocket client (online) and a `LocalServer` that runs `@rox/engine` in-browser (solo/offline). |
+
+### Online vs. solo
+
+The client tries the WebSocket server first; if none is reachable within ~2.5s it
+transparently falls back to **solo mode**, running the full engine in the browser. This is
+why the game is playable on static hosting with no backend. Point at a real server by setting
+`VITE_WS_URL` (e.g. `wss://your-server`) at build time to enable live multiplayer.
 
 ### Scripts
 
 - `npm run dev` — run server + client together (recommended)
 - `npm run dev:server` / `npm run dev:client` — run individually
-- `npm run build` — typecheck server, build client bundle
-- `npm test` — headless end-to-end server smoke test (join, combat, leveling, multiplayer, chat)
+- `npm run build` — build shared, typecheck engine + server, build client bundle
+- `npm test` — headless end-to-end **server** smoke test (join, combat, leveling, multiplayer, chat)
+- `npm run test:solo` — headless **solo-engine** test (the in-browser `LocalServer` path)
 - `npm start` — run the server only
 
-CI (GitHub Actions, `.github/workflows/ci.yml`) runs build + smoke test on every push and PR.
+CI (GitHub Actions, `.github/workflows/ci.yml`) runs build + both tests on every push and PR.
+
+## Deploy
+
+The static client deploys to any static host. A `vercel.json` is included:
+
+```bash
+npm run build        # outputs client/dist
+# deploy client/dist (Vercel: framework=null, output=client/dist)
+```
+
+The deployed site is immediately playable in **solo mode**. For live multiplayer, host the
+`@rox/server` somewhere that supports persistent WebSockets and build the client with
+`VITE_WS_URL` pointing at it.
 
 ## Deliberately deferred
 

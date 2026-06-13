@@ -4,14 +4,14 @@ import {
   MsgType,
   type ServerMessage,
 } from "@rox/shared";
-import { Connection } from "../net/Connection.js";
+import type { ClientLink } from "./ClientLink.js";
 import { Player } from "./Player.js";
 import { Monster } from "./Monster.js";
-import { MONSTER_TEMPLATES, SPAWN_ZONES } from "../data/spawns.js";
+import { MONSTER_TEMPLATES, SPAWN_ZONES } from "./data/spawns.js";
 
-// Authoritative world state: all connections and entities live here.
+// Authoritative world state: all connected clients and entities live here.
 export class World {
-  readonly connections = new Map<number, Connection>();
+  readonly connections = new Map<number, ClientLink>();
   readonly players = new Map<number, Player>();
   readonly monsters = new Map<number, Monster>();
   private nextEntityId = 1;
@@ -26,14 +26,14 @@ export class World {
 
   // ---- connections ----
 
-  addConnection(conn: Connection): void {
-    this.connections.set(conn.id, conn);
+  addConnection(link: ClientLink): void {
+    this.connections.set(link.id, link);
   }
 
-  removeConnection(conn: Connection): void {
-    this.connections.delete(conn.id);
-    if (conn.playerId != null) {
-      this.removePlayer(conn.playerId);
+  removeConnection(link: ClientLink): void {
+    this.connections.delete(link.id);
+    if (link.playerId != null) {
+      this.removePlayer(link.playerId);
     }
   }
 
@@ -41,7 +41,6 @@ export class World {
 
   addPlayer(player: Player): void {
     this.players.set(player.id, player);
-    // Tell everyone (including the joiner) about the new player.
     this.broadcast({ t: MsgType.Spawn, entity: player.toFull() });
   }
 
@@ -88,18 +87,18 @@ export class World {
   // ---- messaging ----
 
   broadcast(msg: ServerMessage): void {
-    for (const conn of this.connections.values()) {
-      conn.send(msg);
+    for (const link of this.connections.values()) {
+      link.send(msg);
     }
   }
 
   // Full snapshot of the current world for a freshly joined client.
-  spawnAllFor(conn: Connection): void {
+  spawnAllFor(link: ClientLink): void {
     for (const p of this.players.values()) {
-      conn.send({ t: MsgType.Spawn, entity: p.toFull() });
+      link.send({ t: MsgType.Spawn, entity: p.toFull() });
     }
     for (const m of this.monsters.values()) {
-      if (!m.isDead) conn.send({ t: MsgType.Spawn, entity: m.toFull() });
+      if (!m.isDead) link.send({ t: MsgType.Spawn, entity: m.toFull() });
     }
   }
 }

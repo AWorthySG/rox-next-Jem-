@@ -1,10 +1,12 @@
 import type { WebSocket } from "ws";
 import { encode, type ServerMessage } from "@rox/shared";
+import type { ClientLink } from "@rox/engine";
 
 let nextConnId = 1;
 
-// Per-socket wrapper: identity, send helper, and liveness tracking.
-export class Connection {
+// WebSocket-backed implementation of the engine's ClientLink: identity, send
+// helper, and liveness tracking.
+export class Connection implements ClientLink {
   readonly id: number;
   readonly socket: WebSocket;
   alive = true;
