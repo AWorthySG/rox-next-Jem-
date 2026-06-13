@@ -18,6 +18,7 @@ import { QuestPanel } from "./ui/QuestPanel.js";
 import { RefinePanel } from "./ui/RefinePanel.js";
 import { JobAdvance } from "./ui/JobAdvance.js";
 import { PartyHud } from "./ui/PartyHud.js";
+import { AutoBattle } from "./ui/AutoBattle.js";
 import { getItem, JOB_NAME, type JobId } from "@rox/shared";
 import { buildMonsterAppearances } from "./procedural/monsters.js";
 
@@ -31,6 +32,11 @@ const damageNumbers = new DamageNumbers(scene.scene);
 
 // Skill bar: casts on the current target (or nearest monster); heals target self.
 let currentTargetId: number | null = null;
+function attackMonster(id: number): void {
+  currentTargetId = id;
+  transport?.send({ t: MsgType.AttackIntent, targetId: id });
+  gameState.self?.clearMoveTarget();
+}
 const skillBar = new SkillBar((skillId) => {
   const def = getSkill(skillId);
   if (!def) return;
@@ -172,13 +178,13 @@ const input = new InputController(
         chat.system("Party invite sent.");
         return;
       }
-      currentTargetId = id;
-      transport?.send({ t: MsgType.AttackIntent, targetId: id });
-      gameState.self?.clearMoveTarget();
+      attackMonster(id);
     },
   },
 );
 void input;
+
+const autoBattle = new AutoBattle(gameState, skillBar, () => currentTargetId, attackMonster);
 
 function handleMessage(msg: ServerMessage): void {
   switch (msg.t) {
@@ -300,6 +306,7 @@ function setStatus(text: string, cls: "ok" | "err" | ""): void {
 // ---- render loop ----
 const followPos = new THREE.Vector3();
 new Loop((dt) => {
+  autoBattle.update(dt);
   gameState.update(dt);
   damageNumbers.update();
   skillBar.update();

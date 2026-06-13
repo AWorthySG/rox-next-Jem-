@@ -39,6 +39,8 @@ copyrighted assets.
 - **Character building**: spend stat points earned on level-up into STR/AGI/VIT/INT/DEX/LUK
   from the HUD; visit the Blacksmith to refine equipped gear (+1…+10) with Zeny for flat
   ATK/MATK/DEF/HP bonuses.
+- **Auto-battle**: the signature ROX convenience — toggle Auto (button or `T`) and your
+  character automatically seeks the nearest monster, attacks, and casts ready skills.
 - **HUD & chat**: HP/SP/EXP bars, level, Zeny, stat panel, a hotkey **skill bar** with
   cooldown sweeps, nameplates, latency, and live chat.
 

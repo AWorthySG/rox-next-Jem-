@@ -98,6 +98,10 @@ export class GameState {
     return v instanceof PlayerView && id !== this.selfId;
   }
 
+  isMonster(id: number): boolean {
+    return this.views.get(id) instanceof MonsterView;
+  }
+
   entityHp(id: number): { hp: number; maxHp: number } | null {
     const v = this.views.get(id);
     return v ? { hp: v.hp, maxHp: v.maxHp } : null;

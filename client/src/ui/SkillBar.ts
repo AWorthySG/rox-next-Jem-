@@ -48,6 +48,17 @@ export class SkillBar {
     this.sp = sp;
   }
 
+  // Auto-battle: cast the first ready, affordable, non-heal skill.
+  autoCast(): void {
+    for (const s of this.slots) {
+      if (s.def.heal) continue;
+      if (performance.now() < s.cooldownUntil) continue;
+      if (this.sp < s.def.spCost) continue;
+      this.tryCast(s);
+      return;
+    }
+  }
+
   private tryCast(slot: Slot): void {
     if (performance.now() < slot.cooldownUntil) return;
     if (this.sp < slot.def.spCost) {
