@@ -1,5 +1,21 @@
+import { REFINE_BASE_COST } from "./constants.js";
 import { EquipSlot, ItemType } from "./enums.js";
 import type { Stats } from "./stats.js";
+
+// Zeny cost to take an item from `level` to `level + 1`.
+export function refineCost(level: number): number {
+  return REFINE_BASE_COST * (level + 1);
+}
+
+// Stat bonuses granted by `level` refines on an equipment item.
+export function refineBonus(item: { atk?: number; matk?: number; def?: number; maxHp?: number }, level: number) {
+  return {
+    atk: item.atk ? level * 2 : 0,
+    matk: item.matk ? level * 2 : 0,
+    def: item.def ? level * 2 : 0,
+    maxHp: item.maxHp ? level * 6 : 0,
+  };
+}
 
 export interface ItemDef {
   id: string;

@@ -15,6 +15,7 @@ import { SkillBar } from "./ui/SkillBar.js";
 import { InventoryPanel } from "./ui/InventoryPanel.js";
 import { ShopPanel } from "./ui/ShopPanel.js";
 import { QuestPanel } from "./ui/QuestPanel.js";
+import { RefinePanel } from "./ui/RefinePanel.js";
 import { JobAdvance } from "./ui/JobAdvance.js";
 import { PartyHud } from "./ui/PartyHud.js";
 import { getItem, JOB_NAME, type JobId } from "@rox/shared";
@@ -25,7 +26,7 @@ const root = document.getElementById("game-root")!;
 const scene = new SceneManager(root);
 const cameraRig = new CameraRig(scene.renderer.domElement);
 const gameState = new GameState(scene.scene, buildMonsterAppearances());
-const hud = new Hud();
+const hud = new Hud((stat) => transport?.send({ t: MsgType.AllocateStat, stat }));
 const damageNumbers = new DamageNumbers(scene.scene);
 
 // Skill bar: casts on the current target (or nearest monster); heals target self.
@@ -107,6 +108,10 @@ const quests = new QuestPanel({
   onClaim: (questId) => transport?.send({ t: MsgType.ClaimQuest, questId }),
 });
 
+const refine = new RefinePanel({
+  onRefine: (slot) => transport?.send({ t: MsgType.RefineItem, slot }),
+});
+
 let currentJob: JobId | null = null;
 const jobAdvance = new JobAdvance((job) => transport?.send({ t: MsgType.JobAdvance, targetJob: job }));
 
@@ -155,6 +160,10 @@ const input = new InputController(
       }
       if (role === "guide") {
         quests.open();
+        return;
+      }
+      if (role === "refine") {
+        refine.open();
         return;
       }
       // Clicking another player invites them to a party.
@@ -213,6 +222,7 @@ function handleMessage(msg: ServerMessage): void {
       inventory.sync(msg.self);
       shop.sync(msg.self);
       quests.sync(msg.self);
+      refine.sync(msg.self);
       jobAdvance.update(msg.self);
       break;
     case MsgType.Loot: {

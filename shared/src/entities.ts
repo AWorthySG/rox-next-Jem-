@@ -59,8 +59,10 @@ export interface SelfState {
   expToNext: number;
   zeny: number;
   stats: Stats;
+  statPoints: number;
   inventory: InventoryEntry[];
   equipped: EquipEntry[];
+  refine: Array<{ id: string; level: number }>;
   quests: QuestState;
   x: number;
   z: number;

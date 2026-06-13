@@ -105,6 +105,26 @@ async function main(): Promise<void> {
   check(quester.completedQuests.includes("poring_purge"), "quests: marked completed");
   check(!quester.acceptQuest("poring_purge"), "quests: cannot re-accept completed");
 
+  // ---- deterministic stat allocation ----
+  const statter = new Player(995, 1, "Statter", JobId.Swordsman, 0, 0);
+  statter.statPoints = 2;
+  const baseStr = statter.stats.str;
+  check(statter.allocateStat("str"), "stats: allocate a point");
+  check(statter.stats.str === baseStr + 1 && statter.statPoints === 1, "stats: STR raised, pool reduced");
+  check(!statter.allocateStat("bogus"), "stats: invalid stat rejected");
+  statter.statPoints = 0;
+  check(!statter.allocateStat("vit"), "stats: cannot allocate with no points");
+
+  // ---- deterministic refinement ----
+  const smith = new Player(994, 1, "Smith", JobId.Swordsman, 0, 0);
+  smith.addItem("novice_knife", 1);
+  smith.equip("novice_knife");
+  const baseAtk2 = smith.derived.atk;
+  smith.zeny = 10000;
+  check(smith.refineEquipped("weapon" as never), "refine: upgrade equipped weapon");
+  check(smith.derived.atk > baseAtk2, "refine: ATK increased after refine");
+  check(smith.zeny < 10000, "refine: Zeny spent on refine");
+
   local.stop();
   if (failures.length) {
     console.error(`\nSOLO TEST FAILED (${failures.length}): ${failures.join("; ")}`);

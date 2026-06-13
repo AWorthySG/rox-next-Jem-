@@ -6,11 +6,16 @@ import {
   EquipSlot,
   getItem,
   getQuest,
+  isStatKey,
   JOB_BASE_STATS,
   JOB_GROWTH,
   JobId,
   ItemType,
   isMagicJob,
+  MAX_REFINE,
+  refineBonus,
+  refineCost,
+  STAT_POINTS_PER_LEVEL,
   xpToNext,
   type DerivedStats,
   type EntityFull,
@@ -38,8 +43,10 @@ export class Player {
   hp: number;
   sp: number;
 
+  statPoints = 0;
   inventory: Record<string, number> = {}; // itemId -> qty
   equipped: Partial<Record<EquipSlot, string>> = {}; // slot -> itemId
+  refineByItem: Record<string, number> = {}; // itemId -> refine level
   partyId: number | null = null;
   activeQuests: Record<string, number> = {}; // questId -> kill progress
   completedQuests: string[] = [];
@@ -81,13 +88,19 @@ export class Player {
     let flatSp = 0;
     for (const itemId of Object.values(this.equipped)) {
       const item = itemId ? getItem(itemId) : undefined;
-      if (!item) continue;
+      if (!item || !itemId) continue;
       if (item.bonusStats) effective = addStats(effective, fullStats(item.bonusStats));
       flatAtk += item.atk ?? 0;
       flatMatk += item.matk ?? 0;
       flatDef += item.def ?? 0;
       flatHp += item.maxHp ?? 0;
       flatSp += item.maxSp ?? 0;
+      // refinement bonuses
+      const rb = refineBonus(item, this.refineByItem[itemId] ?? 0);
+      flatAtk += rb.atk;
+      flatMatk += rb.matk;
+      flatDef += rb.def;
+      flatHp += rb.maxHp;
     }
     const d = deriveStats(effective, this.level, this.job);
     this.derived = {
@@ -100,6 +113,31 @@ export class Player {
     };
     if (this.hp > this.derived.maxHp) this.hp = this.derived.maxHp;
     if (this.sp > this.derived.maxSp) this.sp = this.derived.maxSp;
+  }
+
+  // ---- stat allocation ----
+
+  allocateStat(stat: string): boolean {
+    if (!isStatKey(stat) || this.statPoints <= 0) return false;
+    this.stats[stat] += 1;
+    this.statPoints -= 1;
+    this.recompute();
+    return true;
+  }
+
+  // ---- refinement ----
+
+  refineEquipped(slot: EquipSlot): boolean {
+    const itemId = this.equipped[slot];
+    if (!itemId || !getItem(itemId)) return false;
+    const level = this.refineByItem[itemId] ?? 0;
+    if (level >= MAX_REFINE) return false;
+    const cost = refineCost(level);
+    if (this.zeny < cost) return false;
+    this.zeny -= cost;
+    this.refineByItem[itemId] = level + 1;
+    this.recompute();
+    return true;
   }
 
   // ---- inventory / equipment ----
@@ -229,6 +267,7 @@ export class Player {
       this.exp -= xpToNext(this.level);
       this.level += 1;
       this.stats = addStats(this.stats, JOB_GROWTH[this.job]);
+      this.statPoints += STAT_POINTS_PER_LEVEL;
       this.recompute();
       // Full heal on level-up (classic RO).
       this.hp = this.derived.maxHp;
@@ -283,10 +322,14 @@ export class Player {
       expToNext: isFinite(xpToNext(this.level)) ? xpToNext(this.level) : 0,
       zeny: this.zeny,
       stats: { ...this.stats },
+      statPoints: this.statPoints,
       inventory: Object.entries(this.inventory).map(([id, qty]) => ({ id, qty })),
       equipped: Object.entries(this.equipped)
         .filter(([, id]) => !!id)
         .map(([slot, id]) => ({ slot: slot as EquipSlot, id: id as string })),
+      refine: Object.entries(this.refineByItem)
+        .filter(([, level]) => level > 0)
+        .map(([id, level]) => ({ id, level })),
       quests: {
         active: Object.entries(this.activeQuests).map(([id, progress]) => ({ id, progress })),
         completed: [...this.completedQuests],

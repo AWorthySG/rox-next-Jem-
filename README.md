@@ -36,6 +36,9 @@ copyrighted assets.
   member HP, and EXP from kills is shared (with a bonus) among nearby members.
 - **Quests**: a town Guide offers a kill-quest board (Poring Purge → Slay the King). Accept,
   track progress as you hunt, and claim EXP/Zeny/item rewards; quest credit shares with party.
+- **Character building**: spend stat points earned on level-up into STR/AGI/VIT/INT/DEX/LUK
+  from the HUD; visit the Blacksmith to refine equipped gear (+1…+10) with Zeny for flat
+  ATK/MATK/DEF/HP bonuses.
 - **HUD & chat**: HP/SP/EXP bars, level, Zeny, stat panel, a hotkey **skill bar** with
   cooldown sweeps, nameplates, latency, and live chat.
 

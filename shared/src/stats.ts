@@ -10,6 +10,13 @@ export interface Stats {
   luk: number;
 }
 
+export type StatKey = keyof Stats;
+export const STAT_KEYS: StatKey[] = ["str", "agi", "vit", "int", "dex", "luk"];
+
+export function isStatKey(s: string): s is StatKey {
+  return (STAT_KEYS as string[]).includes(s);
+}
+
 // Stats derived from base stats + level. Recomputed on level-up / stat change.
 export interface DerivedStats {
   maxHp: number;

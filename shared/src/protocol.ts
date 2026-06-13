@@ -83,6 +83,16 @@ export interface ClaimQuestMsg {
   questId: string;
 }
 
+export interface AllocateStatMsg {
+  t: MsgType.AllocateStat;
+  stat: string;
+}
+
+export interface RefineItemMsg {
+  t: MsgType.RefineItem;
+  slot: string;
+}
+
 export interface ChatMsg {
   t: MsgType.Chat;
   text: string;
@@ -109,6 +119,8 @@ export type ClientMessage =
   | PartyLeaveMsg
   | AcceptQuestMsg
   | ClaimQuestMsg
+  | AllocateStatMsg
+  | RefineItemMsg
   | ChatMsg
   | PingMsg;
 

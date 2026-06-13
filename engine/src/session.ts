@@ -108,6 +108,16 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       if (p) p.acceptQuest(msg.questId);
       break;
     }
+    case MsgType.AllocateStat: {
+      const p = playerOf(world, link);
+      if (p) p.allocateStat(msg.stat);
+      break;
+    }
+    case MsgType.RefineItem: {
+      const p = playerOf(world, link);
+      if (p && isEquipSlot(msg.slot)) p.refineEquipped(msg.slot);
+      break;
+    }
     case MsgType.ClaimQuest: {
       const p = playerOf(world, link);
       if (p) {

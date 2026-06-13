@@ -33,6 +33,11 @@ export const WANDER_PAUSE_MAX_MS = 4000;
 
 // Progression.
 export const LEVEL_CAP = 40;
+export const STAT_POINTS_PER_LEVEL = 3;
+
+// Gear refinement.
+export const MAX_REFINE = 10;
+export const REFINE_BASE_COST = 200; // cost of +1; scales with level
 
 // Networking.
 export const DEFAULT_PORT = 8080;

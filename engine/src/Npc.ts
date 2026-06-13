@@ -40,4 +40,5 @@ export interface NpcSpawn {
 export const NPC_SPAWNS: NpcSpawn[] = [
   { name: "Kafra Employee", role: "shop", x: 5, z: 4, facing: Math.PI },
   { name: "Guide", role: "guide", x: -5, z: 4, facing: Math.PI },
+  { name: "Blacksmith", role: "refine", x: 0, z: 7, facing: Math.PI },
 ];
