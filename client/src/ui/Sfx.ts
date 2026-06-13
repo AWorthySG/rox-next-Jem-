@@ -5,6 +5,8 @@ export class Sfx {
   private ctx: AudioContext | null = null;
   private muted = false;
   private btn = document.getElementById("mute-btn");
+  private musicTimer: number | null = null;
+  private musicStep = 0;
 
   constructor() {
     const resume = () => {
@@ -13,11 +15,26 @@ export class Sfx {
         if (Ctor) this.ctx = new Ctor();
       }
       this.ctx?.resume();
+      this.startMusic();
     };
     window.addEventListener("pointerdown", resume);
     window.addEventListener("keydown", resume);
     this.btn?.addEventListener("click", () => this.toggleMute());
     this.render();
+  }
+
+  // Gentle generative pad: a slow major-pentatonic arpeggio with a soft bass.
+  private startMusic(): void {
+    if (this.musicTimer != null || !this.ctx) return;
+    const scale = [261.6, 293.7, 329.6, 392.0, 440.0, 523.3]; // C pentatonic
+    const bass = [130.8, 174.6, 196.0, 174.6];
+    this.musicTimer = window.setInterval(() => {
+      if (this.muted || !this.ctx) return;
+      const note = scale[Math.floor(Math.random() * scale.length)];
+      this.tone(note, 900, "sine", 0.02);
+      if (this.musicStep % 4 === 0) this.tone(bass[(this.musicStep / 4) % bass.length], 1600, "triangle", 0.025);
+      this.musicStep++;
+    }, 620);
   }
 
   private toggleMute(): void {
