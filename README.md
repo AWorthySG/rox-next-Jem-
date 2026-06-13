@@ -22,10 +22,12 @@ copyrighted assets.
   MVP-style **Poring King** boss (crowned, 1600 HP, big EXP, slow respawn) in a northern arena.
 - **Progression**: STR/AGI/VIT/INT/DEX/LUK stats, EXP curve, leveling with auto stat growth
   and full-heal on level-up (cap 20); HP/SP passive regen; **Zeny** drops from kills.
-- **Classes, skills & job advancement**: start as Novice/Swordsman/Mage, then **advance**
-  (Novice→Swordsman/Mage at Lv10, Swordsman→**Knight** / Mage→**Wizard** at Lv25). Skills are
-  server-authoritative with SP cost, cooldowns, range and AoE — First Aid, Bash, Magnum Break,
-  Fire Bolt, Thunder Storm, plus 2nd-job Pierce, Bowling Bash, Jupitel Thunder, Meteor Storm.
+- **Classes, skills & job advancement**: start as Novice, Swordsman, Mage, **Archer** or
+  **Acolyte**, then **advance** at Lv25 to **Knight / Wizard / Hunter / Priest** (1st jobs from
+  Novice at Lv10). Each line has its own server-authoritative skill kit — Bash/Magnum Break,
+  Fire/Thunder, Double Strafe/Arrow Shower, Heal/Holy Light, plus 2nd-job skills (Pierce,
+  Bowling Bash, Jupitel Thunder, Meteor Storm, Blitz Beat, Sharp Shooting, Magnus Exorcismus,
+  Blessing) — with SP cost, cooldowns, range, AoE, status effects and buffs.
 - **Items, loot & equipment**: monsters drop from per-species loot tables (auto-pickup);
   bag + equipment panel (key `I`); equip weapons/armor/accessories for stat bonuses (ATK/MATK/
   DEF/HP/SP and base-stat boosts) and quaff potions to restore HP/SP. The Poring King drops

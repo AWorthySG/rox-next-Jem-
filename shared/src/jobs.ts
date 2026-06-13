@@ -4,17 +4,25 @@ export const JOB_NAME: Record<JobId, string> = {
   [JobId.Novice]: "Novice",
   [JobId.Swordsman]: "Swordsman",
   [JobId.Mage]: "Mage",
+  [JobId.Archer]: "Archer",
+  [JobId.Acolyte]: "Acolyte",
   [JobId.Knight]: "Knight",
   [JobId.Wizard]: "Wizard",
+  [JobId.Hunter]: "Hunter",
+  [JobId.Priest]: "Priest",
 };
 
 // Advancement tree: which jobs each job may become next.
 export const JOB_TREE: Record<JobId, JobId[]> = {
-  [JobId.Novice]: [JobId.Swordsman, JobId.Mage],
+  [JobId.Novice]: [JobId.Swordsman, JobId.Mage, JobId.Archer, JobId.Acolyte],
   [JobId.Swordsman]: [JobId.Knight],
   [JobId.Mage]: [JobId.Wizard],
+  [JobId.Archer]: [JobId.Hunter],
+  [JobId.Acolyte]: [JobId.Priest],
   [JobId.Knight]: [],
   [JobId.Wizard]: [],
+  [JobId.Hunter]: [],
+  [JobId.Priest]: [],
 };
 
 // Base level required for each tier of advancement.

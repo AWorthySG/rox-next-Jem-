@@ -12,7 +12,13 @@ import type { ClientLink } from "./ClientLink.js";
 import { Player } from "./Player.js";
 import { MAPS, START_MAP } from "./data/maps.js";
 
-const VALID_JOBS = new Set<string>([JobId.Novice, JobId.Swordsman, JobId.Mage]);
+const VALID_JOBS = new Set<string>([
+  JobId.Novice,
+  JobId.Swordsman,
+  JobId.Mage,
+  JobId.Archer,
+  JobId.Acolyte,
+]);
 
 // Applies a decoded client message to the world for a given client link. Shared
 // by the WS gateway and the in-browser local server so routing never diverges.

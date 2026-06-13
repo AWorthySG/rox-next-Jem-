@@ -81,6 +81,17 @@ async function main(): Promise<void> {
   check(cadet.job === JobId.Knight, "jobs: job id changes to Knight");
   check(!cadet.advanceJob(JobId.Wizard), "jobs: Knight has no further advancement");
 
+  // ---- new class lines: Archer->Hunter, Acolyte->Priest ----
+  const ranger = new Player(989, 1, "Ranger", JobId.Archer, 0, 0);
+  check(ranger.skillLevel("double_strafe") === 1, "classes: Archer knows Double Strafe");
+  ranger.level = 25;
+  check(ranger.advanceJob(JobId.Hunter) && ranger.job === JobId.Hunter, "classes: Archer advances to Hunter");
+  check(ranger.skillLevel("blitz_beat") === 1, "classes: Hunter learns Blitz Beat");
+  const cleric = new Player(988, 1, "Cleric", JobId.Acolyte, 0, 0);
+  check(cleric.skillLevel("heal") === 1, "classes: Acolyte knows Heal");
+  cleric.level = 25;
+  check(cleric.advanceJob(JobId.Priest) && cleric.job === JobId.Priest, "classes: Acolyte advances to Priest");
+
   // ---- deterministic shop checks ----
   const buyer = new Player(997, 1, "Buyer", JobId.Novice, 0, 0);
   buyer.zeny = 1000;

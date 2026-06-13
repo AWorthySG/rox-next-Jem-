@@ -60,8 +60,12 @@ export enum JobId {
   Novice = "novice",
   Swordsman = "swordsman",
   Mage = "mage",
+  Archer = "archer",
+  Acolyte = "acolyte",
   Knight = "knight",
   Wizard = "wizard",
+  Hunter = "hunter",
+  Priest = "priest",
 }
 
 export enum DamageKind {

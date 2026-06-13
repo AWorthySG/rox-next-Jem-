@@ -1,5 +1,5 @@
 import type { EntityFull } from "@rox/shared";
-import { JobId, PLAYER_SPEED } from "@rox/shared";
+import { isMagicJob, JobId, PLAYER_SPEED } from "@rox/shared";
 import { buildCharacter, type CharacterMesh } from "../procedural/characterMesh.js";
 import { EntityView } from "./EntityView.js";
 
@@ -23,7 +23,7 @@ export class PlayerView extends EntityView {
   constructor(entity: EntityFull) {
     super(entity, "nameplate player", 2.5);
     this.nameplateEl.classList.add("player");
-    const magic = entity.job === JobId.Mage;
+    const magic = entity.job ? isMagicJob(entity.job) : false;
     this.char = buildCharacter(entity.colorSeed ?? 0, magic);
     this.char.group.userData.entityId = entity.id;
     this.group.add(this.char.group);
