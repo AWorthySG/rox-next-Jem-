@@ -33,8 +33,8 @@ export abstract class EntityView {
     const wrap = document.createElement("div");
     const name = document.createElement("div");
     name.className = `nameplate ${labelClass}`;
-    name.innerHTML =
-      entity.level > 0 ? `${entity.name} <span class="lvl">Lv${entity.level}</span>` : entity.name;
+    this.nameplateEl = name;
+    this.setLabel(entity);
     const bar = document.createElement("div");
     bar.className = `hpbar ${labelClass === "monster" ? "monster" : ""}`;
     const fill = document.createElement("i");
@@ -43,11 +43,17 @@ export abstract class EntityView {
     wrap.appendChild(name);
     wrap.appendChild(bar);
 
-    this.nameplateEl = name;
     this.hpFillEl = fill;
     this.label = new CSS2DObject(wrap);
     this.label.position.set(0, labelHeight, 0);
     this.group.add(this.label);
+  }
+
+  // (Re)render the name line: optional [guild] tag, name, and level.
+  setLabel(entity: EntityFull): void {
+    const guild = entity.guildName ? `<span class="guild-tag">[${entity.guildName}]</span> ` : "";
+    const lvl = entity.level > 0 ? ` <span class="lvl">Lv${entity.level}</span>` : "";
+    this.nameplateEl.innerHTML = `${guild}${entity.name}${lvl}`;
   }
 
   markSelf(): void {

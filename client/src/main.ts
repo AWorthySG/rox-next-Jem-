@@ -19,6 +19,7 @@ import { RefinePanel } from "./ui/RefinePanel.js";
 import { SkillsPanel } from "./ui/SkillsPanel.js";
 import { JobAdvance } from "./ui/JobAdvance.js";
 import { PartyHud } from "./ui/PartyHud.js";
+import { GuildPanel } from "./ui/GuildPanel.js";
 import { AutoBattle } from "./ui/AutoBattle.js";
 import { MiniMap } from "./ui/MiniMap.js";
 import { getItem, JOB_NAME, type SelfState } from "@rox/shared";
@@ -156,6 +157,12 @@ const partyHud = new PartyHud(
   (id) => gameState.entityHp(id),
 );
 
+const guildPanel = new GuildPanel({
+  onCreate: (name) => transport?.send({ t: MsgType.CreateGuild, name }),
+  onJoin: (name) => transport?.send({ t: MsgType.JoinGuild, name }),
+  onLeave: () => transport?.send({ t: MsgType.LeaveGuild }),
+});
+
 // Render an incoming party invite as an accept/decline banner.
 function showInvite(fromName: string, partyId: number): void {
   const el = document.getElementById("invite-prompt")!;
@@ -232,6 +239,7 @@ function handleMessage(msg: ServerMessage): void {
       selfId = msg.selfId;
       gameState.selfId = selfId;
       partyHud.setSelf(selfId);
+      guildPanel.setSelf(selfId);
       currentJob = msg.self.job;
       hud.setIdentity(msg.self.name, JOB_NAME[msg.self.job]);
       hud.update(msg.self);
@@ -284,6 +292,10 @@ function handleMessage(msg: ServerMessage): void {
     case MsgType.PartyUpdate:
       partyHud.setParty(msg.party);
       chat.system(msg.party ? "Party updated." : "You left the party.");
+      break;
+    case MsgType.GuildUpdate:
+      guildPanel.setGuild(msg.guild);
+      chat.system(msg.guild ? `Guild: ${msg.guild.name}` : "You left your guild.");
       break;
     case MsgType.MapChange:
       currentTargetId = null;

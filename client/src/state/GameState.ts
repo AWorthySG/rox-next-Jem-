@@ -25,10 +25,11 @@ export class GameState {
   addEntity(entity: EntityFull): void {
     const existing = this.views.get(entity.id);
     if (existing) {
-      // Re-spawn (e.g. monster respawn): refresh hp/position.
+      // Re-spawn (e.g. monster respawn, guild-tag refresh): refresh state.
       existing.maxHp = entity.maxHp;
       existing.setHp(entity.hp);
-      existing.group.position.set(entity.x, 0, entity.z);
+      existing.setLabel(entity);
+      if (entity.id !== this.selfId) existing.group.position.set(entity.x, 0, entity.z);
       return;
     }
     let view: EntityView;

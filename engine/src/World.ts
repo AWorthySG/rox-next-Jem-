@@ -5,6 +5,7 @@ import { Monster } from "./Monster.js";
 import { Npc } from "./Npc.js";
 import type { PortalDest } from "./Npc.js";
 import { PartySystem } from "./PartySystem.js";
+import { GuildSystem } from "./GuildSystem.js";
 import { MONSTER_TEMPLATES } from "./data/spawns.js";
 import { MAPS } from "./data/maps.js";
 
@@ -16,6 +17,7 @@ export class World {
   readonly monsters = new Map<number, Monster>();
   readonly npcs = new Map<number, Npc>();
   readonly party = new PartySystem(this);
+  readonly guild = new GuildSystem(this);
   readonly mapIds = Object.keys(MAPS);
   private nextEntityId = 1;
 
@@ -47,7 +49,10 @@ export class World {
 
   removePlayer(id: number): void {
     const player = this.players.get(id);
-    if (player) this.party.leave(player);
+    if (player) {
+      this.party.leave(player);
+      this.guild.leave(player);
+    }
     if (this.players.delete(id)) {
       this.broadcastToMap(player?.mapId ?? "", { t: MsgType.Despawn, id });
     }

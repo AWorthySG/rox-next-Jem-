@@ -54,6 +54,8 @@ export class Player {
   equipped: Partial<Record<EquipSlot, string>> = {}; // slot -> itemId
   refineByItem: Record<string, number> = {}; // itemId -> refine level
   partyId: number | null = null;
+  guildId: number | null = null;
+  guildName: string | null = null;
   activeQuests: Record<string, number> = {}; // questId -> kill progress
   completedQuests: string[] = [];
 
@@ -366,6 +368,7 @@ export class Player {
       level: this.level,
       job: this.job,
       colorSeed: this.colorSeed,
+      guildName: this.guildName ?? undefined,
     };
   }
 

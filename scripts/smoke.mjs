@@ -35,6 +35,7 @@ function client(name, job) {
     if (m.t === "loot") st.loot = (st.loot || 0) + 1;
     if (m.t === "partyInviteRecv") st.invitePartyId = m.partyId;
     if (m.t === "partyUpdate") st.party = m.party;
+    if (m.t === "guildUpdate") st.guild = m.guild;
     if (m.t === "chatMsg") st.lastChat = `${m.name}: ${m.text}`;
   });
   return st;
@@ -109,6 +110,15 @@ async function main() {
   await wait(500);
   check((a.party?.members?.length ?? 0) === 2, "leader sees 2-member party");
   check((b.party?.members?.length ?? 0) === 2, "invitee sees 2-member party");
+
+  // Guild: Alice creates a guild, Bob joins it by name; both see a 2-member guild.
+  a.ws.send(JSON.stringify({ t: "createGuild", name: "Valkyries" }));
+  await wait(400);
+  check(a.guild?.name === "Valkyries", "guild create succeeds");
+  b.ws.send(JSON.stringify({ t: "joinGuild", name: "Valkyries" }));
+  await wait(400);
+  check((a.guild?.members?.length ?? 0) === 2, "guild master sees 2 members");
+  check((b.guild?.members?.length ?? 0) === 2, "joiner sees 2-member guild");
 
   // Map travel: walk a fresh client to the cave portal and enter it.
   const t = client("Traveler", "novice");

@@ -104,6 +104,21 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       if (p) world.party.leave(p);
       break;
     }
+    case MsgType.CreateGuild: {
+      const p = playerOf(world, link);
+      if (p) world.guild.create(p, msg.name);
+      break;
+    }
+    case MsgType.JoinGuild: {
+      const p = playerOf(world, link);
+      if (p) world.guild.join(p, msg.name);
+      break;
+    }
+    case MsgType.LeaveGuild: {
+      const p = playerOf(world, link);
+      if (p) world.guild.leave(p);
+      break;
+    }
     case MsgType.AcceptQuest: {
       const p = playerOf(world, link);
       if (p) p.acceptQuest(msg.questId);

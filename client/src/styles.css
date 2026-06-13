@@ -883,6 +883,67 @@ body {
   cursor: pointer;
 }
 
+.guild-tag {
+  color: #d8b3ff;
+  font-size: 10px;
+}
+
+/* ---- guild panel ---- */
+.guild {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 340px;
+  max-width: 92vw;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 2px solid var(--gold);
+  border-radius: 12px;
+  pointer-events: auto;
+  overflow: hidden;
+  z-index: 31;
+}
+.guild-body {
+  padding: 12px 14px;
+}
+.guild-hint {
+  font-size: 12px;
+  opacity: 0.7;
+  margin: 0 0 12px;
+}
+.guild-row {
+  display: flex;
+  gap: 6px;
+}
+.guild-row input {
+  flex: 1;
+  padding: 8px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--panel-border);
+  border-radius: 7px;
+  color: #fff;
+  outline: none;
+}
+.guild-title {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--gold);
+  margin-bottom: 8px;
+}
+.guild-members {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  margin-bottom: 10px;
+  max-height: 40vh;
+  overflow-y: auto;
+}
+.guild-member {
+  font-size: 13px;
+}
+
 /* ---- skills panel ---- */
 .skills {
   position: absolute;

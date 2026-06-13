@@ -73,6 +73,20 @@ export interface PartyLeaveMsg {
   t: MsgType.PartyLeave;
 }
 
+export interface CreateGuildMsg {
+  t: MsgType.CreateGuild;
+  name: string;
+}
+
+export interface JoinGuildMsg {
+  t: MsgType.JoinGuild;
+  name: string;
+}
+
+export interface LeaveGuildMsg {
+  t: MsgType.LeaveGuild;
+}
+
 export interface AcceptQuestMsg {
   t: MsgType.AcceptQuest;
   questId: string;
@@ -142,6 +156,9 @@ export type ClientMessage =
   | PartyInviteMsg
   | PartyAcceptMsg
   | PartyLeaveMsg
+  | CreateGuildMsg
+  | JoinGuildMsg
+  | LeaveGuildMsg
   | AcceptQuestMsg
   | ClaimQuestMsg
   | AllocateStatMsg
@@ -215,6 +232,18 @@ export interface PartyUpdateMsg {
   party: PartyInfo | null; // null = you are no longer in a party
 }
 
+export interface GuildInfo {
+  id: number;
+  name: string;
+  masterId: number;
+  members: PartyMember[];
+}
+
+export interface GuildUpdateMsg {
+  t: MsgType.GuildUpdate;
+  guild: GuildInfo | null; // null = you are no longer in a guild
+}
+
 export interface DamageEventMsg {
   t: MsgType.DamageEvent;
   sourceId: number;
@@ -259,6 +288,7 @@ export type ServerMessage =
   | LootMsg
   | PartyInviteRecvMsg
   | PartyUpdateMsg
+  | GuildUpdateMsg
   | MapChangeMsg
   | DamageEventMsg
   | LevelUpMsg

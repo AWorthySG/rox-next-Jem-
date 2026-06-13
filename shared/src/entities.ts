@@ -38,6 +38,7 @@ export interface EntityFull {
   // players
   job?: JobId;
   colorSeed?: number; // deterministic tint for the procedural character mesh
+  guildName?: string; // shown as a [tag] above the player
   // monsters
   templateId?: string;
   aiState?: MonsterAIState;

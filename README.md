@@ -34,6 +34,8 @@ copyrighted assets.
   and starter gear or sell loot for Zeny, closing the economy loop.
 - **Parties**: click another player to invite them; accept to group up. Party HUD shows live
   member HP, and EXP from kills is shared (with a bonus) among nearby members.
+- **Guilds**: create or join a named guild (window `G`); members show a `[guild]` tag above
+  their head and share a roster.
 - **Quests**: a town Guide offers a kill-quest board (Poring Purge → Slay the King). Accept,
   track progress as you hunt, and claim EXP/Zeny/item rewards; quest credit shares with party.
 - **Character building**: spend stat points earned on level-up into STR/AGI/VIT/INT/DEX/LUK
