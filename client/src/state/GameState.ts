@@ -63,6 +63,25 @@ export class GameState {
     return v ? v.group.position.clone() : null;
   }
 
+  // Nearest living monster to the local player (for target-less skill casts).
+  nearestMonsterId(): number | null {
+    const self = this.self;
+    if (!self) return null;
+    const { x, z } = self.group.position;
+    let best: number | null = null;
+    let bestD = Infinity;
+    for (const v of this.views.values()) {
+      if (v instanceof MonsterView) {
+        const d = Math.hypot(v.group.position.x - x, v.group.position.z - z);
+        if (d < bestD) {
+          bestD = d;
+          best = v.id;
+        }
+      }
+    }
+    return best;
+  }
+
   getPickables(): THREE.Object3D[] {
     const out: THREE.Object3D[] = [];
     for (const v of this.views.values()) {

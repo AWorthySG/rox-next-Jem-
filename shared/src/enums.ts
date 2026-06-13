@@ -4,6 +4,7 @@ export enum MsgType {
   Join = "join",
   MoveIntent = "move",
   AttackIntent = "attack",
+  SkillIntent = "skill",
   Chat = "chat",
   Ping = "ping",
   // server -> client

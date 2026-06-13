@@ -27,6 +27,7 @@ export class Player {
 
   level = 1;
   exp = 0;
+  zeny = 0;
   stats: Stats;
   derived: DerivedStats;
   hp: number;
@@ -36,6 +37,9 @@ export class Player {
   moveTarget: { x: number; z: number } | null = null;
   attackTargetId: number | null = null;
   attackCooldown = 0; // ms remaining
+  pendingSkillId: string | null = null;
+  pendingSkillTargetId: number | null = null;
+  skillCooldowns: Record<string, number> = {}; // skillId -> ms remaining
 
   constructor(id: number, connId: number, name: string, job: JobId, x: number, z: number) {
     this.id = id;
@@ -119,6 +123,7 @@ export class Player {
       maxSp: this.derived.maxSp,
       exp: Math.round(this.exp),
       expToNext: isFinite(xpToNext(this.level)) ? xpToNext(this.level) : 0,
+      zeny: this.zeny,
       stats: { ...this.stats },
       x: round2(this.x),
       z: round2(this.z),

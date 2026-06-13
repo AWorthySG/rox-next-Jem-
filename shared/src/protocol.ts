@@ -21,6 +21,12 @@ export interface AttackIntentMsg {
   targetId: number;
 }
 
+export interface SkillIntentMsg {
+  t: MsgType.SkillIntent;
+  skillId: string;
+  targetId: number; // monster target, or own id for self-cast skills
+}
+
 export interface ChatMsg {
   t: MsgType.Chat;
   text: string;
@@ -31,7 +37,13 @@ export interface PingMsg {
   clientTime: number;
 }
 
-export type ClientMessage = JoinMsg | MoveIntentMsg | AttackIntentMsg | ChatMsg | PingMsg;
+export type ClientMessage =
+  | JoinMsg
+  | MoveIntentMsg
+  | AttackIntentMsg
+  | SkillIntentMsg
+  | ChatMsg
+  | PingMsg;
 
 // ---- Server -> Client ----
 
@@ -74,6 +86,8 @@ export interface DamageEventMsg {
   crit: boolean;
   miss: boolean;
   kind: DamageKind;
+  skillId?: string; // present when the hit came from a skill (drives VFX)
+  heal?: boolean; // amount restored HP rather than dealt damage
 }
 
 export interface LevelUpMsg {

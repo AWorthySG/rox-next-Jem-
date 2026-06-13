@@ -41,3 +41,11 @@ export const CLIENT_TIMEOUT_MS = 15000;
 
 // Client interpolation delay: render remote entities this far in the past (ms).
 export const INTERP_DELAY_MS = 120;
+
+// Passive regeneration (per second), applied on the server tick.
+export const HP_REGEN_PER_SEC = 2.5;
+export const SP_REGEN_PER_SEC = 3.5;
+
+// Monetary drop range per monster kill (Zeny).
+export const ZENY_MIN = 3;
+export const ZENY_MAX = 14;

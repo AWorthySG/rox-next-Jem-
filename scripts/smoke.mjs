@@ -29,6 +29,7 @@ function client(name, job) {
     if (m.t === "spawn" && m.entity.kind === "player") st.seenPlayers.add(m.entity.id);
     if (m.t === "despawn") st.monsters.delete(m.id);
     if (m.t === "self") st.lastSelf = m.self;
+    if (m.t === "damage" && m.skillId) st.skillDamage = (st.skillDamage || 0) + 1;
     if (m.t === "chatMsg") st.lastChat = `${m.name}: ${m.text}`;
   });
   return st;
@@ -63,13 +64,15 @@ async function main() {
   check(a.self != null, "client receives joinAck with selfId");
   check(a.monsters.size > 0, "world spawns monsters (Porings)");
 
-  // Attack the nearest Poring repeatedly and confirm combat + EXP.
+  // Attack the nearest Poring repeatedly (and cast Bash) to confirm combat + EXP.
   const startExp = a.lastSelf?.exp ?? 0;
-  for (let i = 0; i < 50; i++) {
+  const startZeny = a.lastSelf?.zeny ?? 0;
+  for (let i = 0; i < 60; i++) {
     const live = [...a.monsters.values()][0];
     if (live) {
       a.ws.send(JSON.stringify({ t: "move", x: live.x, z: live.z }));
       a.ws.send(JSON.stringify({ t: "attack", targetId: live.id }));
+      if (i % 4 === 0) a.ws.send(JSON.stringify({ t: "skill", skillId: "bash", targetId: live.id }));
     }
     await wait(200);
     if ((a.lastSelf?.exp ?? 0) > startExp || (a.lastSelf?.level ?? 1) > 1) break;
@@ -78,8 +81,10 @@ async function main() {
   check((a.counts.snapshot ?? 0) > 10, "receives periodic snapshots (10 Hz)");
   check((a.counts.self ?? 0) > 10, "receives per-player self-sync");
   check((a.counts.damage ?? 0) > 0, "combat produces damage events");
+  check((a.skillDamage ?? 0) > 0, "skills (Bash) produce damage events");
   const progressed = (a.lastSelf.exp > startExp) || a.lastSelf.level > 1;
   check(progressed, "killing monsters awards EXP / levels up");
+  check(a.lastSelf.zeny > startZeny, "killing monsters awards Zeny");
 
   // Second client should see the first and vice versa; chat should broadcast.
   const b = client("Bob", "mage");

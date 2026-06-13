@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { JobId, MsgType, type ServerMessage } from "@rox/shared";
+import { JobId, MsgType, getSkill, type ServerMessage } from "@rox/shared";
 import { SceneManager } from "./engine/SceneManager.js";
 import { CameraRig } from "./engine/CameraRig.js";
 import { InputController } from "./engine/InputController.js";
@@ -11,6 +11,7 @@ import type { NetHandlers, Transport } from "./net/Transport.js";
 import { Hud } from "./ui/Hud.js";
 import { ChatBox } from "./ui/ChatBox.js";
 import { DamageNumbers } from "./ui/DamageNumbers.js";
+import { SkillBar } from "./ui/SkillBar.js";
 import { makePoringTexture } from "./procedural/textures.js";
 
 // ---- bootstrap engine ----
@@ -20,6 +21,16 @@ const cameraRig = new CameraRig(scene.renderer.domElement);
 const gameState = new GameState(scene.scene, makePoringTexture());
 const hud = new Hud();
 const damageNumbers = new DamageNumbers(scene.scene);
+
+// Skill bar: casts on the current target (or nearest monster); heals target self.
+let currentTargetId: number | null = null;
+const skillBar = new SkillBar((skillId) => {
+  const def = getSkill(skillId);
+  if (!def) return;
+  const targetId = def.heal ? selfId : (currentTargetId ?? gameState.nearestMonsterId());
+  if (targetId == null) return;
+  transport?.send({ t: MsgType.SkillIntent, skillId, targetId });
+});
 
 // ---- transport (online WebSocket with automatic solo fallback) ----
 const wsUrl = (import.meta.env.VITE_WS_URL as string) || `ws://${location.hostname}:8080`;
@@ -86,6 +97,7 @@ const input = new InputController(
       gameState.self?.setMoveTarget(x, z);
     },
     onAttack: (id) => {
+      currentTargetId = id;
       transport?.send({ t: MsgType.AttackIntent, targetId: id });
       gameState.self?.clearMoveTarget();
     },
@@ -100,6 +112,8 @@ function handleMessage(msg: ServerMessage): void {
       gameState.selfId = selfId;
       hud.setIdentity(msg.self.name, msg.self.job);
       hud.update(msg.self);
+      skillBar.build(msg.self.job);
+      skillBar.setSp(msg.self.sp);
       hud.show();
       document.getElementById("login")!.classList.add("hidden");
       chat.system(
@@ -112,6 +126,7 @@ function handleMessage(msg: ServerMessage): void {
       gameState.addEntity(msg.entity);
       break;
     case MsgType.Despawn:
+      if (msg.id === currentTargetId) currentTargetId = null;
       gameState.removeEntity(msg.id);
       break;
     case MsgType.Snapshot:
@@ -119,6 +134,7 @@ function handleMessage(msg: ServerMessage): void {
       break;
     case MsgType.SelfSync:
       hud.update(msg.self);
+      skillBar.setSp(msg.self.sp);
       break;
     case MsgType.DamageEvent:
       onDamage(msg);
@@ -138,7 +154,9 @@ function handleMessage(msg: ServerMessage): void {
 function onDamage(msg: Extract<ServerMessage, { t: MsgType.DamageEvent }>): void {
   const pos = gameState.worldPosOf(msg.targetId);
   if (!pos) return;
-  if (msg.miss) {
+  if (msg.heal) {
+    damageNumbers.spawn(pos, `+${msg.amount}`, "heal");
+  } else if (msg.miss) {
     damageNumbers.spawn(pos, "Miss", "miss");
   } else {
     const variant = msg.targetId === selfId ? "taken" : msg.crit ? "crit" : "";
@@ -183,6 +201,7 @@ const followPos = new THREE.Vector3();
 new Loop((dt) => {
   gameState.update(dt);
   damageNumbers.update();
+  skillBar.update();
   const self = gameState.self;
   if (self) followPos.copy(self.group.position);
   cameraRig.follow(followPos, dt);

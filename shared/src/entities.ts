@@ -44,6 +44,7 @@ export interface SelfState {
   maxSp: number;
   exp: number;
   expToNext: number;
+  zeny: number;
   stats: Stats;
   x: number;
   z: number;

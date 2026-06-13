@@ -17,6 +17,7 @@ const wait = (ms: number) => new Promise((r) => setTimeout(r, ms));
 let selfId: number | null = null;
 let lastSelf: any = null;
 let damage = 0;
+let skillDamage = 0;
 let snapshots = 0;
 const monsters = new Map<number, any>();
 
@@ -27,6 +28,7 @@ const local = new LocalServer({
     if (m.t === MsgType.Despawn) monsters.delete(m.id);
     if (m.t === MsgType.SelfSync) lastSelf = m.self;
     if (m.t === MsgType.DamageEvent) damage++;
+    if (m.t === MsgType.DamageEvent && m.skillId) skillDamage++;
     if (m.t === MsgType.Snapshot) snapshots++;
   },
 });
@@ -44,6 +46,7 @@ async function main(): Promise<void> {
     if (live) {
       local.send({ t: MsgType.MoveIntent, x: live.x, z: live.z });
       local.send({ t: MsgType.AttackIntent, targetId: live.id });
+      if (i % 4 === 0) local.send({ t: MsgType.SkillIntent, skillId: "bash", targetId: live.id });
     }
     await wait(200);
     if ((lastSelf?.exp ?? 0) > startExp || (lastSelf?.level ?? 1) > 1) break;
@@ -51,6 +54,7 @@ async function main(): Promise<void> {
 
   check(snapshots > 10, "solo: engine emits snapshots");
   check(damage > 0, "solo: combat produces damage");
+  check(skillDamage > 0, "solo: skills produce damage");
   check((lastSelf.exp > startExp) || lastSelf.level > 1, "solo: killing monsters awards EXP");
 
   local.stop();

@@ -34,6 +34,15 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       }
       break;
     }
+    case MsgType.SkillIntent: {
+      const p = playerOf(world, link);
+      if (p) {
+        p.pendingSkillId = msg.skillId;
+        p.pendingSkillTargetId = msg.targetId;
+        p.attackTargetId = null; // skill supersedes the current auto-attack
+      }
+      break;
+    }
     case MsgType.Chat: {
       const p = playerOf(world, link);
       const text = (msg.text ?? "").toString().slice(0, 140).trim();

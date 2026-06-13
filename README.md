@@ -19,9 +19,12 @@ copyrighted assets.
   crits), floating damage numbers, HP bars, monster death & respawn, monster AI
   (idle → wander → aggro → attack → leash).
 - **Progression**: STR/AGI/VIT/INT/DEX/LUK stats, EXP curve, leveling with auto stat growth
-  and full-heal on level-up (cap 20).
-- **Classes**: Novice, Swordsman (melee), Mage (magic) with distinct base stats.
-- **HUD & chat**: HP/SP/EXP bars, level, stat panel, nameplates, latency, and live chat.
+  and full-heal on level-up (cap 20); HP/SP passive regen; **Zeny** drops from kills.
+- **Classes & skills**: Novice (First Aid heal), Swordsman (Bash, Magnum Break AoE),
+  Mage (Fire Bolt, Thunder Storm AoE) — server-authoritative skills with SP cost, cooldowns,
+  range and area-of-effect.
+- **HUD & chat**: HP/SP/EXP bars, level, Zeny, stat panel, a hotkey **skill bar** with
+  cooldown sweeps, nameplates, latency, and live chat.
 
 ## Run it
 

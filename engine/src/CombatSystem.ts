@@ -1,30 +1,144 @@
 import {
   DamageKind,
+  getSkill,
+  HP_REGEN_PER_SEC,
   MonsterAIState,
   MsgType,
   PLAYER_ATTACK_COOLDOWN_MS,
   PLAYER_ATTACK_RANGE,
   RESPAWN_MS,
   resolveAttack,
+  SP_REGEN_PER_SEC,
+  ZENY_MAX,
+  ZENY_MIN,
+  type SkillDef,
 } from "@rox/shared";
 import type { World } from "./World.js";
 import type { Player } from "./Player.js";
 import type { Monster } from "./Monster.js";
 import { dist2d } from "./MovementSystem.js";
 
-// Resolves player attack intents and applies monster-dealt damage. Emits
-// DamageEvent / LevelUp / Despawn messages as outcomes occur.
+// Resolves player auto-attacks and skills, applies monster-dealt damage, and
+// handles regen, kills, EXP/Zeny rewards and respawns.
 export class CombatSystem {
   constructor(private world: World) {}
 
   update(dtMs: number): void {
+    const dt = dtMs / 1000;
     for (const p of this.world.players.values()) {
+      this.regen(p, dt);
       if (p.attackCooldown > 0) p.attackCooldown -= dtMs;
-      this.updatePlayerAttack(p, dtMs);
+      for (const id of Object.keys(p.skillCooldowns)) {
+        if (p.skillCooldowns[id] > 0) p.skillCooldowns[id] = Math.max(0, p.skillCooldowns[id] - dtMs);
+      }
+      // Skills take priority; if one is being cast or chased this tick, skip auto-attack.
+      if (this.processSkill(p)) continue;
+      this.updatePlayerAttack(p);
     }
   }
 
-  private updatePlayerAttack(p: Player, _dtMs: number): void {
+  private regen(p: Player, dt: number): void {
+    if (p.hp < p.derived.maxHp) p.hp = Math.min(p.derived.maxHp, p.hp + HP_REGEN_PER_SEC * dt);
+    if (p.sp < p.derived.maxSp) p.sp = Math.min(p.derived.maxSp, p.sp + SP_REGEN_PER_SEC * dt);
+  }
+
+  // ---- skills ----
+
+  private processSkill(p: Player): boolean {
+    if (p.pendingSkillId == null) return false;
+    const def = getSkill(p.pendingSkillId);
+    if (!def || def.job !== p.job) {
+      this.clearSkill(p);
+      return false;
+    }
+    if ((p.skillCooldowns[def.id] ?? 0) > 0 || p.sp < def.spCost) {
+      this.clearSkill(p);
+      return false;
+    }
+
+    // Self-cast heal.
+    if (def.heal) {
+      this.castHeal(p, def);
+      this.clearSkill(p);
+      return true;
+    }
+
+    const target = p.pendingSkillTargetId != null ? this.world.monsters.get(p.pendingSkillTargetId) : undefined;
+    if (!target || target.isDead) {
+      this.clearSkill(p);
+      return false;
+    }
+
+    if (dist2d(p.x, p.z, target.x, target.z) > def.range) {
+      // Move into range, keep the skill queued.
+      p.moveTarget = { x: target.x, z: target.z };
+      return true;
+    }
+
+    // Cast.
+    p.moveTarget = null;
+    p.facing = Math.atan2(target.x - p.x, target.z - p.z);
+    p.sp -= def.spCost;
+    p.skillCooldowns[def.id] = def.cooldownMs;
+
+    this.applySkillHit(p, target, def);
+    if (def.aoeRadius) {
+      for (const m of this.world.monsters.values()) {
+        if (m.id === target.id || m.isDead) continue;
+        if (dist2d(m.x, m.z, target.x, target.z) <= def.aoeRadius) this.applySkillHit(p, m, def);
+      }
+    }
+    this.clearSkill(p);
+    return true;
+  }
+
+  private castHeal(p: Player, def: SkillDef): void {
+    p.sp -= def.spCost;
+    p.skillCooldowns[def.id] = def.cooldownMs;
+    const amount = Math.round(p.derived.maxHp * 0.3 + p.derived.matk);
+    p.hp = Math.min(p.derived.maxHp, p.hp + amount);
+    this.world.broadcast({
+      t: MsgType.DamageEvent,
+      sourceId: p.id,
+      targetId: p.id,
+      amount,
+      crit: false,
+      miss: false,
+      kind: DamageKind.Magic,
+      skillId: def.id,
+      heal: true,
+    });
+  }
+
+  private applySkillHit(p: Player, target: Monster, def: SkillDef): void {
+    const result = resolveAttack(p.derived, target.derived, def.kind, Math.random, def.power);
+    this.world.broadcast({
+      t: MsgType.DamageEvent,
+      sourceId: p.id,
+      targetId: target.id,
+      amount: result.amount,
+      crit: result.crit,
+      miss: result.miss,
+      kind: result.kind,
+      skillId: def.id,
+    });
+    if (result.miss) return;
+    target.hp -= result.amount;
+    if (target.aiState !== MonsterAIState.Attack) {
+      target.aggroTargetId = p.id;
+      target.aiState = MonsterAIState.Aggro;
+    }
+    if (target.hp <= 0) this.killMonster(target, p);
+  }
+
+  private clearSkill(p: Player): void {
+    p.pendingSkillId = null;
+    p.pendingSkillTargetId = null;
+  }
+
+  // ---- auto-attack ----
+
+  private updatePlayerAttack(p: Player): void {
     if (p.attackTargetId == null) return;
     const target = this.world.monsters.get(p.attackTargetId);
     if (!target || target.isDead) {
@@ -34,12 +148,10 @@ export class CombatSystem {
 
     const d = dist2d(p.x, p.z, target.x, target.z);
     if (d > PLAYER_ATTACK_RANGE) {
-      // Out of range: chase by moving toward the target each tick.
       p.moveTarget = { x: target.x, z: target.z };
       return;
     }
 
-    // In range: stop moving and face the target.
     p.moveTarget = null;
     p.facing = Math.atan2(target.x - p.x, target.z - p.z);
 
@@ -60,16 +172,14 @@ export class CombatSystem {
     if (result.miss) return;
 
     target.hp -= result.amount;
-    // Aggro the monster onto its attacker.
     if (target.aiState !== MonsterAIState.Attack) {
       target.aggroTargetId = p.id;
       target.aiState = MonsterAIState.Aggro;
     }
-
-    if (target.hp <= 0) {
-      this.killMonster(target, p);
-    }
+    if (target.hp <= 0) this.killMonster(target, p);
   }
+
+  // ---- shared outcomes ----
 
   private killMonster(target: Monster, killer: Player): void {
     target.hp = 0;
@@ -78,10 +188,11 @@ export class CombatSystem {
     target.respawnAt = Date.now() + RESPAWN_MS;
     this.world.broadcast({ t: MsgType.Despawn, id: target.id });
 
-    // Award EXP and clear any players targeting this monster.
+    killer.zeny += ZENY_MIN + Math.floor(Math.random() * (ZENY_MAX - ZENY_MIN + 1));
     const leveled = killer.gainExp(target.template.baseExp);
     for (const p of this.world.players.values()) {
       if (p.attackTargetId === target.id) p.attackTargetId = null;
+      if (p.pendingSkillTargetId === target.id) this.clearSkill(p);
     }
     if (leveled) {
       this.world.broadcast({
@@ -91,12 +202,11 @@ export class CombatSystem {
         maxHp: killer.derived.maxHp,
         maxSp: killer.derived.maxSp,
         stats: { ...killer.stats },
-        expToNext: isFiniteExp(killer),
+        expToNext: killer.toSelfState().expToNext,
       });
     }
   }
 
-  // Called by MonsterAI when a monster lands a hit on a player.
   monsterAttack(monster: Monster, player: Player): void {
     const result = resolveAttack(monster.derived, player.derived, DamageKind.Physical);
     this.world.broadcast({
@@ -110,9 +220,7 @@ export class CombatSystem {
     });
     if (result.miss) return;
     player.hp -= result.amount;
-    if (player.hp <= 0) {
-      this.respawnPlayer(player);
-    }
+    if (player.hp <= 0) this.respawnPlayer(player);
   }
 
   private respawnPlayer(player: Player): void {
@@ -122,7 +230,7 @@ export class CombatSystem {
     player.z = 0;
     player.moveTarget = null;
     player.attackTargetId = null;
-    // Drop aggro from any monster chasing this player.
+    this.clearSkill(player);
     for (const m of this.world.monsters.values()) {
       if (m.aggroTargetId === player.id) {
         m.aggroTargetId = null;
@@ -130,9 +238,4 @@ export class CombatSystem {
       }
     }
   }
-}
-
-function isFiniteExp(p: Player): number {
-  const v = p.toSelfState().expToNext;
-  return v;
 }
