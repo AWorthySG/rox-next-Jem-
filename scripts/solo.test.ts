@@ -3,7 +3,7 @@
 // in Node — no DOM needed — and asserts join, spawns, combat and EXP gain. Also
 // deterministically checks the item/equipment system at the engine level.
 import { JobId, MsgType, StatusType, LEVEL_CAP, xpToNext, type ServerMessage } from "@rox/shared";
-import { Monster, MONSTER_TEMPLATES, Player } from "@rox/engine";
+import { MAPS, Monster, MONSTER_TEMPLATES, Player } from "@rox/engine";
 import { LocalServer } from "../client/src/net/LocalServer.js";
 
 const failures: string[] = [];
@@ -108,6 +108,13 @@ async function main(): Promise<void> {
   rk.level = 70;
   check(rk.advanceJob(JobId.DragonKnight) && rk.job === JobId.DragonKnight, "4th job: Rune Knight -> Dragon Knight at Lv70");
   check(rk.skillLevel("storm_slash") === 1, "4th job: Dragon Knight learns Storm Slash");
+
+  // ---- every combat map has at least two bosses ----
+  for (const m of Object.values(MAPS)) {
+    if (m.zones.length === 0) continue; // PvP arena (no monster zones)
+    const bosses = m.zones.filter((z) => MONSTER_TEMPLATES[z.templateId]?.boss).length;
+    check(bosses >= 2, `world: ${m.id} has >= 2 bosses (${bosses})`);
+  }
 
   // ---- deterministic shop checks ----
   const buyer = new Player(997, 1, "Buyer", JobId.Novice, 0, 0);

@@ -374,6 +374,36 @@ export const DROP_TABLES: Record<string, DropEntry[]> = {
   ],
 };
 
+// Drops for the expanded bestiary (extra regulars + per-map second bosses + the
+// Juno/Einbroch/Rachel chains). Bosses reward potions + a shot at elite gear.
+const HI = (extra: DropEntry[]): DropEntry[] => [{ itemId: "red_potion", chance: 1, qty: 6 }, ...extra];
+Object.assign(DROP_TABLES, {
+  chonchon: [{ itemId: "apple", chance: 0.25 }],
+  coco: [{ itemId: "apple", chance: 0.25 }, { itemId: "blue_potion", chance: 0.1 }],
+  angeling: HI([{ itemId: "poring_crown", chance: 0.6 }, { itemId: "ring_of_power", chance: 0.5 }]),
+  eddga: HI([{ itemId: "leather_armor", chance: 0.6 }, { itemId: "novice_knife", chance: 0.5 }]),
+  moonlight: HI([{ itemId: "ring_of_power", chance: 0.6 }, { itemId: "apprentice_rod", chance: 0.5 }]),
+  mistress: HI([{ itemId: "cotton_shirt", chance: 0.6 }, { itemId: "ring_of_power", chance: 0.5 }]),
+  amon_ra: HI([{ itemId: "saint_robe", chance: 0.6 }, { itemId: "claymore", chance: 0.45 }, { itemId: "rosary", chance: 0.5 }]),
+  owl_duke: HI([{ itemId: "clock_gear", chance: 0.7 }, { itemId: "claymore", chance: 0.4 }]),
+  kraken: HI([{ itemId: "tidal_shoes", chance: 0.7 }, { itemId: "claymore", chance: 0.4 }]),
+  tao_gunka: HI([{ itemId: "valkyrie_armor", chance: 0.4 }, { itemId: "tidal_shoes", chance: 0.6 }]),
+  gloom: HI([{ itemId: "valkyrie_armor", chance: 0.5 }, { itemId: "dragon_slayer", chance: 0.35 }]),
+  valkyrie_randgris: HI([{ itemId: "valkyrie_armor", chance: 0.6 }, { itemId: "immortal_heart", chance: 0.5 }]),
+  sleeper: [{ itemId: "red_potion", chance: 0.45 }],
+  hill_wind: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "spirit_staff", chance: 0.03 }],
+  kiel: HI([{ itemId: "immortal_heart", chance: 0.5 }, { itemId: "dragon_slayer", chance: 0.45 }]),
+  vesper: HI([{ itemId: "spirit_staff", chance: 0.6 }, { itemId: "immortal_heart", chance: 0.45 }]),
+  metaling: [{ itemId: "red_potion", chance: 0.45 }],
+  venatu: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "dragon_slayer", chance: 0.03 }],
+  boitata: HI([{ itemId: "dragon_slayer", chance: 0.55 }, { itemId: "valkyrie_armor", chance: 0.45 }]),
+  tendrilion: HI([{ itemId: "immortal_heart", chance: 0.55 }, { itemId: "spirit_staff", chance: 0.5 }]),
+  vanberk: [{ itemId: "red_potion", chance: 0.5 }],
+  hodremlin: [{ itemId: "red_potion", chance: 0.5 }, { itemId: "valkyrie_armor", chance: 0.03 }],
+  ktullanux: HI([{ itemId: "immortal_heart", chance: 0.6 }, { itemId: "valkyrie_armor", chance: 0.5 }]),
+  beelzebub: HI([{ itemId: "immortal_heart", chance: 0.8 }, { itemId: "dragon_slayer", chance: 0.6 }, { itemId: "valkyrie_armor", chance: 0.6 }]),
+});
+
 // Roll a monster's drop table into a concrete item list.
 export function rollDrops(templateId: string, rng: () => number = Math.random): Array<{ id: string; qty: number }> {
   const table = DROP_TABLES[templateId];
