@@ -117,6 +117,17 @@ export interface EnterPortalMsg {
   npcId: number;
 }
 
+export interface NpcHealMsg {
+  t: MsgType.NpcHeal;
+  npcId: number;
+}
+
+export interface WarpMsg {
+  t: MsgType.Warp;
+  npcId: number;
+  mapId: string;
+}
+
 export interface MapTheme {
   ground: number; // hex tint applied to the ground
   fog: number; // hex fog / sky-dome color
@@ -166,6 +177,8 @@ export type ClientMessage =
   | LevelSkillMsg
   | RefineItemMsg
   | EnterPortalMsg
+  | NpcHealMsg
+  | WarpMsg
   | ChatMsg
   | PingMsg;
 

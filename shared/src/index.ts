@@ -5,6 +5,7 @@ export * from "./jobs.js";
 export * from "./combat.js";
 export * from "./skills.js";
 export * from "./items.js";
+export * from "./pets.js";
 export * from "./quests.js";
 export * from "./leveling.js";
 export * from "./entities.js";

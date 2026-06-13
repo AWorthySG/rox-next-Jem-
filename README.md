@@ -18,20 +18,24 @@ copyrighted assets.
 - **Combat**: click a monster to attack — classic RO-flavored damage (ATK/MATK vs DEF, hit/flee,
   crits), floating damage numbers, HP bars, monster death & respawn, monster AI
   (idle → wander → aggro → attack → leash).
-- **Bestiary + boss**: Poring, Fabre, Drops and Lunatic field zones by difficulty, plus an
-  MVP-style **Poring King** boss (crowned, 1600 HP, big EXP, slow respawn) in a northern arena.
+- **Bestiary + bosses**: Poring, Fabre, Drops, Lunatic, plus Glast Heim's Zombies and
+  Skeletons; two MVP bosses — the **Poring King** and **Baphomet** (6000 HP) — with rare drops.
 - **Progression**: STR/AGI/VIT/INT/DEX/LUK stats, EXP curve, leveling with auto stat growth
   and full-heal on level-up (cap 20); HP/SP passive regen; **Zeny** drops from kills.
-- **Classes, skills & job advancement**: start as Novice/Swordsman/Mage, then **advance**
-  (Novice→Swordsman/Mage at Lv10, Swordsman→**Knight** / Mage→**Wizard** at Lv25). Skills are
-  server-authoritative with SP cost, cooldowns, range and AoE — First Aid, Bash, Magnum Break,
-  Fire Bolt, Thunder Storm, plus 2nd-job Pierce, Bowling Bash, Jupitel Thunder, Meteor Storm.
+- **Classes, skills & job advancement**: start as Novice, Swordsman, Mage, **Archer** or
+  **Acolyte**, **advance** at Lv25 to **Knight / Wizard / Hunter / Priest**, at Lv45 to the
+  transcendent **Rune Knight / High Wizard / Sniper / High Priest**, then at Lv70 to the 4th-tier
+  **Dragon Knight / Arch Mage / Windhawk / Cardinal** (**level cap 130**). Each line has
+  its own server-authoritative skill kit — Bash/Magnum Break,
+  Fire/Thunder, Double Strafe/Arrow Shower, Heal/Holy Light, plus 2nd-job skills (Pierce,
+  Bowling Bash, Jupitel Thunder, Meteor Storm, Blitz Beat, Sharp Shooting, Magnus Exorcismus,
+  Blessing) — with SP cost, cooldowns, range, AoE, status effects and buffs.
 - **Items, loot & equipment**: monsters drop from per-species loot tables (auto-pickup);
   bag + equipment panel (key `I`); equip weapons/armor/accessories for stat bonuses (ATK/MATK/
   DEF/HP/SP and base-stat boosts) and quaff potions to restore HP/SP. The Poring King drops
   rare gear (King's Cleaver, Poring Crown).
-- **Town NPC & shop economy**: a Kafra shopkeeper stands in town — click her to buy potions
-  and starter gear or sell loot for Zeny, closing the economy loop.
+- **Town services**: a Kafra shopkeeper (buy/sell), a Guide (quests), a Blacksmith (refine),
+  a **Healer** (full HP/SP restore) and a **Warp Girl** (quick-travel to any map) staff the town.
 - **Parties**: click another player to invite them; accept to group up. Party HUD shows live
   member HP, and EXP from kills is shared (with a bonus) among nearby members.
 - **Guilds**: create or join a named guild (window `G`); members show a `[guild]` tag above
@@ -45,12 +49,17 @@ copyrighted assets.
   Magnum Break **slows**, Thunder Storm/Bowling Bash **stun** — resolved server-side.
 - **Self-buffs**: Battle Focus (+30% ATK) and Mystic Focus (+30% MATK) temporarily empower
   the caster, shown as timed chips on the HUD.
+- **Pets**: use a pet egg (dropped by Porings, Lunatics, Baphomet, or bought) to summon a
+  companion that trails you and grants a passive stat bonus.
+- **Mounts**: buy a Peco Peco Whistle to ride a mount for faster movement (toggle on/off).
 - **Auto-battle**: the signature ROX convenience — toggle Auto (button or `T`) and your
   character automatically seeks the nearest monster, attacks, and casts ready skills.
 - **Minimap**: a top-down radar showing you, other players, NPCs, monsters and the boss.
-- **Multiple maps**: travel between **Prontera Field**, the tougher **Poring Cave**, and the
-  **PvP Arena** via portals; each map has its own theme, monsters and boss, and is networked
-  independently (you only see players/monsters on your current map).
+- **Multiple maps**: a portal-linked progression — **Prontera Field → Payon Forest → Poring
+  Cave → Glast Heim → Aldebaran Clock Tower → Comodo Beach → Umbala Jungle → Juno → Einbroch →
+  Rachel → Endless Tower**, plus the **PvP Arena**. Each map is themed, networked independently,
+  and guarded by **two MVP bosses**.
+- **30+ monsters & 20+ MVP bosses** across the world, from Porings to Beelzebub (Lv125).
 - **PvP**: in the Arena, click another player to fight them; defeating one announces it and
   respawns the loser.
 - **HUD & chat**: HP/SP/EXP bars, level, Zeny, stat panel, a hotkey **skill bar** with

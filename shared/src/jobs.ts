@@ -4,25 +4,57 @@ export const JOB_NAME: Record<JobId, string> = {
   [JobId.Novice]: "Novice",
   [JobId.Swordsman]: "Swordsman",
   [JobId.Mage]: "Mage",
+  [JobId.Archer]: "Archer",
+  [JobId.Acolyte]: "Acolyte",
   [JobId.Knight]: "Knight",
   [JobId.Wizard]: "Wizard",
+  [JobId.Hunter]: "Hunter",
+  [JobId.Priest]: "Priest",
+  [JobId.RuneKnight]: "Rune Knight",
+  [JobId.HighWizard]: "High Wizard",
+  [JobId.Sniper]: "Sniper",
+  [JobId.HighPriest]: "High Priest",
+  [JobId.DragonKnight]: "Dragon Knight",
+  [JobId.ArchMage]: "Arch Mage",
+  [JobId.Windhawk]: "Windhawk",
+  [JobId.Cardinal]: "Cardinal",
 };
 
 // Advancement tree: which jobs each job may become next.
 export const JOB_TREE: Record<JobId, JobId[]> = {
-  [JobId.Novice]: [JobId.Swordsman, JobId.Mage],
+  [JobId.Novice]: [JobId.Swordsman, JobId.Mage, JobId.Archer, JobId.Acolyte],
   [JobId.Swordsman]: [JobId.Knight],
   [JobId.Mage]: [JobId.Wizard],
-  [JobId.Knight]: [],
-  [JobId.Wizard]: [],
+  [JobId.Archer]: [JobId.Hunter],
+  [JobId.Acolyte]: [JobId.Priest],
+  [JobId.Knight]: [JobId.RuneKnight],
+  [JobId.Wizard]: [JobId.HighWizard],
+  [JobId.Hunter]: [JobId.Sniper],
+  [JobId.Priest]: [JobId.HighPriest],
+  [JobId.RuneKnight]: [JobId.DragonKnight],
+  [JobId.HighWizard]: [JobId.ArchMage],
+  [JobId.Sniper]: [JobId.Windhawk],
+  [JobId.HighPriest]: [JobId.Cardinal],
+  [JobId.DragonKnight]: [],
+  [JobId.ArchMage]: [],
+  [JobId.Windhawk]: [],
+  [JobId.Cardinal]: [],
 };
+
+const SECOND_JOBS = new Set<JobId>([JobId.Knight, JobId.Wizard, JobId.Hunter, JobId.Priest]);
+const THIRD_JOBS = new Set<JobId>([JobId.RuneKnight, JobId.HighWizard, JobId.Sniper, JobId.HighPriest]);
 
 // Base level required for each tier of advancement.
 export const FIRST_JOB_LEVEL = 10; // Novice -> 1st job
 export const SECOND_JOB_LEVEL = 25; // 1st job -> 2nd job
+export const THIRD_JOB_LEVEL = 45; // 2nd job -> 3rd (transcendent) job
+export const FOURTH_JOB_LEVEL = 70; // 3rd -> 4th job
 
 export function advanceLevelFor(job: JobId): number {
-  return job === JobId.Novice ? FIRST_JOB_LEVEL : SECOND_JOB_LEVEL;
+  if (job === JobId.Novice) return FIRST_JOB_LEVEL;
+  if (THIRD_JOBS.has(job)) return FOURTH_JOB_LEVEL;
+  if (SECOND_JOBS.has(job)) return THIRD_JOB_LEVEL;
+  return SECOND_JOB_LEVEL;
 }
 
 // Jobs a player at the given level may advance into right now.

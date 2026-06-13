@@ -23,6 +23,8 @@ export enum MsgType {
   LevelSkill = "levelSkill",
   RefineItem = "refineItem",
   EnterPortal = "enterPortal",
+  NpcHeal = "npcHeal",
+  Warp = "warp",
   Chat = "chat",
   Ping = "ping",
   // server -> client
@@ -60,8 +62,20 @@ export enum JobId {
   Novice = "novice",
   Swordsman = "swordsman",
   Mage = "mage",
+  Archer = "archer",
+  Acolyte = "acolyte",
   Knight = "knight",
   Wizard = "wizard",
+  Hunter = "hunter",
+  Priest = "priest",
+  RuneKnight = "rune_knight",
+  HighWizard = "high_wizard",
+  Sniper = "sniper",
+  HighPriest = "high_priest",
+  DragonKnight = "dragon_knight",
+  ArchMage = "arch_mage",
+  Windhawk = "windhawk",
+  Cardinal = "cardinal",
 }
 
 export enum DamageKind {

@@ -11,6 +11,7 @@ import type { NetHandlers, Transport } from "./net/Transport.js";
 import { Hud } from "./ui/Hud.js";
 import { ChatBox } from "./ui/ChatBox.js";
 import { DamageNumbers } from "./ui/DamageNumbers.js";
+import { PetCompanion } from "./entities/PetCompanion.js";
 import { SkillBar } from "./ui/SkillBar.js";
 import { InventoryPanel } from "./ui/InventoryPanel.js";
 import { ShopPanel } from "./ui/ShopPanel.js";
@@ -20,6 +21,7 @@ import { SkillsPanel } from "./ui/SkillsPanel.js";
 import { JobAdvance } from "./ui/JobAdvance.js";
 import { PartyHud } from "./ui/PartyHud.js";
 import { GuildPanel } from "./ui/GuildPanel.js";
+import { WarpPanel } from "./ui/WarpPanel.js";
 import { AutoBattle } from "./ui/AutoBattle.js";
 import { MiniMap } from "./ui/MiniMap.js";
 import { getItem, JOB_NAME, type SelfState } from "@rox/shared";
@@ -33,6 +35,7 @@ const gameState = new GameState(scene.scene, buildMonsterAppearances());
 const hud = new Hud((stat) => transport?.send({ t: MsgType.AllocateStat, stat }));
 const damageNumbers = new DamageNumbers(scene.scene);
 const miniMap = new MiniMap();
+const petCompanion = new PetCompanion(scene.scene);
 
 // Skill bar: casts on the current target (or nearest monster); heals target self.
 let currentTargetId: number | null = null;
@@ -150,6 +153,8 @@ const skills = new SkillsPanel({
   onLevel: (skillId) => transport?.send({ t: MsgType.LevelSkill, skillId }),
 });
 
+const warp = new WarpPanel((npcId, mapId) => transport?.send({ t: MsgType.Warp, npcId, mapId }));
+
 let currentJob: JobId | null = null;
 const jobAdvance = new JobAdvance((job) => transport?.send({ t: MsgType.JobAdvance, targetJob: job }));
 
@@ -220,6 +225,15 @@ const input = new InputController(
         transport?.send({ t: MsgType.EnterPortal, npcId: id });
         return;
       }
+      if (role === "healer") {
+        transport?.send({ t: MsgType.NpcHeal, npcId: id });
+        chat.system("The Healer restores your HP and SP.");
+        return;
+      }
+      if (role === "warp") {
+        warp.open(id);
+        return;
+      }
       // Clicking another player: attack them in a PvP map, else invite to party.
       if (gameState.isRemotePlayer(id)) {
         if (pvpMap) {
@@ -284,6 +298,8 @@ function handleMessage(msg: ServerMessage): void {
       quests.sync(msg.self);
       refine.sync(msg.self);
       skills.sync(msg.self);
+      petCompanion.setPet(msg.self.pet);
+      gameState.self?.setMounted(msg.self.mounted);
       jobAdvance.update(msg.self);
       break;
     case MsgType.Loot: {
@@ -381,6 +397,7 @@ new Loop((dt) => {
   miniMap.update(gameState.blips());
   const self = gameState.self;
   if (self) followPos.copy(self.group.position);
+  petCompanion.update(self ? self.group.position : null, dt);
   cameraRig.follow(followPos, dt);
   scene.render(cameraRig.camera);
 }).start();

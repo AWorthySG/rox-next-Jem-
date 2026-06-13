@@ -12,6 +12,7 @@ export const MAP_HALF = MAP_SIZE / 2;
 // Movement speeds in world-units per second.
 export const PLAYER_SPEED = 9;
 export const MONSTER_SPEED = 4;
+export const MOUNT_SPEED_MULT = 1.6; // while riding a mount
 
 // Combat / AI ranges (world units).
 export const AGGRO_RANGE = 12;
@@ -32,7 +33,7 @@ export const WANDER_PAUSE_MIN_MS = 1500;
 export const WANDER_PAUSE_MAX_MS = 4000;
 
 // Progression.
-export const LEVEL_CAP = 40;
+export const LEVEL_CAP = 130;
 export const STAT_POINTS_PER_LEVEL = 3;
 
 // Gear refinement.

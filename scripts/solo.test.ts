@@ -2,8 +2,8 @@
 // LocalServer (the transport used when no WS server is reachable). Runs under tsx
 // in Node — no DOM needed — and asserts join, spawns, combat and EXP gain. Also
 // deterministically checks the item/equipment system at the engine level.
-import { JobId, MsgType, StatusType, type ServerMessage } from "@rox/shared";
-import { Monster, MONSTER_TEMPLATES, Player } from "@rox/engine";
+import { JobId, MsgType, StatusType, LEVEL_CAP, xpToNext, type ServerMessage } from "@rox/shared";
+import { MAPS, Monster, MONSTER_TEMPLATES, Player } from "@rox/engine";
 import { LocalServer } from "../client/src/net/LocalServer.js";
 
 const failures: string[] = [];
@@ -80,6 +80,41 @@ async function main(): Promise<void> {
   check(cadet.advanceJob(JobId.Knight), "jobs: advance to 2nd job at threshold");
   check(cadet.job === JobId.Knight, "jobs: job id changes to Knight");
   check(!cadet.advanceJob(JobId.Wizard), "jobs: Knight has no further advancement");
+
+  // ---- new class lines: Archer->Hunter, Acolyte->Priest ----
+  const ranger = new Player(989, 1, "Ranger", JobId.Archer, 0, 0);
+  check(ranger.skillLevel("double_strafe") === 1, "classes: Archer knows Double Strafe");
+  ranger.level = 25;
+  check(ranger.advanceJob(JobId.Hunter) && ranger.job === JobId.Hunter, "classes: Archer advances to Hunter");
+  check(ranger.skillLevel("blitz_beat") === 1, "classes: Hunter learns Blitz Beat");
+  const cleric = new Player(988, 1, "Cleric", JobId.Acolyte, 0, 0);
+  check(cleric.skillLevel("heal") === 1, "classes: Acolyte knows Heal");
+  cleric.level = 25;
+  check(cleric.advanceJob(JobId.Priest) && cleric.job === JobId.Priest, "classes: Acolyte advances to Priest");
+
+  // ---- 3rd-job (transcendent) advancement ----
+  const rk = new Player(987, 1, "Trans", JobId.Knight, 0, 0);
+  rk.level = 40;
+  check(!rk.advanceJob(JobId.RuneKnight), "3rd job: blocked before Lv45");
+  rk.level = 45;
+  check(rk.advanceJob(JobId.RuneKnight) && rk.job === JobId.RuneKnight, "3rd job: Knight -> Rune Knight at Lv45");
+  check(rk.skillLevel("dragon_breath") === 1, "3rd job: Rune Knight learns Dragon Breath");
+
+  // ---- 4th-job advancement + level cap 130 ----
+  check(LEVEL_CAP === 130, "progression: level cap is 130");
+  check(!isFinite(xpToNext(130)), "progression: no XP needed beyond cap");
+  rk.level = 69;
+  check(!rk.advanceJob(JobId.DragonKnight), "4th job: blocked before Lv70");
+  rk.level = 70;
+  check(rk.advanceJob(JobId.DragonKnight) && rk.job === JobId.DragonKnight, "4th job: Rune Knight -> Dragon Knight at Lv70");
+  check(rk.skillLevel("storm_slash") === 1, "4th job: Dragon Knight learns Storm Slash");
+
+  // ---- every combat map has at least two bosses ----
+  for (const m of Object.values(MAPS)) {
+    if (m.zones.length === 0) continue; // PvP arena (no monster zones)
+    const bosses = m.zones.filter((z) => MONSTER_TEMPLATES[z.templateId]?.boss).length;
+    check(bosses >= 2, `world: ${m.id} has >= 2 bosses (${bosses})`);
+  }
 
   // ---- deterministic shop checks ----
   const buyer = new Player(997, 1, "Buyer", JobId.Novice, 0, 0);
@@ -166,6 +201,23 @@ async function main(): Promise<void> {
   buffed.addBuff("atk", 1.3, 15000, now);
   check(Math.abs(buffed.buffMul("atk", now + 100) - 1.3) < 1e-9, "buff: ATK buff multiplies");
   check(buffed.buffMul("atk", now + 16000) === 1, "buff: expires after duration");
+
+  // ---- deterministic pets ----
+  const tamer = new Player(986, 1, "Tamer", JobId.Swordsman, 0, 0);
+  const baseLuk = tamer.stats.luk;
+  tamer.addItem("poring_egg", 1);
+  check(tamer.useItem("poring_egg"), "pet: using an egg summons a pet");
+  check(tamer.activePet === "poring_pet", "pet: active pet is set");
+  check(tamer.toSelfState().pet === "poring_pet", "pet: surfaced in self state");
+  // pet grants LUK +3 -> crit (derived from luk) should be at least as high as before
+  check(tamer.stats.luk === baseLuk, "pet: base stats unchanged (bonus is derived-only)");
+
+  // ---- deterministic mount (reusable whistle toggles) ----
+  const rider = new Player(985, 1, "Rider", JobId.Swordsman, 0, 0);
+  rider.addItem("peco_whistle", 1);
+  check(rider.useItem("peco_whistle") && rider.mounted, "mount: whistle mounts the rider");
+  check((rider.inventory["peco_whistle"] ?? 0) === 1, "mount: whistle is reusable (not consumed)");
+  check(rider.useItem("peco_whistle") && !rider.mounted, "mount: whistle toggles dismount");
 
   local.stop();
   if (failures.length) {
