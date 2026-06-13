@@ -1,0 +1,43 @@
+// World / simulation tuning. Shared so client predictions match server truth.
+
+export const TICK_RATE = 20; // simulation steps per second
+export const TICK_MS = 1000 / TICK_RATE;
+export const SNAPSHOT_RATE = 10; // world snapshots broadcast per second
+export const SNAPSHOT_EVERY_N_TICKS = TICK_RATE / SNAPSHOT_RATE;
+
+// Square map centered on origin: coordinates range [-MAP_SIZE/2, +MAP_SIZE/2].
+export const MAP_SIZE = 120;
+export const MAP_HALF = MAP_SIZE / 2;
+
+// Movement speeds in world-units per second.
+export const PLAYER_SPEED = 9;
+export const MONSTER_SPEED = 4;
+
+// Combat / AI ranges (world units).
+export const AGGRO_RANGE = 12;
+export const ATTACK_RANGE = 2.2;
+export const LEASH_RANGE = 28; // monster gives up beyond this from its spawn point
+export const PLAYER_ATTACK_RANGE = 2.6;
+
+// Attack cadence (ms between hits).
+export const PLAYER_ATTACK_COOLDOWN_MS = 700;
+export const MONSTER_ATTACK_COOLDOWN_MS = 1100;
+
+// Respawn delay for dead monsters.
+export const RESPAWN_MS = 6000;
+
+// Wander behaviour.
+export const WANDER_RADIUS = 8;
+export const WANDER_PAUSE_MIN_MS = 1500;
+export const WANDER_PAUSE_MAX_MS = 4000;
+
+// Progression.
+export const LEVEL_CAP = 20;
+
+// Networking.
+export const DEFAULT_PORT = 8080;
+export const HEARTBEAT_INTERVAL_MS = 5000;
+export const CLIENT_TIMEOUT_MS = 15000;
+
+// Client interpolation delay: render remote entities this far in the past (ms).
+export const INTERP_DELAY_MS = 120;

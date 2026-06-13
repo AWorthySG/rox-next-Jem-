@@ -1,0 +1,74 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>ROX-Next — Online 3D RPG</title>
+    <link rel="stylesheet" href="/src/styles.css" />
+  </head>
+  <body>
+    <!-- 3D canvas + CSS2D label layer are injected here by Three.js -->
+    <div id="game-root"></div>
+
+    <!-- Login overlay -->
+    <div id="login" class="overlay">
+      <div class="login-card">
+        <h1>ROX&nbsp;<span class="accent">Next</span></h1>
+        <p class="tagline">An online 3D adventure — slay Porings, level up, party with others.</p>
+        <label class="field">
+          <span>Adventurer name</span>
+          <input id="name-input" type="text" maxlength="16" placeholder="Enter a name" autocomplete="off" />
+        </label>
+        <div class="field">
+          <span>Choose your class</span>
+          <div id="job-picker" class="job-picker">
+            <button class="job-btn selected" data-job="novice">
+              <strong>Novice</strong><em>Balanced beginner</em>
+            </button>
+            <button class="job-btn" data-job="swordsman">
+              <strong>Swordsman</strong><em>Melee · STR/VIT</em>
+            </button>
+            <button class="job-btn" data-job="mage">
+              <strong>Mage</strong><em>Magic · INT/DEX</em>
+            </button>
+          </div>
+        </div>
+        <button id="enter-btn" class="enter-btn">Enter World</button>
+        <p id="conn-status" class="conn-status">Connecting…</p>
+      </div>
+    </div>
+
+    <!-- In-game HUD -->
+    <div id="hud" class="hud hidden">
+      <div class="hud-top-left">
+        <div class="char-frame">
+          <div class="char-name"><span id="hud-name">—</span> <span class="char-job" id="hud-job"></span></div>
+          <div class="char-level">Lv <span id="hud-level">1</span></div>
+          <div class="bar hp"><div class="bar-fill" id="hp-fill"></div><span class="bar-label" id="hp-label">0/0</span></div>
+          <div class="bar sp"><div class="bar-fill" id="sp-fill"></div><span class="bar-label" id="sp-label">0/0</span></div>
+          <div class="bar exp"><div class="bar-fill" id="exp-fill"></div><span class="bar-label" id="exp-label">EXP</span></div>
+        </div>
+      </div>
+
+      <div class="hud-stats" id="stat-panel">
+        <div class="stat-row"><span>STR</span><b id="st-str">0</b></div>
+        <div class="stat-row"><span>AGI</span><b id="st-agi">0</b></div>
+        <div class="stat-row"><span>VIT</span><b id="st-vit">0</b></div>
+        <div class="stat-row"><span>INT</span><b id="st-int">0</b></div>
+        <div class="stat-row"><span>DEX</span><b id="st-dex">0</b></div>
+        <div class="stat-row"><span>LUK</span><b id="st-luk">0</b></div>
+      </div>
+
+      <div class="hud-help">Click ground to move · Click a Poring to attack · Scroll to zoom · Enter to chat</div>
+
+      <div class="chat" id="chat">
+        <div class="chat-log" id="chat-log"></div>
+        <input id="chat-input" class="chat-input hidden" type="text" maxlength="140" placeholder="Say something…" />
+      </div>
+
+      <div class="latency" id="latency">— ms</div>
+    </div>
+
+    <script type="module" src="/src/main.ts"></script>
+  </body>
+</html>

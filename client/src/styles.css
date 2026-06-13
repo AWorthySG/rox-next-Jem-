@@ -1,0 +1,366 @@
+:root {
+  --gold: #e6c878;
+  --panel: rgba(18, 16, 30, 0.82);
+  --panel-border: #5b4a8a;
+  --hp: linear-gradient(180deg, #ff6b6b, #c0392b);
+  --sp: linear-gradient(180deg, #5aa9ff, #2c6fc0);
+  --exp: linear-gradient(180deg, #ffd86b, #e0a93a);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: #0a0a12;
+  font-family: "Segoe UI", system-ui, sans-serif;
+  color: #f3eede;
+  user-select: none;
+}
+
+#game-root {
+  position: fixed;
+  inset: 0;
+}
+
+#game-root canvas {
+  display: block;
+}
+
+.hidden {
+  display: none !important;
+}
+
+/* ---- CSS2D labels (nameplates / damage numbers) ---- */
+.label-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.nameplate {
+  font-size: 12px;
+  font-weight: 600;
+  text-align: center;
+  text-shadow: 0 1px 2px #000, 0 0 4px #000;
+  white-space: nowrap;
+  transform: translateY(-6px);
+}
+.nameplate.player {
+  color: #aee1ff;
+}
+.nameplate.self {
+  color: var(--gold);
+}
+.nameplate.monster {
+  color: #ffc0e0;
+}
+.nameplate .lvl {
+  opacity: 0.75;
+  font-size: 10px;
+}
+
+.hpbar {
+  width: 46px;
+  height: 5px;
+  margin: 2px auto 0;
+  background: rgba(0, 0, 0, 0.6);
+  border: 1px solid rgba(0, 0, 0, 0.8);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.hpbar > i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(180deg, #7CFC7C, #2faf4a);
+  transition: width 0.15s linear;
+}
+.hpbar.monster > i {
+  background: linear-gradient(180deg, #ff8aa8, #d14d77);
+}
+
+.dmg {
+  font-weight: 800;
+  font-size: 15px;
+  color: #fff;
+  text-shadow: 0 1px 2px #000, 0 0 5px #000;
+  white-space: nowrap;
+}
+.dmg.crit {
+  color: #ffd86b;
+  font-size: 20px;
+}
+.dmg.miss {
+  color: #bcd;
+  font-style: italic;
+}
+.dmg.taken {
+  color: #ff7b7b;
+}
+
+/* ---- Login overlay ---- */
+.overlay {
+  position: fixed;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 30%, #2a2350, #0a0a12 70%);
+  z-index: 50;
+}
+
+.login-card {
+  width: min(440px, 92vw);
+  padding: 28px 30px 24px;
+  background: var(--panel);
+  border: 2px solid var(--panel-border);
+  border-radius: 14px;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.6), inset 0 0 24px rgba(120, 90, 200, 0.12);
+  text-align: center;
+}
+.login-card h1 {
+  margin: 0 0 4px;
+  font-size: 40px;
+  letter-spacing: 1px;
+}
+.login-card .accent {
+  color: var(--gold);
+}
+.tagline {
+  margin: 0 0 20px;
+  opacity: 0.75;
+  font-size: 13px;
+}
+.field {
+  display: block;
+  text-align: left;
+  margin-bottom: 16px;
+}
+.field > span {
+  display: block;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.7;
+  margin-bottom: 6px;
+}
+#name-input,
+.chat-input {
+  width: 100%;
+  padding: 11px 12px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  color: #fff;
+  font-size: 15px;
+  outline: none;
+}
+#name-input:focus {
+  border-color: var(--gold);
+}
+.job-picker {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.job-btn {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 10px 6px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  color: #f3eede;
+  cursor: pointer;
+  transition: all 0.12s;
+}
+.job-btn em {
+  font-style: normal;
+  font-size: 10px;
+  opacity: 0.6;
+}
+.job-btn:hover {
+  border-color: var(--gold);
+}
+.job-btn.selected {
+  border-color: var(--gold);
+  background: rgba(230, 200, 120, 0.16);
+}
+.enter-btn {
+  width: 100%;
+  margin-top: 6px;
+  padding: 13px;
+  font-size: 16px;
+  font-weight: 700;
+  letter-spacing: 1px;
+  color: #1a1430;
+  background: linear-gradient(180deg, #f4d98a, #d8af44);
+  border: none;
+  border-radius: 9px;
+  cursor: pointer;
+}
+.enter-btn:disabled {
+  opacity: 0.5;
+  cursor: default;
+}
+.conn-status {
+  margin: 12px 0 0;
+  font-size: 12px;
+  opacity: 0.7;
+  min-height: 16px;
+}
+.conn-status.ok {
+  color: #8fe28f;
+}
+.conn-status.err {
+  color: #ff8a8a;
+}
+
+/* ---- HUD ---- */
+.hud {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 20;
+}
+.hud-top-left {
+  position: absolute;
+  top: 14px;
+  left: 14px;
+}
+.char-frame {
+  width: 230px;
+  padding: 10px 12px;
+  background: var(--panel);
+  border: 2px solid var(--panel-border);
+  border-radius: 10px;
+}
+.char-name {
+  font-size: 15px;
+  font-weight: 700;
+}
+.char-job {
+  font-size: 11px;
+  opacity: 0.6;
+  text-transform: capitalize;
+}
+.char-level {
+  font-size: 12px;
+  opacity: 0.8;
+  margin: 1px 0 7px;
+}
+.bar {
+  position: relative;
+  height: 15px;
+  margin-bottom: 5px;
+  background: rgba(0, 0, 0, 0.45);
+  border: 1px solid rgba(0, 0, 0, 0.6);
+  border-radius: 7px;
+  overflow: hidden;
+}
+.bar-fill {
+  position: absolute;
+  inset: 0;
+  width: 0%;
+  transition: width 0.2s ease-out;
+}
+.bar.hp .bar-fill {
+  background: var(--hp);
+}
+.bar.sp .bar-fill {
+  background: var(--sp);
+}
+.bar.exp {
+  height: 10px;
+}
+.bar.exp .bar-fill {
+  background: var(--exp);
+}
+.bar-label {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  font-weight: 600;
+  text-shadow: 0 1px 1px #000;
+}
+
+.hud-stats {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+  width: 92px;
+  padding: 8px 10px;
+  background: var(--panel);
+  border: 2px solid var(--panel-border);
+  border-radius: 10px;
+}
+.stat-row {
+  display: flex;
+  justify-content: space-between;
+  font-size: 12px;
+  padding: 2px 0;
+}
+.stat-row span {
+  opacity: 0.65;
+}
+
+.hud-help {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  opacity: 0.55;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 5px 12px;
+  border-radius: 14px;
+}
+
+.chat {
+  position: absolute;
+  left: 14px;
+  bottom: 14px;
+  width: min(380px, 60vw);
+  pointer-events: auto;
+}
+.chat-log {
+  max-height: 150px;
+  overflow-y: auto;
+  font-size: 13px;
+  line-height: 1.45;
+  margin-bottom: 6px;
+  padding-right: 4px;
+  text-shadow: 0 1px 2px #000;
+}
+.chat-log::-webkit-scrollbar {
+  width: 6px;
+}
+.chat-log::-webkit-scrollbar-thumb {
+  background: rgba(255, 255, 255, 0.2);
+  border-radius: 3px;
+}
+.chat-line .who {
+  color: var(--gold);
+  font-weight: 600;
+}
+.chat-line.system {
+  opacity: 0.6;
+  font-style: italic;
+}
+
+.latency {
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  font-size: 11px;
+  opacity: 0.5;
+}
