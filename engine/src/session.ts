@@ -67,6 +67,16 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       if (p && isEquipSlot(msg.slot)) p.unequip(msg.slot);
       break;
     }
+    case MsgType.BuyItem: {
+      const p = playerOf(world, link);
+      if (p) p.buy(msg.itemId, Math.max(1, Math.min(99, Math.floor(msg.qty || 1))));
+      break;
+    }
+    case MsgType.SellItem: {
+      const p = playerOf(world, link);
+      if (p) p.sell(msg.itemId, Math.max(1, Math.min(99, Math.floor(msg.qty || 1))));
+      break;
+    }
     case MsgType.Chat: {
       const p = playerOf(world, link);
       const text = (msg.text ?? "").toString().slice(0, 140).trim();

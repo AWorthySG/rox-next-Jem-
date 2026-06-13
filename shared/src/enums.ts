@@ -9,6 +9,8 @@ export enum MsgType {
   UseItem = "useItem",
   Equip = "equip",
   Unequip = "unequip",
+  BuyItem = "buyItem",
+  SellItem = "sellItem",
   Chat = "chat",
   Ping = "ping",
   // server -> client
@@ -27,6 +29,7 @@ export enum MsgType {
 export enum EntityKind {
   Player = "player",
   Monster = "monster",
+  Npc = "npc",
 }
 
 export enum MonsterAIState {

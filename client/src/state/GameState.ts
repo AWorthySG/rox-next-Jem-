@@ -3,6 +3,7 @@ import { EntityKind, INTERP_DELAY_MS, type EntityFull, type EntitySnapshot } fro
 import { EntityView } from "../entities/EntityView.js";
 import { PlayerView } from "../entities/PlayerView.js";
 import { MonsterView } from "../entities/MonsterView.js";
+import { NpcView } from "../entities/NpcView.js";
 import { DEFAULT_TEMPLATE, type MonsterAppearance } from "../procedural/monsters.js";
 
 // Client-side mirror of the world: maps entity ids to their views and keeps the
@@ -38,6 +39,8 @@ export class GameState {
         pv.markSelf();
       }
       view = pv;
+    } else if (entity.kind === EntityKind.Npc) {
+      view = new NpcView(entity);
     } else {
       const appearance =
         this.appearances[entity.templateId ?? DEFAULT_TEMPLATE] ?? this.appearances[DEFAULT_TEMPLATE];
@@ -85,10 +88,15 @@ export class GameState {
     return best;
   }
 
+  npcRoleOf(id: number): string | null {
+    const v = this.views.get(id);
+    return v instanceof NpcView ? v.role : null;
+  }
+
   getPickables(): THREE.Object3D[] {
     const out: THREE.Object3D[] = [];
     for (const v of this.views.values()) {
-      if (v instanceof MonsterView) out.push(v.pickables);
+      if (v instanceof MonsterView || v instanceof NpcView) out.push(v.group);
     }
     return out;
   }

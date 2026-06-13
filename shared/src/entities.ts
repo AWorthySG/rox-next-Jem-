@@ -40,6 +40,8 @@ export interface EntityFull {
   // monsters
   templateId?: string;
   aiState?: MonsterAIState;
+  // npcs
+  npcRole?: string;
 }
 
 // The local player's own authoritative state, richer than what others see.

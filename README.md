@@ -30,6 +30,8 @@ copyrighted assets.
   bag + equipment panel (key `I`); equip weapons/armor/accessories for stat bonuses (ATK/MATK/
   DEF/HP/SP and base-stat boosts) and quaff potions to restore HP/SP. The Poring King drops
   rare gear (King's Cleaver, Poring Crown).
+- **Town NPC & shop economy**: a Kafra shopkeeper stands in town — click her to buy potions
+  and starter gear or sell loot for Zeny, closing the economy loop.
 - **HUD & chat**: HP/SP/EXP bars, level, Zeny, stat panel, a hotkey **skill bar** with
   cooldown sweeps, nameplates, latency, and live chat.
 

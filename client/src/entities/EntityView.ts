@@ -33,7 +33,8 @@ export abstract class EntityView {
     const wrap = document.createElement("div");
     const name = document.createElement("div");
     name.className = `nameplate ${labelClass}`;
-    name.innerHTML = `${entity.name} <span class="lvl">Lv${entity.level}</span>`;
+    name.innerHTML =
+      entity.level > 0 ? `${entity.name} <span class="lvl">Lv${entity.level}</span>` : entity.name;
     const bar = document.createElement("div");
     bar.className = `hpbar ${labelClass === "monster" ? "monster" : ""}`;
     const fill = document.createElement("i");

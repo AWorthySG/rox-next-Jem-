@@ -47,6 +47,18 @@ export interface UnequipMsg {
   slot: string;
 }
 
+export interface BuyItemMsg {
+  t: MsgType.BuyItem;
+  itemId: string;
+  qty: number;
+}
+
+export interface SellItemMsg {
+  t: MsgType.SellItem;
+  itemId: string;
+  qty: number;
+}
+
 export interface ChatMsg {
   t: MsgType.Chat;
   text: string;
@@ -66,6 +78,8 @@ export type ClientMessage =
   | UseItemMsg
   | EquipMsg
   | UnequipMsg
+  | BuyItemMsg
+  | SellItemMsg
   | ChatMsg
   | PingMsg;
 

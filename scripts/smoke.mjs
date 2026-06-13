@@ -7,7 +7,7 @@ import { fileURLToPath } from "node:url";
 import WebSocket from "ws";
 
 const ROOT = fileURLToPath(new URL("..", import.meta.url));
-const PORT = 8123;
+const PORT = 4000 + Math.floor(Math.random() * 3000); // random to avoid stale-port clashes
 const failures = [];
 function check(cond, label) {
   if (cond) console.log(`  ✓ ${label}`);

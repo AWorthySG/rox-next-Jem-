@@ -64,7 +64,19 @@
         <div class="stat-row"><span>LUK</span><b id="st-luk">0</b></div>
       </div>
 
-      <div class="hud-help">Click ground to move · Click a monster to attack · Keys 1–2 skills · I = inventory · Scroll zoom · Enter chat</div>
+      <div class="hud-help">Click ground to move · Click monsters to attack · Click the ⬥ Kafra to shop · Keys 1–4 skills · I = inventory · Enter chat</div>
+
+      <div class="shop hidden" id="shop">
+        <div class="inv-header">
+          <span>Kafra Shop</span>
+          <span class="inv-zeny">💰 <b id="shop-zeny">0</b></span>
+          <button class="inv-close" id="shop-close">✕</button>
+        </div>
+        <div class="shop-cols">
+          <div class="shop-col"><h4>Buy</h4><div class="shop-list" id="shop-buy-list"></div></div>
+          <div class="shop-col"><h4>Sell</h4><div class="shop-list" id="shop-sell-list"></div></div>
+        </div>
+      </div>
 
       <div class="inventory hidden" id="inventory">
         <div class="inv-header">

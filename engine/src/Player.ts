@@ -146,6 +146,27 @@ export class Player {
     return true;
   }
 
+  // ---- shop ----
+
+  buy(itemId: string, qty: number): boolean {
+    const item = getItem(itemId);
+    if (!item || !item.price || qty <= 0) return false;
+    const cost = item.price * qty;
+    if (this.zeny < cost) return false;
+    this.zeny -= cost;
+    this.addItem(itemId, qty);
+    return true;
+  }
+
+  sell(itemId: string, qty: number): boolean {
+    const item = getItem(itemId);
+    if (!item || !item.sellPrice || qty <= 0) return false;
+    if ((this.inventory[itemId] ?? 0) < qty) return false;
+    this.removeItem(itemId, qty);
+    this.zeny += item.sellPrice * qty;
+    return true;
+  }
+
   // ---- job advancement ----
 
   // Returns true if the change was applied. Keeps accumulated stats; future

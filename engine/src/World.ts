@@ -7,6 +7,7 @@ import {
 import type { ClientLink } from "./ClientLink.js";
 import { Player } from "./Player.js";
 import { Monster } from "./Monster.js";
+import { Npc, NPC_SPAWNS } from "./Npc.js";
 import { MONSTER_TEMPLATES, SPAWN_ZONES } from "./data/spawns.js";
 
 // Authoritative world state: all connected clients and entities live here.
@@ -14,10 +15,12 @@ export class World {
   readonly connections = new Map<number, ClientLink>();
   readonly players = new Map<number, Player>();
   readonly monsters = new Map<number, Monster>();
+  readonly npcs = new Map<number, Npc>();
   private nextEntityId = 1;
 
   constructor() {
     this.initMonsters();
+    this.initNpcs();
   }
 
   allocId(): number {
@@ -63,6 +66,13 @@ export class World {
     }
   }
 
+  private initNpcs(): void {
+    for (const s of NPC_SPAWNS) {
+      const npc = new Npc(this.allocId(), s.name, s.role, s.x, s.z, s.facing ?? 0);
+      this.npcs.set(npc.id, npc);
+    }
+  }
+
   randomPointInZone(cx: number, cz: number, radius: number): { x: number; z: number } {
     const a = Math.random() * Math.PI * 2;
     const r = Math.sqrt(Math.random()) * radius;
@@ -94,6 +104,9 @@ export class World {
 
   // Full snapshot of the current world for a freshly joined client.
   spawnAllFor(link: ClientLink): void {
+    for (const npc of this.npcs.values()) {
+      link.send({ t: MsgType.Spawn, entity: npc.toFull() });
+    }
     for (const p of this.players.values()) {
       link.send({ t: MsgType.Spawn, entity: p.toFull() });
     }

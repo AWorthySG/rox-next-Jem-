@@ -81,6 +81,15 @@ async function main(): Promise<void> {
   check(cadet.job === JobId.Knight, "jobs: job id changes to Knight");
   check(!cadet.advanceJob(JobId.Wizard), "jobs: Knight has no further advancement");
 
+  // ---- deterministic shop checks ----
+  const buyer = new Player(997, 1, "Buyer", JobId.Novice, 0, 0);
+  buyer.zeny = 1000;
+  check(buyer.buy("red_potion", 2), "shop: buy deducts Zeny and adds items");
+  check(buyer.zeny === 900 && (buyer.toSelfState().inventory.find((i) => i.id === "red_potion")?.qty ?? 0) === 2, "shop: buy result correct");
+  check(!buyer.buy("kings_cleaver", 1), "shop: cannot buy non-stocked item");
+  check(buyer.sell("red_potion", 1), "shop: sell returns Zeny");
+  check(buyer.zeny === 912, "shop: sell credited correct Zeny");
+
   local.stop();
   if (failures.length) {
     console.error(`\nSOLO TEST FAILED (${failures.length}): ${failures.join("; ")}`);

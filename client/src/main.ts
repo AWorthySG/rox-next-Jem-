@@ -13,6 +13,7 @@ import { ChatBox } from "./ui/ChatBox.js";
 import { DamageNumbers } from "./ui/DamageNumbers.js";
 import { SkillBar } from "./ui/SkillBar.js";
 import { InventoryPanel } from "./ui/InventoryPanel.js";
+import { ShopPanel } from "./ui/ShopPanel.js";
 import { JobAdvance } from "./ui/JobAdvance.js";
 import { getItem, JOB_NAME, type JobId } from "@rox/shared";
 import { buildMonsterAppearances } from "./procedural/monsters.js";
@@ -94,6 +95,11 @@ const inventory = new InventoryPanel({
   onUnequip: (slot) => transport?.send({ t: MsgType.Unequip, slot }),
 });
 
+const shop = new ShopPanel({
+  onBuy: (itemId) => transport?.send({ t: MsgType.BuyItem, itemId, qty: 1 }),
+  onSell: (itemId) => transport?.send({ t: MsgType.SellItem, itemId, qty: 1 }),
+});
+
 let currentJob: JobId | null = null;
 const jobAdvance = new JobAdvance((job) => transport?.send({ t: MsgType.JobAdvance, targetJob: job }));
 
@@ -109,6 +115,11 @@ const input = new InputController(
       gameState.self?.setMoveTarget(x, z);
     },
     onAttack: (id) => {
+      // Clicking the shop NPC opens the shop instead of attacking.
+      if (gameState.npcRoleOf(id) === "shop") {
+        shop.open();
+        return;
+      }
       currentTargetId = id;
       transport?.send({ t: MsgType.AttackIntent, targetId: id });
       gameState.self?.clearMoveTarget();
@@ -156,6 +167,7 @@ function handleMessage(msg: ServerMessage): void {
       hud.update(msg.self);
       skillBar.setSp(msg.self.sp);
       inventory.sync(msg.self);
+      shop.sync(msg.self);
       jobAdvance.update(msg.self);
       break;
     case MsgType.Loot: {
