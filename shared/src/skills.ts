@@ -1,4 +1,10 @@
-import { DamageKind, JobId } from "./enums.js";
+import { DamageKind, JobId, StatusType } from "./enums.js";
+
+export interface SkillEffect {
+  type: StatusType;
+  durationMs: number;
+  magnitude?: number; // slow: speed multiplier; burn: fraction of MATK per tick
+}
 
 export interface SkillDef {
   id: string;
@@ -12,6 +18,7 @@ export interface SkillDef {
   power: number; // multiplier applied to ATK/MATK
   aoeRadius?: number; // if set, also hits enemies within this radius of the target
   heal?: boolean; // restores the caster's HP instead of dealing damage
+  effect?: SkillEffect; // status applied to enemies hit
   desc: string;
 }
 
@@ -54,7 +61,8 @@ export const SKILLS: Record<string, SkillDef> = {
     kind: DamageKind.Physical,
     power: 1.8,
     aoeRadius: 5,
-    desc: "Fiery area blast around the target.",
+    effect: { type: StatusType.Slow, durationMs: 2500, magnitude: 0.5 },
+    desc: "Fiery area blast that slows enemies.",
   },
   fire_bolt: {
     id: "fire_bolt",
@@ -66,7 +74,8 @@ export const SKILLS: Record<string, SkillDef> = {
     range: 11,
     kind: DamageKind.Magic,
     power: 2.6,
-    desc: "Hurl a bolt of fire at a single enemy.",
+    effect: { type: StatusType.Burn, durationMs: 3000, magnitude: 0.25 },
+    desc: "Hurl a bolt of fire that burns over time.",
   },
   thunder_storm: {
     id: "thunder_storm",
@@ -79,7 +88,8 @@ export const SKILLS: Record<string, SkillDef> = {
     kind: DamageKind.Magic,
     power: 1.9,
     aoeRadius: 5.5,
-    desc: "Call lightning over an area.",
+    effect: { type: StatusType.Stun, durationMs: 1200 },
+    desc: "Call lightning that stuns enemies briefly.",
   },
 
   // ---- 2nd-job skills ----
@@ -106,7 +116,8 @@ export const SKILLS: Record<string, SkillDef> = {
     kind: DamageKind.Physical,
     power: 2.6,
     aoeRadius: 6,
-    desc: "Knock enemies around in a wide arc.",
+    effect: { type: StatusType.Stun, durationMs: 1500 },
+    desc: "Knock enemies around in a wide arc, stunning them.",
   },
   jupitel_thunder: {
     id: "jupitel_thunder",
@@ -131,7 +142,8 @@ export const SKILLS: Record<string, SkillDef> = {
     kind: DamageKind.Magic,
     power: 2.8,
     aoeRadius: 7,
-    desc: "Rain meteors across a wide area.",
+    effect: { type: StatusType.Burn, durationMs: 4000, magnitude: 0.3 },
+    desc: "Rain meteors that scorch a wide area over time.",
   },
 };
 

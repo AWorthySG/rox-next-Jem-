@@ -21,7 +21,7 @@ import { JobAdvance } from "./ui/JobAdvance.js";
 import { PartyHud } from "./ui/PartyHud.js";
 import { AutoBattle } from "./ui/AutoBattle.js";
 import { MiniMap } from "./ui/MiniMap.js";
-import { getItem, JOB_NAME, type JobId, type SelfState } from "@rox/shared";
+import { getItem, JOB_NAME, type SelfState } from "@rox/shared";
 import { buildMonsterAppearances } from "./procedural/monsters.js";
 
 // ---- bootstrap engine ----

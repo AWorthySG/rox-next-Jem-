@@ -2,8 +2,8 @@
 // LocalServer (the transport used when no WS server is reachable). Runs under tsx
 // in Node — no DOM needed — and asserts join, spawns, combat and EXP gain. Also
 // deterministically checks the item/equipment system at the engine level.
-import { JobId, MsgType, type ServerMessage } from "@rox/shared";
-import { Player } from "@rox/engine";
+import { JobId, MsgType, StatusType, type ServerMessage } from "@rox/shared";
+import { Monster, MONSTER_TEMPLATES, Player } from "@rox/engine";
 import { LocalServer } from "../client/src/net/LocalServer.js";
 
 const failures: string[] = [];
@@ -147,6 +147,18 @@ async function main(): Promise<void> {
   check(loaded.level === orig.level && loaded.zeny === 555 && loaded.job === orig.job, "persistence: core fields restored");
   check((loaded.toSelfState().inventory.find((i) => i.id === "red_potion")?.qty ?? 0) === 4, "persistence: inventory restored");
   check(loaded.equipped.weapon === "novice_knife", "persistence: equipment restored");
+
+  // ---- deterministic status effects ----
+  const mob = new Monster(1, MONSTER_TEMPLATES.poring, "z", "field", 0, 0);
+  const now = Date.now();
+  mob.addStatus(StatusType.Burn, 2000, 42, now, 10);
+  const ticks = mob.tickStatuses(now + 650);
+  check(ticks.length >= 1 && ticks[0].amount === 10 && ticks[0].sourceId === 42, "status: burn deals DoT");
+  mob.addStatus(StatusType.Slow, 2000, 42, now, 0.5);
+  check(mob.speedMul(now + 100) === 0.5, "status: slow reduces speed");
+  mob.addStatus(StatusType.Stun, 1000, 42, now);
+  check(mob.isStunned(now + 100), "status: stun is active");
+  check(!mob.isStunned(now + 2000), "status: stun expires");
 
   local.stop();
   if (failures.length) {

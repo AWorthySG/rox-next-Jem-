@@ -77,3 +77,9 @@ export enum EquipSlot {
   Armor = "armor",
   Accessory = "accessory",
 }
+
+export enum StatusType {
+  Slow = "slow", // reduced movement speed
+  Stun = "stun", // cannot act
+  Burn = "burn", // damage over time
+}

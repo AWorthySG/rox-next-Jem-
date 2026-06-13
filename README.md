@@ -39,6 +39,8 @@ copyrighted assets.
 - **Character building**: spend stat points earned on level-up into STR/AGI/VIT/INT/DEX/LUK
   from the HUD; level up individual skills (window `K`) with skill points to scale their power;
   visit the Blacksmith to refine equipped gear (+1…+10) with Zeny for flat ATK/MATK/DEF/HP.
+- **Status effects**: skills inflict debuffs — Fire Bolt/Meteor Storm **burn** (DoT),
+  Magnum Break **slows**, Thunder Storm/Bowling Bash **stun** — resolved server-side.
 - **Auto-battle**: the signature ROX convenience — toggle Auto (button or `T`) and your
   character automatically seeks the nearest monster, attacks, and casts ready skills.
 - **Minimap**: a top-down radar showing you, other players, NPCs, monsters and the boss.

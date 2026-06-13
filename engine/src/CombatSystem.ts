@@ -15,6 +15,7 @@ import {
   skillPower,
   skillSpCost,
   SP_REGEN_PER_SEC,
+  StatusType,
   ZENY_MAX,
   ZENY_MIN,
   type SkillDef,
@@ -40,6 +41,36 @@ export class CombatSystem {
       // Skills take priority; if one is being cast or chased this tick, skip auto-attack.
       if (this.processSkill(p)) continue;
       this.updatePlayerAttack(p);
+    }
+    this.processStatuses();
+  }
+
+  // Apply damage-over-time ticks from status effects (e.g. Burn).
+  private processStatuses(): void {
+    const now = Date.now();
+    for (const m of this.world.monsters.values()) {
+      if (m.isDead || m.statuses.length === 0) continue;
+      const ticks = m.tickStatuses(now);
+      for (const tick of ticks) {
+        if (tick.amount <= 0) continue;
+        m.hp -= tick.amount;
+        this.world.broadcastToMap(m.mapId, {
+          t: MsgType.DamageEvent,
+          sourceId: tick.sourceId,
+          targetId: m.id,
+          amount: tick.amount,
+          crit: false,
+          miss: false,
+          kind: DamageKind.Magic,
+          skillId: "burn",
+        });
+        if (m.hp <= 0) {
+          const src = this.world.players.get(tick.sourceId);
+          if (src) this.killMonster(m, src);
+          else this.slay(m);
+          break;
+        }
+      }
     }
   }
 
@@ -137,7 +168,18 @@ export class CombatSystem {
       target.aggroTargetId = p.id;
       target.aiState = MonsterAIState.Aggro;
     }
-    if (target.hp <= 0) this.killMonster(target, p);
+    if (target.hp <= 0) {
+      this.killMonster(target, p);
+      return;
+    }
+    // Apply the skill's status effect (slow / stun / burn) to the survivor.
+    if (def.effect) {
+      const mag =
+        def.effect.type === StatusType.Burn
+          ? Math.max(1, Math.round(p.derived.matk * (def.effect.magnitude ?? 0.25)))
+          : (def.effect.magnitude ?? 0);
+      target.addStatus(def.effect.type, def.effect.durationMs, p.id, Date.now(), mag);
+    }
   }
 
   private clearSkill(p: Player): void {
@@ -190,12 +232,19 @@ export class CombatSystem {
 
   // ---- shared outcomes ----
 
-  private killMonster(target: Monster, killer: Player): void {
+  // Mark a monster dead + schedule respawn, without rewards (e.g. an unattributed
+  // DoT kill).
+  private slay(target: Monster): void {
     target.hp = 0;
     target.aiState = MonsterAIState.Dead;
     target.aggroTargetId = null;
+    target.clearStatuses();
     target.respawnAt = Date.now() + (target.template.respawnMs ?? RESPAWN_MS);
-    this.world.broadcast({ t: MsgType.Despawn, id: target.id });
+    this.world.broadcastToMap(target.mapId, { t: MsgType.Despawn, id: target.id });
+  }
+
+  private killMonster(target: Monster, killer: Player): void {
+    this.slay(target);
 
     // Zeny + loot (auto-pickup to the killer's bag), then notify them.
     const zenyGain =
