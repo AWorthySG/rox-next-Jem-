@@ -60,6 +60,11 @@ body {
 .nameplate.monster {
   color: #ffc0e0;
 }
+.nameplate.boss {
+  color: #ffd24a;
+  font-size: 15px;
+  text-shadow: 0 0 6px #a06000, 0 1px 2px #000;
+}
 .nameplate .lvl {
   opacity: 0.75;
   font-size: 10px;

@@ -3,6 +3,7 @@ import { EntityKind, INTERP_DELAY_MS, type EntityFull, type EntitySnapshot } fro
 import { EntityView } from "../entities/EntityView.js";
 import { PlayerView } from "../entities/PlayerView.js";
 import { MonsterView } from "../entities/MonsterView.js";
+import { DEFAULT_TEMPLATE, type MonsterAppearance } from "../procedural/monsters.js";
 
 // Client-side mirror of the world: maps entity ids to their views and keeps the
 // Three.js scene in sync with spawn / despawn / snapshot messages.
@@ -12,7 +13,7 @@ export class GameState {
 
   constructor(
     private scene: THREE.Scene,
-    private poringTexture: THREE.Texture,
+    private appearances: Record<string, MonsterAppearance>,
   ) {}
 
   get self(): PlayerView | undefined {
@@ -38,7 +39,9 @@ export class GameState {
       }
       view = pv;
     } else {
-      view = new MonsterView(entity, this.poringTexture);
+      const appearance =
+        this.appearances[entity.templateId ?? DEFAULT_TEMPLATE] ?? this.appearances[DEFAULT_TEMPLATE];
+      view = new MonsterView(entity, appearance);
     }
     this.views.set(entity.id, view);
     this.scene.add(view.group);

@@ -15,9 +15,11 @@ copyrighted assets.
   are interpolated, the local player is client-predicted.
 - **3D world**: procedurally textured grass field, sky dome, dynamic lighting & shadows,
   third-person follow camera (scroll to zoom, right-drag to orbit).
-- **Combat**: click a Poring to attack — classic RO-flavored damage (ATK/MATK vs DEF, hit/flee,
+- **Combat**: click a monster to attack — classic RO-flavored damage (ATK/MATK vs DEF, hit/flee,
   crits), floating damage numbers, HP bars, monster death & respawn, monster AI
   (idle → wander → aggro → attack → leash).
+- **Bestiary + boss**: Poring, Fabre, Drops and Lunatic field zones by difficulty, plus an
+  MVP-style **Poring King** boss (crowned, 1600 HP, big EXP, slow respawn) in a northern arena.
 - **Progression**: STR/AGI/VIT/INT/DEX/LUK stats, EXP curve, leveling with auto stat growth
   and full-heal on level-up (cap 20); HP/SP passive regen; **Zeny** drops from kills.
 - **Classes & skills**: Novice (First Aid heal), Swordsman (Bash, Magnum Break AoE),

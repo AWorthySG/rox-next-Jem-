@@ -12,13 +12,13 @@ import { Hud } from "./ui/Hud.js";
 import { ChatBox } from "./ui/ChatBox.js";
 import { DamageNumbers } from "./ui/DamageNumbers.js";
 import { SkillBar } from "./ui/SkillBar.js";
-import { makePoringTexture } from "./procedural/textures.js";
+import { buildMonsterAppearances } from "./procedural/monsters.js";
 
 // ---- bootstrap engine ----
 const root = document.getElementById("game-root")!;
 const scene = new SceneManager(root);
 const cameraRig = new CameraRig(scene.renderer.domElement);
-const gameState = new GameState(scene.scene, makePoringTexture());
+const gameState = new GameState(scene.scene, buildMonsterAppearances());
 const hud = new Hud();
 const damageNumbers = new DamageNumbers(scene.scene);
 

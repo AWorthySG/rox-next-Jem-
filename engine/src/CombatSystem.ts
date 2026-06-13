@@ -185,7 +185,7 @@ export class CombatSystem {
     target.hp = 0;
     target.aiState = MonsterAIState.Dead;
     target.aggroTargetId = null;
-    target.respawnAt = Date.now() + RESPAWN_MS;
+    target.respawnAt = Date.now() + (target.template.respawnMs ?? RESPAWN_MS);
     this.world.broadcast({ t: MsgType.Despawn, id: target.id });
 
     killer.zeny += ZENY_MIN + Math.floor(Math.random() * (ZENY_MAX - ZENY_MIN + 1));
