@@ -15,7 +15,7 @@
     "dev:client": "npm -w @rox/client run dev",
     "build": "npm -w @rox/shared run build && npm -w @rox/server run build && npm -w @rox/client run build",
     "start": "npm -w @rox/server run start",
-    "gen:textures": "node client/tools/genTextures.mjs"
+    "test": "node scripts/smoke.mjs"
   },
   "devDependencies": {
     "concurrently": "^9.1.0",

@@ -57,7 +57,10 @@ Monorepo (npm workspaces):
 - `npm run dev` — run server + client together (recommended)
 - `npm run dev:server` / `npm run dev:client` — run individually
 - `npm run build` — typecheck server, build client bundle
+- `npm test` — headless end-to-end server smoke test (join, combat, leveling, multiplayer, chat)
 - `npm start` — run the server only
+
+CI (GitHub Actions, `.github/workflows/ci.yml`) runs build + smoke test on every push and PR.
 
 ## Deliberately deferred
 
