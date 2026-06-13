@@ -1,0 +1,41 @@
+import { DamageKind } from "./enums.js";
+import type { DerivedStats } from "./stats.js";
+
+export interface DamageResult {
+  amount: number;
+  crit: boolean;
+  miss: boolean;
+  kind: DamageKind;
+}
+
+// Pure damage resolution. `rng` defaults to Math.random so the server stays the
+// source of truth; callers can inject a seeded rng for tests.
+export function resolveAttack(
+  attacker: DerivedStats,
+  defender: DerivedStats,
+  kind: DamageKind,
+  rng: () => number = Math.random,
+): DamageResult {
+  // Hit chance: 80% baseline, shifted by accuracy vs evasion, clamped 5%..100%.
+  const hitChance = clamp(0.8 + (attacker.hit - defender.flee) * 0.02, 0.05, 1);
+  if (kind === DamageKind.Physical && rng() > hitChance) {
+    return { amount: 0, crit: false, miss: true, kind };
+  }
+
+  const power = kind === DamageKind.Magic ? attacker.matk : attacker.atk;
+  // ±15% variance on the raw attack power.
+  const rolled = power * (0.85 + rng() * 0.3);
+
+  // Magic partially ignores physical DEF.
+  const mitigation = kind === DamageKind.Magic ? defender.def * 0.4 : defender.def;
+
+  const crit = rng() * 100 < attacker.crit;
+  let amount = Math.max(1, Math.round(rolled - mitigation));
+  if (crit) amount = Math.round(amount * 1.5);
+
+  return { amount, crit, miss: false, kind };
+}
+
+function clamp(v: number, lo: number, hi: number): number {
+  return Math.min(hi, Math.max(lo, v));
+}

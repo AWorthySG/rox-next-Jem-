@@ -1,0 +1,135 @@
+import { DamageKind, JobId, MsgType } from "./enums.js";
+import type { EntityFull, EntitySnapshot, SelfState } from "./entities.js";
+import type { Stats } from "./stats.js";
+
+// ---- Client -> Server ----
+
+export interface JoinMsg {
+  t: MsgType.Join;
+  name: string;
+  job?: JobId;
+}
+
+export interface MoveIntentMsg {
+  t: MsgType.MoveIntent;
+  x: number;
+  z: number;
+}
+
+export interface AttackIntentMsg {
+  t: MsgType.AttackIntent;
+  targetId: number;
+}
+
+export interface ChatMsg {
+  t: MsgType.Chat;
+  text: string;
+}
+
+export interface PingMsg {
+  t: MsgType.Ping;
+  clientTime: number;
+}
+
+export type ClientMessage = JoinMsg | MoveIntentMsg | AttackIntentMsg | ChatMsg | PingMsg;
+
+// ---- Server -> Client ----
+
+export interface JoinAckMsg {
+  t: MsgType.JoinAck;
+  selfId: number;
+  tickRate: number;
+  snapshotRate: number;
+  mapSize: number;
+  self: SelfState;
+}
+
+export interface SpawnMsg {
+  t: MsgType.Spawn;
+  entity: EntityFull;
+}
+
+export interface DespawnMsg {
+  t: MsgType.Despawn;
+  id: number;
+}
+
+export interface SnapshotMsg {
+  t: MsgType.Snapshot;
+  tick: number;
+  time: number; // server ms timestamp
+  entities: EntitySnapshot[];
+}
+
+export interface SelfSyncMsg {
+  t: MsgType.SelfSync;
+  self: SelfState;
+}
+
+export interface DamageEventMsg {
+  t: MsgType.DamageEvent;
+  sourceId: number;
+  targetId: number;
+  amount: number;
+  crit: boolean;
+  miss: boolean;
+  kind: DamageKind;
+}
+
+export interface LevelUpMsg {
+  t: MsgType.LevelUp;
+  id: number;
+  newLevel: number;
+  maxHp: number;
+  maxSp: number;
+  stats: Stats;
+  expToNext: number;
+}
+
+export interface ChatBroadcastMsg {
+  t: MsgType.ChatBroadcast;
+  fromId: number;
+  name: string;
+  text: string;
+}
+
+export interface PongMsg {
+  t: MsgType.Pong;
+  clientTime: number;
+  serverTime: number;
+}
+
+export type ServerMessage =
+  | JoinAckMsg
+  | SpawnMsg
+  | DespawnMsg
+  | SnapshotMsg
+  | SelfSyncMsg
+  | DamageEventMsg
+  | LevelUpMsg
+  | ChatBroadcastMsg
+  | PongMsg;
+
+export function encode(msg: ClientMessage | ServerMessage): string {
+  return JSON.stringify(msg);
+}
+
+export function decodeClient(raw: string): ClientMessage | null {
+  try {
+    const obj = JSON.parse(raw);
+    if (obj && typeof obj.t === "string") return obj as ClientMessage;
+  } catch {
+    /* ignore malformed */
+  }
+  return null;
+}
+
+export function decodeServer(raw: string): ServerMessage | null {
+  try {
+    const obj = JSON.parse(raw);
+    if (obj && typeof obj.t === "string") return obj as ServerMessage;
+  } catch {
+    /* ignore malformed */
+  }
+  return null;
+}

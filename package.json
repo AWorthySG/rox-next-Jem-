@@ -1,0 +1,24 @@
+{
+  "name": "rox-next",
+  "private": true,
+  "version": "0.1.0",
+  "description": "ROX-Next — an online multiplayer 3D RPG vertical slice inspired by Ragnarok X: Next Generation",
+  "type": "module",
+  "workspaces": [
+    "shared",
+    "server",
+    "client"
+  ],
+  "scripts": {
+    "dev": "concurrently -n server,client -c green,cyan \"npm:dev:server\" \"npm:dev:client\"",
+    "dev:server": "npm -w @rox/server run dev",
+    "dev:client": "npm -w @rox/client run dev",
+    "build": "npm -w @rox/shared run build && npm -w @rox/server run build && npm -w @rox/client run build",
+    "start": "npm -w @rox/server run start",
+    "gen:textures": "node client/tools/genTextures.mjs"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.0",
+    "typescript": "^5.6.3"
+  }
+}
