@@ -12,6 +12,8 @@ export abstract class EntityView {
 
   hp: number;
   maxHp: number;
+  readonly name: string;
+  readonly level: number;
   protected nameplateEl: HTMLDivElement;
   protected hpFillEl: HTMLElement;
   protected label: CSS2DObject;
@@ -24,6 +26,8 @@ export abstract class EntityView {
     this.id = entity.id;
     this.hp = entity.hp;
     this.maxHp = entity.maxHp;
+    this.name = entity.name;
+    this.level = entity.level;
     this.group.position.set(entity.x, 0, entity.z);
     this.group.rotation.y = entity.facing;
     this.prevX = entity.x;
