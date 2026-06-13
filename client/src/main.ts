@@ -13,7 +13,8 @@ import { ChatBox } from "./ui/ChatBox.js";
 import { DamageNumbers } from "./ui/DamageNumbers.js";
 import { SkillBar } from "./ui/SkillBar.js";
 import { InventoryPanel } from "./ui/InventoryPanel.js";
-import { getItem } from "@rox/shared";
+import { JobAdvance } from "./ui/JobAdvance.js";
+import { getItem, JOB_NAME, type JobId } from "@rox/shared";
 import { buildMonsterAppearances } from "./procedural/monsters.js";
 
 // ---- bootstrap engine ----
@@ -93,6 +94,9 @@ const inventory = new InventoryPanel({
   onUnequip: (slot) => transport?.send({ t: MsgType.Unequip, slot }),
 });
 
+let currentJob: JobId | null = null;
+const jobAdvance = new JobAdvance((job) => transport?.send({ t: MsgType.JobAdvance, targetJob: job }));
+
 // ---- input → intents ----
 const input = new InputController(
   scene.renderer.domElement,
@@ -118,10 +122,12 @@ function handleMessage(msg: ServerMessage): void {
     case MsgType.JoinAck:
       selfId = msg.selfId;
       gameState.selfId = selfId;
-      hud.setIdentity(msg.self.name, msg.self.job);
+      currentJob = msg.self.job;
+      hud.setIdentity(msg.self.name, JOB_NAME[msg.self.job]);
       hud.update(msg.self);
       skillBar.build(msg.self.job);
       skillBar.setSp(msg.self.sp);
+      jobAdvance.update(msg.self);
       hud.show();
       document.getElementById("login")!.classList.add("hidden");
       chat.system(
@@ -141,9 +147,16 @@ function handleMessage(msg: ServerMessage): void {
       gameState.applySnapshot(msg.entities, performance.now());
       break;
     case MsgType.SelfSync:
+      if (msg.self.job !== currentJob) {
+        currentJob = msg.self.job;
+        hud.setIdentity(msg.self.name, JOB_NAME[msg.self.job]);
+        skillBar.build(msg.self.job);
+        chat.system(`You advanced to ${JOB_NAME[msg.self.job]}!`);
+      }
       hud.update(msg.self);
       skillBar.setSp(msg.self.sp);
       inventory.sync(msg.self);
+      jobAdvance.update(msg.self);
       break;
     case MsgType.Loot: {
       const names = msg.items.map((i) => `${getItem(i.id)?.name ?? i.id}${i.qty > 1 ? ` ×${i.qty}` : ""}`);

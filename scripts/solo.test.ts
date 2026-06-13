@@ -72,6 +72,15 @@ async function main(): Promise<void> {
   check(hero.useItem("red_potion"), "items: consumable is used");
   check(hero.hp > 1, "items: potion restores HP");
 
+  // ---- deterministic job-advancement checks ----
+  const cadet = new Player(998, 1, "Cadet", JobId.Swordsman, 0, 0);
+  cadet.level = 5;
+  check(!cadet.advanceJob(JobId.Knight), "jobs: cannot advance below level threshold");
+  cadet.level = 25;
+  check(cadet.advanceJob(JobId.Knight), "jobs: advance to 2nd job at threshold");
+  check(cadet.job === JobId.Knight, "jobs: job id changes to Knight");
+  check(!cadet.advanceJob(JobId.Wizard), "jobs: Knight has no further advancement");
+
   local.stop();
   if (failures.length) {
     console.error(`\nSOLO TEST FAILED (${failures.length}): ${failures.join("; ")}`);

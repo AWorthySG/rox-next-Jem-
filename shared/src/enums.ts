@@ -5,6 +5,7 @@ export enum MsgType {
   MoveIntent = "move",
   AttackIntent = "attack",
   SkillIntent = "skill",
+  JobAdvance = "jobAdvance",
   UseItem = "useItem",
   Equip = "equip",
   Unequip = "unequip",
@@ -40,6 +41,8 @@ export enum JobId {
   Novice = "novice",
   Swordsman = "swordsman",
   Mage = "mage",
+  Knight = "knight",
+  Wizard = "wizard",
 }
 
 export enum DamageKind {

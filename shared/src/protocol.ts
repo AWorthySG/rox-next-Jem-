@@ -27,6 +27,11 @@ export interface SkillIntentMsg {
   targetId: number; // monster target, or own id for self-cast skills
 }
 
+export interface JobAdvanceMsg {
+  t: MsgType.JobAdvance;
+  targetJob: JobId;
+}
+
 export interface UseItemMsg {
   t: MsgType.UseItem;
   itemId: string;
@@ -57,6 +62,7 @@ export type ClientMessage =
   | MoveIntentMsg
   | AttackIntentMsg
   | SkillIntentMsg
+  | JobAdvanceMsg
   | UseItemMsg
   | EquipMsg
   | UnequipMsg

@@ -81,14 +81,75 @@ export const SKILLS: Record<string, SkillDef> = {
     aoeRadius: 5.5,
     desc: "Call lightning over an area.",
   },
+
+  // ---- 2nd-job skills ----
+  pierce: {
+    id: "pierce",
+    name: "Pierce",
+    job: JobId.Knight,
+    hotkey: 3,
+    spCost: 14,
+    cooldownMs: 1800,
+    range: 2.8,
+    kind: DamageKind.Physical,
+    power: 3.4,
+    desc: "Run a spear through a single foe.",
+  },
+  bowling_bash: {
+    id: "bowling_bash",
+    name: "Bowling Bash",
+    job: JobId.Knight,
+    hotkey: 4,
+    spCost: 28,
+    cooldownMs: 6000,
+    range: 3.2,
+    kind: DamageKind.Physical,
+    power: 2.6,
+    aoeRadius: 6,
+    desc: "Knock enemies around in a wide arc.",
+  },
+  jupitel_thunder: {
+    id: "jupitel_thunder",
+    name: "Jupitel Thunder",
+    job: JobId.Wizard,
+    hotkey: 3,
+    spCost: 22,
+    cooldownMs: 2200,
+    range: 12,
+    kind: DamageKind.Magic,
+    power: 3.8,
+    desc: "A piercing bolt of wind and lightning.",
+  },
+  meteor_storm: {
+    id: "meteor_storm",
+    name: "Meteor Storm",
+    job: JobId.Wizard,
+    hotkey: 4,
+    spCost: 40,
+    cooldownMs: 8000,
+    range: 12,
+    kind: DamageKind.Magic,
+    power: 2.8,
+    aoeRadius: 7,
+    desc: "Rain meteors across a wide area.",
+  },
 };
 
 export const SKILLS_BY_JOB: Record<JobId, SkillDef[]> = {
   [JobId.Novice]: [SKILLS.first_aid],
   [JobId.Swordsman]: [SKILLS.bash, SKILLS.magnum_break],
   [JobId.Mage]: [SKILLS.fire_bolt, SKILLS.thunder_storm],
+  // 2nd jobs keep their 1st-job kit and gain new skills.
+  [JobId.Knight]: [SKILLS.bash, SKILLS.magnum_break, SKILLS.pierce, SKILLS.bowling_bash],
+  [JobId.Wizard]: [SKILLS.fire_bolt, SKILLS.thunder_storm, SKILLS.jupitel_thunder, SKILLS.meteor_storm],
 };
 
 export function getSkill(id: string): SkillDef | undefined {
   return SKILLS[id];
+}
+
+// A skill is usable by a job if it appears in that job's kit (covers inherited
+// 1st-job skills on 2nd jobs).
+export function jobHasSkill(job: JobId, skillId: string): boolean {
+  return (SKILLS_BY_JOB[job] ?? []).some((s) => s.id === skillId);
 }

@@ -2,6 +2,7 @@ import {
   DamageKind,
   getSkill,
   HP_REGEN_PER_SEC,
+  jobHasSkill,
   MonsterAIState,
   MsgType,
   PLAYER_ATTACK_COOLDOWN_MS,
@@ -48,7 +49,7 @@ export class CombatSystem {
   private processSkill(p: Player): boolean {
     if (p.pendingSkillId == null) return false;
     const def = getSkill(p.pendingSkillId);
-    if (!def || def.job !== p.job) {
+    if (!def || !jobHasSkill(p.job, def.id)) {
       this.clearSkill(p);
       return false;
     }

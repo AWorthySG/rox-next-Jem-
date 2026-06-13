@@ -307,6 +307,46 @@ body {
   color: var(--gold);
 }
 
+/* ---- job advance banner ---- */
+.job-advance {
+  position: absolute;
+  bottom: 96px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: linear-gradient(180deg, rgba(60, 48, 110, 0.95), rgba(36, 28, 70, 0.95));
+  border: 2px solid var(--gold);
+  border-radius: 12px;
+  box-shadow: 0 0 22px rgba(230, 200, 120, 0.35);
+  pointer-events: auto;
+  animation: jobpulse 1.6s ease-in-out infinite;
+}
+@keyframes jobpulse {
+  0%, 100% { box-shadow: 0 0 18px rgba(230, 200, 120, 0.3); }
+  50% { box-shadow: 0 0 30px rgba(230, 200, 120, 0.6); }
+}
+.ja-title {
+  font-weight: 700;
+  color: var(--gold);
+  font-size: 13px;
+}
+.ja-btn {
+  padding: 7px 12px;
+  font-weight: 700;
+  font-size: 13px;
+  color: #1a1430;
+  background: linear-gradient(180deg, #f4d98a, #d8af44);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.ja-btn:hover {
+  filter: brightness(1.08);
+}
+
 /* ---- skill bar ---- */
 .skillbar {
   position: absolute;

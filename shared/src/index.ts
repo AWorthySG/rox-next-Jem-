@@ -1,6 +1,7 @@
 export * from "./enums.js";
 export * from "./constants.js";
 export * from "./stats.js";
+export * from "./jobs.js";
 export * from "./combat.js";
 export * from "./skills.js";
 export * from "./items.js";

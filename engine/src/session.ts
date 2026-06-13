@@ -44,6 +44,14 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       }
       break;
     }
+    case MsgType.JobAdvance: {
+      const p = playerOf(world, link);
+      if (p && p.advanceJob(msg.targetJob)) {
+        // Re-announce the player so everyone sees the new job.
+        world.broadcast({ t: MsgType.Spawn, entity: p.toFull() });
+      }
+      break;
+    }
     case MsgType.UseItem: {
       const p = playerOf(world, link);
       if (p) p.useItem(msg.itemId);

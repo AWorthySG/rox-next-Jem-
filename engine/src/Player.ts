@@ -1,5 +1,6 @@
 import {
   addStats,
+  canAdvanceTo,
   deriveStats,
   EntityKind,
   EquipSlot,
@@ -142,6 +143,21 @@ export class Player {
     delete this.equipped[slot];
     this.addItem(itemId, 1);
     this.recompute();
+    return true;
+  }
+
+  // ---- job advancement ----
+
+  // Returns true if the change was applied. Keeps accumulated stats; future
+  // level-ups use the new job's growth, and the new job's skill kit unlocks.
+  advanceJob(target: JobId): boolean {
+    if (!canAdvanceTo(this.job, target, this.level)) return false;
+    this.job = target;
+    // A modest bonus on advancement, then full restore.
+    this.stats = addStats(this.stats, JOB_GROWTH[target]);
+    this.recompute();
+    this.hp = this.derived.maxHp;
+    this.sp = this.derived.maxSp;
     return true;
   }
 

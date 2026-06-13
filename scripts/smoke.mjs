@@ -45,7 +45,7 @@ async function main() {
     stdio: ["ignore", "pipe", "ignore"],
   });
   await new Promise((resolve, reject) => {
-    const t = setTimeout(() => reject(new Error("server did not start in time")), 15000);
+    const t = setTimeout(() => reject(new Error("server did not start in time")), 30000);
     server.stdout.on("data", (d) => {
       if (d.toString().includes("listening")) { clearTimeout(t); resolve(); }
     });

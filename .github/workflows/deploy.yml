@@ -1,0 +1,36 @@
+name: Deploy (Vercel)
+
+# Publishes the client to Vercel on push. Inactive until the repo has a
+# VERCEL_TOKEN secret (plus VERCEL_ORG_ID / VERCEL_PROJECT_ID); otherwise the
+# job no-ops so it never blocks CI.
+on:
+  push:
+    branches: ["main", "claude/ragnarok-x-game-replica-cy86re"]
+  workflow_dispatch:
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Deploy to Vercel (if configured)
+        env:
+          VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+          VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+          VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+        run: |
+          if [ -z "$VERCEL_TOKEN" ]; then
+            echo "VERCEL_TOKEN not set — skipping deploy."
+            echo "Enable live deploys by adding repo secrets: VERCEL_TOKEN, VERCEL_ORG_ID, VERCEL_PROJECT_ID."
+            exit 0
+          fi
+          npm i -g vercel
+          vercel pull --yes --environment=production --token="$VERCEL_TOKEN"
+          vercel build --prod --token="$VERCEL_TOKEN"
+          url=$(vercel deploy --prebuilt --prod --token="$VERCEL_TOKEN")
+          echo "Deployed: $url"
+          echo "### Live deployment: $url" >> "$GITHUB_STEP_SUMMARY"
