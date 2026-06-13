@@ -23,8 +23,9 @@ copyrighted assets.
 - **Progression**: STR/AGI/VIT/INT/DEX/LUK stats, EXP curve, leveling with auto stat growth
   and full-heal on level-up (cap 20); HP/SP passive regen; **Zeny** drops from kills.
 - **Classes, skills & job advancement**: start as Novice, Swordsman, Mage, **Archer** or
-  **Acolyte**, then **advance** at Lv25 to **Knight / Wizard / Hunter / Priest** (1st jobs from
-  Novice at Lv10). Each line has its own server-authoritative skill kit — Bash/Magnum Break,
+  **Acolyte**, **advance** at Lv25 to **Knight / Wizard / Hunter / Priest**, then at Lv45 to the
+  transcendent **Rune Knight / High Wizard / Sniper / High Priest** (level cap 60). Each line has
+  its own server-authoritative skill kit — Bash/Magnum Break,
   Fire/Thunder, Double Strafe/Arrow Shower, Heal/Holy Light, plus 2nd-job skills (Pierce,
   Bowling Bash, Jupitel Thunder, Meteor Storm, Blitz Beat, Sharp Shooting, Magnus Exorcismus,
   Blessing) — with SP cost, cooldowns, range, AoE, status effects and buffs.

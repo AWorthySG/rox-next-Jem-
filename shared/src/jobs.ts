@@ -10,6 +10,10 @@ export const JOB_NAME: Record<JobId, string> = {
   [JobId.Wizard]: "Wizard",
   [JobId.Hunter]: "Hunter",
   [JobId.Priest]: "Priest",
+  [JobId.RuneKnight]: "Rune Knight",
+  [JobId.HighWizard]: "High Wizard",
+  [JobId.Sniper]: "Sniper",
+  [JobId.HighPriest]: "High Priest",
 };
 
 // Advancement tree: which jobs each job may become next.
@@ -19,18 +23,27 @@ export const JOB_TREE: Record<JobId, JobId[]> = {
   [JobId.Mage]: [JobId.Wizard],
   [JobId.Archer]: [JobId.Hunter],
   [JobId.Acolyte]: [JobId.Priest],
-  [JobId.Knight]: [],
-  [JobId.Wizard]: [],
-  [JobId.Hunter]: [],
-  [JobId.Priest]: [],
+  [JobId.Knight]: [JobId.RuneKnight],
+  [JobId.Wizard]: [JobId.HighWizard],
+  [JobId.Hunter]: [JobId.Sniper],
+  [JobId.Priest]: [JobId.HighPriest],
+  [JobId.RuneKnight]: [],
+  [JobId.HighWizard]: [],
+  [JobId.Sniper]: [],
+  [JobId.HighPriest]: [],
 };
+
+const SECOND_JOBS = new Set<JobId>([JobId.Knight, JobId.Wizard, JobId.Hunter, JobId.Priest]);
 
 // Base level required for each tier of advancement.
 export const FIRST_JOB_LEVEL = 10; // Novice -> 1st job
 export const SECOND_JOB_LEVEL = 25; // 1st job -> 2nd job
+export const THIRD_JOB_LEVEL = 45; // 2nd job -> 3rd (transcendent) job
 
 export function advanceLevelFor(job: JobId): number {
-  return job === JobId.Novice ? FIRST_JOB_LEVEL : SECOND_JOB_LEVEL;
+  if (job === JobId.Novice) return FIRST_JOB_LEVEL;
+  if (SECOND_JOBS.has(job)) return THIRD_JOB_LEVEL;
+  return SECOND_JOB_LEVEL;
 }
 
 // Jobs a player at the given level may advance into right now.

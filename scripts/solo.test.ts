@@ -92,6 +92,14 @@ async function main(): Promise<void> {
   cleric.level = 25;
   check(cleric.advanceJob(JobId.Priest) && cleric.job === JobId.Priest, "classes: Acolyte advances to Priest");
 
+  // ---- 3rd-job (transcendent) advancement ----
+  const rk = new Player(987, 1, "Trans", JobId.Knight, 0, 0);
+  rk.level = 40;
+  check(!rk.advanceJob(JobId.RuneKnight), "3rd job: blocked before Lv45");
+  rk.level = 45;
+  check(rk.advanceJob(JobId.RuneKnight) && rk.job === JobId.RuneKnight, "3rd job: Knight -> Rune Knight at Lv45");
+  check(rk.skillLevel("dragon_breath") === 1, "3rd job: Rune Knight learns Dragon Breath");
+
   // ---- deterministic shop checks ----
   const buyer = new Player(997, 1, "Buyer", JobId.Novice, 0, 0);
   buyer.zeny = 1000;

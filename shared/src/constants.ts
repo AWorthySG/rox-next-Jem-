@@ -32,7 +32,7 @@ export const WANDER_PAUSE_MIN_MS = 1500;
 export const WANDER_PAUSE_MAX_MS = 4000;
 
 // Progression.
-export const LEVEL_CAP = 40;
+export const LEVEL_CAP = 60;
 export const STAT_POINTS_PER_LEVEL = 3;
 
 // Gear refinement.

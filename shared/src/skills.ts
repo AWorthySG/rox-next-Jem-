@@ -280,6 +280,61 @@ export const SKILLS: Record<string, SkillDef> = {
     buff: { stat: "matk", mult: 1.3, durationMs: 18000 },
     desc: "Bless yourself: +30% MATK for 18s.",
   },
+
+  // ---- 3rd-job (transcendent) ultimates ----
+  dragon_breath: {
+    id: "dragon_breath",
+    name: "Dragon Breath",
+    job: JobId.RuneKnight,
+    hotkey: 6,
+    spCost: 45,
+    cooldownMs: 6500,
+    range: 7,
+    kind: DamageKind.Physical,
+    power: 3.4,
+    aoeRadius: 7,
+    effect: { type: StatusType.Burn, durationMs: 4000, magnitude: 0.3 },
+    desc: "Exhale searing dragonfire around you.",
+  },
+  storm_gust: {
+    id: "storm_gust",
+    name: "Storm Gust",
+    job: JobId.HighWizard,
+    hotkey: 6,
+    spCost: 55,
+    cooldownMs: 8000,
+    range: 12,
+    kind: DamageKind.Magic,
+    power: 3.2,
+    aoeRadius: 8,
+    effect: { type: StatusType.Slow, durationMs: 3000, magnitude: 0.4 },
+    desc: "A freezing storm that batters and slows a wide area.",
+  },
+  falcon_assault: {
+    id: "falcon_assault",
+    name: "Falcon Assault",
+    job: JobId.Sniper,
+    hotkey: 5,
+    spCost: 40,
+    cooldownMs: 4500,
+    range: 13,
+    kind: DamageKind.Physical,
+    power: 5.2,
+    desc: "Command your falcon to devastate a single target.",
+  },
+  judex: {
+    id: "judex",
+    name: "Judex",
+    job: JobId.HighPriest,
+    hotkey: 5,
+    spCost: 42,
+    cooldownMs: 6000,
+    range: 11,
+    kind: DamageKind.Magic,
+    power: 3.2,
+    aoeRadius: 6.5,
+    desc: "Holy judgment rains on an area.",
+  },
 };
 
 export const SKILLS_BY_JOB: Record<JobId, SkillDef[]> = {
@@ -293,6 +348,11 @@ export const SKILLS_BY_JOB: Record<JobId, SkillDef[]> = {
   [JobId.Wizard]: [SKILLS.fire_bolt, SKILLS.thunder_storm, SKILLS.jupitel_thunder, SKILLS.meteor_storm, SKILLS.mystic_focus],
   [JobId.Hunter]: [SKILLS.double_strafe, SKILLS.arrow_shower, SKILLS.blitz_beat, SKILLS.sharp_shooting],
   [JobId.Priest]: [SKILLS.heal, SKILLS.holy_light, SKILLS.magnus_exorcismus, SKILLS.blessing],
+  // 3rd jobs keep their 2nd-job kit and gain an ultimate.
+  [JobId.RuneKnight]: [SKILLS.bash, SKILLS.magnum_break, SKILLS.pierce, SKILLS.bowling_bash, SKILLS.battle_focus, SKILLS.dragon_breath],
+  [JobId.HighWizard]: [SKILLS.fire_bolt, SKILLS.thunder_storm, SKILLS.jupitel_thunder, SKILLS.meteor_storm, SKILLS.mystic_focus, SKILLS.storm_gust],
+  [JobId.Sniper]: [SKILLS.double_strafe, SKILLS.arrow_shower, SKILLS.blitz_beat, SKILLS.sharp_shooting, SKILLS.falcon_assault],
+  [JobId.HighPriest]: [SKILLS.heal, SKILLS.holy_light, SKILLS.magnus_exorcismus, SKILLS.blessing, SKILLS.judex],
 };
 
 export function getSkill(id: string): SkillDef | undefined {
