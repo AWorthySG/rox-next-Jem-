@@ -55,6 +55,33 @@ export const MONSTER_TEMPLATES: Record<string, MonsterTemplate> = {
     respawnMs: 90000,
     boss: true,
   },
+  // ---- Glast Heim dungeon ----
+  zombie: {
+    id: "zombie",
+    name: "Zombie",
+    level: 16,
+    stats: makeStats({ str: 24, agi: 6, vit: 18, int: 4, dex: 18, luk: 6 }),
+    baseHp: 320,
+    baseExp: 200,
+  },
+  skeleton: {
+    id: "skeleton",
+    name: "Skeleton",
+    level: 20,
+    stats: makeStats({ str: 30, agi: 14, vit: 18, int: 6, dex: 24, luk: 10 }),
+    baseHp: 420,
+    baseExp: 280,
+  },
+  baphomet: {
+    id: "baphomet",
+    name: "Baphomet",
+    level: 35,
+    stats: makeStats({ str: 70, agi: 30, vit: 55, int: 20, dex: 45, luk: 30 }),
+    baseHp: 6000,
+    baseExp: 4200,
+    respawnMs: 120000,
+    boss: true,
+  },
 };
 
 export interface SpawnZone {

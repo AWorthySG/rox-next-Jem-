@@ -124,6 +124,48 @@ export const ITEMS: Record<string, ItemDef> = {
     maxSp: 30,
     sellPrice: 500,
   },
+
+  // ---- Glast Heim tier ----
+  claymore: {
+    id: "claymore",
+    name: "Claymore",
+    type: ItemType.Weapon,
+    slot: EquipSlot.Weapon,
+    desc: "A massive greatsword. ATK +34, STR +2.",
+    atk: 34,
+    bonusStats: { str: 2 },
+    sellPrice: 600,
+  },
+  saint_robe: {
+    id: "saint_robe",
+    name: "Saint's Robe",
+    type: ItemType.Armor,
+    slot: EquipSlot.Armor,
+    desc: "Blessed armor. DEF +14, Max HP +120, INT +3.",
+    def: 14,
+    maxHp: 120,
+    bonusStats: { int: 3 },
+    sellPrice: 480,
+  },
+  rosary: {
+    id: "rosary",
+    name: "Rosary",
+    type: ItemType.Accessory,
+    slot: EquipSlot.Accessory,
+    desc: "A holy charm. INT +4, LUK +3.",
+    bonusStats: { int: 4, luk: 3 },
+    sellPrice: 420,
+  },
+  baphomet_horn: {
+    id: "baphomet_horn",
+    name: "Baphomet Horn",
+    type: ItemType.Accessory,
+    slot: EquipSlot.Accessory,
+    desc: "Trophy of the demon lord. STR +5, INT +5, Max HP +150.",
+    bonusStats: { str: 5, int: 5 },
+    maxHp: 150,
+    sellPrice: 2500,
+  },
 };
 
 // What the town shop sells.
@@ -174,6 +216,21 @@ export const DROP_TABLES: Record<string, DropEntry[]> = {
     { itemId: "poring_crown", chance: 0.8 },
     { itemId: "kings_cleaver", chance: 0.55 },
     { itemId: "leather_armor", chance: 0.5 },
+  ],
+  zombie: [
+    { itemId: "red_potion", chance: 0.3 },
+    { itemId: "saint_robe", chance: 0.05 },
+  ],
+  skeleton: [
+    { itemId: "red_potion", chance: 0.3 },
+    { itemId: "claymore", chance: 0.06 },
+    { itemId: "rosary", chance: 0.05 },
+  ],
+  baphomet: [
+    { itemId: "red_potion", chance: 1, qty: 5 },
+    { itemId: "baphomet_horn", chance: 0.7 },
+    { itemId: "claymore", chance: 0.5 },
+    { itemId: "saint_robe", chance: 0.5 },
   ],
 };
 

@@ -46,7 +46,23 @@ export const MAPS: Record<string, GameMap> = {
       { id: "cave-lunatic-2", templateId: "lunatic", cx: -6, cz: -30, radius: 12, count: 6 },
       { id: "cave-king", templateId: "poring_king", cx: 0, cz: -44, radius: 4, count: 1 },
     ],
-    npcs: [{ name: "Exit Portal", role: "portal", x: 0, z: 26, dest: { toMap: "field", toX: 16, toZ: 2 } }],
+    npcs: [
+      { name: "Exit Portal", role: "portal", x: 0, z: 26, dest: { toMap: "field", toX: 16, toZ: 2 } },
+      { name: "Glast Heim Portal", role: "portal", x: 0, z: -50, dest: { toMap: "glast_heim", toX: 0, toZ: 20 } },
+    ],
+  },
+  glast_heim: {
+    id: "glast_heim",
+    name: "Glast Heim",
+    theme: { ground: 0x4a4a55, fog: 0x14161f, sky: 0x232838 },
+    spawn: { x: 0, z: 20 },
+    zones: [
+      { id: "gh-zombie", templateId: "zombie", cx: -20, cz: 2, radius: 13, count: 7 },
+      { id: "gh-skeleton", templateId: "skeleton", cx: 20, cz: -2, radius: 13, count: 7 },
+      { id: "gh-skeleton-2", templateId: "skeleton", cx: -4, cz: -28, radius: 12, count: 6 },
+      { id: "gh-baphomet", templateId: "baphomet", cx: 0, cz: -46, radius: 4, count: 1 },
+    ],
+    npcs: [{ name: "Glast Heim Exit", role: "portal", x: 0, z: 26, dest: { toMap: "cave", toX: 0, toZ: -44 } }],
   },
   arena: {
     id: "arena",

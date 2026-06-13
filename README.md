@@ -18,8 +18,8 @@ copyrighted assets.
 - **Combat**: click a monster to attack — classic RO-flavored damage (ATK/MATK vs DEF, hit/flee,
   crits), floating damage numbers, HP bars, monster death & respawn, monster AI
   (idle → wander → aggro → attack → leash).
-- **Bestiary + boss**: Poring, Fabre, Drops and Lunatic field zones by difficulty, plus an
-  MVP-style **Poring King** boss (crowned, 1600 HP, big EXP, slow respawn) in a northern arena.
+- **Bestiary + bosses**: Poring, Fabre, Drops, Lunatic, plus Glast Heim's Zombies and
+  Skeletons; two MVP bosses — the **Poring King** and **Baphomet** (6000 HP) — with rare drops.
 - **Progression**: STR/AGI/VIT/INT/DEX/LUK stats, EXP curve, leveling with auto stat growth
   and full-heal on level-up (cap 20); HP/SP passive regen; **Zeny** drops from kills.
 - **Classes, skills & job advancement**: start as Novice, Swordsman, Mage, **Archer** or
@@ -50,9 +50,9 @@ copyrighted assets.
 - **Auto-battle**: the signature ROX convenience — toggle Auto (button or `T`) and your
   character automatically seeks the nearest monster, attacks, and casts ready skills.
 - **Minimap**: a top-down radar showing you, other players, NPCs, monsters and the boss.
-- **Multiple maps**: travel between **Prontera Field**, the tougher **Poring Cave**, and the
-  **PvP Arena** via portals; each map has its own theme, monsters and boss, and is networked
-  independently (you only see players/monsters on your current map).
+- **Multiple maps**: travel between **Prontera Field**, **Poring Cave**, the end-game
+  **Glast Heim** (Zombies, Skeletons & Baphomet), and the **PvP Arena** via portals; each map
+  has its own theme, monsters and boss, and is networked independently.
 - **PvP**: in the Arena, click another player to fight them; defeating one announces it and
   respawns the loser.
 - **HUD & chat**: HP/SP/EXP bars, level, Zeny, stat panel, a hotkey **skill bar** with
