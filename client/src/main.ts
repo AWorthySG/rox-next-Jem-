@@ -344,6 +344,13 @@ function handleMessage(msg: ServerMessage): void {
       guildPanel.setGuild(msg.guild);
       chat.system(msg.guild ? `Guild: ${msg.guild.name}` : "You left your guild.");
       break;
+    case MsgType.Defeated: {
+      const overlay = document.getElementById("death-overlay")!;
+      document.getElementById("death-sub")!.textContent = `Slain by ${msg.byName}`;
+      overlay.classList.remove("hidden");
+      window.setTimeout(() => overlay.classList.add("hidden"), 2400);
+      break;
+    }
     case MsgType.MapChange:
       currentTargetId = null;
       pvpMap = msg.pvp;

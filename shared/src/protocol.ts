@@ -144,6 +144,11 @@ export interface MapChangeMsg {
   z: number;
 }
 
+export interface DefeatedMsg {
+  t: MsgType.Defeated;
+  byName: string;
+}
+
 export interface ChatMsg {
   t: MsgType.Chat;
   text: string;
@@ -304,6 +309,7 @@ export type ServerMessage =
   | PartyUpdateMsg
   | GuildUpdateMsg
   | MapChangeMsg
+  | DefeatedMsg
   | DamageEventMsg
   | LevelUpMsg
   | ChatBroadcastMsg
