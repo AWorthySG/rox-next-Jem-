@@ -156,6 +156,24 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       }
       break;
     }
+    case MsgType.NpcHeal: {
+      const p = playerOf(world, link);
+      const npc = world.npcs.get(msg.npcId);
+      if (p && npc && npc.role === "healer" && npc.mapId === p.mapId) {
+        p.hp = p.derived.maxHp;
+        p.sp = p.derived.maxSp;
+      }
+      break;
+    }
+    case MsgType.Warp: {
+      const p = playerOf(world, link);
+      const npc = world.npcs.get(msg.npcId);
+      const dest = MAPS[msg.mapId];
+      if (p && npc && npc.role === "warp" && npc.mapId === p.mapId && dest) {
+        world.travelPlayer(p, { toMap: dest.id, toX: dest.spawn.x, toZ: dest.spawn.z });
+      }
+      break;
+    }
     case MsgType.ClaimQuest: {
       const p = playerOf(world, link);
       if (p) {

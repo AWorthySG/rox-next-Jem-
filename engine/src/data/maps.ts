@@ -31,6 +31,8 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Kafra Employee", role: "shop", x: 5, z: 4, facing: Math.PI },
       { name: "Guide", role: "guide", x: -5, z: 4, facing: Math.PI },
       { name: "Blacksmith", role: "refine", x: 0, z: 7, facing: Math.PI },
+      { name: "Healer", role: "healer", x: 8, z: 7, facing: Math.PI },
+      { name: "Warp Girl", role: "warp", x: -8, z: 7, facing: Math.PI },
       { name: "Cave Portal", role: "portal", x: 14, z: 0, dest: { toMap: "cave", toX: 0, toZ: 18 } },
       { name: "Arena Portal", role: "portal", x: -14, z: 0, dest: { toMap: "arena", toX: 0, toZ: 0 } },
       { name: "Payon Portal", role: "portal", x: 0, z: 14, dest: { toMap: "payon", toX: 0, toZ: 18 } },

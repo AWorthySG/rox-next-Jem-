@@ -23,6 +23,8 @@ export enum MsgType {
   LevelSkill = "levelSkill",
   RefineItem = "refineItem",
   EnterPortal = "enterPortal",
+  NpcHeal = "npcHeal",
+  Warp = "warp",
   Chat = "chat",
   Ping = "ping",
   // server -> client

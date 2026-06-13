@@ -33,8 +33,8 @@ copyrighted assets.
   bag + equipment panel (key `I`); equip weapons/armor/accessories for stat bonuses (ATK/MATK/
   DEF/HP/SP and base-stat boosts) and quaff potions to restore HP/SP. The Poring King drops
   rare gear (King's Cleaver, Poring Crown).
-- **Town NPC & shop economy**: a Kafra shopkeeper stands in town — click her to buy potions
-  and starter gear or sell loot for Zeny, closing the economy loop.
+- **Town services**: a Kafra shopkeeper (buy/sell), a Guide (quests), a Blacksmith (refine),
+  a **Healer** (full HP/SP restore) and a **Warp Girl** (quick-travel to any map) staff the town.
 - **Parties**: click another player to invite them; accept to group up. Party HUD shows live
   member HP, and EXP from kills is shared (with a bonus) among nearby members.
 - **Guilds**: create or join a named guild (window `G`); members show a `[guild]` tag above

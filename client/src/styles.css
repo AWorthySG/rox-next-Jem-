@@ -888,6 +888,43 @@ body {
   font-size: 10px;
 }
 
+/* ---- warp panel ---- */
+.warp {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 280px;
+  max-width: 92vw;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 2px solid var(--gold);
+  border-radius: 12px;
+  pointer-events: auto;
+  overflow: hidden;
+  z-index: 31;
+}
+.warp-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+}
+.warp-btn {
+  padding: 10px 12px;
+  font-size: 13px;
+  font-weight: 700;
+  color: #1a1430;
+  background: linear-gradient(180deg, #f4d98a, #d8af44);
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.warp-btn:hover {
+  filter: brightness(1.08);
+}
+
 /* ---- guild panel ---- */
 .guild {
   position: absolute;

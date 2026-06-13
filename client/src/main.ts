@@ -20,6 +20,7 @@ import { SkillsPanel } from "./ui/SkillsPanel.js";
 import { JobAdvance } from "./ui/JobAdvance.js";
 import { PartyHud } from "./ui/PartyHud.js";
 import { GuildPanel } from "./ui/GuildPanel.js";
+import { WarpPanel } from "./ui/WarpPanel.js";
 import { AutoBattle } from "./ui/AutoBattle.js";
 import { MiniMap } from "./ui/MiniMap.js";
 import { getItem, JOB_NAME, type SelfState } from "@rox/shared";
@@ -150,6 +151,8 @@ const skills = new SkillsPanel({
   onLevel: (skillId) => transport?.send({ t: MsgType.LevelSkill, skillId }),
 });
 
+const warp = new WarpPanel((npcId, mapId) => transport?.send({ t: MsgType.Warp, npcId, mapId }));
+
 let currentJob: JobId | null = null;
 const jobAdvance = new JobAdvance((job) => transport?.send({ t: MsgType.JobAdvance, targetJob: job }));
 
@@ -218,6 +221,15 @@ const input = new InputController(
           gameState.self?.setMoveTarget(pos.x, pos.z);
         }
         transport?.send({ t: MsgType.EnterPortal, npcId: id });
+        return;
+      }
+      if (role === "healer") {
+        transport?.send({ t: MsgType.NpcHeal, npcId: id });
+        chat.system("The Healer restores your HP and SP.");
+        return;
+      }
+      if (role === "warp") {
+        warp.open(id);
         return;
       }
       // Clicking another player: attack them in a PvP map, else invite to party.
