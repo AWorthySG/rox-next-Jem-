@@ -134,6 +134,20 @@ async function main(): Promise<void> {
   check(mage.skillLevel("fire_bolt") === 2 && mage.skillPoints === 1, "skills: level raised, point spent");
   check(!mage.levelSkill("pierce"), "skills: cannot level a skill outside the job kit");
 
+  // ---- deterministic persistence round-trip (solo save/load) ----
+  const orig = new Player(992, 1, "Hero", JobId.Swordsman, 0, 0);
+  orig.zeny = 555;
+  orig.addItem("red_potion", 4);
+  orig.addItem("novice_knife", 1);
+  orig.equip("novice_knife");
+  orig.gainExp(100000); // level up several times
+  const saved = JSON.parse(JSON.stringify(orig.toSelfState()));
+  const loaded = new Player(991, 1, "X", JobId.Novice, 0, 0);
+  loaded.restore(saved);
+  check(loaded.level === orig.level && loaded.zeny === 555 && loaded.job === orig.job, "persistence: core fields restored");
+  check((loaded.toSelfState().inventory.find((i) => i.id === "red_potion")?.qty ?? 0) === 4, "persistence: inventory restored");
+  check(loaded.equipped.weapon === "novice_knife", "persistence: equipment restored");
+
   local.stop();
   if (failures.length) {
     console.error(`\nSOLO TEST FAILED (${failures.length}): ${failures.join("; ")}`);

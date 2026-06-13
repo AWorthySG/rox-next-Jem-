@@ -1,4 +1,4 @@
-import type { ClientMessage, ServerMessage } from "@rox/shared";
+import { MsgType, type ClientMessage, type SelfState, type ServerMessage } from "@rox/shared";
 import { World, GameLoop, handleClientMessage, type ClientLink } from "@rox/engine";
 import type { NetHandlers, Transport } from "./Transport.js";
 
@@ -13,7 +13,10 @@ export class LocalServer implements Transport {
   private flushScheduled = false;
   connected = false;
 
-  constructor(private handlers: NetHandlers) {
+  constructor(
+    private handlers: NetHandlers,
+    private savedState: SelfState | null = null,
+  ) {
     this.link = new LocalLink(1, (msg) => this.enqueue(msg));
   }
 
@@ -26,6 +29,16 @@ export class LocalServer implements Transport {
 
   send(msg: ClientMessage): void {
     handleClientMessage(this.world, this.link, msg);
+    // On join, restore any saved character so solo progress persists.
+    if (msg.t === MsgType.Join && this.savedState && this.link.playerId != null) {
+      const player = this.world.players.get(this.link.playerId);
+      if (player) {
+        player.restore(this.savedState);
+        this.link.send({ t: MsgType.SelfSync, self: player.toSelfState() });
+        this.world.broadcast({ t: MsgType.Spawn, entity: player.toFull() });
+      }
+      this.savedState = null;
+    }
   }
 
   stop(): void {

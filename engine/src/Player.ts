@@ -309,6 +309,33 @@ export class Player {
     return leveled;
   }
 
+  // Restore a previously-saved character (used by solo/offline persistence).
+  restore(s: SelfState): void {
+    this.name = s.name;
+    this.job = s.job;
+    this.level = s.level;
+    this.exp = s.exp;
+    this.zeny = s.zeny;
+    this.statPoints = s.statPoints;
+    this.skillPoints = s.skillPoints;
+    this.stats = { ...s.stats };
+    this.skillLevels = {};
+    for (const sk of s.skillLevels) this.skillLevels[sk.id] = sk.level;
+    this.inventory = {};
+    for (const it of s.inventory) this.inventory[it.id] = it.qty;
+    this.equipped = {};
+    for (const e of s.equipped) this.equipped[e.slot] = e.id;
+    this.refineByItem = {};
+    for (const r of s.refine) this.refineByItem[r.id] = r.level;
+    this.activeQuests = {};
+    for (const q of s.quests.active) this.activeQuests[q.id] = q.progress;
+    this.completedQuests = [...s.quests.completed];
+    this.learnJobSkills();
+    this.recompute();
+    this.hp = Math.min(s.hp, this.derived.maxHp);
+    this.sp = Math.min(s.sp, this.derived.maxSp);
+  }
+
   toFull(): EntityFull {
     return {
       id: this.id,

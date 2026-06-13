@@ -220,6 +220,21 @@ body {
   opacity: 0.5;
   cursor: default;
 }
+.reset-btn {
+  width: 100%;
+  margin-top: 8px;
+  padding: 8px;
+  font-size: 11px;
+  color: #c9c0e0;
+  background: transparent;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  cursor: pointer;
+}
+.reset-btn:hover {
+  color: #fff;
+  border-color: var(--gold);
+}
 .conn-status {
   margin: 12px 0 0;
   font-size: 12px;

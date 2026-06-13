@@ -21,7 +21,7 @@ import { JobAdvance } from "./ui/JobAdvance.js";
 import { PartyHud } from "./ui/PartyHud.js";
 import { AutoBattle } from "./ui/AutoBattle.js";
 import { MiniMap } from "./ui/MiniMap.js";
-import { getItem, JOB_NAME, type JobId } from "@rox/shared";
+import { getItem, JOB_NAME, type JobId, type SelfState } from "@rox/shared";
 import { buildMonsterAppearances } from "./procedural/monsters.js";
 
 // ---- bootstrap engine ----
@@ -76,9 +76,32 @@ function settle(m: "online" | "solo"): boolean {
   return true;
 }
 
+// Solo-mode persistence: progress is saved to localStorage and restored on join.
+const SAVE_KEY = "rox-save-v1";
+let lastSave = 0;
+function loadSave(): SelfState | null {
+  try {
+    const raw = localStorage.getItem(SAVE_KEY);
+    return raw ? (JSON.parse(raw) as SelfState) : null;
+  } catch {
+    return null;
+  }
+}
+function saveSolo(self: SelfState): void {
+  if (mode !== "solo") return;
+  const now = performance.now();
+  if (now - lastSave < 1000) return; // debounce
+  lastSave = now;
+  try {
+    localStorage.setItem(SAVE_KEY, JSON.stringify(self));
+  } catch {
+    /* storage full / unavailable */
+  }
+}
+
 function fallbackToSolo(): void {
   if (!settle("solo")) return;
-  const local = new LocalServer(handlers);
+  const local = new LocalServer(handlers, loadSave());
   transport = local;
   hud.setLatency(0);
   local.connect();
@@ -224,6 +247,7 @@ function handleMessage(msg: ServerMessage): void {
       gameState.applySnapshot(msg.entities, performance.now());
       break;
     case MsgType.SelfSync:
+      saveSolo(msg.self);
       if (msg.self.job !== currentJob) {
         currentJob = msg.self.job;
         hud.setIdentity(msg.self.name, JOB_NAME[msg.self.job]);
@@ -325,6 +349,18 @@ new Loop((dt) => {
   cameraRig.follow(followPos, dt);
   scene.render(cameraRig.camera);
 }).start();
+
+// Offer a reset if a saved solo character exists.
+const resetBtn = document.getElementById("reset-btn") as HTMLButtonElement;
+if (loadSave()) resetBtn.classList.remove("hidden");
+resetBtn.addEventListener("click", () => {
+  try {
+    localStorage.removeItem(SAVE_KEY);
+  } catch {
+    /* ignore */
+  }
+  location.reload();
+});
 
 // connect on load
 setStatus("Connecting…", "");

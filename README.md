@@ -79,8 +79,10 @@ Monorepo (npm workspaces):
 
 The client tries the WebSocket server first; if none is reachable within ~2.5s it
 transparently falls back to **solo mode**, running the full engine in the browser. This is
-why the game is playable on static hosting with no backend. Point at a real server by setting
-`VITE_WS_URL` (e.g. `wss://your-server`) at build time to enable live multiplayer.
+why the game is playable on static hosting with no backend. **Solo progress is saved to
+`localStorage`** and restored on the next visit (with a "New Character" reset on the login).
+Point at a real server by setting `VITE_WS_URL` (e.g. `wss://your-server`) at build time to
+enable live multiplayer.
 
 ### Scripts
 
