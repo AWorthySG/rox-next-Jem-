@@ -24,6 +24,8 @@ import { GuildPanel } from "./ui/GuildPanel.js";
 import { WarpPanel } from "./ui/WarpPanel.js";
 import { AchievementsPanel } from "./ui/AchievementsPanel.js";
 import { SkillPopup } from "./ui/SkillPopup.js";
+import { TargetFrame } from "./ui/TargetFrame.js";
+import { Sfx } from "./ui/Sfx.js";
 import { AutoBattle } from "./ui/AutoBattle.js";
 import { MiniMap } from "./ui/MiniMap.js";
 import { getItem, JOB_NAME, type SelfState } from "@rox/shared";
@@ -41,6 +43,8 @@ const petCompanion = new PetCompanion(scene.scene);
 
 // Skill bar: casts on the current target (or nearest monster); heals target self.
 const skillPopup = new SkillPopup();
+const targetFrame = new TargetFrame();
+const sfx = new Sfx();
 let currentTargetId: number | null = null;
 let pvpMap = false;
 function attackMonster(id: number): void {
@@ -54,6 +58,7 @@ const skillBar = new SkillBar((skillId) => {
   const targetId = def.heal || def.buff ? selfId : (currentTargetId ?? gameState.nearestMonsterId());
   if (targetId == null) return;
   skillPopup.show(def.name);
+  sfx.cast();
   transport?.send({ t: MsgType.SkillIntent, skillId, targetId });
 });
 
@@ -311,6 +316,7 @@ function handleMessage(msg: ServerMessage): void {
     case MsgType.Loot: {
       const names = msg.items.map((i) => `${getItem(i.id)?.name ?? i.id}${i.qty > 1 ? ` ×${i.qty}` : ""}`);
       if (names.length) chat.system(`Looted: ${names.join(", ")} (+${msg.zeny} Zeny)`);
+      sfx.loot();
       break;
     }
     case MsgType.PartyInviteRecv:
@@ -336,7 +342,10 @@ function handleMessage(msg: ServerMessage): void {
       onDamage(msg);
       break;
     case MsgType.LevelUp:
-      if (msg.id === selfId) chat.system(`You reached level ${msg.newLevel}!`);
+      if (msg.id === selfId) {
+        chat.system(`You reached level ${msg.newLevel}!`);
+        sfx.levelUp();
+      }
       break;
     case MsgType.ChatBroadcast:
       chat.add(msg.name, msg.text, msg.fromId === selfId);
@@ -357,6 +366,7 @@ function onDamage(msg: Extract<ServerMessage, { t: MsgType.DamageEvent }>): void
   } else {
     const variant = msg.targetId === selfId ? "taken" : msg.crit ? "crit" : "";
     damageNumbers.spawn(pos, String(msg.amount), variant);
+    if (msg.sourceId === selfId) (msg.crit ? sfx.crit() : sfx.hit());
   }
 }
 
@@ -401,6 +411,17 @@ new Loop((dt) => {
   skillBar.update();
   partyHud.update();
   miniMap.update(gameState.blips());
+  // Target frame for the current monster target.
+  if (currentTargetId != null) {
+    const info = gameState.targetInfo(currentTargetId);
+    if (info) targetFrame.show(info);
+    else {
+      currentTargetId = null;
+      targetFrame.hide();
+    }
+  } else {
+    targetFrame.hide();
+  }
   const self = gameState.self;
   if (self) followPos.copy(self.group.position);
   petCompanion.update(self ? self.group.position : null, dt);
