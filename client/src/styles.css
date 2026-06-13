@@ -418,6 +418,95 @@ body {
   border-color: #ff6b6b;
 }
 
+/* ---- party HUD ---- */
+.party {
+  position: absolute;
+  top: 178px;
+  left: 14px;
+  width: 200px;
+  padding: 8px 10px;
+  background: var(--panel);
+  border: 2px solid var(--panel-border);
+  border-radius: 10px;
+}
+.party-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.85;
+  margin-bottom: 6px;
+}
+.party-leave {
+  font-size: 10px;
+  padding: 2px 8px;
+  background: rgba(255, 107, 107, 0.18);
+  color: #ff9a9a;
+  border: 1px solid #7a3b3b;
+  border-radius: 8px;
+  cursor: pointer;
+}
+.party-member {
+  margin-bottom: 6px;
+}
+.pm-name {
+  font-size: 12px;
+}
+.pm-job {
+  opacity: 0.6;
+  font-size: 10px;
+}
+.pm-bar {
+  height: 6px;
+  margin-top: 2px;
+  background: rgba(0, 0, 0, 0.5);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.pm-bar > i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(180deg, #7CFC7C, #2faf4a);
+  transition: width 0.2s linear;
+}
+
+/* ---- party invite prompt ---- */
+.invite-prompt {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 14px;
+  background: var(--panel);
+  border: 2px solid var(--gold);
+  border-radius: 10px;
+  font-size: 13px;
+  pointer-events: auto;
+  z-index: 35;
+}
+.ip-btn {
+  padding: 6px 12px;
+  font-weight: 700;
+  font-size: 12px;
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.3);
+  color: #f3eede;
+  cursor: pointer;
+}
+.ip-btn.accept {
+  background: linear-gradient(180deg, #f4d98a, #d8af44);
+  color: #1a1430;
+  border: none;
+}
+
 /* ---- shop panel ---- */
 .shop {
   position: absolute;

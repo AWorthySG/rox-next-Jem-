@@ -32,6 +32,8 @@ copyrighted assets.
   rare gear (King's Cleaver, Poring Crown).
 - **Town NPC & shop economy**: a Kafra shopkeeper stands in town — click her to buy potions
   and starter gear or sell loot for Zeny, closing the economy loop.
+- **Parties**: click another player to invite them; accept to group up. Party HUD shows live
+  member HP, and EXP from kills is shared (with a bonus) among nearby members.
 - **HUD & chat**: HP/SP/EXP bars, level, Zeny, stat panel, a hotkey **skill bar** with
   cooldown sweeps, nameplates, latency, and live chat.
 

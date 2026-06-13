@@ -15,6 +15,7 @@ import { SkillBar } from "./ui/SkillBar.js";
 import { InventoryPanel } from "./ui/InventoryPanel.js";
 import { ShopPanel } from "./ui/ShopPanel.js";
 import { JobAdvance } from "./ui/JobAdvance.js";
+import { PartyHud } from "./ui/PartyHud.js";
 import { getItem, JOB_NAME, type JobId } from "@rox/shared";
 import { buildMonsterAppearances } from "./procedural/monsters.js";
 
@@ -103,6 +104,31 @@ const shop = new ShopPanel({
 let currentJob: JobId | null = null;
 const jobAdvance = new JobAdvance((job) => transport?.send({ t: MsgType.JobAdvance, targetJob: job }));
 
+const partyHud = new PartyHud(
+  () => transport?.send({ t: MsgType.PartyLeave }),
+  (id) => gameState.entityHp(id),
+);
+
+// Render an incoming party invite as an accept/decline banner.
+function showInvite(fromName: string, partyId: number): void {
+  const el = document.getElementById("invite-prompt")!;
+  el.classList.remove("hidden");
+  el.innerHTML = `<span>${fromName} invites you to a party.</span>`;
+  const accept = document.createElement("button");
+  accept.className = "ip-btn accept";
+  accept.textContent = "Accept";
+  accept.addEventListener("click", () => {
+    transport?.send({ t: MsgType.PartyAccept, partyId });
+    el.classList.add("hidden");
+  });
+  const decline = document.createElement("button");
+  decline.className = "ip-btn";
+  decline.textContent = "Decline";
+  decline.addEventListener("click", () => el.classList.add("hidden"));
+  el.appendChild(accept);
+  el.appendChild(decline);
+}
+
 // ---- input → intents ----
 const input = new InputController(
   scene.renderer.domElement,
@@ -120,6 +146,12 @@ const input = new InputController(
         shop.open();
         return;
       }
+      // Clicking another player invites them to a party.
+      if (gameState.isRemotePlayer(id)) {
+        transport?.send({ t: MsgType.PartyInvite, targetId: id });
+        chat.system("Party invite sent.");
+        return;
+      }
       currentTargetId = id;
       transport?.send({ t: MsgType.AttackIntent, targetId: id });
       gameState.self?.clearMoveTarget();
@@ -133,6 +165,7 @@ function handleMessage(msg: ServerMessage): void {
     case MsgType.JoinAck:
       selfId = msg.selfId;
       gameState.selfId = selfId;
+      partyHud.setSelf(selfId);
       currentJob = msg.self.job;
       hud.setIdentity(msg.self.name, JOB_NAME[msg.self.job]);
       hud.update(msg.self);
@@ -175,6 +208,13 @@ function handleMessage(msg: ServerMessage): void {
       if (names.length) chat.system(`Looted: ${names.join(", ")} (+${msg.zeny} Zeny)`);
       break;
     }
+    case MsgType.PartyInviteRecv:
+      showInvite(msg.fromName, msg.partyId);
+      break;
+    case MsgType.PartyUpdate:
+      partyHud.setParty(msg.party);
+      chat.system(msg.party ? "Party updated." : "You left the party.");
+      break;
     case MsgType.DamageEvent:
       onDamage(msg);
       break;
@@ -241,6 +281,7 @@ new Loop((dt) => {
   gameState.update(dt);
   damageNumbers.update();
   skillBar.update();
+  partyHud.update();
   const self = gameState.self;
   if (self) followPos.copy(self.group.position);
   cameraRig.follow(followPos, dt);

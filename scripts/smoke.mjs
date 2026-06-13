@@ -31,6 +31,8 @@ function client(name, job) {
     if (m.t === "self") st.lastSelf = m.self;
     if (m.t === "damage" && m.skillId) st.skillDamage = (st.skillDamage || 0) + 1;
     if (m.t === "loot") st.loot = (st.loot || 0) + 1;
+    if (m.t === "partyInviteRecv") st.invitePartyId = m.partyId;
+    if (m.t === "partyUpdate") st.party = m.party;
     if (m.t === "chatMsg") st.lastChat = `${m.name}: ${m.text}`;
   });
   return st;
@@ -96,6 +98,15 @@ async function main() {
   check(a.seenPlayers.has(b.self), "client A sees client B");
   check(b.seenPlayers.has(a.self), "client B sees client A");
   check(b.lastChat === "Alice: hello bob", "chat broadcasts between clients");
+
+  // Party: Alice invites Bob, Bob accepts; both should see a 2-member party.
+  a.ws.send(JSON.stringify({ t: "partyInvite", targetId: b.self }));
+  await wait(400);
+  check(b.invitePartyId != null, "party invite is received by target");
+  b.ws.send(JSON.stringify({ t: "partyAccept", partyId: b.invitePartyId }));
+  await wait(500);
+  check((a.party?.members?.length ?? 0) === 2, "leader sees 2-member party");
+  check((b.party?.members?.length ?? 0) === 2, "invitee sees 2-member party");
 
   a.ws.close();
   b.ws.close();

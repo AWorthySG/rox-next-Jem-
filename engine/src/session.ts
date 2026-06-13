@@ -77,6 +77,32 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       if (p) p.sell(msg.itemId, Math.max(1, Math.min(99, Math.floor(msg.qty || 1))));
       break;
     }
+    case MsgType.PartyInvite: {
+      const p = playerOf(world, link);
+      if (p) {
+        const invite = world.party.invite(p, msg.targetId);
+        const target = world.players.get(msg.targetId);
+        if (invite && target) {
+          world.connections.get(target.connId)?.send({
+            t: MsgType.PartyInviteRecv,
+            fromId: p.id,
+            fromName: invite.fromName,
+            partyId: invite.partyId,
+          });
+        }
+      }
+      break;
+    }
+    case MsgType.PartyAccept: {
+      const p = playerOf(world, link);
+      if (p) world.party.accept(p, msg.partyId);
+      break;
+    }
+    case MsgType.PartyLeave: {
+      const p = playerOf(world, link);
+      if (p) world.party.leave(p);
+      break;
+    }
     case MsgType.Chat: {
       const p = playerOf(world, link);
       const text = (msg.text ?? "").toString().slice(0, 140).trim();

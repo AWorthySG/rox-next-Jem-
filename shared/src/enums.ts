@@ -11,6 +11,9 @@ export enum MsgType {
   Unequip = "unequip",
   BuyItem = "buyItem",
   SellItem = "sellItem",
+  PartyInvite = "partyInvite",
+  PartyAccept = "partyAccept",
+  PartyLeave = "partyLeave",
   Chat = "chat",
   Ping = "ping",
   // server -> client
@@ -20,6 +23,8 @@ export enum MsgType {
   Snapshot = "snapshot",
   SelfSync = "self",
   Loot = "loot",
+  PartyInviteRecv = "partyInviteRecv",
+  PartyUpdate = "partyUpdate",
   DamageEvent = "damage",
   LevelUp = "levelUp",
   ChatBroadcast = "chatMsg",

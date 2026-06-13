@@ -39,6 +39,7 @@ export class Player {
 
   inventory: Record<string, number> = {}; // itemId -> qty
   equipped: Partial<Record<EquipSlot, string>> = {}; // slot -> itemId
+  partyId: number | null = null;
 
   // intents
   moveTarget: { x: number; z: number } | null = null;

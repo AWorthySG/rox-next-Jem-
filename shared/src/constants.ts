@@ -49,3 +49,9 @@ export const SP_REGEN_PER_SEC = 3.5;
 // Monetary drop range per monster kill (Zeny).
 export const ZENY_MIN = 3;
 export const ZENY_MAX = 14;
+
+// Party EXP sharing: members within this range of a kill share the EXP, with a
+// small bonus to reward grouping.
+export const EXP_SHARE_RANGE = 45;
+export const PARTY_EXP_BONUS = 1.15;
+export const PARTY_MAX_SIZE = 6;

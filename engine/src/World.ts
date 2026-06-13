@@ -8,6 +8,7 @@ import type { ClientLink } from "./ClientLink.js";
 import { Player } from "./Player.js";
 import { Monster } from "./Monster.js";
 import { Npc, NPC_SPAWNS } from "./Npc.js";
+import { PartySystem } from "./PartySystem.js";
 import { MONSTER_TEMPLATES, SPAWN_ZONES } from "./data/spawns.js";
 
 // Authoritative world state: all connected clients and entities live here.
@@ -16,6 +17,7 @@ export class World {
   readonly players = new Map<number, Player>();
   readonly monsters = new Map<number, Monster>();
   readonly npcs = new Map<number, Npc>();
+  readonly party = new PartySystem(this);
   private nextEntityId = 1;
 
   constructor() {
@@ -48,6 +50,8 @@ export class World {
   }
 
   removePlayer(id: number): void {
+    const player = this.players.get(id);
+    if (player) this.party.leave(player);
     if (this.players.delete(id)) {
       this.broadcast({ t: MsgType.Despawn, id });
     }

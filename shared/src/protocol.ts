@@ -59,6 +59,20 @@ export interface SellItemMsg {
   qty: number;
 }
 
+export interface PartyInviteMsg {
+  t: MsgType.PartyInvite;
+  targetId: number;
+}
+
+export interface PartyAcceptMsg {
+  t: MsgType.PartyAccept;
+  partyId: number;
+}
+
+export interface PartyLeaveMsg {
+  t: MsgType.PartyLeave;
+}
+
 export interface ChatMsg {
   t: MsgType.Chat;
   text: string;
@@ -80,6 +94,9 @@ export type ClientMessage =
   | UnequipMsg
   | BuyItemMsg
   | SellItemMsg
+  | PartyInviteMsg
+  | PartyAcceptMsg
+  | PartyLeaveMsg
   | ChatMsg
   | PingMsg;
 
@@ -120,6 +137,31 @@ export interface LootMsg {
   t: MsgType.Loot;
   items: Array<{ id: string; qty: number }>;
   zeny: number;
+}
+
+export interface PartyMember {
+  id: number;
+  name: string;
+  level: number;
+  job: JobId;
+}
+
+export interface PartyInfo {
+  id: number;
+  leaderId: number;
+  members: PartyMember[];
+}
+
+export interface PartyInviteRecvMsg {
+  t: MsgType.PartyInviteRecv;
+  fromId: number;
+  fromName: string;
+  partyId: number;
+}
+
+export interface PartyUpdateMsg {
+  t: MsgType.PartyUpdate;
+  party: PartyInfo | null; // null = you are no longer in a party
 }
 
 export interface DamageEventMsg {
@@ -164,6 +206,8 @@ export type ServerMessage =
   | SnapshotMsg
   | SelfSyncMsg
   | LootMsg
+  | PartyInviteRecvMsg
+  | PartyUpdateMsg
   | DamageEventMsg
   | LevelUpMsg
   | ChatBroadcastMsg

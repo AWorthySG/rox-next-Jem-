@@ -1,9 +1,11 @@
 import {
   DamageKind,
+  EXP_SHARE_RANGE,
   getSkill,
   HP_REGEN_PER_SEC,
   jobHasSkill,
   MonsterAIState,
+  PARTY_EXP_BONUS,
   MsgType,
   PLAYER_ATTACK_COOLDOWN_MS,
   PLAYER_ATTACK_RANGE,
@@ -201,21 +203,36 @@ export class CombatSystem {
       conn?.send({ t: MsgType.Loot, items: drops, zeny: zenyGain });
     }
 
-    const leveled = killer.gainExp(target.template.baseExp);
+    // EXP sharing: split among nearby party members (with a bonus), else solo.
+    let recipients = [killer];
+    let total = target.template.baseExp;
+    if (killer.partyId != null) {
+      const near = this.world.party
+        .membersOf(killer.partyId)
+        .filter((m) => dist2d(m.x, m.z, target.x, target.z) <= EXP_SHARE_RANGE);
+      if (near.length > 0) {
+        recipients = near;
+        total = Math.round(target.template.baseExp * PARTY_EXP_BONUS);
+      }
+    }
+    const share = Math.max(1, Math.floor(total / recipients.length));
+    for (const r of recipients) {
+      if (r.gainExp(share)) {
+        this.world.broadcast({
+          t: MsgType.LevelUp,
+          id: r.id,
+          newLevel: r.level,
+          maxHp: r.derived.maxHp,
+          maxSp: r.derived.maxSp,
+          stats: { ...r.stats },
+          expToNext: r.toSelfState().expToNext,
+        });
+      }
+    }
+
     for (const p of this.world.players.values()) {
       if (p.attackTargetId === target.id) p.attackTargetId = null;
       if (p.pendingSkillTargetId === target.id) this.clearSkill(p);
-    }
-    if (leveled) {
-      this.world.broadcast({
-        t: MsgType.LevelUp,
-        id: killer.id,
-        newLevel: killer.level,
-        maxHp: killer.derived.maxHp,
-        maxSp: killer.derived.maxSp,
-        stats: { ...killer.stats },
-        expToNext: killer.toSelfState().expToNext,
-      });
     }
   }
 

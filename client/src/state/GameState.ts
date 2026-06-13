@@ -93,10 +93,21 @@ export class GameState {
     return v instanceof NpcView ? v.role : null;
   }
 
+  isRemotePlayer(id: number): boolean {
+    const v = this.views.get(id);
+    return v instanceof PlayerView && id !== this.selfId;
+  }
+
+  entityHp(id: number): { hp: number; maxHp: number } | null {
+    const v = this.views.get(id);
+    return v ? { hp: v.hp, maxHp: v.maxHp } : null;
+  }
+
   getPickables(): THREE.Object3D[] {
     const out: THREE.Object3D[] = [];
     for (const v of this.views.values()) {
       if (v instanceof MonsterView || v instanceof NpcView) out.push(v.group);
+      else if (v instanceof PlayerView && v.id !== this.selfId) out.push(v.group);
     }
     return out;
   }
