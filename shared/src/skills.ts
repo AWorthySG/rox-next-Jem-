@@ -18,6 +18,7 @@ export interface SkillDef {
   power: number; // multiplier applied to ATK/MATK
   aoeRadius?: number; // if set, also hits enemies within this radius of the target
   heal?: boolean; // restores the caster's HP instead of dealing damage
+  buff?: { stat: "atk" | "matk"; mult: number; durationMs: number }; // self-buff
   effect?: SkillEffect; // status applied to enemies hit
   desc: string;
 }
@@ -145,15 +146,43 @@ export const SKILLS: Record<string, SkillDef> = {
     effect: { type: StatusType.Burn, durationMs: 4000, magnitude: 0.3 },
     desc: "Rain meteors that scorch a wide area over time.",
   },
+
+  // ---- self-buff skills ----
+  battle_focus: {
+    id: "battle_focus",
+    name: "Battle Focus",
+    job: JobId.Swordsman,
+    hotkey: 5,
+    spCost: 18,
+    cooldownMs: 20000,
+    range: 0,
+    kind: DamageKind.Physical,
+    power: 0,
+    buff: { stat: "atk", mult: 1.3, durationMs: 15000 },
+    desc: "Steel your resolve: +30% ATK for 15s.",
+  },
+  mystic_focus: {
+    id: "mystic_focus",
+    name: "Mystic Focus",
+    job: JobId.Mage,
+    hotkey: 5,
+    spCost: 22,
+    cooldownMs: 20000,
+    range: 0,
+    kind: DamageKind.Magic,
+    power: 0,
+    buff: { stat: "matk", mult: 1.3, durationMs: 15000 },
+    desc: "Channel arcane power: +30% MATK for 15s.",
+  },
 };
 
 export const SKILLS_BY_JOB: Record<JobId, SkillDef[]> = {
   [JobId.Novice]: [SKILLS.first_aid],
-  [JobId.Swordsman]: [SKILLS.bash, SKILLS.magnum_break],
-  [JobId.Mage]: [SKILLS.fire_bolt, SKILLS.thunder_storm],
+  [JobId.Swordsman]: [SKILLS.bash, SKILLS.magnum_break, SKILLS.battle_focus],
+  [JobId.Mage]: [SKILLS.fire_bolt, SKILLS.thunder_storm, SKILLS.mystic_focus],
   // 2nd jobs keep their 1st-job kit and gain new skills.
-  [JobId.Knight]: [SKILLS.bash, SKILLS.magnum_break, SKILLS.pierce, SKILLS.bowling_bash],
-  [JobId.Wizard]: [SKILLS.fire_bolt, SKILLS.thunder_storm, SKILLS.jupitel_thunder, SKILLS.meteor_storm],
+  [JobId.Knight]: [SKILLS.bash, SKILLS.magnum_break, SKILLS.pierce, SKILLS.bowling_bash, SKILLS.battle_focus],
+  [JobId.Wizard]: [SKILLS.fire_bolt, SKILLS.thunder_storm, SKILLS.jupitel_thunder, SKILLS.meteor_storm, SKILLS.mystic_focus],
 };
 
 export function getSkill(id: string): SkillDef | undefined {

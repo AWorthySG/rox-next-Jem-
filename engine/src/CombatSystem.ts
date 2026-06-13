@@ -102,6 +102,15 @@ export class CombatSystem {
       return true;
     }
 
+    // Self-cast buff.
+    if (def.buff) {
+      p.sp -= cost;
+      p.skillCooldowns[def.id] = def.cooldownMs;
+      p.addBuff(def.buff.stat, def.buff.mult, def.buff.durationMs, Date.now());
+      this.clearSkill(p);
+      return true;
+    }
+
     const target = p.pendingSkillTargetId != null ? this.world.monsters.get(p.pendingSkillTargetId) : undefined;
     if (!target || target.isDead) {
       this.clearSkill(p);
@@ -137,7 +146,7 @@ export class CombatSystem {
     p.skillCooldowns[def.id] = def.cooldownMs;
     const amount = Math.round((p.derived.maxHp * 0.3 + p.derived.matk) * (1 + 0.2 * (lvl - 1)));
     p.hp = Math.min(p.derived.maxHp, p.hp + amount);
-    this.world.broadcast({
+    this.world.broadcastToMap(p.mapId, {
       t: MsgType.DamageEvent,
       sourceId: p.id,
       targetId: p.id,
@@ -151,8 +160,9 @@ export class CombatSystem {
   }
 
   private applySkillHit(p: Player, target: Monster, def: SkillDef, lvl: number): void {
-    const result = resolveAttack(p.derived, target.derived, def.kind, Math.random, skillPower(def, lvl));
-    this.world.broadcast({
+    const buffMul = p.buffMul(def.kind === DamageKind.Magic ? "matk" : "atk", Date.now());
+    const result = resolveAttack(p.derived, target.derived, def.kind, Math.random, skillPower(def, lvl) * buffMul);
+    this.world.broadcastToMap(target.mapId, {
       t: MsgType.DamageEvent,
       sourceId: p.id,
       targetId: target.id,
@@ -210,8 +220,9 @@ export class CombatSystem {
     p.attackCooldown = PLAYER_ATTACK_COOLDOWN_MS;
 
     const kind = p.isMagic ? DamageKind.Magic : DamageKind.Physical;
-    const result = resolveAttack(p.derived, target.derived, kind);
-    this.world.broadcast({
+    const buffMul = p.buffMul(kind === DamageKind.Magic ? "matk" : "atk", Date.now());
+    const result = resolveAttack(p.derived, target.derived, kind, Math.random, buffMul);
+    this.world.broadcastToMap(p.mapId, {
       t: MsgType.DamageEvent,
       sourceId: p.id,
       targetId: target.id,
@@ -293,7 +304,7 @@ export class CombatSystem {
 
   monsterAttack(monster: Monster, player: Player): void {
     const result = resolveAttack(monster.derived, player.derived, DamageKind.Physical);
-    this.world.broadcast({
+    this.world.broadcastToMap(monster.mapId, {
       t: MsgType.DamageEvent,
       sourceId: monster.id,
       targetId: player.id,

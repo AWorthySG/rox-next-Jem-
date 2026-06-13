@@ -160,6 +160,13 @@ async function main(): Promise<void> {
   check(mob.isStunned(now + 100), "status: stun is active");
   check(!mob.isStunned(now + 2000), "status: stun expires");
 
+  // ---- deterministic player buffs ----
+  const buffed = new Player(990, 1, "Buffed", JobId.Swordsman, 0, 0);
+  check(buffed.buffMul("atk", now) === 1, "buff: no buff = 1x");
+  buffed.addBuff("atk", 1.3, 15000, now);
+  check(Math.abs(buffed.buffMul("atk", now + 100) - 1.3) < 1e-9, "buff: ATK buff multiplies");
+  check(buffed.buffMul("atk", now + 16000) === 1, "buff: expires after duration");
+
   local.stop();
   if (failures.length) {
     console.error(`\nSOLO TEST FAILED (${failures.length}): ${failures.join("; ")}`);

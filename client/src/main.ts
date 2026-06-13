@@ -43,7 +43,7 @@ function attackMonster(id: number): void {
 const skillBar = new SkillBar((skillId) => {
   const def = getSkill(skillId);
   if (!def) return;
-  const targetId = def.heal ? selfId : (currentTargetId ?? gameState.nearestMonsterId());
+  const targetId = def.heal || def.buff ? selfId : (currentTargetId ?? gameState.nearestMonsterId());
   if (targetId == null) return;
   transport?.send({ t: MsgType.SkillIntent, skillId, targetId });
 });

@@ -64,6 +64,7 @@ export class Player {
   pendingSkillId: string | null = null;
   pendingSkillTargetId: number | null = null;
   skillCooldowns: Record<string, number> = {}; // skillId -> ms remaining
+  buffs: Array<{ stat: "atk" | "matk"; mult: number; expiresAt: number }> = [];
 
   constructor(id: number, connId: number, name: string, job: JobId, x: number, z: number) {
     this.id = id;
@@ -102,6 +103,19 @@ export class Player {
 
   get isMagic(): boolean {
     return isMagicJob(this.job);
+  }
+
+  // ---- buffs ----
+
+  addBuff(stat: "atk" | "matk", mult: number, durationMs: number, now: number): void {
+    this.buffs = this.buffs.filter((b) => b.stat !== stat); // refresh
+    this.buffs.push({ stat, mult, expiresAt: now + durationMs });
+  }
+
+  buffMul(stat: "atk" | "matk", now: number): number {
+    let m = 1;
+    for (const b of this.buffs) if (b.stat === stat && b.expiresAt > now) m *= b.mult;
+    return m;
   }
 
   // Recompute derived stats, folding in bonuses from equipped gear. Clamps
@@ -332,6 +346,7 @@ export class Player {
     for (const q of s.quests.active) this.activeQuests[q.id] = q.progress;
     this.completedQuests = [...s.quests.completed];
     this.mapId = s.mapId ?? "field";
+    this.buffs = [];
     this.learnJobSkills();
     this.recompute();
     this.hp = Math.min(s.hp, this.derived.maxHp);
@@ -393,6 +408,9 @@ export class Player {
         active: Object.entries(this.activeQuests).map(([id, progress]) => ({ id, progress })),
         completed: [...this.completedQuests],
       },
+      buffs: this.buffs
+        .filter((b) => b.expiresAt > Date.now())
+        .map((b) => ({ type: b.stat, remainingMs: Math.round(b.expiresAt - Date.now()) })),
       mapId: this.mapId,
       x: round2(this.x),
       z: round2(this.z),

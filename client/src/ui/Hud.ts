@@ -28,7 +28,18 @@ export class Hud {
     const expLabel = self.expToNext ? `EXP ${Math.round((self.exp / expMax) * 100)}%` : "MAX";
     this.setBar("exp", self.exp, expMax, expLabel);
     this.el("hud-zeny").textContent = self.zeny.toLocaleString();
+    this.renderBuffs(self.buffs);
     this.renderStats(self);
+  }
+
+  private renderBuffs(buffs: Array<{ type: string; remainingMs: number }>): void {
+    const el = this.el("buffs");
+    el.innerHTML = buffs
+      .map((b) => {
+        const label = b.type === "matk" ? "MATK↑" : b.type === "atk" ? "ATK↑" : b.type;
+        return `<span class="buff-chip">${label} ${Math.ceil(b.remainingMs / 1000)}s</span>`;
+      })
+      .join("");
   }
 
   private setBar(kind: string, value: number, max: number, label: string): void {

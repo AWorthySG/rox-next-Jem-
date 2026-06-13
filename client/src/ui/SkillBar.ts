@@ -26,12 +26,12 @@ export class SkillBar {
   build(job: JobId): void {
     this.root.innerHTML = "";
     this.slots = [];
-    for (const def of SKILLS_BY_JOB[job] ?? []) {
+    (SKILLS_BY_JOB[job] ?? []).forEach((def, i) => {
       const el = document.createElement("button");
       el.className = "skill-slot";
       el.title = `${def.name} — ${def.desc} (SP ${def.spCost})`;
       el.innerHTML =
-        `<span class="key">${def.hotkey}</span>` +
+        `<span class="key">${i + 1}</span>` +
         `<span class="sname">${def.name}</span>` +
         `<span class="sp">SP ${def.spCost}</span>`;
       const cdOverlay = document.createElement("div");
@@ -41,7 +41,7 @@ export class SkillBar {
       el.addEventListener("click", () => this.tryCast(slot));
       this.root.appendChild(el);
       this.slots.push(slot);
-    }
+    });
   }
 
   setSp(sp: number): void {
