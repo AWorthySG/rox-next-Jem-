@@ -217,6 +217,15 @@ export const DROP_TABLES: Record<string, DropEntry[]> = {
     { itemId: "kings_cleaver", chance: 0.55 },
     { itemId: "leather_armor", chance: 0.5 },
   ],
+  spore: [
+    { itemId: "apple", chance: 0.3 },
+    { itemId: "blue_potion", chance: 0.12 },
+  ],
+  wolf: [
+    { itemId: "red_potion", chance: 0.2 },
+    { itemId: "leather_armor", chance: 0.05 },
+    { itemId: "ring_of_power", chance: 0.04 },
+  ],
   zombie: [
     { itemId: "red_potion", chance: 0.3 },
     { itemId: "saint_robe", chance: 0.05 },

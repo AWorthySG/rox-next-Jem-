@@ -21,6 +21,8 @@ const DEFS: Record<string, AppearanceDef> = {
   drops: { inner: "#d8f6cb", outer: "#82cf63", scale: 1 },
   lunatic: { inner: "#ffffff", outer: "#d7d7de", scale: 0.95 },
   poring_king: { inner: "#ffe7a0", outer: "#e3b400", scale: 2.2, boss: true },
+  spore: { inner: "#d8b0e0", outer: "#7a4a86", scale: 0.95 },
+  wolf: { inner: "#c9c9d2", outer: "#6b6b76", scale: 1.25 },
   zombie: { inner: "#b6c79a", outer: "#5c7a44", scale: 1.15 },
   skeleton: { inner: "#f0f0f0", outer: "#b8b8c0", scale: 1.2 },
   baphomet: { inner: "#b03030", outer: "#3a0d12", scale: 2.6, boss: true },

@@ -55,6 +55,23 @@ export const MONSTER_TEMPLATES: Record<string, MonsterTemplate> = {
     respawnMs: 90000,
     boss: true,
   },
+  // ---- Payon Forest ----
+  spore: {
+    id: "spore",
+    name: "Spore",
+    level: 4,
+    stats: makeStats({ str: 8, agi: 3, vit: 6, int: 1, dex: 8, luk: 4 }),
+    baseHp: 110,
+    baseExp: 70,
+  },
+  wolf: {
+    id: "wolf",
+    name: "Wolf",
+    level: 9,
+    stats: makeStats({ str: 18, agi: 14, vit: 10, int: 2, dex: 16, luk: 8 }),
+    baseHp: 210,
+    baseExp: 140,
+  },
   // ---- Glast Heim dungeon ----
   zombie: {
     id: "zombie",

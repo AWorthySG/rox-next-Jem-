@@ -50,9 +50,10 @@ copyrighted assets.
 - **Auto-battle**: the signature ROX convenience — toggle Auto (button or `T`) and your
   character automatically seeks the nearest monster, attacks, and casts ready skills.
 - **Minimap**: a top-down radar showing you, other players, NPCs, monsters and the boss.
-- **Multiple maps**: travel between **Prontera Field**, **Poring Cave**, the end-game
-  **Glast Heim** (Zombies, Skeletons & Baphomet), and the **PvP Arena** via portals; each map
-  has its own theme, monsters and boss, and is networked independently.
+- **Multiple maps**: travel between **Prontera Field**, **Payon Forest** (Spores, Wolves),
+  **Poring Cave**, the end-game **Glast Heim** (Zombies, Skeletons & Baphomet), and the
+  **PvP Arena** via portals; each map has its own theme, monsters and boss, and is networked
+  independently.
 - **PvP**: in the Arena, click another player to fight them; defeating one announces it and
   respawns the loser.
 - **HUD & chat**: HP/SP/EXP bars, level, Zeny, stat panel, a hotkey **skill bar** with

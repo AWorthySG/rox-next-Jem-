@@ -33,7 +33,20 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Blacksmith", role: "refine", x: 0, z: 7, facing: Math.PI },
       { name: "Cave Portal", role: "portal", x: 14, z: 0, dest: { toMap: "cave", toX: 0, toZ: 18 } },
       { name: "Arena Portal", role: "portal", x: -14, z: 0, dest: { toMap: "arena", toX: 0, toZ: 0 } },
+      { name: "Payon Portal", role: "portal", x: 0, z: 14, dest: { toMap: "payon", toX: 0, toZ: 18 } },
     ],
+  },
+  payon: {
+    id: "payon",
+    name: "Payon Forest",
+    theme: { ground: 0x3e6b46, fog: 0x9fb98a, sky: 0xbfd0a8 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "payon-spore-w", templateId: "spore", cx: -26, cz: 0, radius: 13, count: 7 },
+      { id: "payon-spore-s", templateId: "spore", cx: 8, cz: -26, radius: 12, count: 6 },
+      { id: "payon-wolf", templateId: "wolf", cx: 26, cz: -6, radius: 13, count: 6 },
+    ],
+    npcs: [{ name: "Payon Exit", role: "portal", x: 0, z: 24, dest: { toMap: "field", toX: 0, toZ: 8 } }],
   },
   cave: {
     id: "cave",
