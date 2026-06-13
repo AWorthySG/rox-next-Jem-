@@ -10,6 +10,7 @@ import {
 import type { World } from "./World.js";
 import type { ClientLink } from "./ClientLink.js";
 import { Player } from "./Player.js";
+import { MAPS, START_MAP } from "./data/maps.js";
 
 const VALID_JOBS = new Set<string>([JobId.Novice, JobId.Swordsman, JobId.Mage]);
 
@@ -123,6 +124,14 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       if (p && isEquipSlot(msg.slot)) p.refineEquipped(msg.slot);
       break;
     }
+    case MsgType.EnterPortal: {
+      const p = playerOf(world, link);
+      const npc = world.npcs.get(msg.npcId);
+      if (p && npc && npc.role === "portal" && npc.dest && npc.mapId === p.mapId) {
+        if (Math.hypot(p.x - npc.x, p.z - npc.z) <= 6) world.travelPlayer(p, npc.dest);
+      }
+      break;
+    }
     case MsgType.ClaimQuest: {
       const p = playerOf(world, link);
       if (p) {
@@ -160,9 +169,11 @@ function handleJoin(world: World, link: ClientLink, rawName: string, rawJob?: Jo
   const name = sanitizeName(rawName);
   const job = rawJob && VALID_JOBS.has(rawJob) ? rawJob : JobId.Novice;
 
-  const x = (Math.random() - 0.5) * 6;
-  const z = (Math.random() - 0.5) * 6;
+  const spawn = MAPS[START_MAP].spawn;
+  const x = spawn.x + (Math.random() - 0.5) * 6;
+  const z = spawn.z + (Math.random() - 0.5) * 6;
   const player = new Player(world.allocId(), link.id, name, job, x, z);
+  player.mapId = START_MAP;
   link.playerId = player.id;
 
   link.send({
@@ -173,8 +184,8 @@ function handleJoin(world: World, link: ClientLink, rawName: string, rawJob?: Jo
     mapSize: MAP_SIZE,
     self: player.toSelfState(),
   });
-  // Existing world to the joiner first, then announce the joiner to everyone.
-  world.spawnAllFor(link);
+  // Send the starting map's theme + existing entities, then announce the joiner.
+  world.enterCurrentMap(player);
   world.addPlayer(player);
 }
 

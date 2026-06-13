@@ -202,6 +202,16 @@ const input = new InputController(
         refine.open();
         return;
       }
+      if (role === "portal") {
+        // Walk to the portal and request travel (server checks proximity).
+        const pos = gameState.worldPosOf(id);
+        if (pos) {
+          transport?.send({ t: MsgType.MoveIntent, x: pos.x, z: pos.z });
+          gameState.self?.setMoveTarget(pos.x, pos.z);
+        }
+        transport?.send({ t: MsgType.EnterPortal, npcId: id });
+        return;
+      }
       // Clicking another player invites them to a party.
       if (gameState.isRemotePlayer(id)) {
         transport?.send({ t: MsgType.PartyInvite, targetId: id });
@@ -274,6 +284,13 @@ function handleMessage(msg: ServerMessage): void {
     case MsgType.PartyUpdate:
       partyHud.setParty(msg.party);
       chat.system(msg.party ? "Party updated." : "You left the party.");
+      break;
+    case MsgType.MapChange:
+      currentTargetId = null;
+      gameState.clearExceptSelf();
+      gameState.self?.teleport(msg.x, msg.z);
+      scene.setTheme(msg.theme);
+      chat.system(`Entered ${msg.name}.`);
       break;
     case MsgType.DamageEvent:
       onDamage(msg);

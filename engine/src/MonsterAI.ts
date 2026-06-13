@@ -113,6 +113,7 @@ export class MonsterAI {
     let best: Player | null = null;
     let bestD = AGGRO_RANGE;
     for (const p of this.world.players.values()) {
+      if (p.mapId !== m.mapId) continue;
       const d = dist2d(m.x, m.z, p.x, p.z);
       if (d < bestD) {
         bestD = d;
@@ -129,7 +130,9 @@ export class MonsterAI {
 
   private resolveAggroTarget(m: Monster): Player | null {
     if (m.aggroTargetId == null) return null;
-    return this.world.players.get(m.aggroTargetId) ?? null;
+    const p = this.world.players.get(m.aggroTargetId);
+    // Drop the target if it left the map.
+    return p && p.mapId === m.mapId ? p : null;
   }
 
   private giveUp(m: Monster): void {

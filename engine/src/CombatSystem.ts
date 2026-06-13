@@ -93,6 +93,7 @@ export class CombatSystem {
     if (def.aoeRadius) {
       for (const m of this.world.monsters.values()) {
         if (m.id === target.id || m.isDead) continue;
+        if (m.mapId !== target.mapId) continue;
         if (dist2d(m.x, m.z, target.x, target.z) <= def.aoeRadius) this.applySkillHit(p, m, def, lvl);
       }
     }
@@ -149,7 +150,7 @@ export class CombatSystem {
   private updatePlayerAttack(p: Player): void {
     if (p.attackTargetId == null) return;
     const target = this.world.monsters.get(p.attackTargetId);
-    if (!target || target.isDead) {
+    if (!target || target.isDead || target.mapId !== p.mapId) {
       p.attackTargetId = null;
       return;
     }
@@ -213,7 +214,7 @@ export class CombatSystem {
     if (killer.partyId != null) {
       const near = this.world.party
         .membersOf(killer.partyId)
-        .filter((m) => dist2d(m.x, m.z, target.x, target.z) <= EXP_SHARE_RANGE);
+        .filter((m) => m.mapId === target.mapId && dist2d(m.x, m.z, target.x, target.z) <= EXP_SHARE_RANGE);
       if (near.length > 0) {
         recipients = near;
         total = Math.round(target.template.baseExp * PARTY_EXP_BONUS);

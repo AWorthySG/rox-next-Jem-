@@ -37,6 +37,7 @@ export class Player {
   x: number;
   z: number;
   facing = 0;
+  mapId = "field";
 
   level = 1;
   exp = 0;
@@ -330,6 +331,7 @@ export class Player {
     this.activeQuests = {};
     for (const q of s.quests.active) this.activeQuests[q.id] = q.progress;
     this.completedQuests = [...s.quests.completed];
+    this.mapId = s.mapId ?? "field";
     this.learnJobSkills();
     this.recompute();
     this.hp = Math.min(s.hp, this.derived.maxHp);
@@ -391,6 +393,7 @@ export class Player {
         active: Object.entries(this.activeQuests).map(([id, progress]) => ({ id, progress })),
         completed: [...this.completedQuests],
       },
+      mapId: this.mapId,
       x: round2(this.x),
       z: round2(this.z),
     };

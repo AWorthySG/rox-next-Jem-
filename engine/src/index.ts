@@ -7,3 +7,4 @@ export * from "./Npc.js";
 export * from "./PartySystem.js";
 export * from "./session.js";
 export * from "./data/spawns.js";
+export * from "./data/maps.js";

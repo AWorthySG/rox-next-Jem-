@@ -26,6 +26,8 @@ function client(name, job) {
     st.counts[m.t] = (st.counts[m.t] || 0) + 1;
     if (m.t === "joinAck") { st.self = m.selfId; st.lastSelf = m.self; }
     if (m.t === "spawn" && m.entity.kind === "monster") st.monsters.set(m.entity.id, m.entity);
+    if (m.t === "spawn" && m.entity.npcRole === "portal") st.portal = { id: m.entity.id, x: m.entity.x, z: m.entity.z };
+    if (m.t === "mapChange") st.map = m.mapId;
     if (m.t === "spawn" && m.entity.kind === "player") st.seenPlayers.add(m.entity.id);
     if (m.t === "despawn") st.monsters.delete(m.id);
     if (m.t === "self") st.lastSelf = m.self;
@@ -108,6 +110,20 @@ async function main() {
   check((a.party?.members?.length ?? 0) === 2, "leader sees 2-member party");
   check((b.party?.members?.length ?? 0) === 2, "invitee sees 2-member party");
 
+  // Map travel: walk a fresh client to the cave portal and enter it.
+  const t = client("Traveler", "novice");
+  await wait(1500);
+  check(t.map === "field", "new player starts on the field map");
+  check(t.portal != null, "field has a cave portal NPC");
+  if (t.portal) {
+    t.ws.send(JSON.stringify({ t: "move", x: t.portal.x, z: t.portal.z }));
+    await wait(2600); // walk to the portal
+    t.ws.send(JSON.stringify({ t: "enterPortal", npcId: t.portal.id }));
+    await wait(700);
+  }
+  check(t.map === "cave", "entering the portal moves the player to the cave map");
+
+  t.ws.close();
   a.ws.close();
   b.ws.close();
   await stopServer();

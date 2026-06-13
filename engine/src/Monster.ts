@@ -13,6 +13,7 @@ export class Monster {
   readonly id: number;
   readonly template: MonsterTemplate;
   readonly spawnZoneId: string;
+  readonly mapId: string;
   readonly homeX: number;
   readonly homeZ: number;
 
@@ -31,10 +32,11 @@ export class Monster {
   attackCooldown = 0;
   respawnAt = 0;
 
-  constructor(id: number, template: MonsterTemplate, zoneId: string, x: number, z: number) {
+  constructor(id: number, template: MonsterTemplate, zoneId: string, mapId: string, x: number, z: number) {
     this.id = id;
     this.template = template;
     this.spawnZoneId = zoneId;
+    this.mapId = mapId;
     this.homeX = x;
     this.homeZ = z;
     this.x = x;

@@ -98,6 +98,26 @@ export interface RefineItemMsg {
   slot: string;
 }
 
+export interface EnterPortalMsg {
+  t: MsgType.EnterPortal;
+  npcId: number;
+}
+
+export interface MapTheme {
+  ground: number; // hex tint applied to the ground
+  fog: number; // hex fog / sky-dome color
+  sky: number; // hex sky tint
+}
+
+export interface MapChangeMsg {
+  t: MsgType.MapChange;
+  mapId: string;
+  name: string;
+  theme: MapTheme;
+  x: number;
+  z: number;
+}
+
 export interface ChatMsg {
   t: MsgType.Chat;
   text: string;
@@ -127,6 +147,7 @@ export type ClientMessage =
   | AllocateStatMsg
   | LevelSkillMsg
   | RefineItemMsg
+  | EnterPortalMsg
   | ChatMsg
   | PingMsg;
 
@@ -238,6 +259,7 @@ export type ServerMessage =
   | LootMsg
   | PartyInviteRecvMsg
   | PartyUpdateMsg
+  | MapChangeMsg
   | DamageEventMsg
   | LevelUpMsg
   | ChatBroadcastMsg

@@ -34,8 +34,9 @@ export class LocalServer implements Transport {
       const player = this.world.players.get(this.link.playerId);
       if (player) {
         player.restore(this.savedState);
+        // Re-send the (possibly different) map's theme + entities, then sync HUD.
+        this.world.enterCurrentMap(player);
         this.link.send({ t: MsgType.SelfSync, self: player.toSelfState() });
-        this.world.broadcast({ t: MsgType.Spawn, entity: player.toFull() });
       }
       this.savedState = null;
     }

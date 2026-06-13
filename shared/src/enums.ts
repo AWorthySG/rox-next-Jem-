@@ -19,6 +19,7 @@ export enum MsgType {
   AllocateStat = "allocateStat",
   LevelSkill = "levelSkill",
   RefineItem = "refineItem",
+  EnterPortal = "enterPortal",
   Chat = "chat",
   Ping = "ping",
   // server -> client
@@ -30,6 +31,7 @@ export enum MsgType {
   Loot = "loot",
   PartyInviteRecv = "partyInviteRecv",
   PartyUpdate = "partyUpdate",
+  MapChange = "mapChange",
   DamageEvent = "damage",
   LevelUp = "levelUp",
   ChatBroadcast = "chatMsg",

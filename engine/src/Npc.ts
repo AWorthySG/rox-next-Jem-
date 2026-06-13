@@ -1,8 +1,15 @@
 import { EntityKind, type EntityFull } from "@rox/shared";
 
-// A static, non-combat town NPC (e.g. the shop keeper). NPCs never move and are
-// sent once on spawn; they don't appear in periodic snapshots.
+export interface PortalDest {
+  toMap: string;
+  toX: number;
+  toZ: number;
+}
+
+// A static, non-combat town/dungeon NPC: shopkeeper, guide, blacksmith, or a
+// portal. NPCs never move and are sent once on (map) spawn.
 export class Npc {
+  mapId = "field";
   constructor(
     readonly id: number,
     readonly name: string,
@@ -10,6 +17,7 @@ export class Npc {
     readonly x: number,
     readonly z: number,
     readonly facing = 0,
+    readonly dest?: PortalDest,
   ) {}
 
   toFull(): EntityFull {
@@ -34,11 +42,5 @@ export interface NpcSpawn {
   x: number;
   z: number;
   facing?: number;
+  dest?: PortalDest;
 }
-
-// Town NPCs near the spawn point.
-export const NPC_SPAWNS: NpcSpawn[] = [
-  { name: "Kafra Employee", role: "shop", x: 5, z: 4, facing: Math.PI },
-  { name: "Guide", role: "guide", x: -5, z: 4, facing: Math.PI },
-  { name: "Blacksmith", role: "refine", x: 0, z: 7, facing: Math.PI },
-];

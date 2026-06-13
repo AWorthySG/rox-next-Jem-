@@ -57,6 +57,16 @@ export class GameState {
     this.views.delete(id);
   }
 
+  // On map change, drop every entity except the local player (server re-spawns
+  // the new map's entities).
+  clearExceptSelf(): void {
+    for (const [id, view] of this.views) {
+      if (id === this.selfId) continue;
+      view.dispose(this.scene);
+      this.views.delete(id);
+    }
+  }
+
   applySnapshot(entities: EntitySnapshot[], clientTime: number): void {
     for (const e of entities) {
       const view = this.views.get(e.id);
