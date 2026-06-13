@@ -1,4 +1,4 @@
-import { EquipSlot, getItem, ItemType, type SelfState } from "@rox/shared";
+import { EquipSlot, getItem, ItemType, rarityOf, type SelfState } from "@rox/shared";
 
 export interface InventoryHandlers {
   onUse(itemId: string): void;
@@ -88,7 +88,7 @@ export class InventoryPanel {
       const id = equippedBySlot.get(slot);
       const item = id ? getItem(id) : undefined;
       const cell = document.createElement("button");
-      cell.className = `equip-cell${item ? " filled" : ""}`;
+      cell.className = `equip-cell${item ? ` filled rar-${rarityOf(item)}` : ""}`;
       const refine = item && (refineOf.get(item.id) ?? 0) > 0 ? `<span class="refine-badge">+${refineOf.get(item.id)}</span>` : "";
       cell.innerHTML =
         `<span class="slot-label">${SLOT_LABEL[slot]}</span><span class="slot-item">${item ? item.name : "—"}</span>${refine}`;
@@ -118,7 +118,7 @@ export class InventoryPanel {
       const isConsumable = item.type === ItemType.Consumable;
       const lvl = refineOf.get(entry.id) ?? 0;
       const cell = document.createElement("button");
-      cell.className = `inv-cell ${item.type}`;
+      cell.className = `inv-cell ${item.type} rar-${rarityOf(item)}`;
       cell.title = item.desc;
       cell.innerHTML =
         `<span class="iname">${item.name}${lvl > 0 ? ` <span class="refine-badge">+${lvl}</span>` : ""}</span>` +

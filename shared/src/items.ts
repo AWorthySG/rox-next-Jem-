@@ -40,6 +40,18 @@ export interface ItemDef {
   sellPrice?: number; // Zeny gained when sold
 }
 
+export type ItemRarity = "common" | "uncommon" | "rare" | "epic" | "legendary";
+
+// Rarity is derived from value so the catalogue stays terse; colours the UI.
+export function rarityOf(item: ItemDef): ItemRarity {
+  const v = item.sellPrice ?? 0;
+  if (v >= 2000) return "legendary";
+  if (v >= 700) return "epic";
+  if (v >= 150) return "rare";
+  if (v >= 40) return "uncommon";
+  return "common";
+}
+
 // A compact item catalogue. Both server and client read this; the client only
 // needs the id + qty over the wire and looks the rest up here.
 export const ITEMS: Record<string, ItemDef> = {
