@@ -3,6 +3,7 @@ export * from "./constants.js";
 export * from "./stats.js";
 export * from "./combat.js";
 export * from "./skills.js";
+export * from "./items.js";
 export * from "./leveling.js";
 export * from "./entities.js";
 export * from "./protocol.js";

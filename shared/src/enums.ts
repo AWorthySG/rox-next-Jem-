@@ -5,6 +5,9 @@ export enum MsgType {
   MoveIntent = "move",
   AttackIntent = "attack",
   SkillIntent = "skill",
+  UseItem = "useItem",
+  Equip = "equip",
+  Unequip = "unequip",
   Chat = "chat",
   Ping = "ping",
   // server -> client
@@ -13,6 +16,7 @@ export enum MsgType {
   Despawn = "despawn",
   Snapshot = "snapshot",
   SelfSync = "self",
+  Loot = "loot",
   DamageEvent = "damage",
   LevelUp = "levelUp",
   ChatBroadcast = "chatMsg",
@@ -41,4 +45,17 @@ export enum JobId {
 export enum DamageKind {
   Physical = "physical",
   Magic = "magic",
+}
+
+export enum ItemType {
+  Weapon = "weapon",
+  Armor = "armor",
+  Accessory = "accessory",
+  Consumable = "consumable",
+}
+
+export enum EquipSlot {
+  Weapon = "weapon",
+  Armor = "armor",
+  Accessory = "accessory",
 }

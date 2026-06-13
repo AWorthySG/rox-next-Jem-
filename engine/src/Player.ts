@@ -2,9 +2,12 @@ import {
   addStats,
   deriveStats,
   EntityKind,
+  EquipSlot,
+  getItem,
   JOB_BASE_STATS,
   JOB_GROWTH,
   JobId,
+  ItemType,
   isMagicJob,
   xpToNext,
   type DerivedStats,
@@ -33,6 +36,9 @@ export class Player {
   hp: number;
   sp: number;
 
+  inventory: Record<string, number> = {}; // itemId -> qty
+  equipped: Partial<Record<EquipSlot, string>> = {}; // slot -> itemId
+
   // intents
   moveTarget: { x: number; z: number } | null = null;
   attackTargetId: number | null = null;
@@ -59,8 +65,84 @@ export class Player {
     return isMagicJob(this.job);
   }
 
+  // Recompute derived stats, folding in bonuses from equipped gear. Clamps
+  // current HP/SP to the (possibly changed) maximums.
   recompute(): void {
-    this.derived = deriveStats(this.stats, this.level, this.job);
+    let effective = { ...this.stats };
+    let flatAtk = 0;
+    let flatMatk = 0;
+    let flatDef = 0;
+    let flatHp = 0;
+    let flatSp = 0;
+    for (const itemId of Object.values(this.equipped)) {
+      const item = itemId ? getItem(itemId) : undefined;
+      if (!item) continue;
+      if (item.bonusStats) effective = addStats(effective, fullStats(item.bonusStats));
+      flatAtk += item.atk ?? 0;
+      flatMatk += item.matk ?? 0;
+      flatDef += item.def ?? 0;
+      flatHp += item.maxHp ?? 0;
+      flatSp += item.maxSp ?? 0;
+    }
+    const d = deriveStats(effective, this.level, this.job);
+    this.derived = {
+      ...d,
+      atk: d.atk + flatAtk,
+      matk: d.matk + flatMatk,
+      def: d.def + flatDef,
+      maxHp: d.maxHp + flatHp,
+      maxSp: d.maxSp + flatSp,
+    };
+    if (this.hp > this.derived.maxHp) this.hp = this.derived.maxHp;
+    if (this.sp > this.derived.maxSp) this.sp = this.derived.maxSp;
+  }
+
+  // ---- inventory / equipment ----
+
+  addItem(itemId: string, qty = 1): void {
+    if (!getItem(itemId)) return;
+    this.inventory[itemId] = (this.inventory[itemId] ?? 0) + qty;
+  }
+
+  private removeItem(itemId: string, qty = 1): boolean {
+    const have = this.inventory[itemId] ?? 0;
+    if (have < qty) return false;
+    const left = have - qty;
+    if (left <= 0) delete this.inventory[itemId];
+    else this.inventory[itemId] = left;
+    return true;
+  }
+
+  // Returns true if an HP/SP-affecting change happened (so combat can resync).
+  useItem(itemId: string): boolean {
+    const item = getItem(itemId);
+    if (!item || item.type !== ItemType.Consumable) return false;
+    if ((this.inventory[itemId] ?? 0) <= 0) return false;
+    this.removeItem(itemId, 1);
+    if (item.healHp) this.hp = Math.min(this.derived.maxHp, this.hp + item.healHp);
+    if (item.healSp) this.sp = Math.min(this.derived.maxSp, this.sp + item.healSp);
+    return true;
+  }
+
+  equip(itemId: string): boolean {
+    const item = getItem(itemId);
+    if (!item || !item.slot) return false;
+    if ((this.inventory[itemId] ?? 0) <= 0) return false;
+    this.removeItem(itemId, 1);
+    const prev = this.equipped[item.slot];
+    if (prev) this.addItem(prev, 1); // return previously-equipped item to bag
+    this.equipped[item.slot] = itemId;
+    this.recompute();
+    return true;
+  }
+
+  unequip(slot: EquipSlot): boolean {
+    const itemId = this.equipped[slot];
+    if (!itemId) return false;
+    delete this.equipped[slot];
+    this.addItem(itemId, 1);
+    this.recompute();
+    return true;
   }
 
   // Returns true if a level-up occurred.
@@ -125,10 +207,25 @@ export class Player {
       expToNext: isFinite(xpToNext(this.level)) ? xpToNext(this.level) : 0,
       zeny: this.zeny,
       stats: { ...this.stats },
+      inventory: Object.entries(this.inventory).map(([id, qty]) => ({ id, qty })),
+      equipped: Object.entries(this.equipped)
+        .filter(([, id]) => !!id)
+        .map(([slot, id]) => ({ slot: slot as EquipSlot, id: id as string })),
       x: round2(this.x),
       z: round2(this.z),
     };
   }
+}
+
+function fullStats(p: Partial<Stats>): Stats {
+  return {
+    str: p.str ?? 0,
+    agi: p.agi ?? 0,
+    vit: p.vit ?? 0,
+    int: p.int ?? 0,
+    dex: p.dex ?? 0,
+    luk: p.luk ?? 0,
+  };
 }
 
 function round2(n: number): number {

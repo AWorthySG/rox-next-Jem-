@@ -30,6 +30,7 @@ function client(name, job) {
     if (m.t === "despawn") st.monsters.delete(m.id);
     if (m.t === "self") st.lastSelf = m.self;
     if (m.t === "damage" && m.skillId) st.skillDamage = (st.skillDamage || 0) + 1;
+    if (m.t === "loot") st.loot = (st.loot || 0) + 1;
     if (m.t === "chatMsg") st.lastChat = `${m.name}: ${m.text}`;
   });
   return st;
@@ -85,6 +86,7 @@ async function main() {
   const progressed = (a.lastSelf.exp > startExp) || a.lastSelf.level > 1;
   check(progressed, "killing monsters awards EXP / levels up");
   check(a.lastSelf.zeny > startZeny, "killing monsters awards Zeny");
+  check((a.loot ?? 0) > 0, "kills deliver loot messages");
 
   // Second client should see the first and vice versa; chat should broadcast.
   const b = client("Bob", "mage");

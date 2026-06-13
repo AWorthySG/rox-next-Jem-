@@ -1,5 +1,15 @@
-import { EntityKind, JobId, MonsterAIState } from "./enums.js";
+import { EntityKind, EquipSlot, JobId, MonsterAIState } from "./enums.js";
 import type { Stats } from "./stats.js";
+
+export interface InventoryEntry {
+  id: string;
+  qty: number;
+}
+
+export interface EquipEntry {
+  slot: EquipSlot;
+  id: string;
+}
 
 // Compact per-entity record sent inside a Snapshot. Only fast-changing fields.
 export interface EntitySnapshot {
@@ -46,6 +56,8 @@ export interface SelfState {
   expToNext: number;
   zeny: number;
   stats: Stats;
+  inventory: InventoryEntry[];
+  equipped: EquipEntry[];
   x: number;
   z: number;
 }

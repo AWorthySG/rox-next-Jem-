@@ -375,6 +375,128 @@ body {
   border-color: #ff6b6b;
 }
 
+/* ---- inventory panel ---- */
+.inventory {
+  position: absolute;
+  top: 50%;
+  right: 16px;
+  transform: translateY(-50%);
+  width: 300px;
+  max-height: 70vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 2px solid var(--panel-border);
+  border-radius: 12px;
+  pointer-events: auto;
+  overflow: hidden;
+}
+.inv-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  font-weight: 700;
+  border-bottom: 1px solid var(--panel-border);
+}
+.inv-header .inv-zeny {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--gold);
+}
+.inv-close {
+  background: none;
+  border: none;
+  color: #f3eede;
+  font-size: 15px;
+  cursor: pointer;
+  opacity: 0.7;
+}
+.inv-close:hover {
+  opacity: 1;
+}
+.equip-slots {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 6px;
+  padding: 10px 12px;
+  border-bottom: 1px solid var(--panel-border);
+}
+.equip-cell {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px 4px;
+  min-height: 54px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px dashed var(--panel-border);
+  border-radius: 8px;
+  color: #f3eede;
+  cursor: default;
+}
+.equip-cell.filled {
+  border-style: solid;
+  border-color: var(--gold);
+  cursor: pointer;
+}
+.equip-cell .slot-label {
+  font-size: 9px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.55;
+}
+.equip-cell .slot-item {
+  font-size: 11px;
+  font-weight: 600;
+}
+.inv-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  padding: 10px 12px;
+  overflow-y: auto;
+}
+.inv-cell {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  color: #f3eede;
+  cursor: pointer;
+  text-align: left;
+}
+.inv-cell:hover {
+  border-color: var(--gold);
+}
+.inv-cell .iname {
+  flex: 1;
+  font-size: 13px;
+}
+.inv-cell .iqty {
+  font-size: 12px;
+  opacity: 0.6;
+}
+.inv-cell .iact {
+  font-size: 10px;
+  padding: 2px 8px;
+  border-radius: 10px;
+  background: rgba(230, 200, 120, 0.2);
+  color: var(--gold);
+}
+.inv-cell.consumable .iact {
+  background: rgba(120, 230, 140, 0.18);
+  color: #8fe28f;
+}
+.inv-empty {
+  font-size: 12px;
+  opacity: 0.6;
+  text-align: center;
+  padding: 14px 6px;
+}
+
 .hud-stats {
   position: absolute;
   top: 14px;

@@ -12,6 +12,8 @@ import { Hud } from "./ui/Hud.js";
 import { ChatBox } from "./ui/ChatBox.js";
 import { DamageNumbers } from "./ui/DamageNumbers.js";
 import { SkillBar } from "./ui/SkillBar.js";
+import { InventoryPanel } from "./ui/InventoryPanel.js";
+import { getItem } from "@rox/shared";
 import { buildMonsterAppearances } from "./procedural/monsters.js";
 
 // ---- bootstrap engine ----
@@ -85,6 +87,12 @@ const fallbackTimer = window.setTimeout(() => {
 
 const chat = new ChatBox((text) => transport?.send({ t: MsgType.Chat, text }));
 
+const inventory = new InventoryPanel({
+  onUse: (itemId) => transport?.send({ t: MsgType.UseItem, itemId }),
+  onEquip: (itemId) => transport?.send({ t: MsgType.Equip, itemId }),
+  onUnequip: (slot) => transport?.send({ t: MsgType.Unequip, slot }),
+});
+
 // ---- input → intents ----
 const input = new InputController(
   scene.renderer.domElement,
@@ -135,7 +143,13 @@ function handleMessage(msg: ServerMessage): void {
     case MsgType.SelfSync:
       hud.update(msg.self);
       skillBar.setSp(msg.self.sp);
+      inventory.sync(msg.self);
       break;
+    case MsgType.Loot: {
+      const names = msg.items.map((i) => `${getItem(i.id)?.name ?? i.id}${i.qty > 1 ? ` ×${i.qty}` : ""}`);
+      if (names.length) chat.system(`Looted: ${names.join(", ")} (+${msg.zeny} Zeny)`);
+      break;
+    }
     case MsgType.DamageEvent:
       onDamage(msg);
       break;

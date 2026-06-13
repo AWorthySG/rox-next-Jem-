@@ -62,7 +62,17 @@
         <div class="stat-row"><span>LUK</span><b id="st-luk">0</b></div>
       </div>
 
-      <div class="hud-help">Click ground to move · Click a Poring to attack · Keys 1–2 cast skills · Scroll to zoom · Enter to chat</div>
+      <div class="hud-help">Click ground to move · Click a monster to attack · Keys 1–2 skills · I = inventory · Scroll zoom · Enter chat</div>
+
+      <div class="inventory hidden" id="inventory">
+        <div class="inv-header">
+          <span>Inventory</span>
+          <span class="inv-zeny">💰 <b id="inv-zeny">0</b></span>
+          <button class="inv-close" id="inv-close">✕</button>
+        </div>
+        <div class="equip-slots" id="equip-slots"></div>
+        <div class="inv-grid" id="inv-grid"></div>
+      </div>
 
       <div class="chat" id="chat">
         <div class="chat-log" id="chat-log"></div>

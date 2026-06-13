@@ -1,4 +1,5 @@
 import {
+  EquipSlot,
   JobId,
   MAP_SIZE,
   MsgType,
@@ -41,6 +42,21 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
         p.pendingSkillTargetId = msg.targetId;
         p.attackTargetId = null; // skill supersedes the current auto-attack
       }
+      break;
+    }
+    case MsgType.UseItem: {
+      const p = playerOf(world, link);
+      if (p) p.useItem(msg.itemId);
+      break;
+    }
+    case MsgType.Equip: {
+      const p = playerOf(world, link);
+      if (p) p.equip(msg.itemId);
+      break;
+    }
+    case MsgType.Unequip: {
+      const p = playerOf(world, link);
+      if (p && isEquipSlot(msg.slot)) p.unequip(msg.slot);
       break;
     }
     case MsgType.Chat: {
@@ -88,6 +104,10 @@ function playerOf(world: World, link: ClientLink): Player | null {
 export function sanitizeName(raw: string): string {
   const cleaned = (raw ?? "").toString().replace(/[^\w \-]/g, "").trim().slice(0, 16);
   return cleaned || `Adventurer${Math.floor(Math.random() * 1000)}`;
+}
+
+function isEquipSlot(s: string): s is EquipSlot {
+  return s === EquipSlot.Weapon || s === EquipSlot.Armor || s === EquipSlot.Accessory;
 }
 
 function clampMap(v: number): number {

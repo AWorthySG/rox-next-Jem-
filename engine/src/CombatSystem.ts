@@ -8,6 +8,7 @@ import {
   PLAYER_ATTACK_RANGE,
   RESPAWN_MS,
   resolveAttack,
+  rollDrops,
   SP_REGEN_PER_SEC,
   ZENY_MAX,
   ZENY_MIN,
@@ -188,7 +189,17 @@ export class CombatSystem {
     target.respawnAt = Date.now() + (target.template.respawnMs ?? RESPAWN_MS);
     this.world.broadcast({ t: MsgType.Despawn, id: target.id });
 
-    killer.zeny += ZENY_MIN + Math.floor(Math.random() * (ZENY_MAX - ZENY_MIN + 1));
+    // Zeny + loot (auto-pickup to the killer's bag), then notify them.
+    const zenyGain =
+      (ZENY_MIN + Math.floor(Math.random() * (ZENY_MAX - ZENY_MIN + 1))) * (target.template.boss ? 25 : 1);
+    killer.zeny += zenyGain;
+    const drops = rollDrops(target.template.id);
+    for (const d of drops) killer.addItem(d.id, d.qty);
+    if (drops.length || zenyGain) {
+      const conn = this.world.connections.get(killer.connId);
+      conn?.send({ t: MsgType.Loot, items: drops, zeny: zenyGain });
+    }
+
     const leveled = killer.gainExp(target.template.baseExp);
     for (const p of this.world.players.values()) {
       if (p.attackTargetId === target.id) p.attackTargetId = null;

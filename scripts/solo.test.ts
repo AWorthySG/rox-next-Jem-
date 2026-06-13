@@ -1,7 +1,9 @@
 // Verifies the in-browser SOLO path: the same authoritative engine driven via
 // LocalServer (the transport used when no WS server is reachable). Runs under tsx
-// in Node — no DOM needed — and asserts join, spawns, combat and EXP gain.
-import { MsgType, type ServerMessage } from "@rox/shared";
+// in Node — no DOM needed — and asserts join, spawns, combat and EXP gain. Also
+// deterministically checks the item/equipment system at the engine level.
+import { JobId, MsgType, type ServerMessage } from "@rox/shared";
+import { Player } from "@rox/engine";
 import { LocalServer } from "../client/src/net/LocalServer.js";
 
 const failures: string[] = [];
@@ -56,6 +58,19 @@ async function main(): Promise<void> {
   check(damage > 0, "solo: combat produces damage");
   check(skillDamage > 0, "solo: skills produce damage");
   check((lastSelf.exp > startExp) || lastSelf.level > 1, "solo: killing monsters awards EXP");
+
+  // ---- deterministic item / equipment checks (no RNG) ----
+  const hero = new Player(999, 1, "Gearhead", JobId.Swordsman, 0, 0);
+  const baseAtk = hero.derived.atk;
+  hero.addItem("kings_cleaver", 1);
+  check(hero.equip("kings_cleaver"), "items: equip a weapon from the bag");
+  check(hero.derived.atk > baseAtk, "items: equipping raises ATK");
+  check(hero.unequip("weapon" as never), "items: unequip returns the item");
+  check(hero.derived.atk === baseAtk, "items: unequipping restores ATK");
+  hero.hp = 1;
+  hero.addItem("red_potion", 1);
+  check(hero.useItem("red_potion"), "items: consumable is used");
+  check(hero.hp > 1, "items: potion restores HP");
 
   local.stop();
   if (failures.length) {

@@ -25,6 +25,10 @@ copyrighted assets.
 - **Classes & skills**: Novice (First Aid heal), Swordsman (Bash, Magnum Break AoE),
   Mage (Fire Bolt, Thunder Storm AoE) — server-authoritative skills with SP cost, cooldowns,
   range and area-of-effect.
+- **Items, loot & equipment**: monsters drop from per-species loot tables (auto-pickup);
+  bag + equipment panel (key `I`); equip weapons/armor/accessories for stat bonuses (ATK/MATK/
+  DEF/HP/SP and base-stat boosts) and quaff potions to restore HP/SP. The Poring King drops
+  rare gear (King's Cleaver, Poring Crown).
 - **HUD & chat**: HP/SP/EXP bars, level, Zeny, stat panel, a hotkey **skill bar** with
   cooldown sweeps, nameplates, latency, and live chat.
 

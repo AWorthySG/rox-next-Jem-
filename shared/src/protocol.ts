@@ -27,6 +27,21 @@ export interface SkillIntentMsg {
   targetId: number; // monster target, or own id for self-cast skills
 }
 
+export interface UseItemMsg {
+  t: MsgType.UseItem;
+  itemId: string;
+}
+
+export interface EquipMsg {
+  t: MsgType.Equip;
+  itemId: string;
+}
+
+export interface UnequipMsg {
+  t: MsgType.Unequip;
+  slot: string;
+}
+
 export interface ChatMsg {
   t: MsgType.Chat;
   text: string;
@@ -42,6 +57,9 @@ export type ClientMessage =
   | MoveIntentMsg
   | AttackIntentMsg
   | SkillIntentMsg
+  | UseItemMsg
+  | EquipMsg
+  | UnequipMsg
   | ChatMsg
   | PingMsg;
 
@@ -76,6 +94,12 @@ export interface SnapshotMsg {
 export interface SelfSyncMsg {
   t: MsgType.SelfSync;
   self: SelfState;
+}
+
+export interface LootMsg {
+  t: MsgType.Loot;
+  items: Array<{ id: string; qty: number }>;
+  zeny: number;
 }
 
 export interface DamageEventMsg {
@@ -119,6 +143,7 @@ export type ServerMessage =
   | DespawnMsg
   | SnapshotMsg
   | SelfSyncMsg
+  | LootMsg
   | DamageEventMsg
   | LevelUpMsg
   | ChatBroadcastMsg
