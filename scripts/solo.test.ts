@@ -178,6 +178,18 @@ async function main(): Promise<void> {
   check(smith.derived.atk > baseAtk2, "refine: ATK increased after refine");
   check(smith.zeny < 10000, "refine: Zeny spent on refine");
 
+  // ---- deterministic card sockets ----
+  const carder = new Player(983, 1, "Carder", JobId.Swordsman, 0, 0);
+  carder.addItem("novice_knife", 1);
+  carder.equip("novice_knife");
+  const atkNoCard = carder.derived.atk;
+  carder.addItem("skeleton_card", 1);
+  check(!carder.socketCard("poring_card"), "cards: cannot socket a card you don't own");
+  check(carder.socketCard("skeleton_card"), "cards: socket a weapon card");
+  check(carder.derived.atk > atkNoCard, "cards: socketed card raises ATK");
+  carder.unequip("weapon" as never);
+  check((carder.toSelfState().inventory.find((i) => i.id === "skeleton_card")?.qty ?? 0) === 1, "cards: unequipping returns the card");
+
   // ---- deterministic skill levels ----
   const mage = new Player(993, 1, "Wiz", JobId.Mage, 0, 0);
   check(mage.skillLevel("fire_bolt") === 1, "skills: job skills start at level 1");

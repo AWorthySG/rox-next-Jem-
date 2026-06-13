@@ -34,6 +34,9 @@ copyrighted assets.
   bag + equipment panel (key `I`); equip weapons/armor/accessories for stat bonuses (ATK/MATK/
   DEF/HP/SP and base-stat boosts) and quaff potions to restore HP/SP. The Poring King drops
   rare gear (King's Cleaver, Poring Crown).
+- **Cards & sockets**: monster/boss **cards** drop and socket into equipped gear for bonuses
+  (e.g. Skeleton Card → ATK, Ghostring Card → Max HP, Thanatos Card → ATK/MATK); cards pop back
+  to the bag when you unequip the item.
 - **Town services**: a Kafra shopkeeper (buy/sell), a Guide (quests), a Blacksmith (refine),
   a **Healer** (full HP/SP restore) and a **Warp Girl** (quick-travel to any map) staff the town.
 - **Parties**: click another player to invite them; accept to group up. Party HUD shows live

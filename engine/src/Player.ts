@@ -55,6 +55,7 @@ export class Player {
   skillLevels: Record<string, number> = {}; // skillId -> level (>=1 when learned)
   inventory: Record<string, number> = {}; // itemId -> qty
   equipped: Partial<Record<EquipSlot, string>> = {}; // slot -> itemId
+  cards: Partial<Record<EquipSlot, string>> = {}; // slot -> socketed card itemId
   refineByItem: Record<string, number> = {}; // itemId -> refine level
   partyId: number | null = null;
   guildId: number | null = null;
@@ -153,6 +154,17 @@ export class Player {
       flatDef += rb.def;
       flatHp += rb.maxHp;
     }
+    // socketed card bonuses
+    for (const cardId of Object.values(this.cards)) {
+      const card = cardId ? getItem(cardId) : undefined;
+      if (!card) continue;
+      if (card.bonusStats) effective = addStats(effective, fullStats(card.bonusStats));
+      flatAtk += card.atk ?? 0;
+      flatMatk += card.matk ?? 0;
+      flatDef += card.def ?? 0;
+      flatHp += card.maxHp ?? 0;
+      flatSp += card.maxSp ?? 0;
+    }
     // active pet bonus
     const pet = this.activePet ? getPet(this.activePet) : undefined;
     if (pet) {
@@ -243,6 +255,7 @@ export class Player {
     this.removeItem(itemId, 1);
     const prev = this.equipped[item.slot];
     if (prev) this.addItem(prev, 1); // return previously-equipped item to bag
+    this.returnCard(item.slot); // any socketed card pops back to the bag
     this.equipped[item.slot] = itemId;
     this.recompute();
     return true;
@@ -253,6 +266,35 @@ export class Player {
     if (!itemId) return false;
     delete this.equipped[slot];
     this.addItem(itemId, 1);
+    this.returnCard(slot);
+    this.recompute();
+    return true;
+  }
+
+  private returnCard(slot: EquipSlot): void {
+    const card = this.cards[slot];
+    if (card) {
+      this.addItem(card, 1);
+      delete this.cards[slot];
+    }
+  }
+
+  // Socket a card into the matching equipped item's slot.
+  socketCard(cardId: string): boolean {
+    const card = getItem(cardId);
+    if (!card || card.type !== ItemType.Card || !card.cardSlot) return false;
+    if ((this.inventory[cardId] ?? 0) <= 0) return false;
+    if (!this.equipped[card.cardSlot]) return false; // need an item equipped there
+    this.removeItem(cardId, 1);
+    this.returnCard(card.cardSlot); // swap out any existing card
+    this.cards[card.cardSlot] = cardId;
+    this.recompute();
+    return true;
+  }
+
+  unsocketCard(slot: EquipSlot): boolean {
+    if (!this.cards[slot]) return false;
+    this.returnCard(slot);
     this.recompute();
     return true;
   }
@@ -394,6 +436,8 @@ export class Player {
     for (const it of s.inventory) this.inventory[it.id] = it.qty;
     this.equipped = {};
     for (const e of s.equipped) this.equipped[e.slot] = e.id;
+    this.cards = {};
+    for (const c of s.cards ?? []) this.cards[c.slot] = c.id;
     this.refineByItem = {};
     for (const r of s.refine) this.refineByItem[r.id] = r.level;
     this.activeQuests = {};
@@ -457,6 +501,9 @@ export class Player {
       skillLevels: Object.entries(this.skillLevels).map(([id, level]) => ({ id, level })),
       inventory: Object.entries(this.inventory).map(([id, qty]) => ({ id, qty })),
       equipped: Object.entries(this.equipped)
+        .filter(([, id]) => !!id)
+        .map(([slot, id]) => ({ slot: slot as EquipSlot, id: id as string })),
+      cards: Object.entries(this.cards)
         .filter(([, id]) => !!id)
         .map(([slot, id]) => ({ slot: slot as EquipSlot, id: id as string })),
       refine: Object.entries(this.refineByItem)

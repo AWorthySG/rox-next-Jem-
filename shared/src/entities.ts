@@ -66,6 +66,7 @@ export interface SelfState {
   skillLevels: Array<{ id: string; level: number }>;
   inventory: InventoryEntry[];
   equipped: EquipEntry[];
+  cards: EquipEntry[]; // socketed card per slot
   refine: Array<{ id: string; level: number }>;
   quests: QuestState;
   achievements: string[];

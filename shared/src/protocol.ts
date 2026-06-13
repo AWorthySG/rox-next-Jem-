@@ -112,6 +112,16 @@ export interface RefineItemMsg {
   slot: string;
 }
 
+export interface SocketCardMsg {
+  t: MsgType.SocketCard;
+  cardId: string;
+}
+
+export interface UnsocketCardMsg {
+  t: MsgType.UnsocketCard;
+  slot: string;
+}
+
 export interface EnterPortalMsg {
   t: MsgType.EnterPortal;
   npcId: number;
@@ -190,6 +200,8 @@ export type ClientMessage =
   | AllocateStatMsg
   | LevelSkillMsg
   | RefineItemMsg
+  | SocketCardMsg
+  | UnsocketCardMsg
   | EnterPortalMsg
   | NpcHealMsg
   | WarpMsg

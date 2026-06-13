@@ -157,6 +157,7 @@ const inventory = new InventoryPanel({
   onUse: (itemId) => transport?.send({ t: MsgType.UseItem, itemId }),
   onEquip: (itemId) => transport?.send({ t: MsgType.Equip, itemId }),
   onUnequip: (slot) => transport?.send({ t: MsgType.Unequip, slot }),
+  onSocket: (cardId) => transport?.send({ t: MsgType.SocketCard, cardId }),
 });
 
 const shop = new ShopPanel({
