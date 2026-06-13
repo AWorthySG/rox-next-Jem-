@@ -10,10 +10,12 @@ export class MonsterView extends EntityView {
   private poring: PoringMesh;
   private phase = Math.random() * Math.PI * 2;
   private readonly scale: number;
+  readonly boss: boolean;
 
   constructor(entity: EntityFull, appearance: MonsterAppearance) {
     super(entity, `nameplate monster${appearance.boss ? " boss" : ""}`, 1.7 * appearance.scale + 0.3);
     this.scale = appearance.scale;
+    this.boss = !!appearance.boss;
     this.poring = buildPoring(appearance.texture);
     this.poring.group.scale.setScalar(appearance.scale);
     this.poring.group.traverse((o) => (o.userData.entityId = entity.id));

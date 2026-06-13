@@ -807,11 +807,19 @@ body {
   padding: 14px 6px;
 }
 
-.hud-stats {
+.minimap {
   position: absolute;
   top: 14px;
   right: 14px;
-  width: 92px;
+  width: 156px;
+  height: 156px;
+}
+
+.hud-stats {
+  position: absolute;
+  top: 182px;
+  right: 14px;
+  width: 110px;
   padding: 8px 10px;
   background: var(--panel);
   border: 2px solid var(--panel-border);

@@ -41,6 +41,7 @@ copyrighted assets.
   ATK/MATK/DEF/HP bonuses.
 - **Auto-battle**: the signature ROX convenience — toggle Auto (button or `T`) and your
   character automatically seeks the nearest monster, attacks, and casts ready skills.
+- **Minimap**: a top-down radar showing you, other players, NPCs, monsters and the boss.
 - **HUD & chat**: HP/SP/EXP bars, level, Zeny, stat panel, a hotkey **skill bar** with
   cooldown sweeps, nameplates, latency, and live chat.
 

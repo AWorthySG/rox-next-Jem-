@@ -19,6 +19,7 @@ import { RefinePanel } from "./ui/RefinePanel.js";
 import { JobAdvance } from "./ui/JobAdvance.js";
 import { PartyHud } from "./ui/PartyHud.js";
 import { AutoBattle } from "./ui/AutoBattle.js";
+import { MiniMap } from "./ui/MiniMap.js";
 import { getItem, JOB_NAME, type JobId } from "@rox/shared";
 import { buildMonsterAppearances } from "./procedural/monsters.js";
 
@@ -29,6 +30,7 @@ const cameraRig = new CameraRig(scene.renderer.domElement);
 const gameState = new GameState(scene.scene, buildMonsterAppearances());
 const hud = new Hud((stat) => transport?.send({ t: MsgType.AllocateStat, stat }));
 const damageNumbers = new DamageNumbers(scene.scene);
+const miniMap = new MiniMap();
 
 // Skill bar: casts on the current target (or nearest monster); heals target self.
 let currentTargetId: number | null = null;
@@ -311,6 +313,7 @@ new Loop((dt) => {
   damageNumbers.update();
   skillBar.update();
   partyHud.update();
+  miniMap.update(gameState.blips());
   const self = gameState.self;
   if (self) followPos.copy(self.group.position);
   cameraRig.follow(followPos, dt);

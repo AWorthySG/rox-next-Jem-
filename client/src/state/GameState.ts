@@ -120,4 +120,16 @@ export class GameState {
     const renderTime = performance.now() - INTERP_DELAY_MS;
     for (const v of this.views.values()) v.update(renderTime, dt);
   }
+
+  // Lightweight position list for the minimap.
+  blips(): Array<{ x: number; z: number; type: "self" | "player" | "monster" | "boss" | "npc" }> {
+    const out: Array<{ x: number; z: number; type: "self" | "player" | "monster" | "boss" | "npc" }> = [];
+    for (const v of this.views.values()) {
+      const p = v.group.position;
+      if (v instanceof PlayerView) out.push({ x: p.x, z: p.z, type: v.id === this.selfId ? "self" : "player" });
+      else if (v instanceof MonsterView) out.push({ x: p.x, z: p.z, type: v.boss ? "boss" : "monster" });
+      else if (v instanceof NpcView) out.push({ x: p.x, z: p.z, type: "npc" });
+    }
+    return out;
+  }
 }
