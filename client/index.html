@@ -49,15 +49,19 @@
     <div id="hud" class="hud hidden">
       <div class="hud-top-left">
         <div class="char-frame">
-          <div class="char-name"><span id="hud-name">—</span> <span class="char-job" id="hud-job"></span></div>
-          <div class="char-level">Lv <span id="hud-level">1</span></div>
-          <div class="bar hp"><div class="bar-fill" id="hp-fill"></div><span class="bar-label" id="hp-label">0/0</span></div>
-          <div class="bar sp"><div class="bar-fill" id="sp-fill"></div><span class="bar-label" id="sp-label">0/0</span></div>
-          <div class="bar exp"><div class="bar-fill" id="exp-fill"></div><span class="bar-label" id="exp-label">EXP</span></div>
-          <div class="zeny">💰 <span id="hud-zeny">0</span> Zeny</div>
-          <div class="buffs" id="buffs"></div>
+          <div class="portrait" id="portrait"><span id="portrait-initial">N</span><span class="portrait-lv" id="hud-level">1</span></div>
+          <div class="char-info">
+            <div class="char-name"><span id="hud-name">—</span> <span class="char-job" id="hud-job"></span></div>
+            <div class="bar hp"><div class="bar-fill" id="hp-fill"></div><span class="bar-label" id="hp-label">0/0</span></div>
+            <div class="bar sp"><div class="bar-fill" id="sp-fill"></div><span class="bar-label" id="sp-label">0/0</span></div>
+            <div class="bar exp"><div class="bar-fill" id="exp-fill"></div><span class="bar-label" id="exp-label">EXP</span></div>
+            <div class="zeny">💰 <span id="hud-zeny">0</span></div>
+            <div class="buffs" id="buffs"></div>
+          </div>
         </div>
       </div>
+
+      <div class="skill-popup" id="skill-popup"></div>
 
       <div class="job-advance hidden" id="job-advance"></div>
 
@@ -74,6 +78,11 @@
       <canvas class="minimap" id="minimap" width="156" height="156"></canvas>
 
       <div class="hud-stats" id="stat-panel"></div>
+
+      <div class="achievements hidden" id="achievements">
+        <div class="inv-header"><span>Achievements</span><button class="inv-close" id="ach-close">✕</button></div>
+        <div class="ach-list" id="ach-list"></div>
+      </div>
 
       <div class="warp hidden" id="warp">
         <div class="inv-header"><span>Warp Service</span><button class="inv-close" id="warp-close">✕</button></div>
@@ -106,7 +115,7 @@
         <div class="refine-list" id="refine-list"></div>
       </div>
 
-      <div class="hud-help">Move: click ground · Attack: click monster · Shop/Quests: click ⬥ NPCs · Party: click a player · Keys 1–5 skills · I bag · K skills · G guild · Enter chat</div>
+      <div class="hud-help">Move: click ground · Attack: click monster · Shop/Quests: click ⬥ NPCs · Party: click a player · Keys 1–7 skills · I bag · K skills · G guild · V achievements · Enter chat</div>
 
       <div class="quests hidden" id="quests">
         <div class="inv-header">
@@ -135,6 +144,7 @@
           <button class="inv-close" id="inv-close">✕</button>
         </div>
         <div class="equip-slots" id="equip-slots"></div>
+        <div class="inv-tabs" id="inv-tabs"></div>
         <div class="inv-grid" id="inv-grid"></div>
       </div>
 

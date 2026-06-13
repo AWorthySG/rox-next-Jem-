@@ -1,4 +1,4 @@
-import { EquipSlot, getItem, MAX_REFINE, refineCost, type SelfState } from "@rox/shared";
+import { EquipSlot, getItem, MAX_REFINE, refineBonus, refineCost, type SelfState } from "@rox/shared";
 
 export interface RefineHandlers {
   onRefine(slot: EquipSlot): void;
@@ -65,11 +65,20 @@ export class RefinePanel {
       const maxed = level >= MAX_REFINE;
       const cost = refineCost(level);
       const afford = self.zeny >= cost;
+      // before -> after stat preview
+      const cur = refineBonus(item, level);
+      const next = refineBonus(item, level + 1);
+      const deltas: string[] = [];
+      if (item.atk) deltas.push(`ATK +${cur.atk}<i>→</i>+${next.atk}`);
+      if (item.matk) deltas.push(`MATK +${cur.matk}<i>→</i>+${next.matk}`);
+      if (item.def) deltas.push(`DEF +${cur.def}<i>→</i>+${next.def}`);
+      if (item.maxHp) deltas.push(`HP +${cur.maxHp}<i>→</i>+${next.maxHp}`);
+      const preview = maxed || deltas.length === 0 ? "" : `<div class="rr-preview">${deltas.join(" · ")}</div>`;
       row.innerHTML =
-        `<span class="rr-name">${item.name} <b class="rr-lv">+${level}</b></span>` +
+        `<div class="rr-info"><span class="rr-name">${item.name} <b class="rr-lv">+${level}</b></span>${preview}</div>` +
         (maxed
           ? `<span class="rr-max">MAX</span>`
-          : `<button class="refine-btn${afford ? "" : " dim"}" data-slot="${slot}">+1 · ${cost}z</button>`);
+          : `<button class="refine-btn${afford ? "" : " dim"}" data-slot="${slot}">⚒ ${cost.toLocaleString()}z</button>`);
       this.list.appendChild(row);
     }
 

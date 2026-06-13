@@ -7,6 +7,7 @@ export * from "./skills.js";
 export * from "./items.js";
 export * from "./pets.js";
 export * from "./quests.js";
+export * from "./achievements.js";
 export * from "./leveling.js";
 export * from "./entities.js";
 export * from "./protocol.js";

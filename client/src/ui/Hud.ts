@@ -18,6 +18,7 @@ export class Hud {
   setIdentity(name: string, job: string): void {
     this.el("hud-name").textContent = name;
     this.el("hud-job").textContent = job;
+    this.el("portrait-initial").textContent = (job[0] ?? "N").toUpperCase();
   }
 
   update(self: SelfState): void {

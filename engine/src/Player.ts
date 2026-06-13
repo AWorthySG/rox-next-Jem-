@@ -4,6 +4,8 @@ import {
   deriveStats,
   EntityKind,
   EquipSlot,
+  ACHIEVEMENTS,
+  type AchievementDef,
   getItem,
   getPet,
   getQuest,
@@ -61,6 +63,9 @@ export class Player {
   mounted = false;
   activeQuests: Record<string, number> = {}; // questId -> kill progress
   completedQuests: string[] = [];
+  totalKills = 0;
+  bossesKilled: string[] = [];
+  achievements: string[] = [];
 
   // intents
   moveTarget: { x: number; z: number } | null = null;
@@ -273,6 +278,32 @@ export class Player {
     return true;
   }
 
+  // ---- achievements ----
+
+  recordKill(templateId: string, boss: boolean): void {
+    this.totalKills += 1;
+    if (boss && !this.bossesKilled.includes(templateId)) this.bossesKilled.push(templateId);
+  }
+
+  // Unlock any newly-met achievements (granting their Zeny). Returns the ones
+  // unlocked this call so the caller can notify the player.
+  evaluateAchievements(): AchievementDef[] {
+    const unlocked: AchievementDef[] = [];
+    for (const a of Object.values(ACHIEVEMENTS)) {
+      if (this.achievements.includes(a.id)) continue;
+      const met =
+        (a.kind === "level" && this.level >= (a.value as number)) ||
+        (a.kind === "kills" && this.totalKills >= (a.value as number)) ||
+        (a.kind === "boss" && this.bossesKilled.includes(a.value as string));
+      if (met) {
+        this.achievements.push(a.id);
+        this.zeny += a.rewardZeny;
+        unlocked.push(a);
+      }
+    }
+    return unlocked;
+  }
+
   // ---- quests ----
 
   acceptQuest(id: string): boolean {
@@ -368,6 +399,7 @@ export class Player {
     this.activeQuests = {};
     for (const q of s.quests.active) this.activeQuests[q.id] = q.progress;
     this.completedQuests = [...s.quests.completed];
+    this.achievements = [...(s.achievements ?? [])];
     this.mapId = s.mapId ?? "field";
     this.activePet = s.pet ?? null;
     this.mounted = !!s.mounted;
@@ -434,6 +466,7 @@ export class Player {
         active: Object.entries(this.activeQuests).map(([id, progress]) => ({ id, progress })),
         completed: [...this.completedQuests],
       },
+      achievements: [...this.achievements],
       buffs: this.buffs
         .filter((b) => b.expiresAt > Date.now())
         .map((b) => ({ type: b.stat, remainingMs: Math.round(b.expiresAt - Date.now()) })),

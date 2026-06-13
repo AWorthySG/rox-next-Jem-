@@ -116,6 +116,17 @@ async function main(): Promise<void> {
     check(bosses >= 2, `world: ${m.id} has >= 2 bosses (${bosses})`);
   }
 
+  // ---- deterministic achievements ----
+  const hero2 = new Player(984, 1, "Achiever", JobId.Swordsman, 0, 0);
+  hero2.recordKill("poring", false);
+  let unlocked = hero2.evaluateAchievements().map((a) => a.id);
+  check(unlocked.includes("first_blood"), "achievement: first kill unlocks First Blood");
+  check(hero2.achievements.includes("first_blood"), "achievement: recorded as completed");
+  hero2.recordKill("poring_king", true);
+  unlocked = hero2.evaluateAchievements().map((a) => a.id);
+  check(unlocked.includes("regicide"), "achievement: slaying Poring King unlocks Regicide");
+  check(hero2.evaluateAchievements().length === 0, "achievement: no double-unlock");
+
   // ---- deterministic shop checks ----
   const buyer = new Player(997, 1, "Buyer", JobId.Novice, 0, 0);
   buyer.zeny = 1000;
