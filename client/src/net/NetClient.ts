@@ -1,20 +1,9 @@
-import {
-  decodeServer,
-  encode,
-  MsgType,
-  type ClientMessage,
-  type ServerMessage,
-} from "@rox/shared";
+import { decodeServer, encode, MsgType, type ClientMessage } from "@rox/shared";
+import type { NetHandlers, Transport } from "./Transport.js";
 
-export interface NetHandlers {
-  onOpen?(): void;
-  onClose?(): void;
-  onMessage(msg: ServerMessage): void;
-}
-
-// Thin WebSocket wrapper: connects, (de)serialises JSON messages, and runs a
-// periodic ping for latency measurement.
-export class NetClient {
+// Thin WebSocket wrapper (online transport): connects, (de)serialises JSON
+// messages, and runs a periodic ping for latency measurement.
+export class NetClient implements Transport {
   private ws: WebSocket | null = null;
   private pingTimer: number | null = null;
 

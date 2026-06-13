@@ -15,6 +15,7 @@ export function resolveAttack(
   defender: DerivedStats,
   kind: DamageKind,
   rng: () => number = Math.random,
+  powerMult = 1,
 ): DamageResult {
   // Hit chance: 80% baseline, shifted by accuracy vs evasion, clamped 5%..100%.
   const hitChance = clamp(0.8 + (attacker.hit - defender.flee) * 0.02, 0.05, 1);
@@ -22,9 +23,9 @@ export function resolveAttack(
     return { amount: 0, crit: false, miss: true, kind };
   }
 
-  const power = kind === DamageKind.Magic ? attacker.matk : attacker.atk;
-  // ±15% variance on the raw attack power.
-  const rolled = power * (0.85 + rng() * 0.3);
+  const base = kind === DamageKind.Magic ? attacker.matk : attacker.atk;
+  // ±15% variance on the raw attack power, scaled by the skill multiplier.
+  const rolled = base * powerMult * (0.85 + rng() * 0.3);
 
   // Magic partially ignores physical DEF.
   const mitigation = kind === DamageKind.Magic ? defender.def * 0.4 : defender.def;

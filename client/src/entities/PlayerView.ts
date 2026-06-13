@@ -51,6 +51,16 @@ export class PlayerView extends EntityView {
     this.predTarget = null;
   }
 
+  // Hard-reset position (used on map change so the avatar doesn't lerp across maps).
+  teleport(x: number, z: number): void {
+    this.px = x;
+    this.pz = z;
+    this.serverX = x;
+    this.serverZ = z;
+    this.predTarget = null;
+    this.group.position.set(x, 0, z);
+  }
+
   override update(renderTime: number, dt: number): void {
     if (!this.isSelf) {
       super.update(renderTime, dt);

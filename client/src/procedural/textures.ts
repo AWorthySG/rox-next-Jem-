@@ -83,13 +83,14 @@ export function makeSkyTexture(): THREE.Texture {
   return tex;
 }
 
-// The Poring's face: applied to the front of its squashed sphere body.
-export function makePoringTexture(): THREE.Texture {
+// The Poring-family face, applied to the front of a squashed sphere body. The
+// jelly colour is parameterised so the same art makes Drops, Fabre, Lunatic, etc.
+export function makePoringTexture(inner = "#ffd1e6", outer = "#ff9ec4"): THREE.Texture {
   const { c, ctx } = canvas(256);
-  // pink jelly base
+  // jelly base
   const g = ctx.createRadialGradient(128, 100, 20, 128, 128, 150);
-  g.addColorStop(0, "#ffd1e6");
-  g.addColorStop(1, "#ff9ec4");
+  g.addColorStop(0, inner);
+  g.addColorStop(1, outer);
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, 256, 256);
 

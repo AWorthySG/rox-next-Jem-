@@ -1,23 +1,37 @@
 import * as THREE from "three";
 import type { EntityFull } from "@rox/shared";
 import { buildPoring, type PoringMesh } from "../procedural/poringMesh.js";
+import type { MonsterAppearance } from "../procedural/monsters.js";
 import { EntityView } from "./EntityView.js";
 
-// A Poring view: textured jelly body with an idle squash-and-bob animation, and
-// a small pop effect on death.
+// A Poring-family view: textured jelly body with an idle squash-and-bob
+// animation. Bosses are larger and wear a golden crown.
 export class MonsterView extends EntityView {
   private poring: PoringMesh;
   private phase = Math.random() * Math.PI * 2;
+  private readonly scale: number;
+  readonly boss: boolean;
 
-  constructor(entity: EntityFull, faceTexture: THREE.Texture) {
-    super(entity, "nameplate monster", 1.7);
-    this.poring = buildPoring(faceTexture);
-    // Tag every child so raycast picking resolves to this entity.
+  constructor(entity: EntityFull, appearance: MonsterAppearance) {
+    super(entity, `nameplate monster${appearance.boss ? " boss" : ""}`, 1.7 * appearance.scale + 0.3);
+    this.scale = appearance.scale;
+    this.boss = !!appearance.boss;
+    this.poring = buildPoring(appearance.texture);
+    this.poring.group.scale.setScalar(appearance.scale);
     this.poring.group.traverse((o) => (o.userData.entityId = entity.id));
     this.group.add(this.poring.group);
+
+    if (appearance.boss) {
+      const crown = new THREE.Mesh(
+        new THREE.ConeGeometry(0.34, 0.4, 5),
+        new THREE.MeshLambertMaterial({ color: 0xffd24a, emissive: 0x4a3500 }),
+      );
+      crown.position.set(0, 1.15, 0);
+      crown.scale.setScalar(appearance.scale);
+      this.group.add(crown);
+    }
   }
 
-  // Pickable meshes for the raycaster.
   get pickables(): THREE.Object3D {
     return this.poring.group;
   }
@@ -26,7 +40,6 @@ export class MonsterView extends EntityView {
     this.phase += dt * (this.moving ? 9 : 3);
     const squash = 0.82 + Math.sin(this.phase) * (this.moving ? 0.14 : 0.06);
     this.poring.body.scale.set(1, squash, 1);
-    // little hop when moving
-    this.poring.group.position.y = this.moving ? Math.abs(Math.sin(this.phase)) * 0.18 : 0;
+    this.poring.group.position.y = this.moving ? Math.abs(Math.sin(this.phase)) * 0.18 * this.scale : 0;
   }
 }

@@ -4,6 +4,25 @@ export enum MsgType {
   Join = "join",
   MoveIntent = "move",
   AttackIntent = "attack",
+  SkillIntent = "skill",
+  JobAdvance = "jobAdvance",
+  UseItem = "useItem",
+  Equip = "equip",
+  Unequip = "unequip",
+  BuyItem = "buyItem",
+  SellItem = "sellItem",
+  PartyInvite = "partyInvite",
+  PartyAccept = "partyAccept",
+  PartyLeave = "partyLeave",
+  CreateGuild = "createGuild",
+  JoinGuild = "joinGuild",
+  LeaveGuild = "leaveGuild",
+  AcceptQuest = "acceptQuest",
+  ClaimQuest = "claimQuest",
+  AllocateStat = "allocateStat",
+  LevelSkill = "levelSkill",
+  RefineItem = "refineItem",
+  EnterPortal = "enterPortal",
   Chat = "chat",
   Ping = "ping",
   // server -> client
@@ -12,6 +31,11 @@ export enum MsgType {
   Despawn = "despawn",
   Snapshot = "snapshot",
   SelfSync = "self",
+  Loot = "loot",
+  PartyInviteRecv = "partyInviteRecv",
+  PartyUpdate = "partyUpdate",
+  GuildUpdate = "guildUpdate",
+  MapChange = "mapChange",
   DamageEvent = "damage",
   LevelUp = "levelUp",
   ChatBroadcast = "chatMsg",
@@ -21,6 +45,7 @@ export enum MsgType {
 export enum EntityKind {
   Player = "player",
   Monster = "monster",
+  Npc = "npc",
 }
 
 export enum MonsterAIState {
@@ -35,9 +60,30 @@ export enum JobId {
   Novice = "novice",
   Swordsman = "swordsman",
   Mage = "mage",
+  Knight = "knight",
+  Wizard = "wizard",
 }
 
 export enum DamageKind {
   Physical = "physical",
   Magic = "magic",
+}
+
+export enum ItemType {
+  Weapon = "weapon",
+  Armor = "armor",
+  Accessory = "accessory",
+  Consumable = "consumable",
+}
+
+export enum EquipSlot {
+  Weapon = "weapon",
+  Armor = "armor",
+  Accessory = "accessory",
+}
+
+export enum StatusType {
+  Slow = "slow", // reduced movement speed
+  Stun = "stun", // cannot act
+  Burn = "burn", // damage over time
 }

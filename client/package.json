@@ -8,6 +8,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@rox/engine": "*",
     "@rox/shared": "*",
     "three": "^0.171.0"
   },

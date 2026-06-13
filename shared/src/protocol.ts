@@ -21,6 +21,118 @@ export interface AttackIntentMsg {
   targetId: number;
 }
 
+export interface SkillIntentMsg {
+  t: MsgType.SkillIntent;
+  skillId: string;
+  targetId: number; // monster target, or own id for self-cast skills
+}
+
+export interface JobAdvanceMsg {
+  t: MsgType.JobAdvance;
+  targetJob: JobId;
+}
+
+export interface UseItemMsg {
+  t: MsgType.UseItem;
+  itemId: string;
+}
+
+export interface EquipMsg {
+  t: MsgType.Equip;
+  itemId: string;
+}
+
+export interface UnequipMsg {
+  t: MsgType.Unequip;
+  slot: string;
+}
+
+export interface BuyItemMsg {
+  t: MsgType.BuyItem;
+  itemId: string;
+  qty: number;
+}
+
+export interface SellItemMsg {
+  t: MsgType.SellItem;
+  itemId: string;
+  qty: number;
+}
+
+export interface PartyInviteMsg {
+  t: MsgType.PartyInvite;
+  targetId: number;
+}
+
+export interface PartyAcceptMsg {
+  t: MsgType.PartyAccept;
+  partyId: number;
+}
+
+export interface PartyLeaveMsg {
+  t: MsgType.PartyLeave;
+}
+
+export interface CreateGuildMsg {
+  t: MsgType.CreateGuild;
+  name: string;
+}
+
+export interface JoinGuildMsg {
+  t: MsgType.JoinGuild;
+  name: string;
+}
+
+export interface LeaveGuildMsg {
+  t: MsgType.LeaveGuild;
+}
+
+export interface AcceptQuestMsg {
+  t: MsgType.AcceptQuest;
+  questId: string;
+}
+
+export interface ClaimQuestMsg {
+  t: MsgType.ClaimQuest;
+  questId: string;
+}
+
+export interface AllocateStatMsg {
+  t: MsgType.AllocateStat;
+  stat: string;
+}
+
+export interface LevelSkillMsg {
+  t: MsgType.LevelSkill;
+  skillId: string;
+}
+
+export interface RefineItemMsg {
+  t: MsgType.RefineItem;
+  slot: string;
+}
+
+export interface EnterPortalMsg {
+  t: MsgType.EnterPortal;
+  npcId: number;
+}
+
+export interface MapTheme {
+  ground: number; // hex tint applied to the ground
+  fog: number; // hex fog / sky-dome color
+  sky: number; // hex sky tint
+}
+
+export interface MapChangeMsg {
+  t: MsgType.MapChange;
+  mapId: string;
+  name: string;
+  theme: MapTheme;
+  pvp: boolean;
+  x: number;
+  z: number;
+}
+
 export interface ChatMsg {
   t: MsgType.Chat;
   text: string;
@@ -31,7 +143,31 @@ export interface PingMsg {
   clientTime: number;
 }
 
-export type ClientMessage = JoinMsg | MoveIntentMsg | AttackIntentMsg | ChatMsg | PingMsg;
+export type ClientMessage =
+  | JoinMsg
+  | MoveIntentMsg
+  | AttackIntentMsg
+  | SkillIntentMsg
+  | JobAdvanceMsg
+  | UseItemMsg
+  | EquipMsg
+  | UnequipMsg
+  | BuyItemMsg
+  | SellItemMsg
+  | PartyInviteMsg
+  | PartyAcceptMsg
+  | PartyLeaveMsg
+  | CreateGuildMsg
+  | JoinGuildMsg
+  | LeaveGuildMsg
+  | AcceptQuestMsg
+  | ClaimQuestMsg
+  | AllocateStatMsg
+  | LevelSkillMsg
+  | RefineItemMsg
+  | EnterPortalMsg
+  | ChatMsg
+  | PingMsg;
 
 // ---- Server -> Client ----
 
@@ -66,6 +202,49 @@ export interface SelfSyncMsg {
   self: SelfState;
 }
 
+export interface LootMsg {
+  t: MsgType.Loot;
+  items: Array<{ id: string; qty: number }>;
+  zeny: number;
+}
+
+export interface PartyMember {
+  id: number;
+  name: string;
+  level: number;
+  job: JobId;
+}
+
+export interface PartyInfo {
+  id: number;
+  leaderId: number;
+  members: PartyMember[];
+}
+
+export interface PartyInviteRecvMsg {
+  t: MsgType.PartyInviteRecv;
+  fromId: number;
+  fromName: string;
+  partyId: number;
+}
+
+export interface PartyUpdateMsg {
+  t: MsgType.PartyUpdate;
+  party: PartyInfo | null; // null = you are no longer in a party
+}
+
+export interface GuildInfo {
+  id: number;
+  name: string;
+  masterId: number;
+  members: PartyMember[];
+}
+
+export interface GuildUpdateMsg {
+  t: MsgType.GuildUpdate;
+  guild: GuildInfo | null; // null = you are no longer in a guild
+}
+
 export interface DamageEventMsg {
   t: MsgType.DamageEvent;
   sourceId: number;
@@ -74,6 +253,8 @@ export interface DamageEventMsg {
   crit: boolean;
   miss: boolean;
   kind: DamageKind;
+  skillId?: string; // present when the hit came from a skill (drives VFX)
+  heal?: boolean; // amount restored HP rather than dealt damage
 }
 
 export interface LevelUpMsg {
@@ -105,6 +286,11 @@ export type ServerMessage =
   | DespawnMsg
   | SnapshotMsg
   | SelfSyncMsg
+  | LootMsg
+  | PartyInviteRecvMsg
+  | PartyUpdateMsg
+  | GuildUpdateMsg
+  | MapChangeMsg
   | DamageEventMsg
   | LevelUpMsg
   | ChatBroadcastMsg

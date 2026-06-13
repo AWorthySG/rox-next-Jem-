@@ -8,6 +8,7 @@
     "start": "tsx src/index.ts"
   },
   "dependencies": {
+    "@rox/engine": "*",
     "@rox/shared": "*",
     "ws": "^8.18.0"
   },

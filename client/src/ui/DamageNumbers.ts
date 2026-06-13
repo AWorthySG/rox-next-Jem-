@@ -15,7 +15,7 @@ export class DamageNumbers {
 
   constructor(private scene: THREE.Scene) {}
 
-  spawn(pos: THREE.Vector3, text: string, variant: "" | "crit" | "miss" | "taken"): void {
+  spawn(pos: THREE.Vector3, text: string, variant: "" | "crit" | "miss" | "taken" | "heal"): void {
     const el = document.createElement("div");
     el.className = `dmg ${variant}`.trim();
     el.textContent = text;

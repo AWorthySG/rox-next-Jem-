@@ -1,7 +1,12 @@
-import type { SelfState, Stats } from "@rox/shared";
+import { STAT_KEYS, type SelfState, type StatKey } from "@rox/shared";
 
-// Manages the on-screen HUD: name/level, HP/SP/EXP bars and the stat panel.
+// Manages the on-screen HUD: name/level, HP/SP/EXP bars, Zeny, and the stat
+// panel with manual point allocation.
 export class Hud {
+  private statSig = "";
+
+  constructor(private onAllocate: (stat: StatKey) => void) {}
+
   private el(id: string): HTMLElement {
     return document.getElementById(id)!;
   }
@@ -22,7 +27,19 @@ export class Hud {
     const expMax = self.expToNext || 1;
     const expLabel = self.expToNext ? `EXP ${Math.round((self.exp / expMax) * 100)}%` : "MAX";
     this.setBar("exp", self.exp, expMax, expLabel);
-    this.setStats(self.stats);
+    this.el("hud-zeny").textContent = self.zeny.toLocaleString();
+    this.renderBuffs(self.buffs);
+    this.renderStats(self);
+  }
+
+  private renderBuffs(buffs: Array<{ type: string; remainingMs: number }>): void {
+    const el = this.el("buffs");
+    el.innerHTML = buffs
+      .map((b) => {
+        const label = b.type === "matk" ? "MATK↑" : b.type === "atk" ? "ATK↑" : b.type;
+        return `<span class="buff-chip">${label} ${Math.ceil(b.remainingMs / 1000)}s</span>`;
+      })
+      .join("");
   }
 
   private setBar(kind: string, value: number, max: number, label: string): void {
@@ -31,13 +48,26 @@ export class Hud {
     this.el(`${kind}-label`).textContent = label;
   }
 
-  private setStats(s: Stats): void {
-    this.el("st-str").textContent = String(s.str);
-    this.el("st-agi").textContent = String(s.agi);
-    this.el("st-vit").textContent = String(s.vit);
-    this.el("st-int").textContent = String(s.int);
-    this.el("st-dex").textContent = String(s.dex);
-    this.el("st-luk").textContent = String(s.luk);
+  private renderStats(self: SelfState): void {
+    const sig = STAT_KEYS.map((k) => self.stats[k]).join(",") + `:${self.statPoints}`;
+    if (sig === this.statSig) return; // only rebuild on change
+    this.statSig = sig;
+
+    const panel = this.el("stat-panel");
+    panel.innerHTML = `<div class="stat-points">Stat Points: <b>${self.statPoints}</b></div>`;
+    for (const key of STAT_KEYS) {
+      const row = document.createElement("div");
+      row.className = "stat-row";
+      row.innerHTML = `<span>${key.toUpperCase()}</span><b>${self.stats[key]}</b>`;
+      if (self.statPoints > 0) {
+        const btn = document.createElement("button");
+        btn.className = "stat-plus";
+        btn.textContent = "+";
+        btn.addEventListener("click", () => this.onAllocate(key));
+        row.appendChild(btn);
+      }
+      panel.appendChild(row);
+    }
   }
 
   setLatency(ms: number): void {

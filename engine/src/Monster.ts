@@ -3,16 +3,28 @@ import {
   EntityKind,
   JobId,
   MonsterAIState,
+  StatusType,
   type DerivedStats,
   type EntityFull,
   type EntitySnapshot,
 } from "@rox/shared";
-import type { MonsterTemplate } from "../data/spawns.js";
+import type { MonsterTemplate } from "./data/spawns.js";
+
+interface ActiveStatus {
+  type: StatusType;
+  expiresAt: number;
+  magnitude: number; // slow: speed mult; burn: flat damage per tick
+  sourceId: number;
+  nextTickAt: number; // burn only
+}
+
+const BURN_TICK_MS = 600;
 
 export class Monster {
   readonly id: number;
   readonly template: MonsterTemplate;
   readonly spawnZoneId: string;
+  readonly mapId: string;
   readonly homeX: number;
   readonly homeZ: number;
 
@@ -31,10 +43,11 @@ export class Monster {
   attackCooldown = 0;
   respawnAt = 0;
 
-  constructor(id: number, template: MonsterTemplate, zoneId: string, x: number, z: number) {
+  constructor(id: number, template: MonsterTemplate, zoneId: string, mapId: string, x: number, z: number) {
     this.id = id;
     this.template = template;
     this.spawnZoneId = zoneId;
+    this.mapId = mapId;
     this.homeX = x;
     this.homeZ = z;
     this.x = x;
@@ -46,8 +59,52 @@ export class Monster {
     this.hp = this.derived.maxHp;
   }
 
+  statuses: ActiveStatus[] = [];
+
   get isDead(): boolean {
     return this.aiState === MonsterAIState.Dead;
+  }
+
+  addStatus(type: StatusType, durationMs: number, sourceId: number, now: number, magnitude = 0): void {
+    this.statuses = this.statuses.filter((s) => s.type !== type); // refresh
+    this.statuses.push({
+      type,
+      expiresAt: now + durationMs,
+      magnitude,
+      sourceId,
+      nextTickAt: now + BURN_TICK_MS,
+    });
+  }
+
+  clearStatuses(): void {
+    this.statuses = [];
+  }
+
+  isStunned(now: number): boolean {
+    return this.statuses.some((s) => s.type === StatusType.Stun && s.expiresAt > now);
+  }
+
+  speedMul(now: number): number {
+    let m = 1;
+    for (const s of this.statuses) {
+      if (s.type === StatusType.Slow && s.expiresAt > now) m = Math.min(m, s.magnitude);
+    }
+    return m;
+  }
+
+  // Drop expired statuses and return any due burn ticks ({ amount, sourceId }).
+  tickStatuses(now: number): Array<{ amount: number; sourceId: number }> {
+    const ticks: Array<{ amount: number; sourceId: number }> = [];
+    for (const s of this.statuses) {
+      if (s.type === StatusType.Burn) {
+        while (s.expiresAt > now && s.nextTickAt <= now) {
+          ticks.push({ amount: s.magnitude, sourceId: s.sourceId });
+          s.nextTickAt += BURN_TICK_MS;
+        }
+      }
+    }
+    this.statuses = this.statuses.filter((s) => s.expiresAt > now);
+    return ticks;
   }
 
   toFull(): EntityFull {

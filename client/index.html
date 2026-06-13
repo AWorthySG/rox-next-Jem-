@@ -34,6 +34,7 @@
           </div>
         </div>
         <button id="enter-btn" class="enter-btn">Enter World</button>
+        <button id="reset-btn" class="reset-btn hidden">New Character (clear saved solo progress)</button>
         <p id="conn-status" class="conn-status">Connecting…</p>
       </div>
     </div>
@@ -47,19 +48,84 @@
           <div class="bar hp"><div class="bar-fill" id="hp-fill"></div><span class="bar-label" id="hp-label">0/0</span></div>
           <div class="bar sp"><div class="bar-fill" id="sp-fill"></div><span class="bar-label" id="sp-label">0/0</span></div>
           <div class="bar exp"><div class="bar-fill" id="exp-fill"></div><span class="bar-label" id="exp-label">EXP</span></div>
+          <div class="zeny">💰 <span id="hud-zeny">0</span> Zeny</div>
+          <div class="buffs" id="buffs"></div>
         </div>
       </div>
 
-      <div class="hud-stats" id="stat-panel">
-        <div class="stat-row"><span>STR</span><b id="st-str">0</b></div>
-        <div class="stat-row"><span>AGI</span><b id="st-agi">0</b></div>
-        <div class="stat-row"><span>VIT</span><b id="st-vit">0</b></div>
-        <div class="stat-row"><span>INT</span><b id="st-int">0</b></div>
-        <div class="stat-row"><span>DEX</span><b id="st-dex">0</b></div>
-        <div class="stat-row"><span>LUK</span><b id="st-luk">0</b></div>
+      <div class="job-advance hidden" id="job-advance"></div>
+
+      <button class="auto-btn" id="auto-btn">Auto ▶</button>
+      <div class="skillbar" id="skillbar"></div>
+
+      <div class="party hidden" id="party">
+        <div class="party-header"><span>Party</span><button class="party-leave" id="party-leave">Leave</button></div>
+        <div class="party-members" id="party-members"></div>
       </div>
 
-      <div class="hud-help">Click ground to move · Click a Poring to attack · Scroll to zoom · Enter to chat</div>
+      <div class="invite-prompt hidden" id="invite-prompt"></div>
+
+      <canvas class="minimap" id="minimap" width="156" height="156"></canvas>
+
+      <div class="hud-stats" id="stat-panel"></div>
+
+      <div class="guild hidden" id="guild">
+        <div class="inv-header">
+          <span>Guild</span>
+          <button class="inv-close" id="guild-close">✕</button>
+        </div>
+        <div class="guild-body" id="guild-body"></div>
+      </div>
+
+      <div class="skills hidden" id="skills">
+        <div class="inv-header">
+          <span>Skills</span>
+          <span class="inv-zeny">Points: <b id="skills-points">0</b></span>
+          <button class="inv-close" id="skills-close">✕</button>
+        </div>
+        <div class="skills-list" id="skills-list"></div>
+      </div>
+
+      <div class="refine hidden" id="refine">
+        <div class="inv-header">
+          <span>Blacksmith</span>
+          <span class="inv-zeny">💰 <b id="refine-zeny">0</b></span>
+          <button class="inv-close" id="refine-close">✕</button>
+        </div>
+        <div class="refine-list" id="refine-list"></div>
+      </div>
+
+      <div class="hud-help">Move: click ground · Attack: click monster · Shop/Quests: click ⬥ NPCs · Party: click a player · Keys 1–5 skills · I bag · K skills · G guild · Enter chat</div>
+
+      <div class="quests hidden" id="quests">
+        <div class="inv-header">
+          <span>Guide — Quest Board</span>
+          <button class="inv-close" id="quests-close">✕</button>
+        </div>
+        <div class="quest-list" id="quest-list"></div>
+      </div>
+
+      <div class="shop hidden" id="shop">
+        <div class="inv-header">
+          <span>Kafra Shop</span>
+          <span class="inv-zeny">💰 <b id="shop-zeny">0</b></span>
+          <button class="inv-close" id="shop-close">✕</button>
+        </div>
+        <div class="shop-cols">
+          <div class="shop-col"><h4>Buy</h4><div class="shop-list" id="shop-buy-list"></div></div>
+          <div class="shop-col"><h4>Sell</h4><div class="shop-list" id="shop-sell-list"></div></div>
+        </div>
+      </div>
+
+      <div class="inventory hidden" id="inventory">
+        <div class="inv-header">
+          <span>Inventory</span>
+          <span class="inv-zeny">💰 <b id="inv-zeny">0</b></span>
+          <button class="inv-close" id="inv-close">✕</button>
+        </div>
+        <div class="equip-slots" id="equip-slots"></div>
+        <div class="inv-grid" id="inv-grid"></div>
+      </div>
 
       <div class="chat" id="chat">
         <div class="chat-log" id="chat-log"></div>

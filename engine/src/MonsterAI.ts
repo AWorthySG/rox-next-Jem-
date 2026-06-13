@@ -28,6 +28,9 @@ export class MonsterAI {
     for (const m of this.world.monsters.values()) {
       if (m.attackCooldown > 0) m.attackCooldown -= dtMs;
 
+      // Stunned monsters can't act (but dead ones still process respawn).
+      if (m.aiState !== MonsterAIState.Dead && m.isStunned(now)) continue;
+
       switch (m.aiState) {
         case MonsterAIState.Dead:
           if (now >= m.respawnAt) this.respawn(m);
@@ -64,7 +67,7 @@ export class MonsterAI {
       m.aiState = MonsterAIState.Idle;
       return;
     }
-    const reached = stepToward(m, m.wanderTarget.x, m.wanderTarget.z, MONSTER_SPEED, dt);
+    const reached = stepToward(m, m.wanderTarget.x, m.wanderTarget.z, MONSTER_SPEED * m.speedMul(Date.now()), dt);
     if (reached) {
       m.wanderTarget = null;
       m.pauseUntil = Date.now() + rand(WANDER_PAUSE_MIN_MS, WANDER_PAUSE_MAX_MS);
@@ -88,7 +91,7 @@ export class MonsterAI {
       m.aiState = MonsterAIState.Attack;
       return;
     }
-    stepToward(m, target.x, target.z, MONSTER_SPEED, dt);
+    stepToward(m, target.x, target.z, MONSTER_SPEED * m.speedMul(Date.now()), dt);
   }
 
   private tickAttack(m: Monster): void {
@@ -113,6 +116,7 @@ export class MonsterAI {
     let best: Player | null = null;
     let bestD = AGGRO_RANGE;
     for (const p of this.world.players.values()) {
+      if (p.mapId !== m.mapId) continue;
       const d = dist2d(m.x, m.z, p.x, p.z);
       if (d < bestD) {
         bestD = d;
@@ -129,7 +133,9 @@ export class MonsterAI {
 
   private resolveAggroTarget(m: Monster): Player | null {
     if (m.aggroTargetId == null) return null;
-    return this.world.players.get(m.aggroTargetId) ?? null;
+    const p = this.world.players.get(m.aggroTargetId);
+    // Drop the target if it left the map.
+    return p && p.mapId === m.mapId ? p : null;
   }
 
   private giveUp(m: Monster): void {
@@ -147,8 +153,9 @@ export class MonsterAI {
     m.aiState = MonsterAIState.Idle;
     m.aggroTargetId = null;
     m.wanderTarget = null;
+    m.clearStatuses();
     m.pauseUntil = Date.now() + rand(500, 1500);
-    this.world.broadcast({ t: MsgType.Spawn, entity: m.toFull() });
+    this.world.broadcastToMap(m.mapId, { t: MsgType.Spawn, entity: m.toFull() });
   }
 }
 

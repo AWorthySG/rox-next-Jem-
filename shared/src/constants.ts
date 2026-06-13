@@ -32,7 +32,12 @@ export const WANDER_PAUSE_MIN_MS = 1500;
 export const WANDER_PAUSE_MAX_MS = 4000;
 
 // Progression.
-export const LEVEL_CAP = 20;
+export const LEVEL_CAP = 40;
+export const STAT_POINTS_PER_LEVEL = 3;
+
+// Gear refinement.
+export const MAX_REFINE = 10;
+export const REFINE_BASE_COST = 200; // cost of +1; scales with level
 
 // Networking.
 export const DEFAULT_PORT = 8080;
@@ -41,3 +46,17 @@ export const CLIENT_TIMEOUT_MS = 15000;
 
 // Client interpolation delay: render remote entities this far in the past (ms).
 export const INTERP_DELAY_MS = 120;
+
+// Passive regeneration (per second), applied on the server tick.
+export const HP_REGEN_PER_SEC = 2.5;
+export const SP_REGEN_PER_SEC = 3.5;
+
+// Monetary drop range per monster kill (Zeny).
+export const ZENY_MIN = 3;
+export const ZENY_MAX = 14;
+
+// Party EXP sharing: members within this range of a kill share the EXP, with a
+// small bonus to reward grouping.
+export const EXP_SHARE_RANGE = 45;
+export const PARTY_EXP_BONUS = 1.15;
+export const PARTY_MAX_SIZE = 6;

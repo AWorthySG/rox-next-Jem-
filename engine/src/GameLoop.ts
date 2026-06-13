@@ -6,7 +6,8 @@ import { MonsterAI } from "./MonsterAI.js";
 import { SnapshotSystem } from "./SnapshotSystem.js";
 
 // Fixed-timestep authoritative simulation. Uses an accumulator so logic advances
-// in discrete TICK_MS steps regardless of timer jitter.
+// in discrete TICK_MS steps regardless of timer jitter. Runs identically on the
+// Node server and in the browser (local solo mode).
 export class GameLoop {
   private movement: MovementSystem;
   private combat: CombatSystem;
@@ -16,7 +17,7 @@ export class GameLoop {
   private tick = 0;
   private accumulator = 0;
   private last = 0;
-  private timer: NodeJS.Timeout | null = null;
+  private timer: ReturnType<typeof setInterval> | null = null;
 
   constructor(private world: World) {
     this.movement = new MovementSystem(world);
