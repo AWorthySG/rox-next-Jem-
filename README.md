@@ -50,6 +50,7 @@ copyrighted assets.
   the caster, shown as timed chips on the HUD.
 - **Pets**: use a pet egg (dropped by Porings, Lunatics, Baphomet, or bought) to summon a
   companion that trails you and grants a passive stat bonus.
+- **Mounts**: buy a Peco Peco Whistle to ride a mount for faster movement (toggle on/off).
 - **Auto-battle**: the signature ROX convenience — toggle Auto (button or `T`) and your
   character automatically seeks the nearest monster, attacks, and casts ready skills.
 - **Minimap**: a top-down radar showing you, other players, NPCs, monsters and the boss.

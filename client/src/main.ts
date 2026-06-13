@@ -299,6 +299,7 @@ function handleMessage(msg: ServerMessage): void {
       refine.sync(msg.self);
       skills.sync(msg.self);
       petCompanion.setPet(msg.self.pet);
+      gameState.self?.setMounted(msg.self.mounted);
       jobAdvance.update(msg.self);
       break;
     case MsgType.Loot: {

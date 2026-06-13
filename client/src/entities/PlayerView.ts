@@ -1,5 +1,6 @@
 import type { EntityFull } from "@rox/shared";
-import { isMagicJob, JobId, PLAYER_SPEED } from "@rox/shared";
+import { isMagicJob, MOUNT_SPEED_MULT, PLAYER_SPEED } from "@rox/shared";
+import * as THREE from "three";
 import { buildCharacter, type CharacterMesh } from "../procedural/characterMesh.js";
 import { EntityView } from "./EntityView.js";
 
@@ -8,6 +9,9 @@ import { EntityView } from "./EntityView.js";
 export class PlayerView extends EntityView {
   private char: CharacterMesh;
   private walkPhase = 0;
+  private speedMul = 1;
+  private mount: THREE.Mesh | null = null;
+  private bodyBaseY = 0;
 
   isSelf = false;
   // server-authoritative position (used for self correction / remote idle)
@@ -47,6 +51,25 @@ export class PlayerView extends EntityView {
     this.predTarget = { x, z };
   }
 
+  // Toggle the Peco Peco mount: a faster move speed + a simple steed under the rider.
+  setMounted(mounted: boolean): void {
+    this.speedMul = mounted ? MOUNT_SPEED_MULT : 1;
+    if (mounted && !this.mount) {
+      this.mount = new THREE.Mesh(
+        new THREE.CapsuleGeometry(0.45, 0.9, 6, 10),
+        new THREE.MeshLambertMaterial({ color: 0xf4c542 }),
+      );
+      this.mount.rotation.z = Math.PI / 2;
+      this.mount.position.y = 0.5;
+      this.char.group.add(this.mount);
+      this.bodyBaseY = 0.7; // sit the rider up
+    } else if (!mounted && this.mount) {
+      this.char.group.remove(this.mount);
+      this.mount = null;
+      this.bodyBaseY = 0;
+    }
+  }
+
   clearMoveTarget(): void {
     this.predTarget = null;
   }
@@ -71,7 +94,7 @@ export class PlayerView extends EntityView {
       const dx = this.predTarget.x - this.px;
       const dz = this.predTarget.z - this.pz;
       const dist = Math.hypot(dx, dz);
-      const step = PLAYER_SPEED * dt;
+      const step = PLAYER_SPEED * this.speedMul * dt;
       if (dist <= step || dist < 0.05) {
         this.px = this.predTarget.x;
         this.pz = this.predTarget.z;
@@ -107,13 +130,13 @@ export class PlayerView extends EntityView {
       this.char.rightArm.rotation.x = -swing;
       this.char.leftLeg.rotation.x = -swing;
       this.char.rightLeg.rotation.x = swing;
-      this.char.group.position.y = Math.abs(Math.sin(this.walkPhase)) * 0.06;
+      this.char.group.position.y = this.bodyBaseY + Math.abs(Math.sin(this.walkPhase)) * 0.06;
     } else {
       // ease limbs back to rest
       for (const limb of [this.char.leftArm, this.char.rightArm, this.char.leftLeg, this.char.rightLeg]) {
         limb.rotation.x *= 0.8;
       }
-      this.char.group.position.y *= 0.8;
+      this.char.group.position.y += (this.bodyBaseY - this.char.group.position.y) * 0.2;
     }
   }
 }

@@ -1,4 +1,4 @@
-import { MAP_HALF, PLAYER_SPEED } from "@rox/shared";
+import { MAP_HALF, MOUNT_SPEED_MULT, PLAYER_SPEED } from "@rox/shared";
 import type { World } from "./World.js";
 
 // Advances player positions toward their click-to-move targets. Monster movement
@@ -11,7 +11,8 @@ export class MovementSystem {
       if (!p.moveTarget) continue;
       // If chasing an attack target, MovementSystem still moves toward the point
       // CombatSystem set as moveTarget.
-      const reached = stepToward(p, p.moveTarget.x, p.moveTarget.z, PLAYER_SPEED, dt);
+      const speed = PLAYER_SPEED * (p.mounted ? MOUNT_SPEED_MULT : 1);
+      const reached = stepToward(p, p.moveTarget.x, p.moveTarget.z, speed, dt);
       if (reached) p.moveTarget = null;
       p.x = clamp(p.x, -MAP_HALF, MAP_HALF);
       p.z = clamp(p.z, -MAP_HALF, MAP_HALF);

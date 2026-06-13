@@ -58,6 +58,7 @@ export class Player {
   guildId: number | null = null;
   guildName: string | null = null;
   activePet: string | null = null;
+  mounted = false;
   activeQuests: Record<string, number> = {}; // questId -> kill progress
   completedQuests: string[] = [];
 
@@ -214,6 +215,11 @@ export class Player {
     const item = getItem(itemId);
     if (!item || item.type !== ItemType.Consumable) return false;
     if ((this.inventory[itemId] ?? 0) <= 0) return false;
+    // A mount whistle is reusable — toggle without consuming it.
+    if (item.mount) {
+      this.mounted = !this.mounted;
+      return true;
+    }
     this.removeItem(itemId, 1);
     if (item.pet) {
       this.activePet = item.pet;
@@ -364,6 +370,7 @@ export class Player {
     this.completedQuests = [...s.quests.completed];
     this.mapId = s.mapId ?? "field";
     this.activePet = s.pet ?? null;
+    this.mounted = !!s.mounted;
     this.buffs = [];
     this.learnJobSkills();
     this.recompute();
@@ -431,6 +438,7 @@ export class Player {
         .filter((b) => b.expiresAt > Date.now())
         .map((b) => ({ type: b.stat, remainingMs: Math.round(b.expiresAt - Date.now()) })),
       pet: this.activePet,
+      mounted: this.mounted,
       mapId: this.mapId,
       x: round2(this.x),
       z: round2(this.z),

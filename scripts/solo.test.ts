@@ -196,6 +196,13 @@ async function main(): Promise<void> {
   // pet grants LUK +3 -> crit (derived from luk) should be at least as high as before
   check(tamer.stats.luk === baseLuk, "pet: base stats unchanged (bonus is derived-only)");
 
+  // ---- deterministic mount (reusable whistle toggles) ----
+  const rider = new Player(985, 1, "Rider", JobId.Swordsman, 0, 0);
+  rider.addItem("peco_whistle", 1);
+  check(rider.useItem("peco_whistle") && rider.mounted, "mount: whistle mounts the rider");
+  check((rider.inventory["peco_whistle"] ?? 0) === 1, "mount: whistle is reusable (not consumed)");
+  check(rider.useItem("peco_whistle") && !rider.mounted, "mount: whistle toggles dismount");
+
   local.stop();
   if (failures.length) {
     console.error(`\nSOLO TEST FAILED (${failures.length}): ${failures.join("; ")}`);

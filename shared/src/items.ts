@@ -34,6 +34,7 @@ export interface ItemDef {
   healHp?: number;
   healSp?: number;
   pet?: string; // summons this pet when used
+  mount?: boolean; // toggles riding a mount when used
   // economy
   price?: number; // buy cost at the shop (omitted = not sold)
   sellPrice?: number; // Zeny gained when sold
@@ -51,6 +52,7 @@ export const ITEMS: Record<string, ItemDef> = {
   poring_egg: { id: "poring_egg", name: "Poring Egg", type: ItemType.Consumable, desc: "Summons a Poring pet (LUK +3, Max HP +50).", pet: "poring_pet", price: 800, sellPrice: 100 },
   lunatic_egg: { id: "lunatic_egg", name: "Lunatic Egg", type: ItemType.Consumable, desc: "Summons a Lunatic pet (AGI +3, DEX +2).", pet: "lunatic_pet", sellPrice: 150 },
   baphomet_egg: { id: "baphomet_egg", name: "Baphomet Egg", type: ItemType.Consumable, desc: "Summons Baphomet Jr. (STR +4, INT +4, Max HP +80).", pet: "baphomet_pet", sellPrice: 1200 },
+  peco_whistle: { id: "peco_whistle", name: "Peco Peco Whistle", type: ItemType.Consumable, desc: "Summon/dismiss a Peco Peco mount (faster movement). Reusable — not consumed.", mount: true, price: 1500, sellPrice: 200 },
 
   // weapons
   novice_knife: {
@@ -184,6 +186,8 @@ export const SHOP_STOCK: string[] = [
   "cotton_shirt",
   "leather_armor",
   "ring_of_power",
+  "poring_egg",
+  "peco_whistle",
 ];
 
 export function getItem(id: string): ItemDef | undefined {
