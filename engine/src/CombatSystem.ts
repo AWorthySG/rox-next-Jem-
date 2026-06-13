@@ -51,9 +51,12 @@ export class CombatSystem {
   // ---- boss mechanics ----
 
   private processBosses(dtMs: number): void {
+    const now = Date.now();
     for (const m of this.world.monsters.values()) {
       const mechs = m.template.mechanics;
       if (!mechs || m.isDead) continue;
+      // resolve a telegraphed nova once its warning elapses
+      if (m.pendingNova && now >= m.pendingNova.fireAt) this.executeNova(m);
       if (m.mechTimers.length !== mechs.length) m.mechTimers = mechs.map((me) => ("intervalMs" in me ? me.intervalMs : 0));
       mechs.forEach((mech, i) => {
         if (mech.kind === "enrage") {
@@ -74,11 +77,23 @@ export class CombatSystem {
     }
   }
 
+  // Telegraph the nova: warn clients now, deal damage after a short delay so
+  // players can step out of the marked area.
   private bossNova(m: Monster, radius: number, powerMult: number): void {
-    this.bossAnnounce(m, `${m.template.name} unleashes a nova!`);
-    const dmg = Math.max(1, Math.round(m.derived.atk * powerMult));
+    if (m.pendingNova) return; // one at a time
+    const delayMs = 1200;
+    m.pendingNova = { x: m.x, z: m.z, radius, powerMult, fireAt: Date.now() + delayMs };
+    this.bossAnnounce(m, `${m.template.name} is charging a nova!`);
+    this.world.broadcastToMap(m.mapId, { t: MsgType.BossTelegraph, x: m.x, z: m.z, radius, delayMs });
+  }
+
+  private executeNova(m: Monster): void {
+    const pn = m.pendingNova;
+    m.pendingNova = null;
+    if (!pn) return;
+    const dmg = Math.max(1, Math.round(m.derived.atk * pn.powerMult));
     for (const p of this.world.playersOnMap(m.mapId)) {
-      if (dist2d(p.x, p.z, m.x, m.z) > radius) continue;
+      if (dist2d(p.x, p.z, pn.x, pn.z) > pn.radius) continue; // dodged it
       this.world.broadcastToMap(m.mapId, {
         t: MsgType.DamageEvent,
         sourceId: m.id,

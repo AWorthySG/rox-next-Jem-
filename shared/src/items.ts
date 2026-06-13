@@ -252,6 +252,28 @@ export const ITEMS: Record<string, ItemDef> = {
     maxSp: 80,
     sellPrice: 6000,
   },
+  thanatos_sword: {
+    id: "thanatos_sword",
+    name: "Sword of Thanatos",
+    type: ItemType.Weapon,
+    slot: EquipSlot.Weapon,
+    desc: "The cursed blade. ATK +90, MATK +60, STR +8, INT +8.",
+    atk: 90,
+    matk: 60,
+    bonusStats: { str: 8, int: 8 },
+    sellPrice: 9000,
+  },
+  fallen_angel_wing: {
+    id: "fallen_angel_wing",
+    name: "Fallen Angel Wing",
+    type: ItemType.Armor,
+    slot: EquipSlot.Armor,
+    desc: "Wings of the abyss. DEF +40, Max HP +500, all stats +4.",
+    def: 40,
+    maxHp: 500,
+    bonusStats: { str: 4, agi: 4, vit: 4, int: 4, dex: 4, luk: 4 },
+    sellPrice: 12000,
+  },
 };
 
 // What the town shop sells.
@@ -414,6 +436,10 @@ Object.assign(DROP_TABLES, {
   hodremlin: [{ itemId: "red_potion", chance: 0.5 }, { itemId: "valkyrie_armor", chance: 0.03 }],
   ktullanux: HI([{ itemId: "immortal_heart", chance: 0.6 }, { itemId: "valkyrie_armor", chance: 0.5 }]),
   beelzebub: HI([{ itemId: "immortal_heart", chance: 0.8 }, { itemId: "dragon_slayer", chance: 0.6 }, { itemId: "valkyrie_armor", chance: 0.6 }]),
+  aliot: [{ itemId: "red_potion", chance: 0.5 }],
+  aliza: [{ itemId: "red_potion", chance: 0.5 }, { itemId: "immortal_heart", chance: 0.02 }],
+  thanatos_phantom: HI([{ itemId: "thanatos_sword", chance: 0.5 }, { itemId: "immortal_heart", chance: 0.5 }]),
+  memory_of_thanatos: HI([{ itemId: "fallen_angel_wing", chance: 0.7 }, { itemId: "thanatos_sword", chance: 0.6 }, { itemId: "immortal_heart", chance: 0.6 }]),
 });
 
 // Roll a monster's drop table into a concrete item list.

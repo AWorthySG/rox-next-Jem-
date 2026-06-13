@@ -32,8 +32,25 @@ export class MonsterView extends EntityView {
     }
   }
 
+  private aura: THREE.Mesh | null = null;
+
   get pickables(): THREE.Object3D {
     return this.poring.group;
+  }
+
+  setEnraged(enraged: boolean): void {
+    if (enraged && !this.aura) {
+      this.aura = new THREE.Mesh(
+        new THREE.TorusGeometry(0.85 * this.scale, 0.06, 8, 28),
+        new THREE.MeshBasicMaterial({ color: 0xff3030, transparent: true, opacity: 0.85 }),
+      );
+      this.aura.rotation.x = Math.PI / 2;
+      this.aura.position.y = 0.3 * this.scale;
+      this.group.add(this.aura);
+    } else if (!enraged && this.aura) {
+      this.group.remove(this.aura);
+      this.aura = null;
+    }
   }
 
   protected override animate(dt: number): void {
@@ -41,5 +58,6 @@ export class MonsterView extends EntityView {
     const squash = 0.82 + Math.sin(this.phase) * (this.moving ? 0.14 : 0.06);
     this.poring.body.scale.set(1, squash, 1);
     this.poring.group.position.y = this.moving ? Math.abs(Math.sin(this.phase)) * 0.18 * this.scale : 0;
+    if (this.aura) this.aura.rotation.z += dt * 3;
   }
 }

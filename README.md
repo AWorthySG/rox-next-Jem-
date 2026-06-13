@@ -62,12 +62,13 @@ copyrighted assets.
   popups and punchy gold damage numbers.
 - **Multiple maps**: a portal-linked progression — **Prontera Field → Payon Forest → Poring
   Cave → Glast Heim → Aldebaran Clock Tower → Comodo Beach → Umbala Jungle → Juno → Einbroch →
-  Rachel → Endless Tower**, plus the **PvP Arena**. Each map is themed, networked independently,
-  and guarded by **two MVP bosses**.
-- **30+ monsters & 20+ MVP bosses** across the world, from Porings to Beelzebub (Lv125).
+  Rachel → Endless Tower → Thanatos Tower**, plus the **PvP Arena**. Each map is themed,
+  networked independently, and guarded by **two MVP bosses**.
+- **35+ monsters & 25+ MVP bosses** across the world, from Porings to the Memory of Thanatos (Lv128).
 - **Boss fight mechanics**: bosses use distinct, server-driven abilities — **enrage** (harder
-  hits below a HP threshold), **AoE nova** (periodic blast around the boss), **summon adds**
-  (temporary minions), and **self-heal** — mixed per boss (e.g. Beelzebub does all four).
+  hits below a HP threshold, with a red aura), **telegraphed AoE nova** (a growing warning ring
+  you can step out of before it lands), **summon adds** (temporary minions), and **self-heal** —
+  mixed per boss (e.g. Beelzebub does all four).
 - **PvP**: in the Arena, click another player to fight them; defeating one announces it and
   respawns the loser.
 - **HUD & chat**: HP/SP/EXP bars, level, Zeny, stat panel, a hotkey **skill bar** with

@@ -257,6 +257,11 @@ Object.assign(MONSTER_TEMPLATES, {
   hodremlin: mk("hodremlin", "Hodremlin", 106, 9800, 19000),
   ktullanux: mk("ktullanux", "Ktullanux", 118, 82000, 140000, true),
   beelzebub: mk("beelzebub", "Beelzebub", 125, 115000, 210000, true),
+  // Thanatos Tower
+  aliot: mk("aliot", "Aliot", 100, 9000, 17000),
+  aliza: mk("aliza", "Aliza", 106, 10500, 20000),
+  thanatos_phantom: mk("thanatos_phantom", "Thanatos Phantom", 122, 95000, 160000, true),
+  memory_of_thanatos: mk("memory_of_thanatos", "Memory of Thanatos", 128, 140000, 260000, true),
 });
 
 export interface SpawnZone {
@@ -333,6 +338,16 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "nova", intervalMs: 5000, radius: 12, powerMult: 1.8 },
     { kind: "summon", intervalMs: 9000, templateId: "venatu", count: 3, max: 6 },
     { kind: "heal", intervalMs: 15000, pct: 0.04 },
+  ],
+  thanatos_phantom: [
+    { kind: "enrage", hpPct: 0.4, atkMult: 1.7 },
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
+  ],
+  memory_of_thanatos: [
+    { kind: "enrage", hpPct: 0.5, atkMult: 1.9 },
+    { kind: "nova", intervalMs: 4500, radius: 13, powerMult: 1.9 },
+    { kind: "summon", intervalMs: 8000, templateId: "aliot", count: 3, max: 6 },
+    { kind: "heal", intervalMs: 14000, pct: 0.05 },
   ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {

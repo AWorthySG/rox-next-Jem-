@@ -66,6 +66,11 @@ const DEFS: Record<string, AppearanceDef> = {
   hodremlin: { inner: "#c0b0e0", outer: "#4a3a7a", scale: 1.35 },
   ktullanux: { inner: "#c0e0f0", outer: "#2a5a7a", scale: 3, boss: true },
   beelzebub: { inner: "#8a3aa0", outer: "#100818", scale: 3.2, boss: true },
+  // Thanatos Tower
+  aliot: { inner: "#c0a0d0", outer: "#5a3a6a", scale: 1.3 },
+  aliza: { inner: "#d0a0c0", outer: "#6a3a5a", scale: 1.3 },
+  thanatos_phantom: { inner: "#d04060", outer: "#2a0810", scale: 3, boss: true },
+  memory_of_thanatos: { inner: "#ff4060", outer: "#1a0008", scale: 3.4, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

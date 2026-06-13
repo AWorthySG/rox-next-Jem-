@@ -39,6 +39,7 @@ export enum MsgType {
   GuildUpdate = "guildUpdate",
   MapChange = "mapChange",
   Defeated = "defeated",
+  BossTelegraph = "bossTelegraph",
   DamageEvent = "damage",
   LevelUp = "levelUp",
   ChatBroadcast = "chatMsg",

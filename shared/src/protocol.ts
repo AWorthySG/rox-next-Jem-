@@ -149,6 +149,15 @@ export interface DefeatedMsg {
   byName: string;
 }
 
+// A telegraphed AoE about to land — clients render a growing warning ring.
+export interface BossTelegraphMsg {
+  t: MsgType.BossTelegraph;
+  x: number;
+  z: number;
+  radius: number;
+  delayMs: number;
+}
+
 export interface ChatMsg {
   t: MsgType.Chat;
   text: string;
@@ -310,6 +319,7 @@ export type ServerMessage =
   | GuildUpdateMsg
   | MapChangeMsg
   | DefeatedMsg
+  | BossTelegraphMsg
   | DamageEventMsg
   | LevelUpMsg
   | ChatBroadcastMsg

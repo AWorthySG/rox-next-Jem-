@@ -160,6 +160,7 @@ export class MonsterAI {
     m.enraged = false;
     m.damageMult = 1;
     m.mechTimers = [];
+    m.pendingNova = null;
     m.pauseUntil = Date.now() + rand(500, 1500);
     this.world.broadcastToMap(m.mapId, { t: MsgType.Spawn, entity: m.toFull() });
   }

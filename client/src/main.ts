@@ -5,6 +5,7 @@ import { CameraRig } from "./engine/CameraRig.js";
 import { InputController } from "./engine/InputController.js";
 import { Loop } from "./engine/Loop.js";
 import { ClickMarker } from "./engine/ClickMarker.js";
+import { NovaTelegraph } from "./engine/NovaTelegraph.js";
 import { GameState } from "./state/GameState.js";
 import { NetClient } from "./net/NetClient.js";
 import { LocalServer } from "./net/LocalServer.js";
@@ -47,6 +48,7 @@ const skillPopup = new SkillPopup();
 const targetFrame = new TargetFrame();
 const sfx = new Sfx();
 const clickMarker = new ClickMarker(scene.scene);
+const novaTelegraph = new NovaTelegraph(scene.scene);
 
 // Help panel toggle (button + key H).
 const helpPanel = document.getElementById("help-panel")!;
@@ -344,6 +346,9 @@ function handleMessage(msg: ServerMessage): void {
       guildPanel.setGuild(msg.guild);
       chat.system(msg.guild ? `Guild: ${msg.guild.name}` : "You left your guild.");
       break;
+    case MsgType.BossTelegraph:
+      novaTelegraph.spawn(msg.x, msg.z, msg.radius, msg.delayMs);
+      break;
     case MsgType.Defeated: {
       const overlay = document.getElementById("death-overlay")!;
       document.getElementById("death-sub")!.textContent = `Slain by ${msg.byName}`;
@@ -429,6 +434,7 @@ new Loop((dt) => {
   autoBattle.update(dt);
   gameState.update(dt);
   clickMarker.update(dt);
+  novaTelegraph.update();
   damageNumbers.update();
   skillBar.update();
   partyHud.update();

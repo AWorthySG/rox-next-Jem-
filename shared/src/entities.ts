@@ -21,6 +21,7 @@ export interface EntitySnapshot {
   hp: number;
   maxHp: number;
   aiState?: MonsterAIState; // monsters only (drives animation cues)
+  enraged?: boolean; // boss enrage aura
 }
 
 // Full entity record sent on Spawn / JoinAck. Includes static descriptive fields
