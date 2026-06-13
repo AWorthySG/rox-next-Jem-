@@ -60,6 +60,12 @@ export class Monster {
   }
 
   statuses: ActiveStatus[] = [];
+  // boss-mechanic state
+  enraged = false;
+  damageMult = 1;
+  mechTimers: number[] = [];
+  summonerId: number | null = null;
+  temporary = false; // summoned add: removed on death rather than respawning
 
   get isDead(): boolean {
     return this.aiState === MonsterAIState.Dead;

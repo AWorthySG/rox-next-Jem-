@@ -116,6 +116,13 @@ async function main(): Promise<void> {
     check(bosses >= 2, `world: ${m.id} has >= 2 bosses (${bosses})`);
   }
 
+  // ---- boss mechanics ----
+  const withMech = Object.values(MONSTER_TEMPLATES).filter((t) => t.boss && (t.mechanics?.length ?? 0) > 0).length;
+  check(withMech >= 12, `boss mechanics: ${withMech} bosses have mechanics`);
+  check((MONSTER_TEMPLATES.beelzebub.mechanics?.length ?? 0) === 4, "boss mechanics: Beelzebub has all four");
+  check(!!MONSTER_TEMPLATES.baphomet.mechanics?.some((x) => x.kind === "enrage"), "boss mechanics: Baphomet enrages");
+  check(!!MONSTER_TEMPLATES.dark_lord.mechanics?.some((x) => x.kind === "summon"), "boss mechanics: Dark Lord summons");
+
   // ---- deterministic achievements ----
   const hero2 = new Player(984, 1, "Achiever", JobId.Swordsman, 0, 0);
   hero2.recordKill("poring", false);

@@ -33,7 +33,10 @@ export class MonsterAI {
 
       switch (m.aiState) {
         case MonsterAIState.Dead:
-          if (now >= m.respawnAt) this.respawn(m);
+          if (now >= m.respawnAt) {
+            if (m.temporary) this.world.monsters.delete(m.id); // summoned adds don't respawn
+            else this.respawn(m);
+          }
           break;
         case MonsterAIState.Idle:
           this.tickIdle(m, now);
@@ -154,6 +157,9 @@ export class MonsterAI {
     m.aggroTargetId = null;
     m.wanderTarget = null;
     m.clearStatuses();
+    m.enraged = false;
+    m.damageMult = 1;
+    m.mechTimers = [];
     m.pauseUntil = Date.now() + rand(500, 1500);
     this.world.broadcastToMap(m.mapId, { t: MsgType.Spawn, entity: m.toFull() });
   }
