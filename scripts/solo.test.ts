@@ -2,7 +2,7 @@
 // LocalServer (the transport used when no WS server is reachable). Runs under tsx
 // in Node — no DOM needed — and asserts join, spawns, combat and EXP gain. Also
 // deterministically checks the item/equipment system at the engine level.
-import { JobId, MsgType, StatusType, type ServerMessage } from "@rox/shared";
+import { JobId, MsgType, StatusType, LEVEL_CAP, xpToNext, type ServerMessage } from "@rox/shared";
 import { Monster, MONSTER_TEMPLATES, Player } from "@rox/engine";
 import { LocalServer } from "../client/src/net/LocalServer.js";
 
@@ -99,6 +99,15 @@ async function main(): Promise<void> {
   rk.level = 45;
   check(rk.advanceJob(JobId.RuneKnight) && rk.job === JobId.RuneKnight, "3rd job: Knight -> Rune Knight at Lv45");
   check(rk.skillLevel("dragon_breath") === 1, "3rd job: Rune Knight learns Dragon Breath");
+
+  // ---- 4th-job advancement + level cap 130 ----
+  check(LEVEL_CAP === 130, "progression: level cap is 130");
+  check(!isFinite(xpToNext(130)), "progression: no XP needed beyond cap");
+  rk.level = 69;
+  check(!rk.advanceJob(JobId.DragonKnight), "4th job: blocked before Lv70");
+  rk.level = 70;
+  check(rk.advanceJob(JobId.DragonKnight) && rk.job === JobId.DragonKnight, "4th job: Rune Knight -> Dragon Knight at Lv70");
+  check(rk.skillLevel("storm_slash") === 1, "4th job: Dragon Knight learns Storm Slash");
 
   // ---- deterministic shop checks ----
   const buyer = new Player(997, 1, "Buyer", JobId.Novice, 0, 0);

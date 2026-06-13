@@ -23,8 +23,9 @@ copyrighted assets.
 - **Progression**: STR/AGI/VIT/INT/DEX/LUK stats, EXP curve, leveling with auto stat growth
   and full-heal on level-up (cap 20); HP/SP passive regen; **Zeny** drops from kills.
 - **Classes, skills & job advancement**: start as Novice, Swordsman, Mage, **Archer** or
-  **Acolyte**, **advance** at Lv25 to **Knight / Wizard / Hunter / Priest**, then at Lv45 to the
-  transcendent **Rune Knight / High Wizard / Sniper / High Priest** (level cap 60). Each line has
+  **Acolyte**, **advance** at Lv25 to **Knight / Wizard / Hunter / Priest**, at Lv45 to the
+  transcendent **Rune Knight / High Wizard / Sniper / High Priest**, then at Lv70 to the 4th-tier
+  **Dragon Knight / Arch Mage / Windhawk / Cardinal** (**level cap 130**). Each line has
   its own server-authoritative skill kit — Bash/Magnum Break,
   Fire/Thunder, Double Strafe/Arrow Shower, Heal/Holy Light, plus 2nd-job skills (Pierce,
   Bowling Bash, Jupitel Thunder, Meteor Storm, Blitz Beat, Sharp Shooting, Magnus Exorcismus,
@@ -55,9 +56,9 @@ copyrighted assets.
   character automatically seeks the nearest monster, attacks, and casts ready skills.
 - **Minimap**: a top-down radar showing you, other players, NPCs, monsters and the boss.
 - **Multiple maps**: travel between **Prontera Field**, **Payon Forest** (Spores, Wolves),
-  **Poring Cave**, the end-game **Glast Heim** (Zombies, Skeletons & Baphomet), and the
-  **PvP Arena** via portals; each map has its own theme, monsters and boss, and is networked
-  independently.
+  **Poring Cave**, **Glast Heim** (Zombies, Skeletons & Baphomet), the end-game **Endless Tower**
+  (Wraiths, Gargoyles & the Dark Lord), and the **PvP Arena** via portals; each map has its own
+  theme, monsters and boss, and is networked independently.
 - **PvP**: in the Arena, click another player to fight them; defeating one announces it and
   respawns the loser.
 - **HUD & chat**: HP/SP/EXP bars, level, Zeny, stat panel, a hotkey **skill bar** with

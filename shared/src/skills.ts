@@ -335,6 +335,63 @@ export const SKILLS: Record<string, SkillDef> = {
     aoeRadius: 6.5,
     desc: "Holy judgment rains on an area.",
   },
+
+  // ---- 4th-job ultimates ----
+  storm_slash: {
+    id: "storm_slash",
+    name: "Storm Slash",
+    job: JobId.DragonKnight,
+    hotkey: 7,
+    spCost: 70,
+    cooldownMs: 7000,
+    range: 7,
+    kind: DamageKind.Physical,
+    power: 5.5,
+    aoeRadius: 7.5,
+    desc: "A whirlwind of blades devastates everything nearby.",
+  },
+  crimson_rock: {
+    id: "crimson_rock",
+    name: "Crimson Rock",
+    job: JobId.ArchMage,
+    hotkey: 7,
+    spCost: 85,
+    cooldownMs: 8500,
+    range: 13,
+    kind: DamageKind.Magic,
+    power: 5.0,
+    aoeRadius: 8,
+    effect: { type: StatusType.Burn, durationMs: 4000, magnitude: 0.35 },
+    desc: "Summon a colossal meteor that scorches a huge area.",
+  },
+  gale_storm: {
+    id: "gale_storm",
+    name: "Gale Storm Arrow",
+    job: JobId.Windhawk,
+    hotkey: 6,
+    spCost: 70,
+    cooldownMs: 6000,
+    range: 14,
+    kind: DamageKind.Physical,
+    power: 6.5,
+    aoeRadius: 6,
+    effect: { type: StatusType.Slow, durationMs: 2500, magnitude: 0.5 },
+    desc: "A tempest of arrows that shreds and slows.",
+  },
+  adoramus: {
+    id: "adoramus",
+    name: "Adoramus",
+    job: JobId.Cardinal,
+    hotkey: 6,
+    spCost: 80,
+    cooldownMs: 7000,
+    range: 12,
+    kind: DamageKind.Magic,
+    power: 5.2,
+    aoeRadius: 7,
+    effect: { type: StatusType.Stun, durationMs: 1500 },
+    desc: "Divine lances smite and stun an area.",
+  },
 };
 
 export const SKILLS_BY_JOB: Record<JobId, SkillDef[]> = {
@@ -353,6 +410,11 @@ export const SKILLS_BY_JOB: Record<JobId, SkillDef[]> = {
   [JobId.HighWizard]: [SKILLS.fire_bolt, SKILLS.thunder_storm, SKILLS.jupitel_thunder, SKILLS.meteor_storm, SKILLS.mystic_focus, SKILLS.storm_gust],
   [JobId.Sniper]: [SKILLS.double_strafe, SKILLS.arrow_shower, SKILLS.blitz_beat, SKILLS.sharp_shooting, SKILLS.falcon_assault],
   [JobId.HighPriest]: [SKILLS.heal, SKILLS.holy_light, SKILLS.magnus_exorcismus, SKILLS.blessing, SKILLS.judex],
+  // 4th jobs keep their 3rd-job kit and gain a powerful ultimate.
+  [JobId.DragonKnight]: [SKILLS.bash, SKILLS.magnum_break, SKILLS.pierce, SKILLS.bowling_bash, SKILLS.battle_focus, SKILLS.dragon_breath, SKILLS.storm_slash],
+  [JobId.ArchMage]: [SKILLS.fire_bolt, SKILLS.thunder_storm, SKILLS.jupitel_thunder, SKILLS.meteor_storm, SKILLS.mystic_focus, SKILLS.storm_gust, SKILLS.crimson_rock],
+  [JobId.Windhawk]: [SKILLS.double_strafe, SKILLS.arrow_shower, SKILLS.blitz_beat, SKILLS.sharp_shooting, SKILLS.falcon_assault, SKILLS.gale_storm],
+  [JobId.Cardinal]: [SKILLS.heal, SKILLS.holy_light, SKILLS.magnus_exorcismus, SKILLS.blessing, SKILLS.judex, SKILLS.adoramus],
 };
 
 export function getSkill(id: string): SkillDef | undefined {

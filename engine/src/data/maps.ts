@@ -77,7 +77,23 @@ export const MAPS: Record<string, GameMap> = {
       { id: "gh-skeleton-2", templateId: "skeleton", cx: -4, cz: -28, radius: 12, count: 6 },
       { id: "gh-baphomet", templateId: "baphomet", cx: 0, cz: -46, radius: 4, count: 1 },
     ],
-    npcs: [{ name: "Glast Heim Exit", role: "portal", x: 0, z: 26, dest: { toMap: "cave", toX: 0, toZ: -44 } }],
+    npcs: [
+      { name: "Glast Heim Exit", role: "portal", x: 0, z: 26, dest: { toMap: "cave", toX: 0, toZ: -44 } },
+      { name: "Tower Portal", role: "portal", x: 0, z: -50, dest: { toMap: "tower", toX: 0, toZ: 20 } },
+    ],
+  },
+  tower: {
+    id: "tower",
+    name: "Endless Tower",
+    theme: { ground: 0x2c2a3e, fog: 0x0c0a16, sky: 0x1a1530 },
+    spawn: { x: 0, z: 20 },
+    zones: [
+      { id: "tower-wraith", templateId: "wraith", cx: -20, cz: 2, radius: 13, count: 8 },
+      { id: "tower-gargoyle", templateId: "gargoyle", cx: 20, cz: -2, radius: 13, count: 7 },
+      { id: "tower-wraith-2", templateId: "wraith", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "tower-darklord", templateId: "dark_lord", cx: 0, cz: -46, radius: 4, count: 1 },
+    ],
+    npcs: [{ name: "Tower Exit", role: "portal", x: 0, z: 26, dest: { toMap: "glast_heim", toX: 0, toZ: -44 } }],
   },
   arena: {
     id: "arena",

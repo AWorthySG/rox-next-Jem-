@@ -174,6 +174,40 @@ export const ITEMS: Record<string, ItemDef> = {
     maxHp: 150,
     sellPrice: 2500,
   },
+
+  // ---- Endless Tower tier ----
+  valkyrie_armor: {
+    id: "valkyrie_armor",
+    name: "Valkyrie Armor",
+    type: ItemType.Armor,
+    slot: EquipSlot.Armor,
+    desc: "Legendary plate. DEF +28, Max HP +300, VIT +5.",
+    def: 28,
+    maxHp: 300,
+    bonusStats: { vit: 5 },
+    sellPrice: 4000,
+  },
+  dragon_slayer: {
+    id: "dragon_slayer",
+    name: "Dragon Slayer",
+    type: ItemType.Weapon,
+    slot: EquipSlot.Weapon,
+    desc: "A blade of legend. ATK +60, STR +5, DEX +3.",
+    atk: 60,
+    bonusStats: { str: 5, dex: 3 },
+    sellPrice: 5000,
+  },
+  immortal_heart: {
+    id: "immortal_heart",
+    name: "Immortal Heart",
+    type: ItemType.Accessory,
+    slot: EquipSlot.Accessory,
+    desc: "Pulsing with power. INT +8, STR +8, Max HP +250, Max SP +80.",
+    bonusStats: { int: 8, str: 8 },
+    maxHp: 250,
+    maxSp: 80,
+    sellPrice: 6000,
+  },
 };
 
 // What the town shop sells.
@@ -253,6 +287,21 @@ export const DROP_TABLES: Record<string, DropEntry[]> = {
     { itemId: "claymore", chance: 0.5 },
     { itemId: "saint_robe", chance: 0.5 },
     { itemId: "baphomet_egg", chance: 0.25 },
+  ],
+  wraith: [
+    { itemId: "red_potion", chance: 0.4 },
+    { itemId: "valkyrie_armor", chance: 0.03 },
+  ],
+  gargoyle: [
+    { itemId: "red_potion", chance: 0.4 },
+    { itemId: "dragon_slayer", chance: 0.03 },
+    { itemId: "rosary", chance: 0.08 },
+  ],
+  dark_lord: [
+    { itemId: "red_potion", chance: 1, qty: 10 },
+    { itemId: "immortal_heart", chance: 0.6 },
+    { itemId: "dragon_slayer", chance: 0.4 },
+    { itemId: "valkyrie_armor", chance: 0.4 },
   ],
 };
 

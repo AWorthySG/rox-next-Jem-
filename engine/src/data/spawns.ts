@@ -99,6 +99,33 @@ export const MONSTER_TEMPLATES: Record<string, MonsterTemplate> = {
     respawnMs: 120000,
     boss: true,
   },
+  // ---- Endless Tower (end-game grind to 130) ----
+  wraith: {
+    id: "wraith",
+    name: "Wraith",
+    level: 48,
+    stats: makeStats({ str: 50, agi: 28, vit: 30, int: 30, dex: 40, luk: 20 }),
+    baseHp: 1400,
+    baseExp: 2600,
+  },
+  gargoyle: {
+    id: "gargoyle",
+    name: "Gargoyle",
+    level: 60,
+    stats: makeStats({ str: 70, agi: 40, vit: 45, int: 20, dex: 55, luk: 25 }),
+    baseHp: 2600,
+    baseExp: 4800,
+  },
+  dark_lord: {
+    id: "dark_lord",
+    name: "Dark Lord",
+    level: 90,
+    stats: makeStats({ str: 130, agi: 60, vit: 110, int: 60, dex: 90, luk: 60 }),
+    baseHp: 40000,
+    baseExp: 60000,
+    respawnMs: 180000,
+    boss: true,
+  },
 };
 
 export interface SpawnZone {

@@ -26,6 +26,9 @@ const DEFS: Record<string, AppearanceDef> = {
   zombie: { inner: "#b6c79a", outer: "#5c7a44", scale: 1.15 },
   skeleton: { inner: "#f0f0f0", outer: "#b8b8c0", scale: 1.2 },
   baphomet: { inner: "#b03030", outer: "#3a0d12", scale: 2.6, boss: true },
+  wraith: { inner: "#cfe0f0", outer: "#5a6e90", scale: 1.2 },
+  gargoyle: { inner: "#b8b0a0", outer: "#5c5448", scale: 1.4 },
+  dark_lord: { inner: "#7a3aa0", outer: "#14081e", scale: 3, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

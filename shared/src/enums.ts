@@ -72,6 +72,10 @@ export enum JobId {
   HighWizard = "high_wizard",
   Sniper = "sniper",
   HighPriest = "high_priest",
+  DragonKnight = "dragon_knight",
+  ArchMage = "arch_mage",
+  Windhawk = "windhawk",
+  Cardinal = "cardinal",
 }
 
 export enum DamageKind {
