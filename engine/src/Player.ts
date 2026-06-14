@@ -9,6 +9,7 @@ import {
   getItem,
   getPet,
   getQuest,
+  getRune,
   isStatKey,
   jobHasSkill,
   JOB_BASE_STATS,
@@ -52,6 +53,8 @@ export class Player {
 
   statPoints = 0;
   skillPoints = 0;
+  runePoints = 0;
+  runes: string[] = []; // unlocked Aesir rune ids
   skillLevels: Record<string, number> = {}; // skillId -> level (>=1 when learned)
   inventory: Record<string, number> = {}; // itemId -> qty
   equipped: Partial<Record<EquipSlot, string>> = {}; // slot -> itemId
@@ -112,6 +115,17 @@ export class Player {
     return true;
   }
 
+  unlockRune(runeId: string): boolean {
+    const rune = getRune(runeId);
+    if (!rune || this.runes.includes(runeId)) return false;
+    if (rune.requires && !this.runes.includes(rune.requires)) return false;
+    if (this.runePoints < rune.cost) return false;
+    this.runePoints -= rune.cost;
+    this.runes.push(runeId);
+    this.recompute();
+    return true;
+  }
+
   get isMagic(): boolean {
     return isMagicJob(this.job);
   }
@@ -138,6 +152,7 @@ export class Player {
     let flatDef = 0;
     let flatHp = 0;
     let flatSp = 0;
+    let flatCrit = 0;
     for (const itemId of Object.values(this.equipped)) {
       const item = itemId ? getItem(itemId) : undefined;
       if (!item || !itemId) continue;
@@ -173,6 +188,18 @@ export class Player {
       flatMatk += pet.matk ?? 0;
       flatHp += pet.maxHp ?? 0;
     }
+    // unlocked Aesir rune bonuses
+    for (const runeId of this.runes) {
+      const rune = getRune(runeId);
+      if (!rune) continue;
+      if (rune.bonusStats) effective = addStats(effective, fullStats(rune.bonusStats));
+      flatAtk += rune.atk ?? 0;
+      flatMatk += rune.matk ?? 0;
+      flatDef += rune.def ?? 0;
+      flatHp += rune.maxHp ?? 0;
+      flatSp += rune.maxSp ?? 0;
+      flatCrit += rune.crit ?? 0;
+    }
     const d = deriveStats(effective, this.level, this.job);
     this.derived = {
       ...d,
@@ -181,6 +208,7 @@ export class Player {
       def: d.def + flatDef,
       maxHp: d.maxHp + flatHp,
       maxSp: d.maxSp + flatSp,
+      crit: Math.min(100, d.crit + flatCrit),
     };
     if (this.hp > this.derived.maxHp) this.hp = this.derived.maxHp;
     if (this.sp > this.derived.maxSp) this.sp = this.derived.maxSp;
@@ -407,6 +435,7 @@ export class Player {
       this.stats = addStats(this.stats, JOB_GROWTH[this.job]);
       this.statPoints += STAT_POINTS_PER_LEVEL;
       this.skillPoints += 1;
+      this.runePoints += 1;
       this.recompute();
       // Full heal on level-up (classic RO).
       this.hp = this.derived.maxHp;
@@ -429,6 +458,8 @@ export class Player {
     this.zeny = s.zeny;
     this.statPoints = s.statPoints;
     this.skillPoints = s.skillPoints;
+    this.runePoints = s.runePoints ?? 0;
+    this.runes = [...(s.runes ?? [])];
     this.stats = { ...s.stats };
     this.skillLevels = {};
     for (const sk of s.skillLevels) this.skillLevels[sk.id] = sk.level;
@@ -498,6 +529,8 @@ export class Player {
       stats: { ...this.stats },
       statPoints: this.statPoints,
       skillPoints: this.skillPoints,
+      runePoints: this.runePoints,
+      runes: [...this.runes],
       skillLevels: Object.entries(this.skillLevels).map(([id, level]) => ({ id, level })),
       inventory: Object.entries(this.inventory).map(([id, qty]) => ({ id, qty })),
       equipped: Object.entries(this.equipped)

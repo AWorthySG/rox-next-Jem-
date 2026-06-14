@@ -20,6 +20,7 @@ import { ShopPanel } from "./ui/ShopPanel.js";
 import { QuestPanel } from "./ui/QuestPanel.js";
 import { RefinePanel } from "./ui/RefinePanel.js";
 import { SkillsPanel } from "./ui/SkillsPanel.js";
+import { AesirPanel } from "./ui/AesirPanel.js";
 import { JobAdvance } from "./ui/JobAdvance.js";
 import { PartyHud } from "./ui/PartyHud.js";
 import { GuildPanel } from "./ui/GuildPanel.js";
@@ -180,6 +181,7 @@ const skills = new SkillsPanel({
 
 const warp = new WarpPanel((npcId, mapId) => transport?.send({ t: MsgType.Warp, npcId, mapId }));
 const achievements = new AchievementsPanel();
+const aesir = new AesirPanel({ onUnlock: (runeId) => transport?.send({ t: MsgType.UnlockRune, runeId }) });
 
 let currentJob: JobId | null = null;
 const jobAdvance = new JobAdvance((job) => transport?.send({ t: MsgType.JobAdvance, targetJob: job }));
@@ -326,6 +328,7 @@ function handleMessage(msg: ServerMessage): void {
       refine.sync(msg.self);
       skills.sync(msg.self);
       achievements.sync(msg.self);
+      aesir.sync(msg.self);
       petCompanion.setPet(msg.self.pet);
       gameState.self?.setMounted(msg.self.mounted);
       jobAdvance.update(msg.self);

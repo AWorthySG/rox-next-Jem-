@@ -190,6 +190,19 @@ async function main(): Promise<void> {
   carder.unequip("weapon" as never);
   check((carder.toSelfState().inventory.find((i) => i.id === "skeleton_card")?.qty ?? 0) === 1, "cards: unequipping returns the card");
 
+  // ---- deterministic Aesir runes ----
+  const runer = new Player(982, 1, "Runer", JobId.Swordsman, 0, 0);
+  const baseStrR = runer.stats.str;
+  check(!runer.unlockRune("might1"), "runes: cannot unlock without points");
+  runer.runePoints = 5;
+  check(!runer.unlockRune("might2"), "runes: prerequisite enforced");
+  check(runer.unlockRune("might1"), "runes: unlock first node");
+  check(runer.runePoints === 4, "runes: cost deducted");
+  check(runer.unlockRune("might2"), "runes: unlock next node after prereq");
+  // might1 = STR +3 -> effective str via derived (atk reflects it); check str-derived bonus applied
+  check(runer.runes.includes("might1") && runer.runes.includes("might2"), "runes: tracked as unlocked");
+  check(runer.stats.str === baseStrR, "runes: base stats unchanged (bonus is derived-only)");
+
   // ---- deterministic skill levels ----
   const mage = new Player(993, 1, "Wiz", JobId.Mage, 0, 0);
   check(mage.skillLevel("fire_bolt") === 1, "skills: job skills start at level 1");

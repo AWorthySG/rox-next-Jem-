@@ -47,7 +47,8 @@ copyrighted assets.
   track progress as you hunt, and claim EXP/Zeny/item rewards; quest credit shares with party.
 - **Character building**: spend stat points earned on level-up into STR/AGI/VIT/INT/DEX/LUK
   from the HUD; level up individual skills (window `K`) with skill points to scale their power;
-  visit the Blacksmith to refine equipped gear (+1…+10) with Zeny for flat ATK/MATK/DEF/HP.
+  unlock passive **Aesir runes** (window `R`) along five paths (Might/Guard/Mystic/Swift/Fortune)
+  with rune points; visit the Blacksmith to refine equipped gear (+1…+10) with Zeny.
 - **Status effects**: skills inflict debuffs — Fire Bolt/Meteor Storm **burn** (DoT),
   Magnum Break **slows**, Thunder Storm/Bowling Bash **stun** — resolved server-side.
 - **Self-buffs**: Battle Focus (+30% ATK) and Mystic Focus (+30% MATK) temporarily empower

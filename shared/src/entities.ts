@@ -63,6 +63,8 @@ export interface SelfState {
   stats: Stats;
   statPoints: number;
   skillPoints: number;
+  runePoints: number;
+  runes: string[];
   skillLevels: Array<{ id: string; level: number }>;
   inventory: InventoryEntry[];
   equipped: EquipEntry[];

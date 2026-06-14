@@ -107,6 +107,11 @@ export interface LevelSkillMsg {
   skillId: string;
 }
 
+export interface UnlockRuneMsg {
+  t: MsgType.UnlockRune;
+  runeId: string;
+}
+
 export interface RefineItemMsg {
   t: MsgType.RefineItem;
   slot: string;
@@ -199,6 +204,7 @@ export type ClientMessage =
   | ClaimQuestMsg
   | AllocateStatMsg
   | LevelSkillMsg
+  | UnlockRuneMsg
   | RefineItemMsg
   | SocketCardMsg
   | UnsocketCardMsg

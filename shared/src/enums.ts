@@ -21,6 +21,7 @@ export enum MsgType {
   ClaimQuest = "claimQuest",
   AllocateStat = "allocateStat",
   LevelSkill = "levelSkill",
+  UnlockRune = "unlockRune",
   RefineItem = "refineItem",
   SocketCard = "socketCard",
   UnsocketCard = "unsocketCard",
