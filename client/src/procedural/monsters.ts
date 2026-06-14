@@ -49,6 +49,7 @@ const ARCH: Record<string, MonsterArch> = {
   solid_skull: "undead", assaulter: "beast", permeter: "golem", freezer: "aquatic", turtle_general: "golem",
   increase_soil: "golem", mao_guai: "demon", zhu_po_long: "dragon", chung_e: "humanoid", evil_snake_lord: "dragon",
   bloody_knight: "humanoid", wanderer: "undead", owl_baron: "bird", dark_illusion: "ghost", corrupt_monk: "demon",
+  ronin: "humanoid", shrine_spirit: "ghost", stone_lion: "golem", jade_warlord: "humanoid", spirit_empress: "ghost",
 };
 
 function hex(s: string): number {
@@ -217,6 +218,12 @@ const DEFS: Record<string, AppearanceDef> = {
   owl_baron: { inner: "#c0b090", outer: "#4a3c28", scale: 1.4 },
   dark_illusion: { inner: "#a070c0", outer: "#1a0a2a", scale: 2.9, boss: true },
   corrupt_monk: { inner: "#d0b0c0", outer: "#2a1828", scale: 3.0, boss: true },
+  // Gonryun Shrine
+  ronin: { inner: "#d0c0a0", outer: "#5a4a30", scale: 1.35 },
+  shrine_spirit: { inner: "#cfe0e8", outer: "#5a7a8a", scale: 1.25 },
+  stone_lion: { inner: "#c8b088", outer: "#5a4830", scale: 1.45 },
+  jade_warlord: { inner: "#a0d0a0", outer: "#2a5a34", scale: 2.8, boss: true },
+  spirit_empress: { inner: "#f0d8e8", outer: "#8a4a7a", scale: 2.8, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

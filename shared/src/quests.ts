@@ -138,6 +138,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 108,
     reward: { exp: 200000, zeny: 110000, items: [{ id: "bloody_sword", qty: 1 }] },
   },
+  the_jade_warlord: {
+    id: "the_jade_warlord",
+    name: "The Jade Warlord",
+    desc: "The Jade Warlord seizes Gonryun Shrine. Break his iron grip.",
+    targetTemplate: "jade_warlord",
+    targetName: "Jade Warlord",
+    count: 1,
+    requiredLevel: 92,
+    reward: { exp: 100000, zeny: 58000, items: [{ id: "tachi", qty: 1 }] },
+  },
   serpent_lord: {
     id: "serpent_lord",
     name: "The Serpent Lord",

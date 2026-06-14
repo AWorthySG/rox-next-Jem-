@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Gonryun Shrine gear ----
+  tachi: {
+    id: "tachi", name: "Tachi", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A long curved sword. ATK +66, AGI +4.", atk: 66, bonusStats: { agi: 4 }, sellPrice: 3300,
+  },
+  oni_mask: {
+    id: "oni_mask", name: "Oni Mask", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A fearsome demon mask. DEF +18, STR +4, Max HP +120.", def: 18, maxHp: 120, bonusStats: { str: 4 }, sellPrice: 3000,
+  },
+  spirit_robe: {
+    id: "spirit_robe", name: "Spirit Robe", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Robe blessed by shrine spirits. DEF +24, Max SP +90, INT +5.", def: 24, maxSp: 90, bonusStats: { int: 5 }, sellPrice: 3200,
+  },
+
   // ---- Glast Heim Abyss gear ----
   bloody_sword: {
     id: "bloody_sword", name: "Bloody Sword", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -917,6 +931,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Gonryun Shrine
+  ronin: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "tachi", chance: 0.03 }],
+  shrine_spirit: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "spirit_robe", chance: 0.03 }],
+  stone_lion: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "oni_mask", chance: 0.03 }],
+  jade_warlord: HI([{ itemId: "tachi", chance: 0.6 }, { itemId: "oni_mask", chance: 0.5 }, { itemId: "spirit_robe", chance: 0.4 }]),
+  spirit_empress: HI([{ itemId: "spirit_robe", chance: 0.6 }, { itemId: "oni_mask", chance: 0.5 }, { itemId: "ghostring_card", chance: 0.06 }]),
   // Glast Heim Abyss
   bloody_knight: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "bloody_sword", chance: 0.025 }],
   wanderer: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "abyss_plate", chance: 0.025 }],
@@ -964,6 +984,7 @@ const ORE_REGULARS = [
   "solid_skull", "assaulter", "permeter",
   "increase_soil", "mao_guai", "zhu_po_long",
   "bloody_knight", "wanderer", "owl_baron",
+  "ronin", "shrine_spirit", "stone_lion",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -982,6 +1003,7 @@ const ORE_BOSSES = [
   "stormy_knight", "garm", "lady_tanee", "leak", "gopinich", "baba_yaga", "gigantes", "ifrit",
   "phreeoni", "deviace", "orc_lord", "orc_hero", "abysmal_knight", "amdarais", "pharaoh", "osiris",
   "freezer", "turtle_general", "chung_e", "evil_snake_lord", "dark_illusion", "corrupt_monk",
+  "jade_warlord", "spirit_empress",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

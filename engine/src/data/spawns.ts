@@ -368,6 +368,12 @@ Object.assign(MONSTER_TEMPLATES, {
   owl_baron: mk("owl_baron", "Owl Baron", 106, 10900, 20500),
   dark_illusion: mk("dark_illusion", "Dark Illusion", 112, 70000, 115000, true),
   corrupt_monk: mk("corrupt_monk", "Corrupt Monk", 114, 76000, 126000, true),
+  // ---- Gonryun Shrine ----
+  ronin: mk("ronin", "Ronin", 87, 6400, 13800),
+  shrine_spirit: mk("shrine_spirit", "Shrine Spirit", 89, 6800, 14600),
+  stone_lion: mk("stone_lion", "Stone Lion", 91, 7200, 15400),
+  jade_warlord: mk("jade_warlord", "Jade Warlord", 96, 50000, 76000, true),
+  spirit_empress: mk("spirit_empress", "Spirit Empress", 98, 56000, 86000, true),
 });
 
 export interface SpawnZone {
@@ -602,6 +608,14 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "heal", intervalMs: 10000, pct: 0.06 },
     { kind: "enrage", hpPct: 0.3, atkMult: 1.6 },
   ],
+  jade_warlord: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.6 },
+    { kind: "summon", intervalMs: 8000, templateId: "ronin", count: 2, max: 5 },
+  ],
+  spirit_empress: [
+    { kind: "nova", intervalMs: 5500, radius: 10, powerMult: 1.7 },
+    { kind: "heal", intervalMs: 10000, pct: 0.06 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -735,6 +749,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   owl_baron: Element.Wind,
   dark_illusion: Element.Shadow,
   corrupt_monk: Element.Holy,
+  ronin: Element.Fire,
+  shrine_spirit: Element.Wind,
+  stone_lion: Element.Earth,
+  jade_warlord: Element.Earth,
+  spirit_empress: Element.Holy,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

@@ -312,6 +312,25 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
       { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
       { name: "Louyang Exit", role: "portal", x: 0, z: 24, dest: { toMap: "ayothaya", toX: 0, toZ: -38 } },
+      { name: "Gonryun Portal", role: "portal", x: 0, z: -46, dest: { toMap: "gonryun", toX: 0, toZ: 18 } },
+    ],
+  },
+  gonryun: {
+    id: "gonryun",
+    name: "Gonryun Shrine",
+    theme: { ground: 0x4a6a44, fog: 0x9a7a6a, sky: 0xc8b49a },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "go-ronin", templateId: "ronin", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "go-spirit", templateId: "shrine_spirit", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "go-lion", templateId: "stone_lion", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "go-warlord", templateId: "jade_warlord", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "go-empress", templateId: "spirit_empress", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Gonryun Exit", role: "portal", x: 0, z: 24, dest: { toMap: "louyang", toX: 0, toZ: -38 } },
     ],
   },
   umbala: {
