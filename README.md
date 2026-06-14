@@ -89,7 +89,8 @@ copyrighted assets.
   Rachel → Endless Tower → Thanatos Tower → Morocc Desert → Bio Laboratory → Abyss Lake**, plus
   the **PvP Arena**. Each map is themed, networked independently, and guarded by **two MVP
   bosses**.
-- **45+ monsters & 30+ MVP bosses** across the world, from Porings to Nidhoggr's Shadow (Lv130).
+  the **PvP Arena** and the side-branch **Geffen Tower** (a mid-level mage tournament off town).
+- **50+ monsters & 30+ MVP bosses** across the world, from Porings to Nidhoggr's Shadow (Lv130).
 - **Boss fight mechanics**: bosses use distinct, server-driven abilities — **enrage** (harder
   hits below a HP threshold, with a red aura), **telegraphed AoE nova** (a growing warning ring
   you can step out of before it lands), **summon adds** (temporary minions), and **self-heal** —

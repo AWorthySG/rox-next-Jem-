@@ -33,6 +33,7 @@ const ARCH: Record<string, MonsterArch> = {
   anubis: "undead", pasana: "undead", drake: "undead", egnigem: "undead",
   satan_morroc: "demon", nidhoggr: "demon", kathryne: "ghost",
   cecil: "bird", wickebine: "bug", ferus: "beast", acidus: "beast", detale: "beast",
+  marionette: "ghost", nightmare: "beast", marduk: "bug", doppelganger: "demon", dark_priest: "ghost",
 };
 
 function hex(s: string): number {
@@ -111,6 +112,12 @@ const DEFS: Record<string, AppearanceDef> = {
   acidus: { inner: "#80c0d0", outer: "#1a4a5a", scale: 1.5 },
   detale: { inner: "#f08040", outer: "#3a1004", scale: 3.4, boss: true },
   nidhoggr: { inner: "#9a4fb0", outer: "#100818", scale: 3.6, boss: true },
+  // Geffen Tower
+  marionette: { inner: "#e0c0e0", outer: "#6a3a6a", scale: 1.2 },
+  nightmare: { inner: "#9a90c0", outer: "#2a2440", scale: 1.4 },
+  marduk: { inner: "#d0c060", outer: "#6a5a10", scale: 1.25 },
+  doppelganger: { inner: "#9a9ad0", outer: "#1a1430", scale: 2.6, boss: true },
+  dark_priest: { inner: "#d0b0e0", outer: "#3a2050", scale: 2.6, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

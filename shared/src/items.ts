@@ -343,6 +343,20 @@ export const ITEMS: Record<string, ItemDef> = {
     sellPrice: 12000,
   },
 
+  // ---- Geffen Tower (mid-level mage gear) ----
+  mage_staff: {
+    id: "mage_staff", name: "Geffen Mage Staff", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A tournament staff. MATK +30, INT +5.", matk: 30, bonusStats: { int: 5 }, sellPrice: 700,
+  },
+  wizard_hat: {
+    id: "wizard_hat", name: "Wizard Hat", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A pointed hat. MATK +8, INT +4, Max SP +40.", matk: 8, maxSp: 40, bonusStats: { int: 4 }, sellPrice: 650,
+  },
+  geffen_robe: {
+    id: "geffen_robe", name: "Geffen Robe", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
+  },
+
   // ---- Morocc / Bio Lab / Abyss endgame gear ----
   desert_sabre: {
     id: "desert_sabre", name: "Desert Sabre", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -636,6 +650,12 @@ Object.assign(DROP_TABLES, {
   acidus: [{ itemId: "red_potion", chance: 0.5 }, { itemId: "abyssal_blade", chance: 0.025 }],
   detale: HI([{ itemId: "dragon_scale_mail", chance: 0.6 }, { itemId: "abyssal_blade", chance: 0.5 }, { itemId: "nidhoggr_eye", chance: 0.4 }]),
   nidhoggr: HI([{ itemId: "dragon_scale_mail", chance: 0.7 }, { itemId: "abyssal_blade", chance: 0.6 }, { itemId: "nidhoggr_eye", chance: 0.5 }, { itemId: "nidhoggr_card", chance: 0.12 }]),
+  // Geffen Tower
+  marionette: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "wizard_hat", chance: 0.04 }],
+  nightmare: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "geffen_robe", chance: 0.04 }],
+  marduk: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "mage_staff", chance: 0.04 }],
+  doppelganger: HI([{ itemId: "mage_staff", chance: 0.6 }, { itemId: "geffen_robe", chance: 0.5 }, { itemId: "doppelganger_card", chance: 0.1 }]),
+  dark_priest: HI([{ itemId: "wizard_hat", chance: 0.6 }, { itemId: "geffen_robe", chance: 0.5 }, { itemId: "rosary", chance: 0.3 }]),
 });
 
 // Sprinkle refine ores across the bestiary so refining has a farming loop:
@@ -645,6 +665,7 @@ const ORE_REGULARS = [
   "wraith", "gargoyle", "sleeper", "hill_wind", "metaling", "venatu", "vanberk",
   "hodremlin", "aliot", "aliza", "coco", "spore",
   "anubis", "pasana", "cecil", "wickebine", "ferus", "acidus",
+  "marionette", "nightmare", "marduk",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -659,6 +680,7 @@ const ORE_BOSSES = [
   "vesper", "boitata", "tendrilion", "ktullanux", "beelzebub", "thanatos_phantom",
   "memory_of_thanatos", "eddga", "moonlight", "mistress", "angeling",
   "drake", "satan_morroc", "egnigem", "kathryne", "detale", "nidhoggr",
+  "doppelganger", "dark_priest",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

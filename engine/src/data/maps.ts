@@ -38,6 +38,24 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Cave Portal", role: "portal", x: 14, z: 0, dest: { toMap: "cave", toX: 0, toZ: 18 } },
       { name: "Arena Portal", role: "portal", x: -14, z: 0, dest: { toMap: "arena", toX: 0, toZ: 0 } },
       { name: "Payon Portal", role: "portal", x: 0, z: 14, dest: { toMap: "payon", toX: 0, toZ: 18 } },
+      { name: "Geffen Portal", role: "portal", x: 14, z: 14, dest: { toMap: "geffen", toX: 0, toZ: 18 } },
+    ],
+  },
+  geffen: {
+    id: "geffen",
+    name: "Geffen Tower",
+    theme: { ground: 0x4a4470, fog: 0x1c1838, sky: 0x35305a },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "gf-marionette", templateId: "marionette", cx: -22, cz: 2, radius: 13, count: 7 },
+      { id: "gf-marduk", templateId: "marduk", cx: 22, cz: -2, radius: 13, count: 7 },
+      { id: "gf-nightmare", templateId: "nightmare", cx: -2, cz: -28, radius: 12, count: 6 },
+      { id: "gf-doppelganger", templateId: "doppelganger", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "gf-darkpriest", templateId: "dark_priest", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Geffen Exit", role: "portal", x: 0, z: 24, dest: { toMap: "field", toX: 16, toZ: 16 } },
     ],
   },
   payon: {

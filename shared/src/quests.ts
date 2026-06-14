@@ -118,6 +118,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 28,
     reward: { exp: 15000, zeny: 9000, items: [{ id: "baphomet_horn", qty: 1 }] },
   },
+  mirror_match: {
+    id: "mirror_match",
+    name: "Mirror Match",
+    desc: "A Doppelganger haunts Geffen Tower, wearing other faces. Unmask it.",
+    targetTemplate: "doppelganger",
+    targetName: "Doppelganger",
+    count: 1,
+    requiredLevel: 40,
+    reward: { exp: 9000, zeny: 6000, items: [{ id: "mage_staff", qty: 1 }] },
+  },
   beach_patrol: {
     id: "beach_patrol",
     name: "Beach Patrol",

@@ -278,6 +278,12 @@ Object.assign(MONSTER_TEMPLATES, {
   acidus: mk("acidus", "Acidus", 128, 16000, 34000),
   detale: mk("detale", "Detardeurus", 128, 160000, 280000, true),
   nidhoggr: mk("nidhoggr", "Nidhoggr's Shadow", 130, 200000, 350000, true),
+  // ---- Geffen Tower (mid-level mage tournament) ----
+  marionette: mk("marionette", "Marionette", 30, 1500, 950),
+  nightmare: mk("nightmare", "Nightmare", 36, 1900, 1300),
+  marduk: mk("marduk", "Marduk", 33, 1650, 1100),
+  doppelganger: mk("doppelganger", "Doppelganger", 45, 6500, 9500, true),
+  dark_priest: mk("dark_priest", "Dark Priest", 48, 7500, 11500, true),
 });
 
 export interface SpawnZone {
@@ -393,6 +399,14 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "summon", intervalMs: 8000, templateId: "ferus", count: 3, max: 6 },
     { kind: "heal", intervalMs: 13000, pct: 0.05 },
   ],
+  doppelganger: [
+    { kind: "summon", intervalMs: 8000, templateId: "marionette", count: 2, max: 4 },
+    { kind: "enrage", hpPct: 0.3, atkMult: 1.5 },
+  ],
+  dark_priest: [
+    { kind: "nova", intervalMs: 6000, radius: 9, powerMult: 1.5 },
+    { kind: "heal", intervalMs: 10000, pct: 0.07 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -451,6 +465,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   acidus: Element.Wind,
   detale: Element.Fire,
   nidhoggr: Element.Shadow,
+  marionette: Element.Shadow,
+  nightmare: Element.Shadow,
+  marduk: Element.Wind,
+  doppelganger: Element.Shadow,
+  dark_priest: Element.Holy,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;
