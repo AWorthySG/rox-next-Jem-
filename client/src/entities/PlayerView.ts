@@ -140,7 +140,8 @@ export class PlayerView extends EntityView {
     this.detectMovement(this.px, this.pz);
     this.group.position.x = this.px;
     this.group.position.z = this.pz;
-    this.group.rotation.y = this.pfacing;
+    // smooth (shortest-path) turn toward the intended facing
+    this.group.rotation.y = lerpAngle(this.group.rotation.y, this.pfacing, Math.min(1, dt * 12));
     this.animate(dt);
   }
 
@@ -181,4 +182,12 @@ export class PlayerView extends EntityView {
       this.char.group.rotation.x *= 0.7;
     }
   }
+}
+
+// Interpolate an angle (radians) toward a target along the shortest arc.
+function lerpAngle(from: number, to: number, t: number): number {
+  let d = (to - from) % (Math.PI * 2);
+  if (d > Math.PI) d -= Math.PI * 2;
+  if (d < -Math.PI) d += Math.PI * 2;
+  return from + d * t;
 }
