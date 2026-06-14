@@ -150,8 +150,8 @@ CI (GitHub Actions, `.github/workflows/ci.yml`) runs build + both tests on every
 The static client deploys to any static host. A `vercel.json` is included:
 
 ```bash
-npm run build        # bundles the client to the repo-root dist/
-# deploy dist/ (Vercel: Root Directory = repo root, output = dist)
+npm run build        # bundles the client to client/dist
+# deploy client/dist (Vercel project: Root Directory = client, output = dist)
 ```
 
 The deployed site is immediately playable in **solo mode**. For live multiplayer, host the

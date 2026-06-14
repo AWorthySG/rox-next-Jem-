@@ -10,12 +10,6 @@ export default defineConfig({
       "@rox/engine": fileURLToPath(new URL("../engine/src/index.ts", import.meta.url)),
     },
   },
-  build: {
-    // Emit to a repo-root `dist/` so the Vercel project (Root Directory = repo
-    // root, Vite preset → expects `dist`) finds the bundle with no extra config.
-    outDir: fileURLToPath(new URL("../dist", import.meta.url)),
-    emptyOutDir: true,
-  },
   server: {
     port: 5173,
     host: true,
