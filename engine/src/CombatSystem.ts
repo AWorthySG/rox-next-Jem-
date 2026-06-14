@@ -412,6 +412,16 @@ export class CombatSystem {
   private killMonster(target: Monster, killer: Player): void {
     this.slay(target);
 
+    // World-wide MVP announcement (the classic "an MVP has fallen" broadcast).
+    if (target.template.boss) {
+      this.world.broadcast({
+        t: MsgType.ChatBroadcast,
+        fromId: 0,
+        name: "World",
+        text: `⚔ ${killer.name} has slain the MVP ${target.template.name}!`,
+      });
+    }
+
     // Zeny + loot (auto-pickup to the killer's bag), then notify them.
     const zenyGain =
       (ZENY_MIN + Math.floor(Math.random() * (ZENY_MAX - ZENY_MIN + 1))) * (target.template.boss ? 25 : 1);

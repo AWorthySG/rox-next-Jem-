@@ -392,7 +392,9 @@ function handleMessage(msg: ServerMessage): void {
       }
       break;
     case MsgType.ChatBroadcast:
-      chat.add(msg.name, msg.text, msg.fromId === selfId);
+      // Server-originated announcements (fromId 0) render as system lines.
+      if (msg.fromId === 0) chat.system(msg.text);
+      else chat.add(msg.name, msg.text, msg.fromId === selfId);
       break;
     case MsgType.Pong:
       hud.setLatency(Math.round(performance.now() - msg.clientTime));
