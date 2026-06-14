@@ -80,6 +80,27 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
       { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
       { name: "Bukit Timah Exit", role: "portal", x: 0, z: 24, dest: { toMap: "merlion_bay", toX: 0, toZ: -44 } },
+      { name: "Chinatown Portal", role: "portal", x: 0, z: -50, dest: { toMap: "chinatown", toX: 0, toZ: 18 } },
+    ],
+  },
+  chinatown: {
+    id: "chinatown",
+    name: "Chinatown",
+    theme: { ground: 0x6a4438, fog: 0x8a3030, sky: 0xb05040 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "ct-jiangshi", templateId: "jiangshi", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "ct-cat", templateId: "street_cat", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "ct-wisp", templateId: "lantern_wisp", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "ct-lord", templateId: "jiangshi_lord", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "ct-nian", templateId: "nian_beast", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Kafra Employee", role: "shop", x: 6, z: 22, facing: Math.PI },
+      { name: "Healer", role: "healer", x: 10, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -6, z: 22, facing: Math.PI },
+      { name: "Blacksmith", role: "refine", x: -10, z: 22, facing: Math.PI },
+      { name: "Chinatown Exit", role: "portal", x: 0, z: 26, dest: { toMap: "bukit_timah", toX: 0, toZ: -44 } },
     ],
   },
   geffen: {

@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Chinatown (Singapore) gear ----
+  ghost_fan: {
+    id: "ghost_fan", name: "Hungry Ghost Fan", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A folding fan of restless spirits. MATK +40, INT +5.", matk: 40, bonusStats: { int: 5 }, sellPrice: 1300,
+  },
+  lion_dance_head: {
+    id: "lion_dance_head", name: "Lion Dance Head", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A festive lion-dance mask. DEF +16, STR +4, Max HP +100.", def: 16, maxHp: 100, bonusStats: { str: 4 }, sellPrice: 1200,
+  },
+  silk_changshan: {
+    id: "silk_changshan", name: "Silk Changshan", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "An embroidered silk robe. DEF +18, Max SP +60, INT +4.", def: 18, maxSp: 60, bonusStats: { int: 4 }, sellPrice: 1300,
+  },
+
   // ---- Bukit Timah (Singapore) gear ----
   parang: {
     id: "parang", name: "Parang", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1089,6 +1103,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Chinatown (Singapore)
+  jiangshi: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "lion_dance_head", chance: 0.035 }],
+  street_cat: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "silk_changshan", chance: 0.035 }],
+  lantern_wisp: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "ghost_fan", chance: 0.03 }],
+  jiangshi_lord: HI([{ itemId: "ghost_fan", chance: 0.6 }, { itemId: "silk_changshan", chance: 0.5 }, { itemId: "lion_dance_head", chance: 0.4 }]),
+  nian_beast: HI([{ itemId: "lion_dance_head", chance: 0.6 }, { itemId: "ghost_fan", chance: 0.45 }, { itemId: "skeleton_card", chance: 0.05 }]),
   // Bukit Timah (Singapore)
   macaque: [{ itemId: "apple", chance: 0.3 }, { itemId: "explorer_hat", chance: 0.04 }],
   pangolin: [{ itemId: "red_potion", chance: 0.25 }, { itemId: "ranger_garb", chance: 0.04 }],
@@ -1220,6 +1240,7 @@ const ORE_REGULARS = [
   "sentinel", "drone", "scout_bot",
   "mudskipper", "horseshoe_crab", "smooth_otter",
   "macaque", "pangolin", "hornbill",
+  "jiangshi", "street_cat", "lantern_wisp",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1242,7 +1263,7 @@ const ORE_BOSSES = [
   "gold_acidus", "tatacho", "queen_scaraba", "kublin", "frost_giant", "ice_queen",
   "leyak", "rangda", "gioia", "kades", "wakwak", "faceworm_queen",
   "war_machine", "overlord_core", "sea_serpent", "the_merlion",
-  "king_macaque", "reticulated_python",
+  "king_macaque", "reticulated_python", "jiangshi_lord", "nian_beast",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

@@ -61,6 +61,7 @@ const ARCH: Record<string, MonsterArch> = {
   sentinel: "golem", drone: "bug", scout_bot: "bird", war_machine: "golem", overlord_core: "demon",
   mudskipper: "aquatic", horseshoe_crab: "aquatic", smooth_otter: "beast", sea_serpent: "dragon", the_merlion: "aquatic",
   macaque: "beast", pangolin: "beast", hornbill: "bird", king_macaque: "humanoid", reticulated_python: "dragon",
+  jiangshi: "undead", street_cat: "beast", lantern_wisp: "ghost", jiangshi_lord: "undead", nian_beast: "beast",
 };
 
 function hex(s: string): number {
@@ -301,6 +302,12 @@ const DEFS: Record<string, AppearanceDef> = {
   hornbill: { inner: "#e0d040", outer: "#3a2a10", scale: 1.2 },
   king_macaque: { inner: "#d0b888", outer: "#6a4a28", scale: 2.7, boss: true },
   reticulated_python: { inner: "#c0b060", outer: "#4a3a18", scale: 2.9, boss: true },
+  // Chinatown (Singapore)
+  jiangshi: { inner: "#a0c0b0", outer: "#3a5a4a", scale: 1.3 },
+  street_cat: { inner: "#d0b090", outer: "#5a4030", scale: 0.9 },
+  lantern_wisp: { inner: "#ffd070", outer: "#c04020", scale: 1.1 },
+  jiangshi_lord: { inner: "#b0d0c0", outer: "#2a5a4a", scale: 2.7, boss: true },
+  nian_beast: { inner: "#e0a040", outer: "#7a2820", scale: 2.9, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

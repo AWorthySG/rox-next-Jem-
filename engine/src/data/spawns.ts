@@ -440,6 +440,12 @@ Object.assign(MONSTER_TEMPLATES, {
   hornbill: mk("hornbill", "Hornbill", 44, 1800, 1320),
   king_macaque: mk("king_macaque", "King Macaque", 50, 9500, 16000, true),
   reticulated_python: mk("reticulated_python", "Reticulated Python", 52, 11000, 19000, true),
+  // ---- Chinatown (Singapore) ----
+  jiangshi: mk("jiangshi", "Jiangshi", 55, 2900, 6500),
+  street_cat: mk("street_cat", "Street Cat", 57, 3100, 7100),
+  lantern_wisp: mk("lantern_wisp", "Lantern Wisp", 59, 3300, 7700),
+  jiangshi_lord: mk("jiangshi_lord", "Jiangshi Lord", 65, 15000, 26000, true),
+  nian_beast: mk("nian_beast", "Nian Beast", 67, 17000, 30000, true),
 });
 
 export interface SpawnZone {
@@ -778,6 +784,14 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "nova", intervalMs: 5500, radius: 10, powerMult: 1.6 },
     { kind: "heal", intervalMs: 11000, pct: 0.06 },
   ],
+  jiangshi_lord: [
+    { kind: "summon", intervalMs: 8000, templateId: "jiangshi", count: 2, max: 5 },
+    { kind: "nova", intervalMs: 5500, radius: 10, powerMult: 1.6 },
+  ],
+  nian_beast: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.7 },
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.6 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -971,6 +985,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   hornbill: Element.Wind,
   king_macaque: Element.Earth,
   reticulated_python: Element.Shadow,
+  jiangshi: Element.Shadow,
+  street_cat: Element.Wind,
+  lantern_wisp: Element.Fire,
+  jiangshi_lord: Element.Shadow,
+  nian_beast: Element.Fire,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;
