@@ -128,6 +128,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 40,
     reward: { exp: 9000, zeny: 6000, items: [{ id: "mage_staff", qty: 1 }] },
   },
+  rest_in_peace: {
+    id: "rest_in_peace",
+    name: "Rest in Peace",
+    desc: "The Fallen Bishop desecrates Niflheim. Send the heretic to the grave.",
+    targetTemplate: "fallen_bishop",
+    targetName: "Fallen Bishop",
+    count: 1,
+    requiredLevel: 92,
+    reward: { exp: 120000, zeny: 70000, items: [{ id: "necro_staff", qty: 1 }] },
+  },
   beach_patrol: {
     id: "beach_patrol",
     name: "Beach Patrol",

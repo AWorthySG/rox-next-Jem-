@@ -34,6 +34,7 @@ const ARCH: Record<string, MonsterArch> = {
   satan_morroc: "demon", nidhoggr: "demon", kathryne: "ghost",
   cecil: "bird", wickebine: "bug", ferus: "beast", acidus: "beast", detale: "beast",
   marionette: "ghost", nightmare: "beast", marduk: "bug", doppelganger: "demon", dark_priest: "ghost",
+  loli_ruri: "ghost", quve: "ghost", gibbet: "undead", bacsojin: "ghost", fallen_bishop: "demon",
 };
 
 function hex(s: string): number {
@@ -118,6 +119,12 @@ const DEFS: Record<string, AppearanceDef> = {
   marduk: { inner: "#d0c060", outer: "#6a5a10", scale: 1.25 },
   doppelganger: { inner: "#9a9ad0", outer: "#1a1430", scale: 2.6, boss: true },
   dark_priest: { inner: "#d0b0e0", outer: "#3a2050", scale: 2.6, boss: true },
+  // Niflheim
+  loli_ruri: { inner: "#cfe0e8", outer: "#5a6a78", scale: 1.2 },
+  quve: { inner: "#c0d0d8", outer: "#48565e", scale: 1.25 },
+  gibbet: { inner: "#d8d0b0", outer: "#5a4a30", scale: 1.4 },
+  bacsojin: { inner: "#eaf0f4", outer: "#7a8a96", scale: 2.8, boss: true },
+  fallen_bishop: { inner: "#d0b0d0", outer: "#2a1830", scale: 3, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

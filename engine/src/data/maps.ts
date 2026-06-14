@@ -173,6 +173,25 @@ export const MAPS: Record<string, GameMap> = {
     npcs: [
       { name: "Juno Exit", role: "portal", x: 0, z: 26, dest: { toMap: "umbala", toX: 0, toZ: -44 } },
       { name: "Einbroch Portal", role: "portal", x: 0, z: -52, dest: { toMap: "einbroch", toX: 0, toZ: 20 } },
+      { name: "Niflheim Portal", role: "portal", x: 18, z: 14, dest: { toMap: "niflheim", toX: 0, toZ: 18 } },
+    ],
+  },
+  niflheim: {
+    id: "niflheim",
+    name: "Niflheim",
+    theme: { ground: 0x3a4048, fog: 0x10141a, sky: 0x1e242c },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "nf-loli", templateId: "loli_ruri", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "nf-quve", templateId: "quve", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "nf-gibbet", templateId: "gibbet", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "nf-bacsojin", templateId: "bacsojin", cx: 34, cz: -42, radius: 4, count: 1 },
+      { id: "nf-bishop", templateId: "fallen_bishop", cx: -34, cz: -42, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Niflheim Exit", role: "portal", x: 0, z: 24, dest: { toMap: "juno", toX: 18, toZ: 16 } },
     ],
   },
   einbroch: {

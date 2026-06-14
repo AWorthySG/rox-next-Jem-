@@ -284,6 +284,12 @@ Object.assign(MONSTER_TEMPLATES, {
   marduk: mk("marduk", "Marduk", 33, 1650, 1100),
   doppelganger: mk("doppelganger", "Doppelganger", 45, 6500, 9500, true),
   dark_priest: mk("dark_priest", "Dark Priest", 48, 7500, 11500, true),
+  // ---- Niflheim (realm of the dead) ----
+  loli_ruri: mk("loli_ruri", "Loli Ruri", 88, 6800, 11500),
+  quve: mk("quve", "Quve", 90, 7200, 12500),
+  gibbet: mk("gibbet", "Gibbet", 92, 7800, 13500),
+  bacsojin: mk("bacsojin", "White Lady Bacsojin", 95, 48000, 70000, true),
+  fallen_bishop: mk("fallen_bishop", "Fallen Bishop", 98, 56000, 84000, true),
 });
 
 export interface SpawnZone {
@@ -407,6 +413,15 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "nova", intervalMs: 6000, radius: 9, powerMult: 1.5 },
     { kind: "heal", intervalMs: 10000, pct: 0.07 },
   ],
+  bacsojin: [
+    { kind: "nova", intervalMs: 5500, radius: 10, powerMult: 1.6 },
+    { kind: "heal", intervalMs: 10000, pct: 0.06 },
+  ],
+  fallen_bishop: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.6 },
+    { kind: "summon", intervalMs: 8500, templateId: "gibbet", count: 2, max: 5 },
+    { kind: "nova", intervalMs: 6000, radius: 10, powerMult: 1.6 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -470,6 +485,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   marduk: Element.Wind,
   doppelganger: Element.Shadow,
   dark_priest: Element.Holy,
+  loli_ruri: Element.Shadow,
+  quve: Element.Wind,
+  gibbet: Element.Shadow,
+  bacsojin: Element.Wind,
+  fallen_bishop: Element.Shadow,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

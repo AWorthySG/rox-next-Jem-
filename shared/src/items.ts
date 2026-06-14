@@ -357,6 +357,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Niflheim (realm of the dead) gear ----
+  necro_staff: {
+    id: "necro_staff", name: "Necromancer Staff", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "Whispers of the dead. MATK +50, INT +6, DEX +3.", matk: 50, bonusStats: { int: 6, dex: 3 }, sellPrice: 3400,
+  },
+  skull_cap: {
+    id: "skull_cap", name: "Skull Cap", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A grim helm. DEF +14, Max HP +120, VIT +3.", def: 14, maxHp: 120, bonusStats: { vit: 3 }, sellPrice: 2800,
+  },
+  grim_cloak: {
+    id: "grim_cloak", name: "Grim Cloak", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Woven from shadow. DEF +22, Max HP +200, AGI +4, LUK +4.", def: 22, maxHp: 200, bonusStats: { agi: 4, luk: 4 }, sellPrice: 3200,
+  },
+
   // ---- Morocc / Bio Lab / Abyss endgame gear ----
   desert_sabre: {
     id: "desert_sabre", name: "Desert Sabre", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -656,6 +670,12 @@ Object.assign(DROP_TABLES, {
   marduk: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "mage_staff", chance: 0.04 }],
   doppelganger: HI([{ itemId: "mage_staff", chance: 0.6 }, { itemId: "geffen_robe", chance: 0.5 }, { itemId: "doppelganger_card", chance: 0.1 }]),
   dark_priest: HI([{ itemId: "wizard_hat", chance: 0.6 }, { itemId: "geffen_robe", chance: 0.5 }, { itemId: "rosary", chance: 0.3 }]),
+  // Niflheim
+  loli_ruri: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "skull_cap", chance: 0.035 }],
+  quve: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "grim_cloak", chance: 0.035 }],
+  gibbet: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "necro_staff", chance: 0.03 }],
+  bacsojin: HI([{ itemId: "necro_staff", chance: 0.6 }, { itemId: "grim_cloak", chance: 0.5 }, { itemId: "ghostring_card", chance: 0.08 }]),
+  fallen_bishop: HI([{ itemId: "skull_cap", chance: 0.6 }, { itemId: "grim_cloak", chance: 0.5 }, { itemId: "immortal_heart", chance: 0.3 }]),
 });
 
 // Sprinkle refine ores across the bestiary so refining has a farming loop:
@@ -666,6 +686,7 @@ const ORE_REGULARS = [
   "hodremlin", "aliot", "aliza", "coco", "spore",
   "anubis", "pasana", "cecil", "wickebine", "ferus", "acidus",
   "marionette", "nightmare", "marduk",
+  "loli_ruri", "quve", "gibbet",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -680,7 +701,7 @@ const ORE_BOSSES = [
   "vesper", "boitata", "tendrilion", "ktullanux", "beelzebub", "thanatos_phantom",
   "memory_of_thanatos", "eddga", "moonlight", "mistress", "angeling",
   "drake", "satan_morroc", "egnigem", "kathryne", "detale", "nidhoggr",
-  "doppelganger", "dark_priest",
+  "doppelganger", "dark_priest", "bacsojin", "fallen_bishop",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];
