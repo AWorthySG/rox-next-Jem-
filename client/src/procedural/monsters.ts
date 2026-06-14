@@ -59,6 +59,7 @@ const ARCH: Record<string, MonsterArch> = {
   tiyanak: "demon", hilsrion: "golem", naga: "dragon", gioia: "humanoid", kades: "demon",
   cornus: "bird", faceworm: "dragon", pinguicula: "plant", wakwak: "humanoid", faceworm_queen: "dragon",
   sentinel: "golem", drone: "bug", scout_bot: "bird", war_machine: "golem", overlord_core: "demon",
+  mudskipper: "aquatic", horseshoe_crab: "aquatic", smooth_otter: "beast", sea_serpent: "dragon", the_merlion: "aquatic",
 };
 
 function hex(s: string): number {
@@ -287,6 +288,12 @@ const DEFS: Record<string, AppearanceDef> = {
   scout_bot: { inner: "#b0c0d0", outer: "#3a4a5a", scale: 1.2 },
   war_machine: { inner: "#c08060", outer: "#4a2818", scale: 3.1, boss: true },
   overlord_core: { inner: "#c060a0", outer: "#2a0a1a", scale: 3.0, boss: true },
+  // Merlion Bay (Singapore)
+  mudskipper: { inner: "#c0b070", outer: "#5a4a28", scale: 0.95 },
+  horseshoe_crab: { inner: "#a08060", outer: "#4a3018", scale: 1.1 },
+  smooth_otter: { inner: "#b08860", outer: "#5a3a20", scale: 1.0 },
+  sea_serpent: { inner: "#70c0c0", outer: "#1a5a5a", scale: 2.7, boss: true },
+  the_merlion: { inner: "#f0e0a0", outer: "#b08040", scale: 3.0, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

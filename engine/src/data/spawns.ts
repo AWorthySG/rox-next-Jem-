@@ -428,6 +428,12 @@ Object.assign(MONSTER_TEMPLATES, {
   scout_bot: mk("scout_bot", "Scout Bot", 104, 10200, 20800),
   war_machine: mk("war_machine", "War Machine", 112, 70000, 114000, true),
   overlord_core: mk("overlord_core", "Overlord Core", 114, 76000, 126000, true),
+  // ---- Merlion Bay (Singapore) ----
+  mudskipper: mk("mudskipper", "Mudskipper", 22, 680, 440),
+  horseshoe_crab: mk("horseshoe_crab", "Horseshoe Crab", 24, 760, 520),
+  smooth_otter: mk("smooth_otter", "Smooth Otter", 26, 840, 600),
+  sea_serpent: mk("sea_serpent", "Sea Serpent", 32, 6000, 9500, true),
+  the_merlion: mk("the_merlion", "The Merlion", 35, 7200, 12000, true),
 });
 
 export interface SpawnZone {
@@ -749,6 +755,15 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "summon", intervalMs: 8000, templateId: "drone", count: 3, max: 6 },
     { kind: "nova", intervalMs: 5000, radius: 12, powerMult: 1.8 },
   ],
+  sea_serpent: [
+    { kind: "nova", intervalMs: 6000, radius: 10, powerMult: 1.4 },
+    { kind: "summon", intervalMs: 9000, templateId: "mudskipper", count: 2, max: 4 },
+  ],
+  the_merlion: [
+    { kind: "enrage", hpPct: 0.3, atkMult: 1.5 },
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.6 },
+    { kind: "heal", intervalMs: 10000, pct: 0.06 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -932,6 +947,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   scout_bot: Element.Wind,
   war_machine: Element.Fire,
   overlord_core: Element.Shadow,
+  mudskipper: Element.Water,
+  horseshoe_crab: Element.Earth,
+  smooth_otter: Element.Wind,
+  sea_serpent: Element.Water,
+  the_merlion: Element.Holy,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

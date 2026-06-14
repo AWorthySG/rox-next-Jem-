@@ -290,6 +290,7 @@ const GRADE_SHADER = {
 const WATER_MAPS: Record<string, [number, number]> = {
   comodo: [0x6fd0e0, 0x12586f],
   abyss: [0x3a8fb0, 0x081f2e],
+  merlion_bay: [0x7fdce8, 0x1a6a8a],
 };
 
 const SKY_VERT = /* glsl */ `

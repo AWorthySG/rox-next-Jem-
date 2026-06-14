@@ -41,6 +41,26 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Arena Portal", role: "portal", x: -14, z: 0, dest: { toMap: "arena", toX: 0, toZ: 0 } },
       { name: "Payon Portal", role: "portal", x: 0, z: 14, dest: { toMap: "payon", toX: 0, toZ: 18 } },
       { name: "Geffen Portal", role: "portal", x: 14, z: 14, dest: { toMap: "geffen", toX: 0, toZ: 18 } },
+      { name: "Merlion Bay Portal", role: "portal", x: -14, z: 14, dest: { toMap: "merlion_bay", toX: 0, toZ: 18 } },
+    ],
+  },
+  merlion_bay: {
+    id: "merlion_bay",
+    name: "Merlion Bay",
+    theme: { ground: 0x6fae8a, fog: 0x8fc6e0, sky: 0xbfe4f0 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "mb-mudskipper", templateId: "mudskipper", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "mb-crab", templateId: "horseshoe_crab", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "mb-otter", templateId: "smooth_otter", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "mb-serpent", templateId: "sea_serpent", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "mb-merlion", templateId: "the_merlion", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Kafra Employee", role: "shop", x: 6, z: 24, facing: Math.PI },
+      { name: "Healer", role: "healer", x: 10, z: 24, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -6, z: 24, facing: Math.PI },
+      { name: "Merlion Bay Exit", role: "portal", x: 0, z: 26, dest: { toMap: "field", toX: -14, toZ: 16 } },
     ],
   },
   geffen: {

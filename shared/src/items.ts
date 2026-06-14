@@ -366,6 +366,24 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Merlion Bay (Singapore) gear ----
+  harbour_cutlass: {
+    id: "harbour_cutlass", name: "Harbour Cutlass", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A privateer's blade. ATK +32, AGI +3.", atk: 32, bonusStats: { agi: 3 }, price: 950, sellPrice: 230,
+  },
+  sailor_cap: {
+    id: "sailor_cap", name: "Sailor Cap", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A jaunty harbour cap. DEF +10, DEX +3, Max HP +60.", def: 10, maxHp: 60, bonusStats: { dex: 3 }, price: 700, sellPrice: 175,
+  },
+  mariner_vest: {
+    id: "mariner_vest", name: "Mariner Vest", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Salt-stained sea gear. DEF +12, Max HP +100, AGI +2.", def: 12, maxHp: 100, bonusStats: { agi: 2 }, price: 800, sellPrice: 200,
+  },
+  merlion_crown: {
+    id: "merlion_crown", name: "Merlion Crown", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "Crown of the lion-fish guardian. DEF +14, all stats +2, Max HP +90.", def: 14, maxHp: 90, bonusStats: { str: 2, agi: 2, vit: 2, int: 2, dex: 2, luk: 2 }, sellPrice: 1400,
+  },
+
   // ---- Manuk Fortress gear ----
   plasma_cutter: {
     id: "plasma_cutter", name: "Plasma Cutter", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1057,6 +1075,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Merlion Bay (Singapore)
+  mudskipper: [{ itemId: "apple", chance: 0.3 }, { itemId: "mariner_vest", chance: 0.04 }],
+  horseshoe_crab: [{ itemId: "red_potion", chance: 0.2 }, { itemId: "sailor_cap", chance: 0.04 }],
+  smooth_otter: [{ itemId: "red_potion", chance: 0.2 }, { itemId: "harbour_cutlass", chance: 0.04 }],
+  sea_serpent: HI([{ itemId: "harbour_cutlass", chance: 0.6 }, { itemId: "mariner_vest", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  the_merlion: HI([{ itemId: "merlion_crown", chance: 0.7 }, { itemId: "harbour_cutlass", chance: 0.5 }, { itemId: "mariner_vest", chance: 0.5 }]),
   // Manuk Fortress
   sentinel: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "alloy_plate", chance: 0.025 }],
   drone: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "visor_helm", chance: 0.025 }],
@@ -1174,6 +1198,7 @@ const ORE_REGULARS = [
   "tiyanak", "hilsrion", "naga",
   "cornus", "faceworm", "pinguicula",
   "sentinel", "drone", "scout_bot",
+  "mudskipper", "horseshoe_crab", "smooth_otter",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1195,7 +1220,7 @@ const ORE_BOSSES = [
   "jade_warlord", "spirit_empress", "bangungot", "bungisngis", "jaguar_king", "anaconda",
   "gold_acidus", "tatacho", "queen_scaraba", "kublin", "frost_giant", "ice_queen",
   "leyak", "rangda", "gioia", "kades", "wakwak", "faceworm_queen",
-  "war_machine", "overlord_core",
+  "war_machine", "overlord_core", "sea_serpent", "the_merlion",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

@@ -138,6 +138,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 108,
     reward: { exp: 200000, zeny: 110000, items: [{ id: "bloody_sword", qty: 1 }] },
   },
+  guardian_of_the_bay: {
+    id: "guardian_of_the_bay",
+    name: "Guardian of the Bay",
+    desc: "The Merlion, lion-fish guardian, rises in Merlion Bay. Prove yourself worthy.",
+    targetTemplate: "the_merlion",
+    targetName: "The Merlion",
+    count: 1,
+    requiredLevel: 30,
+    reward: { exp: 8000, zeny: 5000, items: [{ id: "merlion_crown", qty: 1 }] },
+  },
   core_meltdown: {
     id: "core_meltdown",
     name: "Core Meltdown",
