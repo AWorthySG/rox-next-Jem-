@@ -21,6 +21,7 @@ export class GameState {
   readonly views = new Map<number, EntityView>();
   // Monster Codex registry: every species the player has ever seen this session.
   readonly monsterDex = new Map<string, DexEntry>();
+  private dying: MonsterView[] = []; // monsters playing their death animation
   selfId = -1;
 
   constructor(
@@ -74,7 +75,14 @@ export class GameState {
   removeEntity(id: number): void {
     const view = this.views.get(id);
     if (!view) return;
-    view.dispose(this.scene);
+    // Monsters play a death animation before disposing; everything else (players
+    // leaving, NPCs) is removed immediately.
+    if (view instanceof MonsterView) {
+      view.beginDeath();
+      this.dying.push(view);
+    } else {
+      view.dispose(this.scene);
+    }
     this.views.delete(id);
   }
 
@@ -86,6 +94,8 @@ export class GameState {
       view.dispose(this.scene);
       this.views.delete(id);
     }
+    for (const v of this.dying) v.dispose(this.scene);
+    this.dying = [];
   }
 
   applySnapshot(entities: EntitySnapshot[], clientTime: number): void {
@@ -173,6 +183,13 @@ export class GameState {
   update(dt: number): void {
     const renderTime = performance.now() - INTERP_DELAY_MS;
     for (const v of this.views.values()) v.update(renderTime, dt);
+    // Advance dying monsters; dispose when their animation completes.
+    for (let i = this.dying.length - 1; i >= 0; i--) {
+      if (this.dying[i].updateDeath(dt)) {
+        this.dying[i].dispose(this.scene);
+        this.dying.splice(i, 1);
+      }
+    }
   }
 
   // Lightweight position list for the minimap.

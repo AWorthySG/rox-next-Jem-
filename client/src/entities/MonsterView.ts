@@ -39,10 +39,55 @@ export class MonsterView extends EntityView {
   private aura: THREE.Mesh | null = null;
   private hitT = 0;
   private baseEmissive = new THREE.Color(0, 0, 0);
+  private deathT = -1; // -1 = alive; 0..1 = dying
+  private deathMats: THREE.Material[] = [];
 
   // Flash + scale-punch when struck.
   hit(): void {
     this.hitT = 1;
+  }
+
+  get dying(): boolean {
+    return this.deathT >= 0;
+  }
+
+  // Begin the death animation: flash white, then pop + shrink + fade out.
+  beginDeath(): void {
+    if (this.dying) return;
+    this.deathT = 0;
+    this.nameplateEl.style.display = "none";
+    this.label.element.style.display = "none";
+    // Collect every material on the view (body, feet, crown, aura…) so the whole
+    // monster fades together.
+    this.group.traverse((o) => {
+      if (o instanceof THREE.Mesh) {
+        const mats = Array.isArray(o.material) ? o.material : [o.material];
+        for (const m of mats) {
+          m.transparent = true;
+          this.deathMats.push(m);
+        }
+      }
+    });
+  }
+
+  // Advance the death animation; returns true when finished (ready to dispose).
+  updateDeath(dt: number): boolean {
+    this.deathT = Math.min(1, this.deathT + dt * 2.4);
+    const p = this.deathT;
+    const pop = Math.sin(Math.min(p / 0.35, 1) * Math.PI * 0.5); // quick pop-up
+    const s = this.scale * (1 + 0.35 * pop) * (1 - p * 0.85);
+    this.poring.group.scale.setScalar(Math.max(0.001, s));
+    this.poring.group.position.y = p * 0.8;
+    this.poring.group.rotation.y += dt * 6;
+    const op = 1 - p;
+    for (const m of this.deathMats) (m as THREE.Material & { opacity: number }).opacity = op;
+    const body = this.poring.body as THREE.Mesh;
+    const mat = body.material as THREE.MeshToonMaterial | undefined;
+    if (mat?.emissive) {
+      const flash = 1 - Math.min(p / 0.3, 1);
+      mat.emissive.setRGB(this.baseEmissive.r + flash, this.baseEmissive.g + flash, this.baseEmissive.b + flash);
+    }
+    return p >= 1;
   }
 
   get pickables(): THREE.Object3D {
