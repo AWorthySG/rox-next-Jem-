@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- East Coast Park (Singapore) gear ----
+  beach_trident: {
+    id: "beach_trident", name: "Beach Trident", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A surf-cast fishing trident. ATK +52, AGI +4.", atk: 52, bonusStats: { agi: 4 }, sellPrice: 1100,
+  },
+  sun_visor: {
+    id: "sun_visor", name: "Sun Visor", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A breezy beach visor. DEF +14, DEX +4, Max HP +80.", def: 14, maxHp: 80, bonusStats: { dex: 4 }, sellPrice: 950,
+  },
+  wetsuit: {
+    id: "wetsuit", name: "Wetsuit", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "A sleek diving wetsuit. DEF +16, Max HP +140, AGI +3.", def: 16, maxHp: 140, bonusStats: { agi: 3 }, sellPrice: 1100,
+  },
+
   // ---- Haw Par Villa (Singapore — Ten Courts of Hell) gear ----
   soul_reaper: {
     id: "soul_reaper", name: "Soul Reaper", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1215,6 +1229,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // East Coast Park (Singapore)
+  beach_crab: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "wetsuit", chance: 0.035 }],
+  seagull: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "sun_visor", chance: 0.035 }],
+  sand_flea: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "beach_trident", chance: 0.03 }],
+  giant_stingray: HI([{ itemId: "beach_trident", chance: 0.6 }, { itemId: "wetsuit", chance: 0.5 }, { itemId: "sun_visor", chance: 0.4 }]),
+  tidal_kraken: HI([{ itemId: "wetsuit", chance: 0.6 }, { itemId: "beach_trident", chance: 0.45 }, { itemId: "marc_card", chance: 0.05 }]),
   // Haw Par Villa (Singapore — Ten Courts of Hell)
   hell_judge: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "hell_robe", chance: 0.025 }],
   ox_head: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "judge_cap", chance: 0.025 }],
@@ -1409,6 +1429,7 @@ const ORE_REGULARS = [
   "lab_slime", "raptor", "pterodactyl",
   "wild_boar", "kampong_rooster", "mangrove_crab",
   "hell_judge", "ox_head", "horse_face",
+  "beach_crab", "seagull", "sand_flea",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1435,7 +1456,7 @@ const ORE_BOSSES = [
   "supertree_guardian", "flower_dome_titan", "pontianak_queen", "penanggalan",
   "sentosa_merlion", "leviathan", "sultan_jinn", "naga_emas",
   "skyline_colossus", "spectra_dragon", "t_rex", "mecha_dino", "boar_king", "mangrove_naga",
-  "yama_king", "tiger_spirit",
+  "yama_king", "tiger_spirit", "giant_stingray", "tidal_kraken",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

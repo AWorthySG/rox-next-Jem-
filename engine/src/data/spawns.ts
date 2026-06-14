@@ -494,6 +494,12 @@ Object.assign(MONSTER_TEMPLATES, {
   horse_face: mk("horse_face", "Horse-Face", 94, 7600, 16200),
   yama_king: mk("yama_king", "Yama, King of Hell", 100, 50000, 80000, true),
   tiger_spirit: mk("tiger_spirit", "Tiger Spirit", 102, 56000, 90000, true),
+  // ---- East Coast Park (Singapore) ----
+  beach_crab: mk("beach_crab", "Beach Crab", 50, 2600, 5200),
+  seagull: mk("seagull", "Seagull", 52, 2800, 5800),
+  sand_flea: mk("sand_flea", "Sand Flea", 54, 3000, 6400),
+  giant_stingray: mk("giant_stingray", "Giant Stingray", 60, 12000, 21000, true),
+  tidal_kraken: mk("tidal_kraken", "Tidal Kraken", 62, 13500, 24000, true),
 });
 
 export interface SpawnZone {
@@ -909,6 +915,15 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "enrage", hpPct: 0.35, atkMult: 1.8 },
     { kind: "nova", intervalMs: 5500, radius: 10, powerMult: 1.6 },
   ],
+  giant_stingray: [
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.6 },
+    { kind: "summon", intervalMs: 9000, templateId: "beach_crab", count: 2, max: 4 },
+  ],
+  tidal_kraken: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.6 },
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
+    { kind: "heal", intervalMs: 11000, pct: 0.06 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -1147,6 +1162,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   horse_face: Element.Fire,
   yama_king: Element.Shadow,
   tiger_spirit: Element.Fire,
+  beach_crab: Element.Water,
+  seagull: Element.Wind,
+  sand_flea: Element.Earth,
+  giant_stingray: Element.Wind,
+  tidal_kraken: Element.Water,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

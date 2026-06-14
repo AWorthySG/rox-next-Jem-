@@ -70,6 +70,7 @@ const ARCH: Record<string, MonsterArch> = {
   lab_slime: "jelly", raptor: "beast", pterodactyl: "bird", t_rex: "dragon", mecha_dino: "golem",
   wild_boar: "beast", kampong_rooster: "bird", mangrove_crab: "aquatic", boar_king: "beast", mangrove_naga: "dragon",
   hell_judge: "undead", ox_head: "humanoid", horse_face: "humanoid", yama_king: "demon", tiger_spirit: "beast",
+  beach_crab: "aquatic", seagull: "bird", sand_flea: "bug", giant_stingray: "aquatic", tidal_kraken: "aquatic",
 };
 
 function hex(s: string): number {
@@ -364,6 +365,12 @@ const DEFS: Record<string, AppearanceDef> = {
   horse_face: { inner: "#e0b0a0", outer: "#5a2818", scale: 1.5 },
   yama_king: { inner: "#e06060", outer: "#3a0a0a", scale: 3.2, boss: true },
   tiger_spirit: { inner: "#f0a040", outer: "#6a2810", scale: 3.0, boss: true },
+  // East Coast Park (Singapore)
+  beach_crab: { inner: "#e08060", outer: "#7a2818", scale: 1.0 },
+  seagull: { inner: "#f0f0f0", outer: "#9098a0", scale: 1.1 },
+  sand_flea: { inner: "#d0c090", outer: "#6a5a30", scale: 0.85 },
+  giant_stingray: { inner: "#90b0c0", outer: "#2a4a5a", scale: 2.8, boss: true },
+  tidal_kraken: { inner: "#70b0c0", outer: "#1a4a5a", scale: 3.0, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

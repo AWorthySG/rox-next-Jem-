@@ -148,6 +148,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 96,
     reward: { exp: 170000, zeny: 95000, items: [{ id: "soul_reaper", qty: 1 }] },
   },
+  terror_of_the_tide: {
+    id: "terror_of_the_tide",
+    name: "Terror of the Tide",
+    desc: "A Tidal Kraken drags swimmers under at East Coast Park. End the menace.",
+    targetTemplate: "tidal_kraken",
+    targetName: "Tidal Kraken",
+    count: 1,
+    requiredLevel: 58,
+    reward: { exp: 22000, zeny: 14000, items: [{ id: "beach_trident", qty: 1 }] },
+  },
   the_boar_king: {
     id: "the_boar_king",
     name: "The Boar King",

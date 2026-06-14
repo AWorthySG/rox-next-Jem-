@@ -63,6 +63,24 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Merlion Bay Exit", role: "portal", x: 0, z: 26, dest: { toMap: "field", toX: -14, toZ: 16 } },
       { name: "Bukit Timah Portal", role: "portal", x: 0, z: -50, dest: { toMap: "bukit_timah", toX: 0, toZ: 18 } },
       { name: "Pulau Ubin Portal", role: "portal", x: 18, z: 14, dest: { toMap: "pulau_ubin", toX: 0, toZ: 18 } },
+      { name: "East Coast Portal", role: "portal", x: -18, z: 14, dest: { toMap: "east_coast", toX: 0, toZ: 18 } },
+    ],
+  },
+  east_coast: {
+    id: "east_coast",
+    name: "East Coast Park",
+    theme: { ground: 0x8ac88a, fog: 0x8fc6e0, sky: 0xbfe4f0 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "ec-crab", templateId: "beach_crab", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "ec-seagull", templateId: "seagull", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "ec-flea", templateId: "sand_flea", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "ec-stingray", templateId: "giant_stingray", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "ec-kraken", templateId: "tidal_kraken", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "East Coast Exit", role: "portal", x: 0, z: 24, dest: { toMap: "merlion_bay", toX: -18, toZ: 16 } },
     ],
   },
   pulau_ubin: {
