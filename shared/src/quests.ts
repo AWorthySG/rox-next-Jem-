@@ -138,6 +138,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 108,
     reward: { exp: 200000, zeny: 110000, items: [{ id: "bloody_sword", qty: 1 }] },
   },
+  the_witch_rangda: {
+    id: "the_witch_rangda",
+    name: "The Witch Rangda",
+    desc: "The demon witch Rangda terrorizes Dewata. End her dark rites.",
+    targetTemplate: "rangda",
+    targetName: "Rangda",
+    count: 1,
+    requiredLevel: 86,
+    reward: { exp: 80000, zeny: 46000, items: [{ id: "kris_dagger", qty: 1 }] },
+  },
   frozen_throne: {
     id: "frozen_throne",
     name: "The Frozen Throne",

@@ -404,6 +404,12 @@ Object.assign(MONSTER_TEMPLATES, {
   siroma: mk("siroma", "Siroma", 100, 9000, 18400),
   frost_giant: mk("frost_giant", "Frost Giant", 106, 64000, 104000, true),
   ice_queen: mk("ice_queen", "Ice Queen", 108, 70000, 116000, true),
+  // ---- Dewata ----
+  banaspaty: mk("banaspaty", "Banaspaty", 80, 5400, 11600),
+  butoijo: mk("butoijo", "Butoijo", 82, 5700, 12200),
+  kaho: mk("kaho", "Kaho", 84, 6000, 12800),
+  leyak: mk("leyak", "Leyak", 90, 40000, 62000, true),
+  rangda: mk("rangda", "Rangda", 92, 44000, 70000, true),
 });
 
 export interface SpawnZone {
@@ -689,6 +695,15 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "summon", intervalMs: 8500, templateId: "snowier", count: 2, max: 5 },
     { kind: "heal", intervalMs: 11000, pct: 0.06 },
   ],
+  leyak: [
+    { kind: "nova", intervalMs: 5500, radius: 10, powerMult: 1.6 },
+    { kind: "heal", intervalMs: 10000, pct: 0.06 },
+  ],
+  rangda: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.6 },
+    { kind: "summon", intervalMs: 8000, templateId: "leyak", count: 1, max: 2 },
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -852,6 +867,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   siroma: Element.Water,
   frost_giant: Element.Earth,
   ice_queen: Element.Holy,
+  banaspaty: Element.Fire,
+  butoijo: Element.Water,
+  kaho: Element.Fire,
+  leyak: Element.Shadow,
+  rangda: Element.Shadow,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

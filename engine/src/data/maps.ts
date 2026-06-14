@@ -274,6 +274,24 @@ export const MAPS: Record<string, GameMap> = {
     npcs: [
       { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
       { name: "Turtle Island Exit", role: "portal", x: 0, z: 24, dest: { toMap: "comodo", toX: -18, toZ: 16 } },
+      { name: "Dewata Portal", role: "portal", x: 0, z: -46, dest: { toMap: "dewata", toX: 0, toZ: 18 } },
+    ],
+  },
+  dewata: {
+    id: "dewata",
+    name: "Dewata",
+    theme: { ground: 0x4a6a44, fog: 0x8a7050, sky: 0xc8a874 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "de-banaspaty", templateId: "banaspaty", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "de-butoijo", templateId: "butoijo", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "de-kaho", templateId: "kaho", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "de-leyak", templateId: "leyak", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "de-rangda", templateId: "rangda", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Dewata Exit", role: "portal", x: 0, z: 24, dest: { toMap: "turtle", toX: 0, toZ: -38 } },
     ],
   },
   amatsu: {

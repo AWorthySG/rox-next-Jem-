@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Dewata gear ----
+  kris_dagger: {
+    id: "kris_dagger", name: "Kris Dagger", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A wavy ceremonial blade. ATK +70, AGI +4, LUK +3.", atk: 70, bonusStats: { agi: 4, luk: 3 }, sellPrice: 3400,
+  },
+  barong_mask: {
+    id: "barong_mask", name: "Barong Mask", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A guardian-spirit mask. DEF +18, STR +4, Max HP +110.", def: 18, maxHp: 110, bonusStats: { str: 4 }, sellPrice: 3000,
+  },
+  batik_robe: {
+    id: "batik_robe", name: "Batik Robe", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Patterned island silk. DEF +24, Max SP +70, INT +4.", def: 24, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 3200,
+  },
+
   // ---- Ice Cave gear ----
   glacier_blade: {
     id: "glacier_blade", name: "Glacier Blade", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1001,6 +1015,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Dewata
+  banaspaty: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "barong_mask", chance: 0.03 }],
+  butoijo: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "batik_robe", chance: 0.03 }],
+  kaho: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "kris_dagger", chance: 0.03 }],
+  leyak: HI([{ itemId: "kris_dagger", chance: 0.6 }, { itemId: "batik_robe", chance: 0.5 }, { itemId: "barong_mask", chance: 0.4 }]),
+  rangda: HI([{ itemId: "batik_robe", chance: 0.6 }, { itemId: "kris_dagger", chance: 0.45 }, { itemId: "baba_card", chance: 0.05 }]),
   // Ice Cave
   snowier: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "glacial_plate", chance: 0.025 }],
   gazeti: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "frost_crown", chance: 0.025 }],
@@ -1090,6 +1110,7 @@ const ORE_REGULARS = [
   "dustiness", "hode", "galapago",
   "scaraba", "dolomedes", "centipede",
   "snowier", "gazeti", "siroma",
+  "banaspaty", "butoijo", "kaho",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1110,6 +1131,7 @@ const ORE_BOSSES = [
   "freezer", "turtle_general", "chung_e", "evil_snake_lord", "dark_illusion", "corrupt_monk",
   "jade_warlord", "spirit_empress", "bangungot", "bungisngis", "jaguar_king", "anaconda",
   "gold_acidus", "tatacho", "queen_scaraba", "kublin", "frost_giant", "ice_queen",
+  "leyak", "rangda",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];
