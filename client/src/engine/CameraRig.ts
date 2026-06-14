@@ -11,6 +11,7 @@ export class CameraRig {
   private pitch = 0.85; // radians above horizon
   private dragging = false;
   private lastX = 0;
+  private shakeAmt = 0;
 
   constructor(private dom: HTMLElement) {
     this.camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -38,6 +39,11 @@ export class CameraRig {
     });
   }
 
+  // Add an impulse of camera shake (e.g. on a crit or taking a hit).
+  shake(amount: number): void {
+    this.shakeAmt = Math.min(0.9, this.shakeAmt + amount);
+  }
+
   // Smoothly follow a world position.
   follow(pos: THREE.Vector3, dt: number): void {
     this.target.lerp(new THREE.Vector3(pos.x, pos.y + 1, pos.z), Math.min(1, dt * 8));
@@ -49,6 +55,12 @@ export class CameraRig {
       this.target.z + Math.cos(this.yaw) * horiz,
     );
     this.camera.position.lerp(desired, Math.min(1, dt * 8));
+    if (this.shakeAmt > 0.001) {
+      this.camera.position.x += (Math.random() - 0.5) * this.shakeAmt;
+      this.camera.position.y += (Math.random() - 0.5) * this.shakeAmt;
+      this.camera.position.z += (Math.random() - 0.5) * this.shakeAmt;
+      this.shakeAmt *= Math.pow(0.0001, dt); // fast exponential decay
+    }
     this.camera.lookAt(this.target);
   }
 }

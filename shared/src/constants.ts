@@ -39,6 +39,7 @@ export const STAT_POINTS_PER_LEVEL = 3;
 // Gear refinement.
 export const MAX_REFINE = 10;
 export const REFINE_BASE_COST = 200; // cost of +1; scales with level
+export const REFINE_SAFE = 4; // refines up to this level always succeed
 
 // Gear enchantment ("Overall Rating" stat-lines). Each equipment piece holds up
 // to MAX_ENCHANT_LINES rolled stat lines; re-rolling costs Zeny and rerolls any

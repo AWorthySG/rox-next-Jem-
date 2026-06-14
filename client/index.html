@@ -15,6 +15,7 @@
       <div class="login-card">
         <h1>ROX&nbsp;<span class="accent">Next</span></h1>
         <p class="tagline">An online 3D adventure — slay Porings, level up, party with others.</p>
+        <div id="login-preview" class="login-preview"></div>
         <label class="field">
           <span>Adventurer name</span>
           <input id="name-input" type="text" maxlength="16" placeholder="Enter a name" autocomplete="off" />
@@ -44,6 +45,11 @@
         <p id="conn-status" class="conn-status">Connecting…</p>
       </div>
     </div>
+
+    <!-- Full-screen feedback overlays -->
+    <div id="screen-damage" class="screen-fx screen-damage"></div>
+    <div id="screen-levelup" class="screen-fx screen-levelup"></div>
+    <div id="screen-lowhp" class="screen-fx screen-lowhp"></div>
 
     <!-- In-game HUD -->
     <div id="hud" class="hud hidden">

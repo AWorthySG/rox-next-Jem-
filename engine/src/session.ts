@@ -160,7 +160,19 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
     }
     case MsgType.RefineItem: {
       const p = playerOf(world, link);
-      if (p && isEquipSlot(msg.slot)) p.refineEquipped(msg.slot);
+      if (p && isEquipSlot(msg.slot)) {
+        const res = p.refineEquipped(msg.slot);
+        if (res) {
+          link.send({
+            t: MsgType.RefineResult,
+            slot: msg.slot,
+            itemName: res.itemName,
+            success: res.success,
+            level: res.level,
+            broke: res.broke,
+          });
+        }
+      }
       break;
     }
     case MsgType.EnchantItem: {

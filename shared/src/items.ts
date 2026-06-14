@@ -1,20 +1,63 @@
-import { REFINE_BASE_COST } from "./constants.js";
+import { REFINE_BASE_COST, REFINE_SAFE } from "./constants.js";
 import { EquipSlot, ItemType } from "./enums.js";
 import type { Stats } from "./stats.js";
 
-// Zeny cost to take an item from `level` to `level + 1`.
+// Zeny cost to take an item from `level` to `level + 1` (steeper past the safe line).
 export function refineCost(level: number): number {
-  return REFINE_BASE_COST * (level + 1);
+  const over = Math.max(0, level - REFINE_SAFE + 1);
+  return Math.round(REFINE_BASE_COST * (level + 1) * (1 + over * 0.6));
 }
 
-// Stat bonuses granted by `level` refines on an equipment item.
-export function refineBonus(item: { atk?: number; matk?: number; def?: number; maxHp?: number }, level: number) {
-  return {
-    atk: item.atk ? level * 2 : 0,
-    matk: item.matk ? level * 2 : 0,
-    def: item.def ? level * 2 : 0,
-    maxHp: item.maxHp ? level * 6 : 0,
-  };
+// Stat bonuses granted by `level` refines, by equipment slot — so EVERY gear
+// type (including accessories that only carry base-stat bonuses) gains from
+// refining. Weapons gain ATK/MATK, defensive gear gains DEF/HP, accessories a
+// balanced sliver of everything.
+export function refineBonus(
+  item: { slot?: EquipSlot; atk?: number; matk?: number; def?: number; maxHp?: number },
+  level: number,
+) {
+  const out = { atk: 0, matk: 0, def: 0, maxHp: 0 };
+  if (level <= 0) return out;
+  switch (item.slot) {
+    case EquipSlot.Weapon:
+      // physical weapons gain ATK, magic weapons (matk) gain MATK; mixed gain both
+      if (item.matk) out.matk = level * 2;
+      if (item.atk || !item.matk) out.atk = level * 2;
+      break;
+    case EquipSlot.Armor:
+      out.def = level * 2;
+      out.maxHp = level * 8;
+      break;
+    case EquipSlot.Headgear:
+      out.def = level * 2;
+      out.maxHp = level * 6;
+      break;
+    case EquipSlot.Accessory:
+      out.maxHp = level * 5;
+      out.atk = level;
+      out.matk = level;
+      break;
+    default:
+      // fallback for slotless/unknown: scale whatever stats the item has
+      out.atk = item.atk ? level * 2 : 0;
+      out.matk = item.matk ? level * 2 : 0;
+      out.def = item.def ? level * 2 : 0;
+      out.maxHp = item.maxHp ? level * 6 : 0;
+  }
+  return out;
+}
+
+// Success chance for the attempt that takes an item from `level` to `level+1`.
+// Guaranteed up to the safe line, then steadily harder.
+export function refineChance(level: number): number {
+  if (level < REFINE_SAFE) return 1;
+  const table = [0.9, 0.8, 0.7, 0.6, 0.5, 0.4]; // +4→5 … +9→10
+  return table[level - REFINE_SAFE] ?? 0.4;
+}
+
+// Which ore an item consumes per refine attempt.
+export function refineMaterial(item: { slot?: EquipSlot }): string {
+  return item.slot === EquipSlot.Weapon || item.slot === EquipSlot.Headgear ? "oridecon" : "elunium";
 }
 
 // A timed buff granted by eating a food/cooking item.
@@ -80,6 +123,10 @@ export const ITEMS: Record<string, ItemDef> = {
   spicy_skewer: { id: "spicy_skewer", name: "Spicy Skewer", type: ItemType.Consumable, desc: "Eat: STR +5, ATK +15 for 5 min.", food: { durationMs: 300000, bonusStats: { str: 5 }, atk: 15 }, price: 160, sellPrice: 28 },
   steamed_tuna: { id: "steamed_tuna", name: "Steamed Tuna", type: ItemType.Consumable, desc: "Eat: AGI +5, CRIT +6 for 5 min.", food: { durationMs: 300000, bonusStats: { agi: 5 }, crit: 6 }, price: 160, sellPrice: 28 },
   royal_feast: { id: "royal_feast", name: "Royal Feast", type: ItemType.Consumable, desc: "Eat: all stats +4, ATK/MATK +12 for 10 min.", food: { durationMs: 600000, bonusStats: { str: 4, agi: 4, vit: 4, int: 4, dex: 4, luk: 4 }, atk: 12, matk: 12 }, sellPrice: 200 },
+
+  // refine ores (materials consumed per refine attempt)
+  oridecon: { id: "oridecon", name: "Oridecon", type: ItemType.Material, desc: "Refine ore for weapons & headgear.", price: 1200, sellPrice: 300 },
+  elunium: { id: "elunium", name: "Elunium", type: ItemType.Material, desc: "Refine ore for armor & accessories.", price: 1200, sellPrice: 300 },
 
   // pet eggs (use to summon a companion)
   poring_egg: { id: "poring_egg", name: "Poring Egg", type: ItemType.Consumable, desc: "Summons a Poring pet (LUK +3, Max HP +50).", pet: "poring_pet", price: 800, sellPrice: 100 },
@@ -296,6 +343,50 @@ export const ITEMS: Record<string, ItemDef> = {
     sellPrice: 12000,
   },
 
+  // ---- Geffen Tower (mid-level mage gear) ----
+  mage_staff: {
+    id: "mage_staff", name: "Geffen Mage Staff", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A tournament staff. MATK +30, INT +5.", matk: 30, bonusStats: { int: 5 }, sellPrice: 700,
+  },
+  wizard_hat: {
+    id: "wizard_hat", name: "Wizard Hat", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A pointed hat. MATK +8, INT +4, Max SP +40.", matk: 8, maxSp: 40, bonusStats: { int: 4 }, sellPrice: 650,
+  },
+  geffen_robe: {
+    id: "geffen_robe", name: "Geffen Robe", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
+  },
+
+  // ---- Morocc / Bio Lab / Abyss endgame gear ----
+  desert_sabre: {
+    id: "desert_sabre", name: "Desert Sabre", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A curved scimitar. ATK +72, STR +4, DEX +3.", atk: 72, bonusStats: { str: 4, dex: 3 }, sellPrice: 5500,
+  },
+  morrigane_helm: {
+    id: "morrigane_helm", name: "Morrigane's Helm", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "Helm of the war witch. DEF +20, LUK +8, ATK +10.", def: 20, atk: 10, bonusStats: { luk: 8 }, sellPrice: 5500,
+  },
+  bio_coat: {
+    id: "bio_coat", name: "Bio Lab Coat", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "An experimental coat. DEF +30, Max HP +320, INT +6.", def: 30, maxHp: 320, bonusStats: { int: 6 }, sellPrice: 5800,
+  },
+  mad_bunny: {
+    id: "mad_bunny", name: "Mad Bunny", type: ItemType.Accessory, slot: EquipSlot.Accessory,
+    desc: "A twitchy charm. AGI +8, ATK +15.", atk: 15, bonusStats: { agi: 8 }, sellPrice: 6000,
+  },
+  abyssal_blade: {
+    id: "abyssal_blade", name: "Abyssal Greatsword", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "Forged in the deep. ATK +105, STR +8, DEX +5.", atk: 105, bonusStats: { str: 8, dex: 5 }, sellPrice: 9500,
+  },
+  dragon_scale_mail: {
+    id: "dragon_scale_mail", name: "Dragon Scale Mail", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Scales of a true dragon. DEF +44, Max HP +560, VIT +6.", def: 44, maxHp: 560, bonusStats: { vit: 6 }, sellPrice: 11000,
+  },
+  nidhoggr_eye: {
+    id: "nidhoggr_eye", name: "Nidhoggr's Eye", type: ItemType.Accessory, slot: EquipSlot.Accessory,
+    desc: "An eye of the world-serpent. INT +10, DEX +10, Max SP +120.", maxSp: 120, bonusStats: { int: 10, dex: 10 }, sellPrice: 13000,
+  },
+
   // ---- headgear ----
   feather_beret: {
     id: "feather_beret",
@@ -362,6 +453,8 @@ export const ITEMS: Record<string, ItemDef> = {
   ghostring_card: { id: "ghostring_card", name: "Ghostring Card", type: ItemType.Card, cardSlot: EquipSlot.Armor, desc: "Armor card. Max HP +400, VIT +6.", maxHp: 400, bonusStats: { vit: 6 }, sellPrice: 6000 },
   thanatos_card: { id: "thanatos_card", name: "Thanatos Card", type: ItemType.Card, cardSlot: EquipSlot.Weapon, desc: "Weapon card. ATK +30, MATK +30, STR +5, INT +5.", atk: 30, matk: 30, bonusStats: { str: 5, int: 5 }, sellPrice: 12000 },
   willow_card: { id: "willow_card", name: "Willow Card", type: ItemType.Card, cardSlot: EquipSlot.Headgear, desc: "Headgear card. Max SP +60, INT +3.", maxSp: 60, bonusStats: { int: 3 }, sellPrice: 700 },
+  drake_card: { id: "drake_card", name: "Drake Card", type: ItemType.Card, cardSlot: EquipSlot.Weapon, desc: "Weapon card. ATK +25, STR +3.", atk: 25, bonusStats: { str: 3 }, sellPrice: 4500 },
+  nidhoggr_card: { id: "nidhoggr_card", name: "Nidhoggr Shadow Card", type: ItemType.Card, cardSlot: EquipSlot.Armor, desc: "Armor card. Max HP +550, all stats +3.", maxHp: 550, bonusStats: { str: 3, agi: 3, vit: 3, int: 3, dex: 3, luk: 3 }, sellPrice: 14000 },
   stainer_card: { id: "stainer_card", name: "Stainer Card", type: ItemType.Card, cardSlot: EquipSlot.Headgear, desc: "Headgear card. AGI +5, FLEE via DEF +4.", def: 4, bonusStats: { agi: 5 }, sellPrice: 1500 },
 };
 
@@ -380,6 +473,8 @@ export const SHOP_STOCK: string[] = [
   "leather_armor",
   "feather_beret",
   "ring_of_power",
+  "oridecon",
+  "elunium",
   "poring_egg",
   "peco_whistle",
 ];
@@ -540,7 +635,60 @@ Object.assign(DROP_TABLES, {
   aliza: [{ itemId: "red_potion", chance: 0.5 }, { itemId: "immortal_heart", chance: 0.02 }],
   thanatos_phantom: HI([{ itemId: "thanatos_sword", chance: 0.5 }, { itemId: "immortal_heart", chance: 0.5 }]),
   memory_of_thanatos: HI([{ itemId: "fallen_angel_wing", chance: 0.7 }, { itemId: "thanatos_sword", chance: 0.6 }, { itemId: "thanatos_card", chance: 0.12 }]),
+  // Morocc desert
+  anubis: [{ itemId: "red_potion", chance: 0.5 }, { itemId: "morrigane_helm", chance: 0.03 }],
+  pasana: [{ itemId: "red_potion", chance: 0.5 }, { itemId: "desert_sabre", chance: 0.03 }],
+  drake: HI([{ itemId: "desert_sabre", chance: 0.6 }, { itemId: "morrigane_helm", chance: 0.5 }, { itemId: "drake_card", chance: 0.08 }]),
+  satan_morroc: HI([{ itemId: "desert_sabre", chance: 0.6 }, { itemId: "abyssal_blade", chance: 0.4 }, { itemId: "immortal_heart", chance: 0.5 }, { itemId: "drake_card", chance: 0.1 }]),
+  // Bio Lab
+  cecil: [{ itemId: "red_potion", chance: 0.5 }, { itemId: "bio_coat", chance: 0.03 }],
+  wickebine: [{ itemId: "red_potion", chance: 0.5 }, { itemId: "mad_bunny", chance: 0.03 }],
+  egnigem: HI([{ itemId: "bio_coat", chance: 0.6 }, { itemId: "mad_bunny", chance: 0.5 }, { itemId: "valkyrie_armor", chance: 0.4 }]),
+  kathryne: HI([{ itemId: "bio_coat", chance: 0.6 }, { itemId: "nidhoggr_eye", chance: 0.4 }, { itemId: "ghostring_card", chance: 0.08 }]),
+  // Abyss Lake
+  ferus: [{ itemId: "red_potion", chance: 0.5 }, { itemId: "dragon_scale_mail", chance: 0.025 }],
+  acidus: [{ itemId: "red_potion", chance: 0.5 }, { itemId: "abyssal_blade", chance: 0.025 }],
+  detale: HI([{ itemId: "dragon_scale_mail", chance: 0.6 }, { itemId: "abyssal_blade", chance: 0.5 }, { itemId: "nidhoggr_eye", chance: 0.4 }]),
+  nidhoggr: HI([{ itemId: "dragon_scale_mail", chance: 0.7 }, { itemId: "abyssal_blade", chance: 0.6 }, { itemId: "nidhoggr_eye", chance: 0.5 }, { itemId: "nidhoggr_card", chance: 0.12 }]),
+  // Geffen Tower
+  marionette: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "wizard_hat", chance: 0.04 }],
+  nightmare: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "geffen_robe", chance: 0.04 }],
+  marduk: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "mage_staff", chance: 0.04 }],
+  doppelganger: HI([{ itemId: "mage_staff", chance: 0.6 }, { itemId: "geffen_robe", chance: 0.5 }, { itemId: "doppelganger_card", chance: 0.1 }]),
+  dark_priest: HI([{ itemId: "wizard_hat", chance: 0.6 }, { itemId: "geffen_robe", chance: 0.5 }, { itemId: "rosary", chance: 0.3 }]),
 });
+
+// Sprinkle refine ores across the bestiary so refining has a farming loop:
+// regular monsters drop them rarely; bosses reliably.
+const ORE_REGULARS = [
+  "skeleton", "zombie", "clock", "punk", "sandman", "anolian", "dryad", "stem_worm",
+  "wraith", "gargoyle", "sleeper", "hill_wind", "metaling", "venatu", "vanberk",
+  "hodremlin", "aliot", "aliza", "coco", "spore",
+  "anubis", "pasana", "cecil", "wickebine", "ferus", "acidus",
+  "marionette", "nightmare", "marduk",
+];
+for (const id of ORE_REGULARS) {
+  const t = DROP_TABLES[id];
+  if (t) {
+    t.push({ itemId: "oridecon", chance: 0.06 });
+    t.push({ itemId: "elunium", chance: 0.06 });
+  }
+}
+const ORE_BOSSES = [
+  "poring_king", "baphomet", "clock_tower_manager", "hardrock_mammoth", "dark_lord",
+  "amon_ra", "owl_duke", "kraken", "tao_gunka", "gloom", "valkyrie_randgris", "kiel",
+  "vesper", "boitata", "tendrilion", "ktullanux", "beelzebub", "thanatos_phantom",
+  "memory_of_thanatos", "eddga", "moonlight", "mistress", "angeling",
+  "drake", "satan_morroc", "egnigem", "kathryne", "detale", "nidhoggr",
+  "doppelganger", "dark_priest",
+];
+for (const id of ORE_BOSSES) {
+  const t = DROP_TABLES[id];
+  if (t) {
+    t.push({ itemId: "oridecon", chance: 0.7, qty: 2 });
+    t.push({ itemId: "elunium", chance: 0.7, qty: 2 });
+  }
+}
 
 // ---- Gear enchantment ----
 

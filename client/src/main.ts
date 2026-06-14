@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { JobId, MsgType, getSkill, type ServerMessage } from "@rox/shared";
+import { Element, ELEMENT_COLOR, JobId, MsgType, getSkill, type ServerMessage } from "@rox/shared";
 import { SceneManager } from "./engine/SceneManager.js";
 import { CameraRig } from "./engine/CameraRig.js";
 import { InputController } from "./engine/InputController.js";
@@ -30,6 +30,9 @@ import { WarpPanel } from "./ui/WarpPanel.js";
 import { AchievementsPanel } from "./ui/AchievementsPanel.js";
 import { SkillPopup } from "./ui/SkillPopup.js";
 import { TargetFrame } from "./ui/TargetFrame.js";
+import { SkillVfx } from "./ui/SkillVfx.js";
+import { ScreenFx } from "./ui/ScreenFx.js";
+import { LoginPreview } from "./ui/LoginPreview.js";
 import { Sfx } from "./ui/Sfx.js";
 import { AutoBattle } from "./ui/AutoBattle.js";
 import { MiniMap } from "./ui/MiniMap.js";
@@ -52,6 +55,8 @@ const targetFrame = new TargetFrame();
 const sfx = new Sfx();
 const clickMarker = new ClickMarker(scene.scene);
 const novaTelegraph = new NovaTelegraph(scene.scene);
+const skillVfx = new SkillVfx(scene.scene);
+const screenFx = new ScreenFx();
 
 // Help panel toggle (button + key H).
 const helpPanel = document.getElementById("help-panel")!;
@@ -77,6 +82,8 @@ const skillBar = new SkillBar((skillId) => {
   if (targetId == null) return;
   skillPopup.show(def.name);
   sfx.cast();
+  const selfPos = gameState.self?.group.position;
+  if (selfPos) skillVfx.castRing(selfPos, ELEMENT_COLOR[def.element ?? Element.Neutral]);
   transport?.send({ t: MsgType.SkillIntent, skillId, targetId });
 });
 
@@ -307,6 +314,7 @@ function handleMessage(msg: ServerMessage): void {
       jobAdvance.update(msg.self);
       hud.show();
       document.getElementById("login")!.classList.add("hidden");
+      loginPreview.stop();
       chat.system(
         mode === "solo"
           ? `Welcome to Prontera Field, ${msg.self.name}! (solo mode)`
@@ -316,10 +324,14 @@ function handleMessage(msg: ServerMessage): void {
     case MsgType.Spawn:
       gameState.addEntity(msg.entity);
       break;
-    case MsgType.Despawn:
+    case MsgType.Despawn: {
       if (msg.id === currentTargetId) currentTargetId = null;
+      // gold loot sparkle as the monster falls
+      const death = gameState.monsterDeathInfo(msg.id);
+      if (death) skillVfx.impact(death.pos, 0xffd24a, death.boss ? 2.4 : 1.1);
       gameState.removeEntity(msg.id);
       break;
+    }
     case MsgType.Snapshot:
       gameState.applySnapshot(msg.entities, performance.now());
       break;
@@ -332,6 +344,7 @@ function handleMessage(msg: ServerMessage): void {
         chat.system(`You advanced to ${JOB_NAME[msg.self.job]}!`);
       }
       hud.update(msg.self);
+      screenFx.setLowHp(msg.self.maxHp > 0 && msg.self.hp / msg.self.maxHp < 0.25);
       skillBar.setSp(msg.self.sp);
       inventory.sync(msg.self);
       storage.sync(msg.self);
@@ -379,8 +392,13 @@ function handleMessage(msg: ServerMessage): void {
       pvpMap = msg.pvp;
       gameState.clearExceptSelf();
       gameState.self?.teleport(msg.x, msg.z);
-      scene.setTheme(msg.theme);
+      scene.setTheme(msg.theme, msg.mapId);
       chat.system(msg.pvp ? `Entered ${msg.name} — PvP enabled!` : `Entered ${msg.name}.`);
+      break;
+    case MsgType.RefineResult:
+      refine.showResult(msg.itemName, msg.success, msg.level);
+      if (msg.success) sfx.levelUp();
+      else sfx.hit();
       break;
     case MsgType.DamageEvent:
       onDamage(msg);
@@ -389,6 +407,8 @@ function handleMessage(msg: ServerMessage): void {
       if (msg.id === selfId) {
         chat.system(`You reached level ${msg.newLevel}!`);
         sfx.levelUp();
+        screenFx.levelUp();
+        cameraRig.shake(0.12);
       }
       break;
     case MsgType.ChatBroadcast:
@@ -415,6 +435,21 @@ function onDamage(msg: Extract<ServerMessage, { t: MsgType.DamageEvent }>): void
     const suffix = mult > 1 ? " ▲" : mult < 1 ? " ▼" : "";
     damageNumbers.spawn(pos, `${msg.amount}${suffix}`, variant, mult);
     if (msg.sourceId === selfId) (msg.crit ? sfx.crit() : sfx.hit());
+    // Impact VFX for skill hits, colored by the skill's element.
+    if (msg.skillId && msg.skillId !== "burn") {
+      const el = getSkill(msg.skillId)?.element ?? Element.Neutral;
+      skillVfx.impact(pos, ELEMENT_COLOR[el], msg.crit ? 1.4 : 1);
+    }
+    // Game-feel: attack swing on the attacker, hit reaction on the target.
+    if (msg.skillId !== "burn") gameState.onAttack(msg.sourceId);
+    gameState.onHurt(msg.targetId);
+    // Camera shake + screen flash feedback.
+    if (msg.targetId === selfId) {
+      cameraRig.shake(0.3);
+      screenFx.damage();
+    } else if (msg.sourceId === selfId && msg.crit) {
+      cameraRig.shake(0.16);
+    }
   }
 }
 
@@ -422,11 +457,15 @@ function onDamage(msg: Extract<ServerMessage, { t: MsgType.DamageEvent }>): void
 let selectedJob: JobId = JobId.Novice;
 const nameInput = document.getElementById("name-input") as HTMLInputElement;
 
+const loginPreview = new LoginPreview();
+loginPreview.start();
+
 document.querySelectorAll<HTMLButtonElement>(".job-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".job-btn").forEach((b) => b.classList.remove("selected"));
     btn.classList.add("selected");
     selectedJob = btn.dataset.job as JobId;
+    loginPreview.setJob(selectedJob);
   });
 });
 
@@ -458,6 +497,7 @@ new Loop((dt) => {
   clickMarker.update(dt);
   novaTelegraph.update();
   damageNumbers.update();
+  skillVfx.update();
   skillBar.update();
   partyHud.update();
   miniMap.update(gameState.blips());

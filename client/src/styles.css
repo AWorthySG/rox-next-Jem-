@@ -125,6 +125,66 @@ body {
   opacity: 0.92;
 }
 
+/* ---- subtle panel open animation (opacity only — safe for any anchoring) ---- */
+.inventory:not(.hidden),
+.shop:not(.hidden),
+.storage:not(.hidden),
+.bestiary:not(.hidden),
+.quests:not(.hidden),
+.refine:not(.hidden),
+.skills:not(.hidden),
+.aesir:not(.hidden),
+.guild:not(.hidden),
+.achievements:not(.hidden),
+.warp:not(.hidden),
+.help-panel:not(.hidden) {
+  animation: panel-fade 0.16s ease-out;
+}
+@keyframes panel-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+/* ---- full-screen feedback overlays ---- */
+.screen-fx {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 40;
+}
+.screen-damage {
+  box-shadow: inset 0 0 180px 40px rgba(200, 20, 20, 0.85);
+}
+.screen-levelup {
+  background: radial-gradient(circle at 50% 60%, rgba(255, 220, 120, 0.55), rgba(255, 200, 80, 0) 60%);
+}
+.screen-lowhp {
+  box-shadow: inset 0 0 160px 30px rgba(190, 20, 20, 0.7);
+}
+.screen-lowhp.active {
+  animation: fx-lowhp 1.1s ease-in-out infinite;
+}
+@keyframes fx-lowhp {
+  0%, 100% { opacity: 0.15; }
+  50% { opacity: 0.7; }
+}
+.screen-damage.flash {
+  animation: fx-damage 0.5s ease-out;
+}
+.screen-levelup.flash {
+  animation: fx-levelup 1s ease-out;
+}
+@keyframes fx-damage {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes fx-levelup {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
 /* ---- Login overlay ---- */
 .overlay {
   position: fixed;
@@ -154,9 +214,21 @@ body {
   color: var(--gold);
 }
 .tagline {
-  margin: 0 0 20px;
+  margin: 0 0 14px;
   opacity: 0.75;
   font-size: 13px;
+}
+.login-preview {
+  width: 100%;
+  height: 200px;
+  margin: 0 0 16px;
+  border-radius: 12px;
+  background: radial-gradient(circle at 50% 35%, rgba(120, 96, 180, 0.35), rgba(20, 16, 34, 0.6) 70%);
+  border: 1px solid rgba(244, 217, 138, 0.18);
+  overflow: hidden;
+}
+.login-preview canvas {
+  display: block;
 }
 .field {
   display: block;
@@ -1674,6 +1746,45 @@ body {
 }
 .refine-btn.dim {
   opacity: 0.45;
+}
+.rr-meta {
+  font-size: 10.5px;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+.rr-meta .rr-risk {
+  color: #ff8a6a;
+  font-weight: 700;
+}
+.refine-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  border-radius: 9px;
+  font-weight: 800;
+  font-size: 13px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+}
+.refine-toast.ok {
+  color: #1a1430;
+  background: linear-gradient(180deg, #ffe9a0, #f4c94a);
+}
+.refine-toast.fail {
+  color: #fff;
+  background: linear-gradient(180deg, #c0504a, #7a2c2c);
+}
+.refine-toast.show {
+  animation: refine-toast 1.6s ease-out;
+}
+@keyframes refine-toast {
+  0% { opacity: 0; transform: translate(-50%, 8px); }
+  15% { opacity: 1; transform: translate(-50%, 0); }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
 }
 
 /* ---- enchant ("Overall Rating") lines ---- */

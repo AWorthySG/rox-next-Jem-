@@ -54,7 +54,10 @@ copyrighted assets.
 - **Character building**: spend stat points earned on level-up into STR/AGI/VIT/INT/DEX/LUK
   from the HUD; level up individual skills (window `K`) with skill points to scale their power;
   unlock passive **Aesir runes** (window `R`) along five paths (Might/Guard/Mystic/Swift/Fortune)
-  with rune points; visit the Blacksmith to refine equipped gear (+1…+10) with Zeny.
+  with rune points; visit the Blacksmith to refine equipped gear (+1…+10) with Zeny and
+  **refine ores** (Oridecon for weapons/headgear, Elunium for armor/accessories) — every slot
+  gains stats, refines are guaranteed to +4 then carry a success chance, and ores drop from
+  monsters (reliably from bosses).
 - **Gear enchantment**: at the Blacksmith, roll up to **three "Overall Rating" stat lines**
   onto each equipped piece (STR/AGI/VIT/INT/DEX/LUK, ATK/MATK/DEF, Max HP/SP, CRIT); **lock**
   the lines you like and re-roll the rest, classic ROX-style, for a Zeny fee.
@@ -83,9 +86,11 @@ copyrighted assets.
   popups and punchy gold damage numbers.
 - **Multiple maps**: a portal-linked progression — **Prontera Field → Payon Forest → Poring
   Cave → Glast Heim → Aldebaran Clock Tower → Comodo Beach → Umbala Jungle → Juno → Einbroch →
-  Rachel → Endless Tower → Thanatos Tower**, plus the **PvP Arena**. Each map is themed,
-  networked independently, and guarded by **two MVP bosses**.
-- **35+ monsters & 25+ MVP bosses** across the world, from Porings to the Memory of Thanatos (Lv128).
+  Rachel → Endless Tower → Thanatos Tower → Morocc Desert → Bio Laboratory → Abyss Lake**, plus
+  the **PvP Arena**. Each map is themed, networked independently, and guarded by **two MVP
+  bosses**.
+  the **PvP Arena** and the side-branch **Geffen Tower** (a mid-level mage tournament off town).
+- **50+ monsters & 30+ MVP bosses** across the world, from Porings to Nidhoggr's Shadow (Lv130).
 - **Boss fight mechanics**: bosses use distinct, server-driven abilities — **enrage** (harder
   hits below a HP threshold, with a red aura), **telegraphed AoE nova** (a growing warning ring
   you can step out of before it lands), **summon adds** (temporary minions), and **self-heal** —
@@ -150,8 +155,8 @@ CI (GitHub Actions, `.github/workflows/ci.yml`) runs build + both tests on every
 The static client deploys to any static host. A `vercel.json` is included:
 
 ```bash
-npm run build        # outputs client/dist
-# deploy client/dist (Vercel: framework=null, output=client/dist)
+npm run build        # bundles the client to client/dist
+# deploy client/dist (Vercel project: Root Directory = client, output = dist)
 ```
 
 The deployed site is immediately playable in **solo mode**. For live multiplayer, host the

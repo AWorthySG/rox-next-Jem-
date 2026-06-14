@@ -12,7 +12,8 @@ function iconFor(item: ItemDef): string {
   if (item.pet) return "🥚";
   if (item.mount) return "🐎";
   if (item.type === ItemType.Card) return "🃏";
-  if (item.type === ItemType.Consumable) return item.healSp ? "🔷" : "🧪";
+  if (item.type === ItemType.Material) return "⛏️";
+  if (item.type === ItemType.Consumable) return item.food ? "🍙" : item.healSp ? "🔷" : "🧪";
   if (item.type === ItemType.Weapon) return item.matk ? "🪄" : "⚔️";
   if (item.type === ItemType.Headgear) return "🎩";
   if (item.type === ItemType.Armor) return "🛡️";
@@ -35,6 +36,7 @@ const TABS: Array<{ id: Filter; label: string }> = [
   { id: ItemType.Armor, label: "Armor" },
   { id: ItemType.Accessory, label: "Accessory" },
   { id: ItemType.Card, label: "Card" },
+  { id: ItemType.Material, label: "Mat" },
   { id: ItemType.Consumable, label: "Use" },
 ];
 
@@ -138,21 +140,24 @@ export class InventoryPanel {
       if (!item) continue;
       const isConsumable = item.type === ItemType.Consumable;
       const isCard = item.type === ItemType.Card;
+      const isMaterial = item.type === ItemType.Material;
       const lvl = refineOf.get(entry.id) ?? 0;
-      const action = isCard ? "Socket" : isConsumable ? "Use" : "Equip";
+      const action = isMaterial ? "" : isCard ? "Socket" : isConsumable ? "Use" : "Equip";
       const cell = document.createElement("button");
-      cell.className = `inv-cell ${item.type} rar-${rarityOf(item)}`;
+      cell.className = `inv-cell ${item.type} rar-${rarityOf(item)}${isMaterial ? " inert" : ""}`;
       cell.title = item.desc;
       cell.innerHTML =
         `<span class="iicon">${iconFor(item)}</span>` +
         `<span class="iname">${item.name}${lvl > 0 ? ` <span class="refine-badge">+${lvl}</span>` : ""}</span>` +
         `<span class="iqty">×${entry.qty}</span>` +
         `<span class="iact">${action}</span>`;
-      cell.addEventListener("click", () => {
-        if (isCard) this.handlers.onSocket(entry.id);
-        else if (isConsumable) this.handlers.onUse(entry.id);
-        else this.handlers.onEquip(entry.id);
-      });
+      if (!isMaterial) {
+        cell.addEventListener("click", () => {
+          if (isCard) this.handlers.onSocket(entry.id);
+          else if (isConsumable) this.handlers.onUse(entry.id);
+          else this.handlers.onEquip(entry.id);
+        });
+      }
       this.grid.appendChild(cell);
     }
   }
