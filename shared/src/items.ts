@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Pyramid of the Sphinx gear ----
+  ankh_staff: {
+    id: "ankh_staff", name: "Ankh Staff", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A staff topped with an ankh. MATK +42, INT +5.", matk: 42, bonusStats: { int: 5 }, sellPrice: 1300,
+  },
+  pharaoh_mask: {
+    id: "pharaoh_mask", name: "Pharaoh Mask", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A golden death-mask. MATK +8, INT +4, Max SP +40.", matk: 8, maxSp: 40, bonusStats: { int: 4 }, sellPrice: 1200,
+  },
+  mummy_wrap: {
+    id: "mummy_wrap", name: "Mummy Wrappings", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Ancient linen bindings. DEF +20, Max HP +160, AGI +3.", def: 20, maxHp: 160, bonusStats: { agi: 3 }, sellPrice: 1300,
+  },
+
   // ---- Glast Heim Churchyard gear ----
   knight_sword: {
     id: "knight_sword", name: "Knight Sword", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -855,6 +869,12 @@ Object.assign(DROP_TABLES, {
   evil_druid: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "great_helm", chance: 0.035 }],
   abysmal_knight: HI([{ itemId: "knight_sword", chance: 0.6 }, { itemId: "chain_mail", chance: 0.5 }, { itemId: "great_helm", chance: 0.4 }]),
   amdarais: HI([{ itemId: "chain_mail", chance: 0.6 }, { itemId: "knight_sword", chance: 0.45 }, { itemId: "skeleton_card", chance: 0.06 }]),
+  // Pyramid
+  mummy: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "mummy_wrap", chance: 0.035 }],
+  matyr: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "ankh_staff", chance: 0.03 }],
+  minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
+  pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
+  osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
 });
 
 // Sprinkle refine ores across the bestiary so refining has a farming loop:
@@ -874,6 +894,7 @@ const ORE_REGULARS = [
   "marc", "vadon", "kukre",
   "orc_warrior", "orc_archer", "orc_zombie",
   "raydric", "khalitzburg", "evil_druid",
+  "mummy", "matyr", "minorous",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -890,7 +911,7 @@ const ORE_BOSSES = [
   "drake", "satan_morroc", "egnigem", "kathryne", "detale", "nidhoggr",
   "doppelganger", "dark_priest", "bacsojin", "fallen_bishop", "samurai_specter", "kapha",
   "stormy_knight", "garm", "lady_tanee", "leak", "gopinich", "baba_yaga", "gigantes", "ifrit",
-  "phreeoni", "deviace", "orc_lord", "orc_hero", "abysmal_knight", "amdarais",
+  "phreeoni", "deviace", "orc_lord", "orc_hero", "abysmal_knight", "amdarais", "pharaoh", "osiris",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

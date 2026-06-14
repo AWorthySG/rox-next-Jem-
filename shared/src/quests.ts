@@ -128,6 +128,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 40,
     reward: { exp: 9000, zeny: 6000, items: [{ id: "mage_staff", qty: 1 }] },
   },
+  curse_of_osiris: {
+    id: "curse_of_osiris",
+    name: "Curse of Osiris",
+    desc: "Osiris stirs in the Pyramid's depths. Break the pharaoh-god's curse.",
+    targetTemplate: "osiris",
+    targetName: "Osiris",
+    count: 1,
+    requiredLevel: 58,
+    reward: { exp: 30000, zeny: 18000, items: [{ id: "ankh_staff", qty: 1 }] },
+  },
   the_abysmal_knight: {
     id: "the_abysmal_knight",
     name: "The Abysmal Knight",

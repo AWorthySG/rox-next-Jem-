@@ -179,6 +179,24 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Aldebaran Exit", role: "portal", x: 0, z: 26, dest: { toMap: "glast_heim", toX: 0, toZ: -44 } },
       { name: "Comodo Portal", role: "portal", x: 0, z: -50, dest: { toMap: "comodo", toX: 0, toZ: 20 } },
       { name: "Lutie Portal", role: "portal", x: 18, z: 14, dest: { toMap: "lutie", toX: 0, toZ: 18 } },
+      { name: "Pyramid Portal", role: "portal", x: -18, z: 14, dest: { toMap: "pyramid", toX: 0, toZ: 18 } },
+    ],
+  },
+  pyramid: {
+    id: "pyramid",
+    name: "Pyramid of the Sphinx",
+    theme: { ground: 0xcaa863, fog: 0x6a5430, sky: 0xd8b86a },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "py-mummy", templateId: "mummy", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "py-matyr", templateId: "matyr", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "py-minorous", templateId: "minorous", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "py-pharaoh", templateId: "pharaoh", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "py-osiris", templateId: "osiris", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Pyramid Exit", role: "portal", x: 0, z: 24, dest: { toMap: "aldebaran", toX: -18, toZ: 16 } },
     ],
   },
   lutie: {

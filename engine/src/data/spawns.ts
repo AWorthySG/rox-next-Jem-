@@ -338,6 +338,12 @@ Object.assign(MONSTER_TEMPLATES, {
   evil_druid: mk("evil_druid", "Evil Druid", 40, 2400, 3700),
   abysmal_knight: mk("abysmal_knight", "Abysmal Knight", 48, 8000, 13000, true),
   amdarais: mk("amdarais", "Amdarais", 50, 9000, 15000, true),
+  // ---- Pyramid of the Sphinx ----
+  mummy: mk("mummy", "Mummy", 52, 2900, 5200),
+  matyr: mk("matyr", "Matyr", 54, 3100, 5800),
+  minorous: mk("minorous", "Minorous", 55, 3300, 6200),
+  pharaoh: mk("pharaoh", "Pharaoh", 62, 14000, 24000, true),
+  osiris: mk("osiris", "Osiris", 64, 16000, 28000, true),
 });
 
 export interface SpawnZone {
@@ -537,6 +543,14 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "nova", intervalMs: 5500, radius: 10, powerMult: 1.7 },
     { kind: "heal", intervalMs: 11000, pct: 0.06 },
   ],
+  pharaoh: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.6 },
+    { kind: "summon", intervalMs: 8000, templateId: "mummy", count: 2, max: 5 },
+  ],
+  osiris: [
+    { kind: "nova", intervalMs: 5500, radius: 10, powerMult: 1.6 },
+    { kind: "heal", intervalMs: 9000, pct: 0.07 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -645,6 +659,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   evil_druid: Element.Earth,
   abysmal_knight: Element.Shadow,
   amdarais: Element.Shadow,
+  mummy: Element.Fire,
+  matyr: Element.Shadow,
+  minorous: Element.Fire,
+  pharaoh: Element.Shadow,
+  osiris: Element.Holy,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;
