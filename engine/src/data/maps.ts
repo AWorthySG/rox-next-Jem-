@@ -251,6 +251,25 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
       { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
       { name: "Kampong Glam Exit", role: "portal", x: 0, z: 24, dest: { toMap: "chinatown", toX: 18, toZ: 16 } },
+      { name: "Little India Portal", role: "portal", x: 0, z: -50, dest: { toMap: "little_india", toX: 0, toZ: 18 } },
+    ],
+  },
+  little_india: {
+    id: "little_india",
+    name: "Little India",
+    theme: { ground: 0x8a4a3a, fog: 0xd06a40, sky: 0xf0a050 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "li-effigy", templateId: "festival_effigy", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "li-wisp", templateId: "deepavali_wisp", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "li-serpent", templateId: "saree_serpent", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "li-kali", templateId: "kali_avatar", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "li-gopuram", templateId: "gopuram_guardian", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Little India Exit", role: "portal", x: 0, z: 24, dest: { toMap: "kampong_glam", toX: 0, toZ: -44 } },
     ],
   },
   gardens_bay: {

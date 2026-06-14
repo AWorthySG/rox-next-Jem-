@@ -98,6 +98,7 @@ const THEMES: Record<string, Partial<Theme>> = {
   mount_faber: { trunk: 0x5a4a38, foliage: [0x357a30, 0x46913f], rock: 0x6a7464, tree: "pine", trees: 80, rocks: 40, tufts: 70, tuft: 0x3a7a34 },
   changi: { trunk: 0x8a6b3a, foliage: [0x4fb04a, 0x6cc35f], rock: 0xbfae80, tree: "palm", trees: 50, rocks: 28, tufts: 80, tuft: 0x4fae5f },
   macritchie: { trunk: 0x4a3420, foliage: [0x2f7a3a, 0x4faa4a], rock: 0x5a6a44, tree: "jungle", trees: 90, rocks: 28, tufts: 150, tuft: 0x3f8f3f },
+  little_india: { trunk: 0x6a4a30, foliage: [0xe05a40, 0xf0a040], rock: 0xb07050, tree: "leafy", trees: 40, rocks: 36, tufts: 90, tuft: 0xe08040 },
   arena: { trees: 0, rocks: 10, tufts: 30 },
 };
 

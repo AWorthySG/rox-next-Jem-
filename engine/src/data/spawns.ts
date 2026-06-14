@@ -524,6 +524,12 @@ Object.assign(MONSTER_TEMPLATES, {
   swamp_leech: mk("swamp_leech", "Swamp Leech", 98, 7000, 14800),
   treetop_warden: mk("treetop_warden", "Treetop Warden", 104, 52000, 82000, true),
   reservoir_naga: mk("reservoir_naga", "Reservoir Naga", 106, 58000, 92000, true),
+  // ---- Little India (Singapore) ----
+  festival_effigy: mk("festival_effigy", "Festival Effigy", 108, 8000, 16000),
+  deepavali_wisp: mk("deepavali_wisp", "Deepavali Wisp", 110, 8400, 16800),
+  saree_serpent: mk("saree_serpent", "Saree Serpent", 112, 8800, 17600),
+  kali_avatar: mk("kali_avatar", "Kali Avatar", 118, 72000, 116000, true),
+  gopuram_guardian: mk("gopuram_guardian", "Gopuram Guardian", 120, 80000, 130000, true),
 });
 
 export interface SpawnZone {
@@ -981,6 +987,14 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "enrage", hpPct: 0.3, atkMult: 1.8 },
     { kind: "nova", intervalMs: 5000, radius: 12, powerMult: 1.8 },
   ],
+  kali_avatar: [
+    { kind: "enrage", hpPct: 0.4, atkMult: 1.9 },
+    { kind: "summon", intervalMs: 8000, templateId: "deepavali_wisp", count: 2, max: 6 },
+  ],
+  gopuram_guardian: [
+    { kind: "nova", intervalMs: 5000, radius: 13, powerMult: 1.9 },
+    { kind: "heal", intervalMs: 10000, pct: 0.07 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -1244,6 +1258,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   swamp_leech: Element.Water,
   treetop_warden: Element.Earth,
   reservoir_naga: Element.Water,
+  festival_effigy: Element.Fire,
+  deepavali_wisp: Element.Holy,
+  saree_serpent: Element.Wind,
+  kali_avatar: Element.Shadow,
+  gopuram_guardian: Element.Earth,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

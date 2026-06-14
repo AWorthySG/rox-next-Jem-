@@ -75,6 +75,7 @@ const ARCH: Record<string, MonsterArch> = {
   cable_wraith: "ghost", peak_eagle: "bird", stone_golem: "golem", faber_titan: "golem", wind_djinn: "demon",
   pow_spirit: "ghost", beach_ghoul: "undead", jewel_drone: "golem", changi_revenant: "ghost", vortex_guardian: "golem",
   water_monitor: "beast", treetop_colugo: "bird", swamp_leech: "bug", treetop_warden: "plant", reservoir_naga: "dragon",
+  festival_effigy: "golem", deepavali_wisp: "ghost", saree_serpent: "dragon", kali_avatar: "demon", gopuram_guardian: "golem",
 };
 
 function hex(s: string): number {
@@ -398,6 +399,11 @@ const DEFS: Record<string, AppearanceDef> = {
   swamp_leech: { inner: "#7a4a5a", outer: "#2a1020", scale: 1.3 },
   treetop_warden: { inner: "#4faa5a", outer: "#1a4a24", scale: 3.0, boss: true },
   reservoir_naga: { inner: "#3fb08a", outer: "#0a4a3a", scale: 3.1, boss: true },
+  festival_effigy: { inner: "#f0a040", outer: "#7a3a10", scale: 1.5 },
+  deepavali_wisp: { inner: "#ffd860", outer: "#a05010", scale: 1.3 },
+  saree_serpent: { inner: "#e05a80", outer: "#6a1030", scale: 1.5 },
+  kali_avatar: { inner: "#5a3a6a", outer: "#1a0a24", scale: 3.2, boss: true },
+  gopuram_guardian: { inner: "#e0a050", outer: "#6a3a10", scale: 3.2, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

@@ -628,6 +628,26 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 106,
     reward: { exp: 180000, zeny: 102000, items: [{ id: "reservoir_robe", qty: 1 }] },
   },
+  the_kali_avatar: {
+    id: "the_kali_avatar",
+    name: "The Kali Avatar",
+    desc: "A festival effigy of Kali has awoken in Little India. Calm the fierce avatar.",
+    targetTemplate: "kali_avatar",
+    targetName: "Kali Avatar",
+    count: 1,
+    requiredLevel: 118,
+    reward: { exp: 240000, zeny: 132000, items: [{ id: "trishula_blade", qty: 1 }] },
+  },
+  guardian_of_the_gopuram: {
+    id: "guardian_of_the_gopuram",
+    name: "Guardian of the Gopuram",
+    desc: "The temple's Gopuram Guardian blocks the festival route. Topple the tower-giant.",
+    targetTemplate: "gopuram_guardian",
+    targetName: "Gopuram Guardian",
+    count: 1,
+    requiredLevel: 120,
+    reward: { exp: 260000, zeny: 146000, items: [{ id: "garland_robe", qty: 1 }] },
+  },
 
   // ---- repeatable daily bounties (turn in and re-accept for steady income) ----
   bounty_porings: {

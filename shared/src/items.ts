@@ -394,6 +394,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "Strung from water-monitor scutes. Max HP +320, VIT +6, DEF +6.", def: 6, maxHp: 320, bonusStats: { vit: 6 }, sellPrice: 5000,
   },
 
+  // ---- Little India (Singapore) gear ----
+  trishula_blade: {
+    id: "trishula_blade", name: "Trishula Blade", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A trident-forked festival blade. ATK +100, STR +7.", atk: 100, bonusStats: { str: 7 }, sellPrice: 5600,
+  },
+  deepavali_crown: {
+    id: "deepavali_crown", name: "Deepavali Crown", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A crown of festival lamps. MATK +14, INT +7, Max SP +70.", matk: 14, maxSp: 70, bonusStats: { int: 7 }, sellPrice: 5600,
+  },
+  garland_robe: {
+    id: "garland_robe", name: "Garland Robe", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Marigold-woven festival robe. DEF +34, Max HP +360, VIT +7.", def: 34, maxHp: 360, bonusStats: { vit: 7 }, sellPrice: 5600,
+  },
+
   // ---- Mount Faber (Singapore) gear ----
   summit_lance: {
     id: "summit_lance", name: "Summit Lance", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1297,6 +1311,12 @@ Object.assign(DROP_TABLES, {
   swamp_leech: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "reservoir_robe", chance: 0.03 }],
   treetop_warden: HI([{ itemId: "treetop_bow", chance: 0.6 }, { itemId: "reservoir_robe", chance: 0.5 }, { itemId: "monitor_scale_charm", chance: 0.4 }]),
   reservoir_naga: HI([{ itemId: "reservoir_robe", chance: 0.6 }, { itemId: "treetop_bow", chance: 0.45 }, { itemId: "marc_card", chance: 0.05 }]),
+  // Little India (Singapore)
+  festival_effigy: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "garland_robe", chance: 0.03 }],
+  deepavali_wisp: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "deepavali_crown", chance: 0.03 }],
+  saree_serpent: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "trishula_blade", chance: 0.03 }],
+  kali_avatar: HI([{ itemId: "trishula_blade", chance: 0.6 }, { itemId: "garland_robe", chance: 0.5 }, { itemId: "deepavali_crown", chance: 0.4 }]),
+  gopuram_guardian: HI([{ itemId: "garland_robe", chance: 0.6 }, { itemId: "trishula_blade", chance: 0.45 }, { itemId: "marc_card", chance: 0.05 }]),
   // Mount Faber (Singapore)
   cable_wraith: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "alpine_plate", chance: 0.03 }],
   peak_eagle: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "aviator_cap", chance: 0.03 }],
@@ -1514,6 +1534,7 @@ const ORE_REGULARS = [
   "cable_wraith", "peak_eagle", "stone_golem",
   "pow_spirit", "beach_ghoul", "jewel_drone",
   "water_monitor", "treetop_colugo", "swamp_leech",
+  "festival_effigy", "deepavali_wisp", "saree_serpent",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1543,6 +1564,7 @@ const ORE_BOSSES = [
   "yama_king", "tiger_spirit", "giant_stingray", "tidal_kraken", "colonial_wraith", "hill_sentinel",
   "faber_titan", "wind_djinn", "changi_revenant", "vortex_guardian",
   "treetop_warden", "reservoir_naga",
+  "kali_avatar", "gopuram_guardian",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];
