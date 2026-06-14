@@ -67,6 +67,7 @@ const ARCH: Record<string, MonsterArch> = {
   otter_alpha: "beast", giant_grouper: "aquatic", resort_peacock: "bird", sentosa_merlion: "aquatic", leviathan: "dragon",
   bugis_corsair: "humanoid", djinn: "demon", batik_serpent: "dragon", sultan_jinn: "demon", naga_emas: "dragon",
   chrome_sentry: "golem", neon_wisp: "ghost", drone_swarm: "bug", skyline_colossus: "golem", spectra_dragon: "dragon",
+  lab_slime: "jelly", raptor: "beast", pterodactyl: "bird", t_rex: "dragon", mecha_dino: "golem",
 };
 
 function hex(s: string): number {
@@ -343,6 +344,12 @@ const DEFS: Record<string, AppearanceDef> = {
   drone_swarm: { inner: "#b0c0d0", outer: "#3a4a5a", scale: 0.95 },
   skyline_colossus: { inner: "#c0d0e0", outer: "#3a4a6a", scale: 3.3, boss: true },
   spectra_dragon: { inner: "#a0e0f0", outer: "#1a5a7a", scale: 3.2, boss: true },
+  // Jurong (Singapore)
+  lab_slime: { inner: "#a0e0c0", outer: "#3a7a5a", scale: 1.0 },
+  raptor: { inner: "#c0a060", outer: "#5a3a18", scale: 1.2 },
+  pterodactyl: { inner: "#c0b090", outer: "#5a4a30", scale: 1.3 },
+  t_rex: { inner: "#a0c070", outer: "#3a5a20", scale: 3.0, boss: true },
+  mecha_dino: { inner: "#c0c8d0", outer: "#4a525c", scale: 3.1, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

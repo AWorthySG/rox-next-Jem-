@@ -476,6 +476,12 @@ Object.assign(MONSTER_TEMPLATES, {
   drone_swarm: mk("drone_swarm", "Drone Swarm", 104, 10400, 21200),
   skyline_colossus: mk("skyline_colossus", "Skyline Colossus", 112, 70000, 114000, true),
   spectra_dragon: mk("spectra_dragon", "Spectra Dragon", 114, 76000, 126000, true),
+  // ---- Jurong (Singapore) ----
+  lab_slime: mk("lab_slime", "Lab Slime", 45, 2200, 4100),
+  raptor: mk("raptor", "Raptor", 47, 2400, 4600),
+  pterodactyl: mk("pterodactyl", "Pterodactyl", 49, 2600, 5100),
+  t_rex: mk("t_rex", "T-Rex", 55, 11000, 19000, true),
+  mecha_dino: mk("mecha_dino", "Mecha Dino", 57, 12500, 22000, true),
 });
 
 export interface SpawnZone {
@@ -866,6 +872,14 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "summon", intervalMs: 8000, templateId: "drone_swarm", count: 3, max: 6 },
     { kind: "heal", intervalMs: 12000, pct: 0.05 },
   ],
+  t_rex: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.7 },
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.6 },
+  ],
+  mecha_dino: [
+    { kind: "summon", intervalMs: 8000, templateId: "raptor", count: 2, max: 5 },
+    { kind: "enrage", hpPct: 0.3, atkMult: 1.5 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -1089,6 +1103,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   drone_swarm: Element.Wind,
   skyline_colossus: Element.Fire,
   spectra_dragon: Element.Water,
+  lab_slime: Element.Water,
+  raptor: Element.Wind,
+  pterodactyl: Element.Wind,
+  t_rex: Element.Fire,
+  mecha_dino: Element.Earth,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

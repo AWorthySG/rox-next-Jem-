@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Jurong (Singapore) gear ----
+  fossil_blade: {
+    id: "fossil_blade", name: "Fossil Blade", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A blade of petrified bone. ATK +48, STR +4.", atk: 48, bonusStats: { str: 4 }, sellPrice: 1100,
+  },
+  goggle_helm: {
+    id: "goggle_helm", name: "Goggle Helm", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A field-researcher's goggles. DEF +14, DEX +4, Max HP +80.", def: 14, maxHp: 80, bonusStats: { dex: 4 }, sellPrice: 950,
+  },
+  lab_coat: {
+    id: "lab_coat", name: "Lab Coat", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "A reinforced science coat. DEF +16, Max SP +50, INT +4.", def: 16, maxSp: 50, bonusStats: { int: 4 }, sellPrice: 1100,
+  },
+
   // ---- Marina Bay (Singapore) gear ----
   laser_lance: {
     id: "laser_lance", name: "Laser Lance", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1173,6 +1187,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Jurong (Singapore)
+  lab_slime: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "lab_coat", chance: 0.035 }],
+  raptor: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "goggle_helm", chance: 0.035 }],
+  pterodactyl: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "fossil_blade", chance: 0.03 }],
+  t_rex: HI([{ itemId: "fossil_blade", chance: 0.6 }, { itemId: "lab_coat", chance: 0.5 }, { itemId: "goggle_helm", chance: 0.4 }]),
+  mecha_dino: HI([{ itemId: "goggle_helm", chance: 0.6 }, { itemId: "fossil_blade", chance: 0.45 }, { itemId: "skeleton_card", chance: 0.05 }]),
   // Marina Bay (Singapore)
   chrome_sentry: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "chrome_plate", chance: 0.025 }],
   neon_wisp: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "skyline_visor", chance: 0.025 }],
@@ -1346,6 +1366,7 @@ const ORE_REGULARS = [
   "otter_alpha", "giant_grouper", "resort_peacock",
   "bugis_corsair", "djinn", "batik_serpent",
   "chrome_sentry", "neon_wisp", "drone_swarm",
+  "lab_slime", "raptor", "pterodactyl",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1371,7 +1392,7 @@ const ORE_BOSSES = [
   "king_macaque", "reticulated_python", "jiangshi_lord", "nian_beast",
   "supertree_guardian", "flower_dome_titan", "pontianak_queen", "penanggalan",
   "sentosa_merlion", "leviathan", "sultan_jinn", "naga_emas",
-  "skyline_colossus", "spectra_dragon",
+  "skyline_colossus", "spectra_dragon", "t_rex", "mecha_dino",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

@@ -81,6 +81,25 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
       { name: "Bukit Timah Exit", role: "portal", x: 0, z: 24, dest: { toMap: "merlion_bay", toX: 0, toZ: -44 } },
       { name: "Chinatown Portal", role: "portal", x: 0, z: -50, dest: { toMap: "chinatown", toX: 0, toZ: 18 } },
+      { name: "Jurong Portal", role: "portal", x: 18, z: 14, dest: { toMap: "jurong", toX: 0, toZ: 18 } },
+    ],
+  },
+  jurong: {
+    id: "jurong",
+    name: "Jurong",
+    theme: { ground: 0x4a6a44, fog: 0x7a9a6a, sky: 0xa8c88a },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "ju-slime", templateId: "lab_slime", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "ju-raptor", templateId: "raptor", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "ju-ptero", templateId: "pterodactyl", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "ju-trex", templateId: "t_rex", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "ju-mecha", templateId: "mecha_dino", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Jurong Exit", role: "portal", x: 0, z: 24, dest: { toMap: "bukit_timah", toX: 18, toZ: 16 } },
     ],
   },
   chinatown: {

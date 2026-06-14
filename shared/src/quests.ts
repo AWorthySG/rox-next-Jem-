@@ -138,6 +138,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 108,
     reward: { exp: 200000, zeny: 110000, items: [{ id: "bloody_sword", qty: 1 }] },
   },
+  jurassic_breakout: {
+    id: "jurassic_breakout",
+    name: "Jurassic Breakout",
+    desc: "The Jurong exhibits have come alive! Put down the rampaging T-Rex.",
+    targetTemplate: "t_rex",
+    targetName: "T-Rex",
+    count: 1,
+    requiredLevel: 51,
+    reward: { exp: 20000, zeny: 13000, items: [{ id: "fossil_blade", qty: 1 }] },
+  },
   the_skyline_colossus: {
     id: "the_skyline_colossus",
     name: "The Skyline Colossus",
