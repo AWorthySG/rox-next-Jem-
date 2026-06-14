@@ -361,6 +361,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Orc Village gear ----
+  orc_axe: {
+    id: "orc_axe", name: "Orcish Axe", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A crude but heavy axe. ATK +38, STR +3.", atk: 38, bonusStats: { str: 3 }, sellPrice: 700,
+  },
+  orc_helm: {
+    id: "orc_helm", name: "Orcish Helm", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A tusked war-helm. DEF +14, STR +3, Max HP +80.", def: 14, maxHp: 80, bonusStats: { str: 3 }, sellPrice: 650,
+  },
+  orc_mail: {
+    id: "orc_mail", name: "Orcish Mail", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Scavenged plate. DEF +18, Max HP +150, VIT +3.", def: 18, maxHp: 150, bonusStats: { vit: 3 }, sellPrice: 700,
+  },
+
   // ---- Byalan Sunken Cave gear ----
   coral_blade: {
     id: "coral_blade", name: "Coral Blade", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -806,6 +820,12 @@ Object.assign(DROP_TABLES, {
   kukre: [{ itemId: "red_potion", chance: 0.2 }, { itemId: "coral_blade", chance: 0.04 }],
   phreeoni: HI([{ itemId: "coral_blade", chance: 0.6 }, { itemId: "diver_suit", chance: 0.5 }, { itemId: "phreeoni_card", chance: 0.1 }, { itemId: "marc_egg", chance: 0.2 }]),
   deviace: HI([{ itemId: "shell_helm", chance: 0.6 }, { itemId: "diver_suit", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Orc Village
+  orc_warrior: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "orc_axe", chance: 0.04 }],
+  orc_archer: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "orc_helm", chance: 0.04 }],
+  orc_zombie: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "orc_mail", chance: 0.04 }],
+  orc_lord: HI([{ itemId: "orc_axe", chance: 0.6 }, { itemId: "orc_mail", chance: 0.5 }, { itemId: "orc_helm", chance: 0.4 }]),
+  orc_hero: HI([{ itemId: "orc_axe", chance: 0.6 }, { itemId: "orc_helm", chance: 0.55 }, { itemId: "baphomet_card", chance: 0.05 }]),
 });
 
 // Sprinkle refine ores across the bestiary so refining has a farming loop:
@@ -823,6 +843,7 @@ const ORE_REGULARS = [
   "les", "mavka", "uzhas",
   "magmaring", "kasa", "salamander",
   "marc", "vadon", "kukre",
+  "orc_warrior", "orc_archer", "orc_zombie",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -839,7 +860,7 @@ const ORE_BOSSES = [
   "drake", "satan_morroc", "egnigem", "kathryne", "detale", "nidhoggr",
   "doppelganger", "dark_priest", "bacsojin", "fallen_bishop", "samurai_specter", "kapha",
   "stormy_knight", "garm", "lady_tanee", "leak", "gopinich", "baba_yaga", "gigantes", "ifrit",
-  "phreeoni", "deviace",
+  "phreeoni", "deviace", "orc_lord", "orc_hero",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

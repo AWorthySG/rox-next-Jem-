@@ -71,7 +71,27 @@ export const MAPS: Record<string, GameMap> = {
       { id: "payon-eddga", templateId: "eddga", cx: 30, cz: -34, radius: 4, count: 1 },
       { id: "payon-moonlight", templateId: "moonlight", cx: -34, cz: -34, radius: 4, count: 1 },
     ],
-    npcs: [{ name: "Payon Exit", role: "portal", x: 0, z: 24, dest: { toMap: "field", toX: 0, toZ: 8 } }],
+    npcs: [
+      { name: "Payon Exit", role: "portal", x: 0, z: 24, dest: { toMap: "field", toX: 0, toZ: 8 } },
+      { name: "Orc Village Portal", role: "portal", x: 18, z: 18, dest: { toMap: "orc_dungeon", toX: 0, toZ: 18 } },
+    ],
+  },
+  orc_dungeon: {
+    id: "orc_dungeon",
+    name: "Orc Village",
+    theme: { ground: 0x6a5236, fog: 0x3a2c1c, sky: 0x5a4630 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "or-warrior", templateId: "orc_warrior", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "or-archer", templateId: "orc_archer", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "or-zombie", templateId: "orc_zombie", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "or-lord", templateId: "orc_lord", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "or-hero", templateId: "orc_hero", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Orc Village Exit", role: "portal", x: 0, z: 24, dest: { toMap: "payon", toX: 18, toZ: 18 } },
+    ],
   },
   cave: {
     id: "cave",

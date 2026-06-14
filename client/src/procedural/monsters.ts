@@ -42,6 +42,7 @@ const ARCH: Record<string, MonsterArch> = {
   les: "beast", mavka: "plant", uzhas: "undead", gopinich: "demon", baba_yaga: "ghost",
   magmaring: "jelly", kasa: "demon", salamander: "dragon", gigantes: "golem", ifrit: "demon",
   marc: "aquatic", vadon: "aquatic", kukre: "bug", phreeoni: "beast", deviace: "aquatic",
+  orc_warrior: "beast", orc_archer: "beast", orc_zombie: "undead", orc_lord: "beast", orc_hero: "beast",
 };
 
 function hex(s: string): number {
@@ -168,6 +169,12 @@ const DEFS: Record<string, AppearanceDef> = {
   kukre: { inner: "#d0c080", outer: "#6a5a20", scale: 0.95 },
   phreeoni: { inner: "#d0b080", outer: "#6a4a20", scale: 2.5, boss: true },
   deviace: { inner: "#a0c0e0", outer: "#2a4a7a", scale: 2.6, boss: true },
+  // Orc Village
+  orc_warrior: { inner: "#a0c070", outer: "#4a5a28", scale: 1.35 },
+  orc_archer: { inner: "#b0c080", outer: "#5a6a30", scale: 1.3 },
+  orc_zombie: { inner: "#90a070", outer: "#3a4a28", scale: 1.4 },
+  orc_lord: { inner: "#a0b060", outer: "#3a4a18", scale: 2.7, boss: true },
+  orc_hero: { inner: "#c08050", outer: "#5a2810", scale: 2.8, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

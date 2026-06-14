@@ -128,6 +128,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 40,
     reward: { exp: 9000, zeny: 6000, items: [{ id: "mage_staff", qty: 1 }] },
   },
+  orc_hero_hunt: {
+    id: "orc_hero_hunt",
+    name: "Slay the Orc Hero",
+    desc: "The Orc Hero rallies the war camp. Cut off the head of the horde.",
+    targetTemplate: "orc_hero",
+    targetName: "Orc Hero",
+    count: 1,
+    requiredLevel: 38,
+    reward: { exp: 11000, zeny: 7000, items: [{ id: "orc_axe", qty: 1 }] },
+  },
   deep_dweller: {
     id: "deep_dweller",
     name: "The Deep Dweller",

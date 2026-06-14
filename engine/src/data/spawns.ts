@@ -326,6 +326,12 @@ Object.assign(MONSTER_TEMPLATES, {
   kukre: mk("kukre", "Kukre", 22, 680, 440),
   phreeoni: mk("phreeoni", "Phreeoni", 28, 5200, 8500, true),
   deviace: mk("deviace", "Deviace", 32, 6200, 10000, true),
+  // ---- Orc Village ----
+  orc_warrior: mk("orc_warrior", "Orc Warrior", 32, 1600, 1100),
+  orc_archer: mk("orc_archer", "Orc Archer", 34, 1750, 1250),
+  orc_zombie: mk("orc_zombie", "Orc Zombie", 36, 1900, 1400),
+  orc_lord: mk("orc_lord", "Orc Lord", 42, 6000, 9000, true),
+  orc_hero: mk("orc_hero", "Orc Hero", 45, 7000, 11000, true),
 });
 
 export interface SpawnZone {
@@ -509,6 +515,14 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "nova", intervalMs: 6000, radius: 9, powerMult: 1.4 },
     { kind: "heal", intervalMs: 12000, pct: 0.05 },
   ],
+  orc_lord: [
+    { kind: "summon", intervalMs: 8000, templateId: "orc_warrior", count: 2, max: 5 },
+    { kind: "enrage", hpPct: 0.3, atkMult: 1.5 },
+  ],
+  orc_hero: [
+    { kind: "enrage", hpPct: 0.4, atkMult: 1.7 },
+    { kind: "nova", intervalMs: 5500, radius: 10, powerMult: 1.6 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -607,6 +621,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   kukre: Element.Earth,
   phreeoni: Element.Water,
   deviace: Element.Water,
+  orc_warrior: Element.Earth,
+  orc_archer: Element.Wind,
+  orc_zombie: Element.Shadow,
+  orc_lord: Element.Earth,
+  orc_hero: Element.Fire,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;
