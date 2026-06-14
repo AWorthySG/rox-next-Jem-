@@ -171,6 +171,14 @@ export class GameState {
     else if (v instanceof PlayerView) v.flinch();
   }
 
+  // If `id` is a (living) monster, return its position + boss flag — used to
+  // burst loot sparkles right before it's removed/death-animated.
+  monsterDeathInfo(id: number): { pos: THREE.Vector3; boss: boolean } | null {
+    const v = this.views.get(id);
+    if (v instanceof MonsterView && !v.dying) return { pos: v.group.position.clone(), boss: v.boss };
+    return null;
+  }
+
   getPickables(): THREE.Object3D[] {
     const out: THREE.Object3D[] = [];
     for (const v of this.views.values()) {

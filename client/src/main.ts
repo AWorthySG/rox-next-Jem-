@@ -324,10 +324,14 @@ function handleMessage(msg: ServerMessage): void {
     case MsgType.Spawn:
       gameState.addEntity(msg.entity);
       break;
-    case MsgType.Despawn:
+    case MsgType.Despawn: {
       if (msg.id === currentTargetId) currentTargetId = null;
+      // gold loot sparkle as the monster falls
+      const death = gameState.monsterDeathInfo(msg.id);
+      if (death) skillVfx.impact(death.pos, 0xffd24a, death.boss ? 2.4 : 1.1);
       gameState.removeEntity(msg.id);
       break;
+    }
     case MsgType.Snapshot:
       gameState.applySnapshot(msg.entities, performance.now());
       break;
