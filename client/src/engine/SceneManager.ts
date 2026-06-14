@@ -6,7 +6,7 @@ import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js"
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { SMAAPass } from "three/addons/postprocessing/SMAAPass.js";
 import { MAP_SIZE, type MapTheme } from "@rox/shared";
-import { makeGroundTexture, makeGroundRoughness, makeSunSprite } from "../procedural/textures.js";
+import { makeGroundTexture, makeGroundRoughness, makeSunSprite, makeCloud } from "../procedural/textures.js";
 import { buildScenery, type Scenery } from "../procedural/scenery.js";
 
 // Owns the renderer, the CSS2D label layer, scene, lights, ground, sky dome and
@@ -24,6 +24,8 @@ export class SceneManager {
   private composer: EffectComposer;
   private bloom: UnrealBloomPass;
   private scenery: Scenery | null = null;
+  private clouds: THREE.Sprite[] = [];
+  private clock = new THREE.Clock();
 
   constructor(root: HTMLElement) {
     this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
@@ -137,6 +139,17 @@ export class SceneManager {
     this.scenery = buildScenery("field");
     this.scene.add(this.scenery.group);
 
+    // ---- drifting cloud layer ----
+    const cloudTex = makeCloud();
+    for (let i = 0; i < 10; i++) {
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: cloudTex, transparent: true, opacity: 0.55, depthWrite: false, fog: false }));
+      const size = 30 + Math.random() * 40;
+      sprite.scale.set(size, size * 0.55, 1);
+      sprite.position.set((Math.random() - 0.5) * MAP_SIZE * 2.2, 45 + Math.random() * 25, (Math.random() - 0.5) * MAP_SIZE * 2.2);
+      this.scene.add(sprite);
+      this.clouds.push(sprite);
+    }
+
     window.addEventListener("resize", () => this.onResize());
   }
 
@@ -166,6 +179,12 @@ export class SceneManager {
   }
 
   render(camera: THREE.Camera): void {
+    const dt = this.clock.getDelta();
+    const edge = MAP_SIZE * 1.1;
+    for (const cloud of this.clouds) {
+      cloud.position.x += dt * 1.4;
+      if (cloud.position.x > edge) cloud.position.x = -edge;
+    }
     (this.composer.passes[0] as RenderPass).camera = camera;
     this.composer.render();
     this.labelRenderer.render(this.scene, camera);

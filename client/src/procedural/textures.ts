@@ -172,6 +172,28 @@ export function makeToonGradient(): THREE.Texture {
   return tex;
 }
 
+// A soft puffy cloud sprite (lumpy alpha) for the drifting sky layer.
+let cloudCache: THREE.Texture | null = null;
+export function makeCloud(): THREE.Texture {
+  if (cloudCache) return cloudCache;
+  const N = 256;
+  const { c, ctx } = canvas(N);
+  for (let i = 0; i < 22; i++) {
+    const x = 40 + Math.random() * (N - 80);
+    const y = 70 + Math.random() * (N - 150);
+    const r = 28 + Math.random() * 56;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, "rgba(255,255,255,0.9)");
+    g.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  cloudCache = new THREE.CanvasTexture(c);
+  return cloudCache;
+}
+
 // A soft round white spark for additive particle VFX (tinted per use).
 let sparkCache: THREE.Texture | null = null;
 export function makeSpark(): THREE.Texture {
