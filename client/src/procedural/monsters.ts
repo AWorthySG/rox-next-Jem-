@@ -40,6 +40,7 @@ const ARCH: Record<string, MonsterArch> = {
   cookie: "jelly", myst_case: "rock", antonio: "beast", stormy_knight: "undead", garm: "beast",
   kobold: "beast", elder_willow: "plant", brilight: "bug", lady_tanee: "plant", leak: "dragon",
   les: "beast", mavka: "plant", uzhas: "undead", gopinich: "demon", baba_yaga: "ghost",
+  magmaring: "jelly", kasa: "demon", salamander: "dragon", gigantes: "golem", ifrit: "demon",
 };
 
 function hex(s: string): number {
@@ -154,6 +155,12 @@ const DEFS: Record<string, AppearanceDef> = {
   uzhas: { inner: "#a0b0c0", outer: "#3a4450", scale: 1.4 },
   gopinich: { inner: "#e08050", outer: "#5a2010", scale: 2.9, boss: true },
   baba_yaga: { inner: "#c0b0a0", outer: "#4a3a28", scale: 2.7, boss: true },
+  // Thor Volcano
+  magmaring: { inner: "#ffb060", outer: "#a83010", scale: 1.0 },
+  kasa: { inner: "#ff9050", outer: "#7a2008", scale: 1.3 },
+  salamander: { inner: "#ff8040", outer: "#6a1804", scale: 1.5 },
+  gigantes: { inner: "#d09060", outer: "#5a2810", scale: 3.1, boss: true },
+  ifrit: { inner: "#ff7030", outer: "#5a0c04", scale: 3.4, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

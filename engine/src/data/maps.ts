@@ -285,6 +285,25 @@ export const MAPS: Record<string, GameMap> = {
     npcs: [
       { name: "Einbroch Exit", role: "portal", x: 0, z: 26, dest: { toMap: "juno", toX: 0, toZ: -44 } },
       { name: "Rachel Portal", role: "portal", x: 0, z: -52, dest: { toMap: "rachel", toX: 0, toZ: 20 } },
+      { name: "Thor Volcano Portal", role: "portal", x: 18, z: 14, dest: { toMap: "thor", toX: 0, toZ: 18 } },
+    ],
+  },
+  thor: {
+    id: "thor",
+    name: "Thor Volcano",
+    theme: { ground: 0x4a2418, fog: 0x2a0c06, sky: 0x4a1808 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "tv-magmaring", templateId: "magmaring", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "tv-kasa", templateId: "kasa", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "tv-salamander", templateId: "salamander", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "tv-gigantes", templateId: "gigantes", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "tv-ifrit", templateId: "ifrit", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Thor Exit", role: "portal", x: 0, z: 24, dest: { toMap: "einbroch", toX: 18, toZ: 16 } },
     ],
   },
   rachel: {

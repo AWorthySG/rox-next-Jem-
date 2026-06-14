@@ -128,6 +128,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 40,
     reward: { exp: 9000, zeny: 6000, items: [{ id: "mage_staff", qty: 1 }] },
   },
+  lord_of_flame: {
+    id: "lord_of_flame",
+    name: "Lord of Flame",
+    desc: "Ifrit rages at the heart of Thor Volcano. Extinguish the fire lord.",
+    targetTemplate: "ifrit",
+    targetName: "Ifrit",
+    count: 1,
+    requiredLevel: 104,
+    reward: { exp: 220000, zeny: 120000, items: [{ id: "magma_axe", qty: 1 }] },
+  },
   witch_of_the_woods: {
     id: "witch_of_the_woods",
     name: "Witch of the Woods",

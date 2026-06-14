@@ -357,6 +357,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Thor Volcano gear ----
+  magma_axe: {
+    id: "magma_axe", name: "Magma Axe", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "Forged in lava. ATK +78, STR +6.", atk: 78, bonusStats: { str: 6 }, sellPrice: 4200,
+  },
+  ifrit_mask: {
+    id: "ifrit_mask", name: "Mask of Ifrit", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A burning visage. ATK +12, STR +5, Max HP +140.", atk: 12, maxHp: 140, bonusStats: { str: 5 }, sellPrice: 4000,
+  },
+  volcanic_plate: {
+    id: "volcanic_plate", name: "Volcanic Plate", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Tempered in fire. DEF +32, Max HP +340, VIT +5.", def: 32, maxHp: 340, bonusStats: { vit: 5 }, sellPrice: 4400,
+  },
+
   // ---- Moscovia (northern forest) gear ----
   bear_claw: {
     id: "bear_claw", name: "Bear Claw", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -756,6 +770,12 @@ Object.assign(DROP_TABLES, {
   uzhas: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "ushanka", chance: 0.035 }],
   gopinich: HI([{ itemId: "bear_claw", chance: 0.6 }, { itemId: "forest_garb", chance: 0.5 }, { itemId: "baphomet_card", chance: 0.05 }]),
   baba_yaga: HI([{ itemId: "ushanka", chance: 0.6 }, { itemId: "forest_garb", chance: 0.5 }, { itemId: "ghostring_card", chance: 0.06 }]),
+  // Thor Volcano
+  magmaring: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "ifrit_mask", chance: 0.025 }],
+  kasa: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "magma_axe", chance: 0.025 }],
+  salamander: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "volcanic_plate", chance: 0.025 }],
+  gigantes: HI([{ itemId: "volcanic_plate", chance: 0.6 }, { itemId: "magma_axe", chance: 0.5 }, { itemId: "valkyrie_armor", chance: 0.3 }]),
+  ifrit: HI([{ itemId: "magma_axe", chance: 0.6 }, { itemId: "ifrit_mask", chance: 0.55 }, { itemId: "volcanic_plate", chance: 0.5 }, { itemId: "doppelganger_card", chance: 0.06 }]),
 });
 
 // Sprinkle refine ores across the bestiary so refining has a farming loop:
@@ -771,6 +791,7 @@ const ORE_REGULARS = [
   "cookie", "myst_case", "antonio",
   "kobold", "elder_willow", "brilight",
   "les", "mavka", "uzhas",
+  "magmaring", "kasa", "salamander",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -786,7 +807,7 @@ const ORE_BOSSES = [
   "memory_of_thanatos", "eddga", "moonlight", "mistress", "angeling",
   "drake", "satan_morroc", "egnigem", "kathryne", "detale", "nidhoggr",
   "doppelganger", "dark_priest", "bacsojin", "fallen_bishop", "samurai_specter", "kapha",
-  "stormy_knight", "garm", "lady_tanee", "leak", "gopinich", "baba_yaga",
+  "stormy_knight", "garm", "lady_tanee", "leak", "gopinich", "baba_yaga", "gigantes", "ifrit",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];
