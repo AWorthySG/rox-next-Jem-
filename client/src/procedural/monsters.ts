@@ -79,6 +79,7 @@ const ARCH: Record<string, MonsterArch> = {
   mall_mannequin: "humanoid", neon_phantom: "ghost", holo_serpent: "dragon", ion_colossus: "golem", orchard_specter: "demon",
   wetland_heron: "bird", fiddler_crab: "aquatic", marsh_terrapin: "beast", estuarine_titan: "beast", garuda_matriarch: "bird",
   night_panther: "beast", giant_flying_fox: "bird", moonlit_moth: "bug", malayan_tiger_lord: "beast", mandai_naga: "dragon",
+  temple_tortoise: "beast", shrine_carp: "aquatic", pilgrim_wisp: "ghost", kusu_tortoise_god: "beast", wishing_well_naga: "dragon",
 };
 
 function hex(s: string): number {
@@ -422,6 +423,11 @@ const DEFS: Record<string, AppearanceDef> = {
   moonlit_moth: { inner: "#a0b0d0", outer: "#3a3a5a", scale: 1.3 },
   malayan_tiger_lord: { inner: "#e0a040", outer: "#3a2008", scale: 3.2, boss: true },
   mandai_naga: { inner: "#4a8a5a", outer: "#0a2414", scale: 3.2, boss: true },
+  temple_tortoise: { inner: "#7a9a5a", outer: "#2a3a1a", scale: 1.5 },
+  shrine_carp: { inner: "#e0a060", outer: "#7a3a10", scale: 1.3 },
+  pilgrim_wisp: { inner: "#ffe0a0", outer: "#a07020", scale: 1.3 },
+  kusu_tortoise_god: { inner: "#8ab060", outer: "#2a4a1a", scale: 3.0, boss: true },
+  wishing_well_naga: { inner: "#50b0b0", outer: "#0a4a4a", scale: 3.0, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

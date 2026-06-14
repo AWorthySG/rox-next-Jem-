@@ -102,6 +102,7 @@ const THEMES: Record<string, Partial<Theme>> = {
   orchard_road: { trunk: 0x3a3a4a, foliage: [0xc040e0, 0x40c0e0], rock: 0x4a4a5a, tree: "crystal", trees: 44, rocks: 40, tufts: 60, tuft: 0x40c0e0 },
   sungei_buloh: { trunk: 0x5a4a30, foliage: [0x4a9a4a, 0x6cba5f], rock: 0x6a7a5a, tree: "jungle", trees: 70, rocks: 24, tufts: 130, tuft: 0x5a9a4f },
   night_safari: { trunk: 0x241a10, foliage: [0x143a1a, 0x1d4a24], rock: 0x2a2a24, tree: "jungle", trees: 96, rocks: 30, tufts: 150, tuft: 0x1a3a1f },
+  kusu_island: { trunk: 0x8a6b3a, foliage: [0x4fb04a, 0x6cc35f], rock: 0xbfae80, tree: "palm", trees: 44, rocks: 26, tufts: 80, tuft: 0x4fae5f },
   arena: { trees: 0, rocks: 10, tufts: 30 },
 };
 

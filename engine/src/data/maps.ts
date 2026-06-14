@@ -421,6 +421,25 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Guide", role: "guide", x: -6, z: 24, facing: Math.PI },
       { name: "Blacksmith", role: "refine", x: -10, z: 24, facing: Math.PI },
       { name: "Sentosa Exit", role: "portal", x: 0, z: 26, dest: { toMap: "pulau_hantu", toX: 0, toZ: -44 } },
+      { name: "Kusu Island Portal", role: "portal", x: 0, z: -50, dest: { toMap: "kusu_island", toX: 0, toZ: 18 } },
+    ],
+  },
+  kusu_island: {
+    id: "kusu_island",
+    name: "Kusu Island",
+    theme: { ground: 0x6aae8a, fog: 0x8fd0e0, sky: 0xc0eaf0 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "ku-tortoise", templateId: "temple_tortoise", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "ku-carp", templateId: "shrine_carp", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "ku-wisp", templateId: "pilgrim_wisp", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "ku-god", templateId: "kusu_tortoise_god", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "ku-naga", templateId: "wishing_well_naga", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Kusu Island Exit", role: "portal", x: 0, z: 24, dest: { toMap: "sentosa", toX: 0, toZ: -44 } },
     ],
   },
   geffen: {

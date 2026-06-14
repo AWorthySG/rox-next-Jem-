@@ -708,6 +708,26 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 146,
     reward: { exp: 420000, zeny: 235000, items: [{ id: "tiger_hide_armor", qty: 1 }] },
   },
+  the_tortoise_god: {
+    id: "the_tortoise_god",
+    name: "The Tortoise God",
+    desc: "Kusu Island's Tortoise God has stirred from the shrine. Earn its blessing.",
+    targetTemplate: "kusu_tortoise_god",
+    targetName: "Kusu Tortoise God",
+    count: 1,
+    requiredLevel: 76,
+    reward: { exp: 52000, zeny: 30000, items: [{ id: "tortoise_shell_plate", qty: 1 }] },
+  },
+  naga_of_the_well: {
+    id: "naga_of_the_well",
+    name: "Naga of the Wishing Well",
+    desc: "A Naga has coiled in Kusu's wishing well, poisoning the pilgrims' luck. Free it.",
+    targetTemplate: "wishing_well_naga",
+    targetName: "Wishing Well Naga",
+    count: 1,
+    requiredLevel: 78,
+    reward: { exp: 58000, zeny: 34000, items: [{ id: "pilgrim_staff", qty: 1 }] },
+  },
 
   // ---- repeatable daily bounties (turn in and re-accept for steady income) ----
   bounty_porings: {
