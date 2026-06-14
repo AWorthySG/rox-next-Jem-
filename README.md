@@ -56,6 +56,9 @@ copyrighted assets.
 - **Gear enchantment**: at the Blacksmith, roll up to **three "Overall Rating" stat lines**
   onto each equipped piece (STR/AGI/VIT/INT/DEX/LUK, ATK/MATK/DEF, Max HP/SP, CRIT); **lock**
   the lines you like and re-roll the rest, classic ROX-style, for a Zeny fee.
+- **Elements**: every monster has a defensive element and every skill an offensive one, scored
+  on the classic RO triangle (Fire>Earth>Wind>Water>Fire, Holy↔Shadow). Hit a foe's weakness
+  with the right element for up to +75% damage; the target frame shows the monster's element.
 - **Status effects**: skills inflict debuffs — Fire Bolt/Meteor Storm **burn** (DoT),
   Magnum Break **slows**, Thunder Storm/Bowling Bash **stun** — resolved server-side.
 - **Self-buffs**: Battle Focus (+30% ATK) and Mystic Focus (+30% MATK) temporarily empower

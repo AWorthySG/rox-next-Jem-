@@ -115,10 +115,12 @@ export class GameState {
     return this.views.get(id) instanceof MonsterView;
   }
 
-  targetInfo(id: number): { name: string; level: number; hp: number; maxHp: number; boss: boolean } | null {
+  targetInfo(
+    id: number,
+  ): { name: string; level: number; hp: number; maxHp: number; boss: boolean; element: string } | null {
     const v = this.views.get(id);
     if (!(v instanceof MonsterView)) return null;
-    return { name: v.name, level: v.level, hp: v.hp, maxHp: v.maxHp, boss: v.boss };
+    return { name: v.name, level: v.level, hp: v.hp, maxHp: v.maxHp, boss: v.boss, element: v.element };
   }
 
   entityHp(id: number): { hp: number; maxHp: number } | null {

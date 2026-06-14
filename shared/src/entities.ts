@@ -45,6 +45,7 @@ export interface EntityFull {
   // monsters
   templateId?: string;
   aiState?: MonsterAIState;
+  element?: string; // defensive element (for the target frame)
   // npcs
   npcRole?: string;
 }

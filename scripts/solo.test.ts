@@ -2,7 +2,19 @@
 // LocalServer (the transport used when no WS server is reachable). Runs under tsx
 // in Node — no DOM needed — and asserts join, spawns, combat and EXP gain. Also
 // deterministically checks the item/equipment system at the engine level.
-import { JobId, MsgType, StatusType, LEVEL_CAP, xpToNext, type ServerMessage } from "@rox/shared";
+import {
+  DamageKind,
+  Element,
+  elementMultiplier,
+  JobId,
+  MsgType,
+  resolveAttack,
+  StatusType,
+  LEVEL_CAP,
+  xpToNext,
+  type DerivedStats,
+  type ServerMessage,
+} from "@rox/shared";
 import { MAPS, Monster, MONSTER_TEMPLATES, Player } from "@rox/engine";
 import { LocalServer } from "../client/src/net/LocalServer.js";
 
@@ -189,6 +201,23 @@ async function main(): Promise<void> {
   check(carder.derived.atk > atkNoCard, "cards: socketed card raises ATK");
   carder.unequip("weapon" as never);
   check((carder.toSelfState().inventory.find((i) => i.id === "skeleton_card")?.qty ?? 0) === 1, "cards: unequipping returns the card");
+
+  // ---- deterministic elemental system ----
+  check(elementMultiplier(Element.Fire, Element.Earth) === 1.5, "element: Fire is strong vs Earth");
+  check(elementMultiplier(Element.Fire, Element.Water) === 0.5, "element: Fire is weak vs Water");
+  check(elementMultiplier(Element.Holy, Element.Shadow) === 1.75, "element: Holy scorches Shadow");
+  check(elementMultiplier(Element.Neutral, Element.Fire) === 1, "element: Neutral is even all round");
+  // resolveAttack applies the chart: same rolls, Fire-vs-Earth out-damages Fire-vs-Water
+  const atk: DerivedStats = { maxHp: 100, maxSp: 50, atk: 200, matk: 200, def: 0, hit: 999, flee: 0, crit: 0 };
+  const tgt: DerivedStats = { maxHp: 100, maxSp: 50, atk: 0, matk: 0, def: 0, hit: 0, flee: 0, crit: 0 };
+  const fixed = () => 0.5; // deterministic mid-roll, no crit, always hits
+  const vsEarth = resolveAttack(atk, tgt, DamageKind.Magic, fixed, 1, { attack: Element.Fire, defense: Element.Earth });
+  const vsWater = resolveAttack(atk, tgt, DamageKind.Magic, fixed, 1, { attack: Element.Fire, defense: Element.Water });
+  check(vsEarth.amount > vsWater.amount, "element: chart scales resolved damage (Earth > Water target)");
+  check(vsEarth.elementMult === 1.5 && vsWater.elementMult === 0.5, "element: multiplier reported on the result");
+  // monster templates carry a defensive element
+  check(MONSTER_TEMPLATES["boitata"].element === Element.Fire, "element: Boitata is a Fire monster");
+  check((MONSTER_TEMPLATES["poring"].element ?? "neutral") === Element.Water, "element: Poring is Water");
 
   // ---- deterministic food/cooking buffs ----
   const eater = new Player(972, 1, "Gourmet", JobId.Swordsman, 0, 0);

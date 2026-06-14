@@ -1,4 +1,4 @@
-import { makeStats, type Stats } from "@rox/shared";
+import { Element, makeStats, type Stats } from "@rox/shared";
 
 // Distinct boss behaviours, driven on the server tick.
 export type BossMechanic =
@@ -17,6 +17,7 @@ export interface MonsterTemplate {
   respawnMs?: number; // overrides the default respawn delay (bosses respawn slowly)
   boss?: boolean;
   mechanics?: BossMechanic[];
+  element?: Element; // defensive element (defaults to Neutral)
 }
 
 // A small bestiary of classic-feeling field monsters plus an MVP-style boss.
@@ -352,4 +353,50 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
+}
+
+// ---- defensive elements ----
+// Thematic element per monster so the combat chart rewards exploiting weaknesses
+// (e.g. Water magic melts the fiery Boitata; Holy scorches the undead). Anything
+// unlisted stays Neutral.
+const MONSTER_ELEMENTS: Record<string, Element> = {
+  // plants / insects lean Earth; water creatures Water; undead Shadow; etc.
+  poring: Element.Water,
+  drops: Element.Fire,
+  spore: Element.Earth,
+  dryad: Element.Earth,
+  stem_worm: Element.Earth,
+  tendrilion: Element.Earth,
+  zombie: Element.Shadow,
+  skeleton: Element.Shadow,
+  wraith: Element.Shadow,
+  dark_lord: Element.Shadow,
+  baphomet: Element.Shadow,
+  gloom: Element.Shadow,
+  beelzebub: Element.Shadow,
+  thanatos_phantom: Element.Shadow,
+  memory_of_thanatos: Element.Shadow,
+  sandman: Element.Earth,
+  anolian: Element.Water,
+  kraken: Element.Water,
+  hardrock_mammoth: Element.Earth,
+  tao_gunka: Element.Earth,
+  hill_wind: Element.Wind,
+  gargoyle: Element.Wind,
+  vesper: Element.Wind,
+  boitata: Element.Fire,
+  ktullanux: Element.Water,
+  metaling: Element.Fire,
+  venatu: Element.Wind,
+  angeling: Element.Holy,
+  valkyrie_randgris: Element.Holy,
+  amon_ra: Element.Holy,
+  kiel: Element.Wind,
+  moonlight: Element.Wind,
+  mistress: Element.Wind,
+  vanberk: Element.Fire,
+  hodremlin: Element.Earth,
+};
+for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
+  if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;
 }

@@ -1,5 +1,6 @@
 import {
   deriveStats,
+  Element,
   EntityKind,
   JobId,
   MonsterAIState,
@@ -35,6 +36,7 @@ export class Monster {
   level: number;
   derived: DerivedStats;
   hp: number;
+  readonly element: Element;
 
   aiState: MonsterAIState = MonsterAIState.Idle;
   wanderTarget: { x: number; z: number } | null = null;
@@ -53,6 +55,7 @@ export class Monster {
     this.x = x;
     this.z = z;
     this.level = template.level;
+    this.element = template.element ?? Element.Neutral;
     // Monsters derive combat stats the same way players do, then override maxHp
     // with the template's flat HP for predictable tuning.
     this.derived = { ...deriveStats(template.stats, template.level, JobId.Novice), maxHp: template.baseHp };
@@ -127,6 +130,7 @@ export class Monster {
       level: this.level,
       templateId: this.template.id,
       aiState: this.aiState,
+      element: this.element,
     };
   }
 

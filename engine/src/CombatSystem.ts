@@ -1,5 +1,6 @@
 import {
   DamageKind,
+  Element,
   EXP_SHARE_RANGE,
   getSkill,
   HP_REGEN_PER_SEC,
@@ -263,7 +264,10 @@ export class CombatSystem {
 
   private applySkillHit(p: Player, target: Monster, def: SkillDef, lvl: number): void {
     const buffMul = p.buffMul(def.kind === DamageKind.Magic ? "matk" : "atk", Date.now());
-    const result = resolveAttack(p.derived, target.derived, def.kind, Math.random, skillPower(def, lvl) * buffMul);
+    const result = resolveAttack(p.derived, target.derived, def.kind, Math.random, skillPower(def, lvl) * buffMul, {
+      attack: def.element ?? Element.Neutral,
+      defense: target.element,
+    });
     this.world.broadcastToMap(target.mapId, {
       t: MsgType.DamageEvent,
       sourceId: p.id,
@@ -329,7 +333,10 @@ export class CombatSystem {
 
     const kind = p.isMagic ? DamageKind.Magic : DamageKind.Physical;
     const buffMul = p.buffMul(kind === DamageKind.Magic ? "matk" : "atk", Date.now());
-    const result = resolveAttack(p.derived, target.derived, kind, Math.random, buffMul);
+    const result = resolveAttack(p.derived, target.derived, kind, Math.random, buffMul, {
+      attack: Element.Neutral,
+      defense: target.element,
+    });
     this.world.broadcastToMap(p.mapId, {
       t: MsgType.DamageEvent,
       sourceId: p.id,
