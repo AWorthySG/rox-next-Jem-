@@ -386,6 +386,12 @@ Object.assign(MONSTER_TEMPLATES, {
   iara: mk("iara", "Iara", 62, 3700, 7600),
   jaguar_king: mk("jaguar_king", "Jaguar King", 68, 16000, 28000, true),
   anaconda: mk("anaconda", "Giant Anaconda", 70, 18000, 32000, true),
+  // ---- Veins Canyon ----
+  dustiness: mk("dustiness", "Dustiness", 72, 4300, 9200),
+  hode: mk("hode", "Hode", 74, 4600, 9900),
+  galapago: mk("galapago", "Galapago", 76, 4900, 10600),
+  gold_acidus: mk("gold_acidus", "Gold Acidus", 82, 30000, 50000, true),
+  tatacho: mk("tatacho", "Tatacho", 84, 33000, 56000, true),
 });
 
 export interface SpawnZone {
@@ -644,6 +650,14 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.6 },
     { kind: "heal", intervalMs: 11000, pct: 0.06 },
   ],
+  gold_acidus: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.7 },
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
+  ],
+  tatacho: [
+    { kind: "summon", intervalMs: 8000, templateId: "hode", count: 2, max: 5 },
+    { kind: "nova", intervalMs: 6000, radius: 11, powerMult: 1.6 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -792,6 +806,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   iara: Element.Water,
   jaguar_king: Element.Wind,
   anaconda: Element.Water,
+  dustiness: Element.Wind,
+  hode: Element.Earth,
+  galapago: Element.Fire,
+  gold_acidus: Element.Wind,
+  tatacho: Element.Water,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

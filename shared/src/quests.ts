@@ -138,6 +138,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 108,
     reward: { exp: 200000, zeny: 110000, items: [{ id: "bloody_sword", qty: 1 }] },
   },
+  golden_terror: {
+    id: "golden_terror",
+    name: "The Golden Terror",
+    desc: "Gold Acidus hoards the Veins Canyon. Bring down the gilded dragon.",
+    targetTemplate: "gold_acidus",
+    targetName: "Gold Acidus",
+    count: 1,
+    requiredLevel: 78,
+    reward: { exp: 54000, zeny: 31000, items: [{ id: "sand_spear", qty: 1 }] },
+  },
   river_terror: {
     id: "river_terror",
     name: "Terror of the River",

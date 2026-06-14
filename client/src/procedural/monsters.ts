@@ -52,6 +52,7 @@ const ARCH: Record<string, MonsterArch> = {
   ronin: "humanoid", shrine_spirit: "ghost", stone_lion: "golem", jade_warlord: "humanoid", spirit_empress: "ghost",
   miming: "plant", pom_spider: "bug", luciola_vespa: "bug", bangungot: "ghost", bungisngis: "humanoid",
   piranha: "aquatic", curupira: "plant", iara: "ghost", jaguar_king: "beast", anaconda: "dragon",
+  dustiness: "bug", hode: "beast", galapago: "beast", gold_acidus: "dragon", tatacho: "beast",
 };
 
 function hex(s: string): number {
@@ -238,6 +239,12 @@ const DEFS: Record<string, AppearanceDef> = {
   iara: { inner: "#a0d0e0", outer: "#2a6a8a", scale: 1.3 },
   jaguar_king: { inner: "#e0c060", outer: "#6a4818", scale: 2.7, boss: true },
   anaconda: { inner: "#90c070", outer: "#2a5a28", scale: 3.0, boss: true },
+  // Veins Canyon
+  dustiness: { inner: "#e0d0a0", outer: "#8a7040", scale: 1.0 },
+  hode: { inner: "#d0b080", outer: "#6a4a28", scale: 1.2 },
+  galapago: { inner: "#c8a878", outer: "#5a4424", scale: 1.3 },
+  gold_acidus: { inner: "#f0d060", outer: "#7a5a10", scale: 2.8, boss: true },
+  tatacho: { inner: "#a0c0d0", outer: "#3a5a6a", scale: 3.0, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

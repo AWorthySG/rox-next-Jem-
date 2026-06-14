@@ -475,6 +475,24 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Rachel Exit", role: "portal", x: 0, z: 26, dest: { toMap: "einbroch", toX: 0, toZ: -44 } },
       { name: "Tower Portal", role: "portal", x: 0, z: -52, dest: { toMap: "tower", toX: 0, toZ: 20 } },
       { name: "Bifrost Portal", role: "portal", x: 18, z: 14, dest: { toMap: "bifrost", toX: 0, toZ: 18 } },
+      { name: "Veins Portal", role: "portal", x: -18, z: 14, dest: { toMap: "veins", toX: 0, toZ: 18 } },
+    ],
+  },
+  veins: {
+    id: "veins",
+    name: "Veins Canyon",
+    theme: { ground: 0xc09060, fog: 0x8a6840, sky: 0xd8b070 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "ve-dustiness", templateId: "dustiness", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "ve-hode", templateId: "hode", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "ve-galapago", templateId: "galapago", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "ve-acidus", templateId: "gold_acidus", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "ve-tatacho", templateId: "tatacho", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Veins Exit", role: "portal", x: 0, z: 24, dest: { toMap: "rachel", toX: -18, toZ: 16 } },
     ],
   },
   bifrost: {
