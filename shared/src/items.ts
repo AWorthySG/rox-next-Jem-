@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Mount Faber (Singapore) gear ----
+  summit_lance: {
+    id: "summit_lance", name: "Summit Lance", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A peak-climber's lance. ATK +66, DEX +4.", atk: 66, bonusStats: { dex: 4 }, sellPrice: 1700,
+  },
+  aviator_cap: {
+    id: "aviator_cap", name: "Aviator Cap", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A leather cable-car cap. MATK +8, DEX +4, Max SP +30.", matk: 8, maxSp: 30, bonusStats: { dex: 4 }, sellPrice: 1500,
+  },
+  alpine_plate: {
+    id: "alpine_plate", name: "Alpine Plate", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Wind-proof summit armor. DEF +24, Max HP +220, VIT +4.", def: 24, maxHp: 220, bonusStats: { vit: 4 }, sellPrice: 1700,
+  },
+
   // ---- Fort Canning (Singapore) gear ----
   canning_saber: {
     id: "canning_saber", name: "Canning Saber", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1243,6 +1257,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Mount Faber (Singapore)
+  cable_wraith: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "alpine_plate", chance: 0.03 }],
+  peak_eagle: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "aviator_cap", chance: 0.03 }],
+  stone_golem: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "summit_lance", chance: 0.03 }],
+  faber_titan: HI([{ itemId: "summit_lance", chance: 0.6 }, { itemId: "alpine_plate", chance: 0.5 }, { itemId: "aviator_cap", chance: 0.4 }]),
+  wind_djinn: HI([{ itemId: "aviator_cap", chance: 0.6 }, { itemId: "alpine_plate", chance: 0.45 }, { itemId: "doppelganger_card", chance: 0.05 }]),
   // Fort Canning (Singapore)
   spice_sprite: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "officer_coat", chance: 0.03 }],
   war_ghost: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pith_helmet", chance: 0.03 }],
@@ -1451,6 +1471,7 @@ const ORE_REGULARS = [
   "hell_judge", "ox_head", "horse_face",
   "beach_crab", "seagull", "sand_flea",
   "spice_sprite", "war_ghost", "bunker_sentry",
+  "cable_wraith", "peak_eagle", "stone_golem",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1478,6 +1499,7 @@ const ORE_BOSSES = [
   "sentosa_merlion", "leviathan", "sultan_jinn", "naga_emas",
   "skyline_colossus", "spectra_dragon", "t_rex", "mecha_dino", "boar_king", "mangrove_naga",
   "yama_king", "tiger_spirit", "giant_stingray", "tidal_kraken", "colonial_wraith", "hill_sentinel",
+  "faber_titan", "wind_djinn",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

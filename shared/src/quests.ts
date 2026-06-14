@@ -148,6 +148,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 96,
     reward: { exp: 170000, zeny: 95000, items: [{ id: "soul_reaper", qty: 1 }] },
   },
+  spirit_of_the_peak: {
+    id: "spirit_of_the_peak",
+    name: "Spirit of the Peak",
+    desc: "A Wind Djinn whips storms across Mount Faber. Calm the summit's spirit.",
+    targetTemplate: "wind_djinn",
+    targetName: "Wind Djinn",
+    count: 1,
+    requiredLevel: 78,
+    reward: { exp: 48000, zeny: 28000, items: [{ id: "summit_lance", qty: 1 }] },
+  },
   ghost_of_the_hill: {
     id: "ghost_of_the_hill",
     name: "Ghost of the Hill",

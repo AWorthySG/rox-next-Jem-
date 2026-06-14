@@ -177,6 +177,24 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
       { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
       { name: "Fort Canning Exit", role: "portal", x: 0, z: 24, dest: { toMap: "chinatown", toX: -18, toZ: 16 } },
+      { name: "Mount Faber Portal", role: "portal", x: 0, z: -50, dest: { toMap: "mount_faber", toX: 0, toZ: 18 } },
+    ],
+  },
+  mount_faber: {
+    id: "mount_faber",
+    name: "Mount Faber",
+    theme: { ground: 0x3a6a4a, fog: 0x8ab0c0, sky: 0xb0d8e0 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "mf-wraith", templateId: "cable_wraith", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "mf-eagle", templateId: "peak_eagle", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "mf-golem", templateId: "stone_golem", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "mf-titan", templateId: "faber_titan", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "mf-djinn", templateId: "wind_djinn", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Mount Faber Exit", role: "portal", x: 0, z: 24, dest: { toMap: "fort_canning", toX: 0, toZ: -44 } },
     ],
   },
   kampong_glam: {

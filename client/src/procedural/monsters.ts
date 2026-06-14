@@ -72,6 +72,7 @@ const ARCH: Record<string, MonsterArch> = {
   hell_judge: "undead", ox_head: "humanoid", horse_face: "humanoid", yama_king: "demon", tiger_spirit: "beast",
   beach_crab: "aquatic", seagull: "bird", sand_flea: "bug", giant_stingray: "aquatic", tidal_kraken: "aquatic",
   spice_sprite: "plant", war_ghost: "ghost", bunker_sentry: "golem", colonial_wraith: "ghost", hill_sentinel: "golem",
+  cable_wraith: "ghost", peak_eagle: "bird", stone_golem: "golem", faber_titan: "golem", wind_djinn: "demon",
 };
 
 function hex(s: string): number {
@@ -378,6 +379,12 @@ const DEFS: Record<string, AppearanceDef> = {
   bunker_sentry: { inner: "#9aa090", outer: "#3a4030", scale: 1.4 },
   colonial_wraith: { inner: "#d0d0d8", outer: "#5a5a6a", scale: 2.7, boss: true },
   hill_sentinel: { inner: "#a0a890", outer: "#3a4230", scale: 3.0, boss: true },
+  // Mount Faber (Singapore)
+  cable_wraith: { inner: "#c0c8d0", outer: "#4a525c", scale: 1.3 },
+  peak_eagle: { inner: "#d0d8e0", outer: "#5a6a7a", scale: 1.3 },
+  stone_golem: { inner: "#a0a090", outer: "#3a3a30", scale: 1.4 },
+  faber_titan: { inner: "#a0b0a0", outer: "#3a4a3a", scale: 3.1, boss: true },
+  wind_djinn: { inner: "#b0e0e0", outer: "#2a6a6a", scale: 2.9, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

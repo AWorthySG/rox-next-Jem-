@@ -506,6 +506,12 @@ Object.assign(MONSTER_TEMPLATES, {
   bunker_sentry: mk("bunker_sentry", "Bunker Sentry", 69, 4000, 9200),
   colonial_wraith: mk("colonial_wraith", "Colonial Wraith", 75, 22000, 38000, true),
   hill_sentinel: mk("hill_sentinel", "Hill Sentinel", 77, 25000, 43000, true),
+  // ---- Mount Faber (Singapore) ----
+  cable_wraith: mk("cable_wraith", "Cable Wraith", 70, 4200, 9200),
+  peak_eagle: mk("peak_eagle", "Peak Eagle", 72, 4400, 9800),
+  stone_golem: mk("stone_golem", "Stone Golem", 74, 4600, 10400),
+  faber_titan: mk("faber_titan", "Faber Titan", 80, 28000, 48000, true),
+  wind_djinn: mk("wind_djinn", "Wind Djinn", 82, 31000, 53000, true),
 });
 
 export interface SpawnZone {
@@ -938,6 +944,14 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "enrage", hpPct: 0.35, atkMult: 1.6 },
     { kind: "nova", intervalMs: 6000, radius: 11, powerMult: 1.6 },
   ],
+  faber_titan: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.7 },
+    { kind: "summon", intervalMs: 8000, templateId: "stone_golem", count: 2, max: 5 },
+  ],
+  wind_djinn: [
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
+    { kind: "heal", intervalMs: 11000, pct: 0.06 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -1186,6 +1200,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   bunker_sentry: Element.Earth,
   colonial_wraith: Element.Shadow,
   hill_sentinel: Element.Earth,
+  cable_wraith: Element.Shadow,
+  peak_eagle: Element.Wind,
+  stone_golem: Element.Earth,
+  faber_titan: Element.Fire,
+  wind_djinn: Element.Wind,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;
