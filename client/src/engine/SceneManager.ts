@@ -7,7 +7,7 @@ import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { SMAAPass } from "three/addons/postprocessing/SMAAPass.js";
 import { MAP_SIZE, type MapTheme } from "@rox/shared";
-import { makeGroundTexture, makeGroundRoughness, makeSunSprite, makeCloud } from "../procedural/textures.js";
+import { makeGroundTexture, makeGroundRoughness, makeSunSprite, makeCloud, makeSpark } from "../procedural/textures.js";
 import { buildScenery, type Scenery } from "../procedural/scenery.js";
 
 // Owns the renderer, the CSS2D label layer, scene, lights, ground, sky dome and
@@ -26,6 +26,8 @@ export class SceneManager {
   private bloom: UnrealBloomPass;
   private scenery: Scenery | null = null;
   private clouds: THREE.Sprite[] = [];
+  private motes!: THREE.Points;
+  private moteBox = 34;
   private clock = new THREE.Clock();
 
   constructor(root: HTMLElement) {
@@ -153,6 +155,33 @@ export class SceneManager {
       this.clouds.push(sprite);
     }
 
+    // ---- ambient floating motes (follow the camera for constant density) ----
+    const count = 140;
+    const positions = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * this.moteBox;
+      positions[i * 3 + 1] = Math.random() * 14;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * this.moteBox;
+    }
+    const moteGeo = new THREE.BufferGeometry();
+    moteGeo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    this.motes = new THREE.Points(
+      moteGeo,
+      new THREE.PointsMaterial({
+        map: makeSpark(),
+        color: 0xfff2cf,
+        size: 0.22,
+        transparent: true,
+        opacity: 0.55,
+        depthWrite: false,
+        blending: THREE.AdditiveBlending,
+        sizeAttenuation: true,
+        fog: false,
+      }),
+    );
+    this.motes.frustumCulled = false;
+    this.scene.add(this.motes);
+
     window.addEventListener("resize", () => this.onResize());
   }
 
@@ -188,6 +217,20 @@ export class SceneManager {
       cloud.position.x += dt * 1.4;
       if (cloud.position.x > edge) cloud.position.x = -edge;
     }
+    // motes: keep the cloud centred on the camera and drift each particle up,
+    // wrapping within the local box so density stays constant everywhere.
+    this.motes.position.set(camera.position.x, 0, camera.position.z);
+    const pos = this.motes.geometry.getAttribute("position") as THREE.BufferAttribute;
+    const half = this.moteBox / 2;
+    for (let i = 0; i < pos.count; i++) {
+      let y = pos.getY(i) + dt * 0.5;
+      let x = pos.getX(i) + dt * 0.3;
+      if (y > 14) y -= 14;
+      if (x > half) x -= this.moteBox;
+      pos.setY(i, y);
+      pos.setX(i, x);
+    }
+    pos.needsUpdate = true;
     (this.composer.passes[0] as RenderPass).camera = camera;
     this.composer.render();
     this.labelRenderer.render(this.scene, camera);
