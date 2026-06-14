@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { makeBlobShadow, makeToonGradient } from "./textures.js";
 
 export interface CharacterMesh {
   group: THREE.Group;
@@ -11,64 +12,107 @@ export interface CharacterMesh {
   headgear: THREE.Object3D | null; // currently-worn hat mesh, if any
 }
 
-// A low-poly humanoid built from primitives. `colorSeed` (0..360 hue) gives each
-// player a distinct outfit tint; `magic` swaps the palette toward a mage robe.
+const OUTLINE_MAT = new THREE.MeshBasicMaterial({ color: 0x171019, side: THREE.BackSide });
+
+function toon(color: THREE.ColorRepresentation): THREE.MeshToonMaterial {
+  return new THREE.MeshToonMaterial({ color, gradientMap: makeToonGradient() });
+}
+
+// Add a black inverted-hull outline behind `mesh` for the anime cel-shaded edge.
+function outline(parent: THREE.Object3D, mesh: THREE.Mesh, scale = 1.08): void {
+  const o = new THREE.Mesh(mesh.geometry, OUTLINE_MAT);
+  o.position.copy(mesh.position);
+  o.rotation.copy(mesh.rotation);
+  o.scale.copy(mesh.scale).multiplyScalar(scale);
+  parent.add(o);
+}
+
+// A low-poly humanoid built from primitives, cel-shaded with toon materials and
+// black outlines. `colorSeed` (0..360 hue) gives each player a distinct outfit
+// tint; `magic` swaps the palette toward a mage robe.
 export function buildCharacter(colorSeed: number, magic: boolean): CharacterMesh {
   const group = new THREE.Group();
 
-  const skin = new THREE.MeshLambertMaterial({ color: 0xf1c9a5 });
   const hue = (colorSeed % 360) / 360;
-  const outfit = new THREE.MeshLambertMaterial({
-    color: new THREE.Color().setHSL(hue, magic ? 0.55 : 0.6, magic ? 0.45 : 0.42),
-  });
-  const accent = new THREE.MeshLambertMaterial({
-    color: new THREE.Color().setHSL((hue + 0.08) % 1, 0.5, 0.3),
-  });
-  const hairMat = new THREE.MeshLambertMaterial({
-    color: new THREE.Color().setHSL((hue + 0.5) % 1, 0.4, 0.25),
-  });
+  const skin = toon(0xf1c9a5);
+  const outfit = toon(new THREE.Color().setHSL(hue, magic ? 0.6 : 0.62, magic ? 0.5 : 0.46));
+  const accent = toon(new THREE.Color().setHSL((hue + 0.08) % 1, 0.55, 0.34));
+  const hairMat = toon(new THREE.Color().setHSL((hue + 0.5) % 1, 0.45, 0.24));
+  const bootMat = toon(new THREE.Color().setHSL((hue + 0.08) % 1, 0.4, 0.2));
 
-  // torso
-  const torso = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.85, 0.4), outfit);
+  // torso (tapered) + a little collar
+  const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.36, 0.9, 10), outfit);
   torso.position.y = 1.15;
+  outline(group, torso);
   group.add(torso);
 
+  const hips = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.3, 0.3, 10), accent);
+  hips.position.y = 0.72;
+  group.add(hips);
+
   // head
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.32, 16, 16), skin);
-  head.position.y = 1.85;
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.33, 18, 18), skin);
+  head.position.y = 1.86;
+  outline(group, head, 1.06);
   group.add(head);
 
   // hair cap
-  const hair = new THREE.Mesh(new THREE.SphereGeometry(0.34, 16, 16, 0, Math.PI * 2, 0, Math.PI / 1.8), hairMat);
+  const hair = new THREE.Mesh(new THREE.SphereGeometry(0.36, 18, 18, 0, Math.PI * 2, 0, Math.PI / 1.7), hairMat);
   hair.position.y = 1.9;
   group.add(hair);
 
   // arms (pivot from the shoulder so they can swing)
-  const armGeo = new THREE.BoxGeometry(0.18, 0.7, 0.18);
-  const leftArm = limb(armGeo, accent, -0.46, 1.5);
-  const rightArm = limb(armGeo, accent, 0.46, 1.5);
-  group.add(leftArm, rightArm);
+  const armGeo = new THREE.CapsuleGeometry(0.1, 0.55, 4, 8);
+  const leftArm = limb(group, armGeo, accent, -0.44, 1.55);
+  const rightArm = limb(group, armGeo, accent, 0.44, 1.55);
 
   // legs
-  const legGeo = new THREE.BoxGeometry(0.22, 0.75, 0.22);
-  const leftLeg = limb(legGeo, accent, -0.18, 0.72);
-  const rightLeg = limb(legGeo, accent, 0.18, 0.72);
-  group.add(leftLeg, rightLeg);
+  const legGeo = new THREE.CapsuleGeometry(0.12, 0.6, 4, 8);
+  const leftLeg = limb(group, legGeo, bootMat, -0.16, 0.7);
+  const rightLeg = limb(group, legGeo, bootMat, 0.16, 0.7);
 
-  // hint of class: mage gets a little staff, swordsman a blade
+  // hint of class: mage gets a glowing orb staff, others a blade
   if (magic) {
-    const staff = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.2, 8), new THREE.MeshLambertMaterial({ color: 0x8a5a2b }));
-    staff.position.set(0.55, 1.25, 0.1);
-    const orb = new THREE.Mesh(new THREE.SphereGeometry(0.12, 12, 12), new THREE.MeshBasicMaterial({ color: 0x8fd0ff }));
-    orb.position.set(0.55, 1.85, 0.1);
-    group.add(staff, orb);
+    const staff = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.3, 8), toon(0x8a5a2b));
+    staff.position.set(0.56, 1.25, 0.1);
+    group.add(staff);
+    const orb = new THREE.Mesh(new THREE.SphereGeometry(0.13, 14, 14), new THREE.MeshBasicMaterial({ color: 0x9fe0ff }));
+    orb.position.set(0.56, 1.95, 0.1);
+    group.add(orb); // bright → catches bloom
+  } else {
+    const blade = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.9, 0.04), toon(0xcfd6e6));
+    blade.position.set(0.5, 1.2, 0.12);
+    group.add(blade);
+    const hilt = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.1, 0.08), toon(0x6b4a2b));
+    hilt.position.set(0.5, 0.78, 0.12);
+    group.add(hilt);
   }
 
+  // soft contact shadow
+  const shadow = new THREE.Mesh(
+    new THREE.PlaneGeometry(1.1, 1.1),
+    new THREE.MeshBasicMaterial({ map: makeBlobShadow(), transparent: true, depthWrite: false, opacity: 0.7 }),
+  );
+  shadow.rotation.x = -Math.PI / 2;
+  shadow.position.y = 0.02;
+  group.add(shadow);
+
   group.traverse((o) => {
-    o.castShadow = true;
+    if (o instanceof THREE.Mesh && o.material !== OUTLINE_MAT) o.castShadow = true;
   });
 
   return { group, leftArm, rightArm, leftLeg, rightLeg, head, headgear: null };
+}
+
+function limb(group: THREE.Object3D, geo: THREE.BufferGeometry, mat: THREE.Material, x: number, pivotY: number): THREE.Object3D {
+  const pivot = new THREE.Object3D();
+  pivot.position.set(x, pivotY, 0);
+  const mesh = new THREE.Mesh(geo, mat);
+  mesh.position.y = -0.32;
+  outline(pivot, mesh);
+  pivot.add(mesh);
+  group.add(pivot);
+  return pivot;
 }
 
 // Swap the worn hat. Each known headgear id maps to a distinct low-poly shape so
@@ -81,7 +125,7 @@ export function applyHeadgear(char: CharacterMesh, itemId: string | null | undef
   if (!itemId) return;
   const hat = buildHeadgear(itemId);
   if (!hat) return;
-  hat.position.y = char.head.position.y; // anchor around the head centre
+  hat.position.y = char.head.position.y;
   hat.traverse((o) => {
     o.castShadow = true;
   });
@@ -89,57 +133,53 @@ export function applyHeadgear(char: CharacterMesh, itemId: string | null | undef
   char.headgear = hat;
 }
 
-function mat(color: number, opts: { emissive?: number } = {}): THREE.MeshLambertMaterial {
-  return new THREE.MeshLambertMaterial({ color, emissive: opts.emissive ?? 0x000000 });
-}
-
 function buildHeadgear(itemId: string): THREE.Object3D | null {
   const g = new THREE.Group();
   switch (itemId) {
     case "feather_beret": {
-      const cap = new THREE.Mesh(new THREE.SphereGeometry(0.34, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2.4), mat(0x3a6b3a));
+      const cap = new THREE.Mesh(new THREE.SphereGeometry(0.34, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2.4), toon(0x3a6b3a));
       cap.position.y = 0.22;
-      const feather = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.5, 8), mat(0xe8d36a));
+      const feather = new THREE.Mesh(new THREE.ConeGeometry(0.05, 0.5, 8), toon(0xe8d36a));
       feather.position.set(0.22, 0.42, -0.05);
       feather.rotation.z = -0.7;
       g.add(cap, feather);
       break;
     }
     case "poring_hat": {
-      const dome = new THREE.Mesh(new THREE.SphereGeometry(0.33, 16, 14), mat(0xff9ecb));
+      const dome = new THREE.Mesh(new THREE.SphereGeometry(0.33, 16, 14), toon(0xff9ecb));
       dome.position.y = 0.34;
       dome.scale.y = 0.8;
       g.add(dome);
       break;
     }
     case "apprentice_circlet": {
-      const band = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.04, 8, 20), mat(0x6fa8ff, { emissive: 0x16315f }));
+      const band = new THREE.Mesh(new THREE.TorusGeometry(0.3, 0.04, 8, 20), toon(0x6fa8ff));
       band.position.y = 0.26;
       band.rotation.x = Math.PI / 2;
-      const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.09), mat(0x9fd6ff, { emissive: 0x2a5a8a }));
+      const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.09), new THREE.MeshBasicMaterial({ color: 0x9fd6ff }));
       gem.position.set(0, 0.3, 0.3);
       g.add(band, gem);
       break;
     }
     case "gem_crown": {
-      const ring = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.32, 0.18, 16, 1, true), mat(0xf4d98a, { emissive: 0x5a4410 }));
+      const ring = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.32, 0.18, 16, 1, true), toon(0xf4d98a));
       ring.position.y = 0.32;
       g.add(ring);
       for (let i = 0; i < 5; i++) {
-        const spike = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.18, 6), mat(0xf4d98a, { emissive: 0x5a4410 }));
+        const spike = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.18, 6), toon(0xf4d98a));
         const a = (i / 5) * Math.PI * 2;
         spike.position.set(Math.sin(a) * 0.3, 0.46, Math.cos(a) * 0.3);
-        const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.05), mat(0xff5d7a, { emissive: 0x661022 }));
+        const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.05), new THREE.MeshBasicMaterial({ color: 0xff5d7a }));
         gem.position.set(Math.sin(a) * 0.3, 0.34, Math.cos(a) * 0.3);
         g.add(spike, gem);
       }
       break;
     }
     case "valkyrie_helm": {
-      const dome = new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 12, 0, Math.PI * 2, 0, Math.PI / 1.9), mat(0xcfd6e6, { emissive: 0x2a3242 }));
+      const dome = new THREE.Mesh(new THREE.SphereGeometry(0.35, 16, 12, 0, Math.PI * 2, 0, Math.PI / 1.9), toon(0xcfd6e6));
       dome.position.y = 0.26;
       for (const side of [-1, 1]) {
-        const wing = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.4, 4), mat(0xf2f4fa));
+        const wing = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.4, 4), toon(0xf2f4fa));
         wing.position.set(side * 0.34, 0.42, 0);
         wing.rotation.z = side * 1.0;
         g.add(wing);
@@ -148,20 +188,10 @@ function buildHeadgear(itemId: string): THREE.Object3D | null {
       break;
     }
     default: {
-      const cap = new THREE.Mesh(new THREE.SphereGeometry(0.34, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2.4), mat(0x7a5a3a));
+      const cap = new THREE.Mesh(new THREE.SphereGeometry(0.34, 14, 10, 0, Math.PI * 2, 0, Math.PI / 2.4), toon(0x7a5a3a));
       cap.position.y = 0.22;
       g.add(cap);
     }
   }
   return g;
-}
-
-function limb(geo: THREE.BufferGeometry, mat: THREE.Material, x: number, pivotY: number): THREE.Object3D {
-  const pivot = new THREE.Object3D();
-  pivot.position.set(x, pivotY, 0);
-  const mesh = new THREE.Mesh(geo, mat);
-  // shift the mesh down so it hangs from the pivot point
-  mesh.position.y = -0.35;
-  pivot.add(mesh);
-  return pivot;
 }

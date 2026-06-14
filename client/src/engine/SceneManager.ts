@@ -1,23 +1,39 @@
 import * as THREE from "three";
 import { CSS2DRenderer } from "three/addons/renderers/CSS2DRenderer.js";
+import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
+import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
+import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
+import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { SMAAPass } from "three/addons/postprocessing/SMAAPass.js";
 import { MAP_SIZE, type MapTheme } from "@rox/shared";
-import { makeGrassTexture, makeSkyTexture } from "../procedural/textures.js";
+import { makeGroundTexture, makeGroundRoughness, makeSunSprite } from "../procedural/textures.js";
+import { buildScenery, type Scenery } from "../procedural/scenery.js";
 
-// Owns the renderer, the CSS2D label layer, scene, lights, ground and sky dome.
+// Owns the renderer, the CSS2D label layer, scene, lights, ground, sky dome and
+// the post-processing pipeline (bloom + SMAA), styled for a warm anime-MMO look.
 export class SceneManager {
   readonly scene = new THREE.Scene();
   readonly renderer: THREE.WebGLRenderer;
   readonly labelRenderer: CSS2DRenderer;
   readonly ground: THREE.Mesh;
   private sky: THREE.Mesh;
+  private skyUniforms: Record<string, THREE.IUniform>;
+  private sun: THREE.DirectionalLight;
+  private sunSprite: THREE.Sprite;
+  private hemi: THREE.HemisphereLight;
+  private composer: EffectComposer;
+  private bloom: UnrealBloomPass;
+  private scenery: Scenery | null = null;
 
   constructor(root: HTMLElement) {
-    this.renderer = new THREE.WebGLRenderer({ antialias: true });
+    this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
     this.renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
     this.renderer.setSize(window.innerWidth, window.innerHeight);
     this.renderer.shadowMap.enabled = true;
     this.renderer.shadowMap.type = THREE.PCFSoftShadowMap;
     this.renderer.outputColorSpace = THREE.SRGBColorSpace;
+    this.renderer.toneMapping = THREE.ACESFilmicToneMapping;
+    this.renderer.toneMappingExposure = 1.08;
     root.appendChild(this.renderer.domElement);
 
     this.labelRenderer = new CSS2DRenderer();
@@ -26,34 +42,70 @@ export class SceneManager {
     layer.className = "label-layer";
     root.appendChild(layer);
 
-    this.scene.fog = new THREE.Fog(0xbfd8ef, MAP_SIZE * 0.5, MAP_SIZE * 1.1);
+    this.scene.fog = new THREE.Fog(0xbfd8ef, MAP_SIZE * 0.55, MAP_SIZE * 1.25);
 
-    // ---- lighting ----
-    const hemi = new THREE.HemisphereLight(0xcfe6ff, 0x4a6b3a, 0.9);
-    this.scene.add(hemi);
-    const sun = new THREE.DirectionalLight(0xfff2d6, 1.1);
-    sun.position.set(40, 70, 30);
-    sun.castShadow = true;
-    sun.shadow.mapSize.set(2048, 2048);
-    const s = MAP_SIZE * 0.6;
-    sun.shadow.camera.left = -s;
-    sun.shadow.camera.right = s;
-    sun.shadow.camera.top = s;
-    sun.shadow.camera.bottom = -s;
-    sun.shadow.camera.far = 220;
-    this.scene.add(sun);
+    // ---- lighting: warm key sun + cool sky fill + a subtle rim ----
+    this.hemi = new THREE.HemisphereLight(0xdcefff, 0x55663a, 0.85);
+    this.scene.add(this.hemi);
 
-    // ---- sky dome ----
+    this.sun = new THREE.DirectionalLight(0xfff0d2, 2.0);
+    this.sun.position.set(46, 78, 34);
+    this.sun.castShadow = true;
+    this.sun.shadow.mapSize.set(2048, 2048);
+    this.sun.shadow.bias = -0.0004;
+    this.sun.shadow.normalBias = 0.04;
+    const s = MAP_SIZE * 0.62;
+    this.sun.shadow.camera.left = -s;
+    this.sun.shadow.camera.right = s;
+    this.sun.shadow.camera.top = s;
+    this.sun.shadow.camera.bottom = -s;
+    this.sun.shadow.camera.near = 1;
+    this.sun.shadow.camera.far = 260;
+    this.scene.add(this.sun);
+    this.scene.add(this.sun.target);
+
+    const rim = new THREE.DirectionalLight(0x9fc2ff, 0.5);
+    rim.position.set(-40, 30, -50);
+    this.scene.add(rim);
+
+    // ---- gradient sky dome (shader) + glowing sun sprite ----
+    this.skyUniforms = {
+      topColor: { value: new THREE.Color(0x2f6fc0) },
+      midColor: { value: new THREE.Color(0x9fc6ec) },
+      bottomColor: { value: new THREE.Color(0xeaf3fb) },
+      offset: { value: 8 },
+      exponent: { value: 0.7 },
+    };
     this.sky = new THREE.Mesh(
-      new THREE.SphereGeometry(MAP_SIZE * 0.95, 32, 16),
-      new THREE.MeshBasicMaterial({ map: makeSkyTexture(), side: THREE.BackSide, fog: false }),
+      new THREE.SphereGeometry(MAP_SIZE * 1.4, 32, 20),
+      new THREE.ShaderMaterial({
+        uniforms: this.skyUniforms,
+        side: THREE.BackSide,
+        fog: false,
+        depthWrite: false,
+        vertexShader: SKY_VERT,
+        fragmentShader: SKY_FRAG,
+      }),
     );
     this.scene.add(this.sky);
 
-    // ---- ground ----
+    this.sunSprite = new THREE.Sprite(
+      new THREE.SpriteMaterial({ map: makeSunSprite(), transparent: true, depthWrite: false, fog: false, blending: THREE.AdditiveBlending }),
+    );
+    this.sunSprite.scale.setScalar(46);
+    this.sunSprite.position.copy(this.sun.position).multiplyScalar(1.7);
+    this.scene.add(this.sunSprite);
+
+    // ---- ground: PBR grass with a roughness map ----
     this.ground = new THREE.Mesh(
-      new THREE.PlaneGeometry(MAP_SIZE, MAP_SIZE, 1, 1),
-      new THREE.MeshLambertMaterial({ map: makeGrassTexture() }),
+      new THREE.PlaneGeometry(MAP_SIZE * 1.04, MAP_SIZE * 1.04, 1, 1),
+      new THREE.MeshStandardMaterial({
+        map: makeGroundTexture(),
+        roughnessMap: makeGroundRoughness(),
+        roughness: 1,
+        metalness: 0,
+        color: 0xffffff,
+      }),
     );
     this.ground.rotation.x = -Math.PI / 2;
     this.ground.receiveShadow = true;
@@ -61,30 +113,86 @@ export class SceneManager {
 
     // soft border ring so players see the map edge
     const ring = new THREE.Mesh(
-      new THREE.RingGeometry(MAP_SIZE * 0.5 - 1, MAP_SIZE * 0.5, 64),
-      new THREE.MeshBasicMaterial({ color: 0x2c3a1f, side: THREE.DoubleSide, transparent: true, opacity: 0.5 }),
+      new THREE.RingGeometry(MAP_SIZE * 0.5 - 1.2, MAP_SIZE * 0.5, 96),
+      new THREE.MeshBasicMaterial({ color: 0x223018, side: THREE.DoubleSide, transparent: true, opacity: 0.45 }),
     );
     ring.rotation.x = -Math.PI / 2;
     ring.position.y = 0.02;
     this.scene.add(ring);
 
+    // ---- post-processing ----
+    this.composer = new EffectComposer(this.renderer);
+    this.composer.addPass(new RenderPass(this.scene, undefined as unknown as THREE.Camera));
+    this.bloom = new UnrealBloomPass(
+      new THREE.Vector2(window.innerWidth, window.innerHeight),
+      0.55, // strength
+      0.7, // radius
+      0.82, // threshold — only bright things bloom
+    );
+    this.composer.addPass(this.bloom);
+    this.composer.addPass(new OutputPass());
+    const smaa = new SMAAPass(window.innerWidth, window.innerHeight);
+    this.composer.addPass(smaa);
+
+    this.scenery = buildScenery("field");
+    this.scene.add(this.scenery.group);
+
     window.addEventListener("resize", () => this.onResize());
   }
 
-  // Recolor the world for a different map (tint ground/sky, change fog).
-  setTheme(theme: MapTheme): void {
-    (this.ground.material as THREE.MeshLambertMaterial).color.setHex(theme.ground);
-    (this.sky.material as THREE.MeshBasicMaterial).color.setHex(theme.sky);
+  // Recolor the world for a different map (tint ground/sky, change fog, reseed props).
+  setTheme(theme: MapTheme, mapId: string): void {
+    (this.ground.material as THREE.MeshStandardMaterial).color.setHex(theme.ground);
+    this.skyUniforms.topColor.value.setHex(theme.sky).multiplyScalar(0.8);
+    this.skyUniforms.midColor.value.setHex(theme.sky);
+    this.skyUniforms.bottomColor.value.setHex(theme.fog).lerp(new THREE.Color(0xffffff), 0.35);
     (this.scene.fog as THREE.Fog).color.setHex(theme.fog);
+    (this.sunSprite.material as THREE.SpriteMaterial).color.setHex(theme.sky).lerp(new THREE.Color(0xffffff), 0.7);
+
+    if (this.scenery) {
+      this.scene.remove(this.scenery.group);
+      this.scenery.dispose();
+    }
+    this.scenery = buildScenery(mapId);
+    this.scene.add(this.scenery.group);
   }
 
   private onResize(): void {
-    this.renderer.setSize(window.innerWidth, window.innerHeight);
-    this.labelRenderer.setSize(window.innerWidth, window.innerHeight);
+    const w = window.innerWidth;
+    const h = window.innerHeight;
+    this.renderer.setSize(w, h);
+    this.composer.setSize(w, h);
+    this.labelRenderer.setSize(w, h);
   }
 
   render(camera: THREE.Camera): void {
-    this.renderer.render(this.scene, camera);
+    (this.composer.passes[0] as RenderPass).camera = camera;
+    this.composer.render();
     this.labelRenderer.render(this.scene, camera);
   }
 }
+
+const SKY_VERT = /* glsl */ `
+  varying vec3 vWorldPosition;
+  void main() {
+    vec4 wp = modelMatrix * vec4(position, 1.0);
+    vWorldPosition = wp.xyz;
+    gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+  }
+`;
+
+const SKY_FRAG = /* glsl */ `
+  uniform vec3 topColor;
+  uniform vec3 midColor;
+  uniform vec3 bottomColor;
+  uniform float offset;
+  uniform float exponent;
+  varying vec3 vWorldPosition;
+  void main() {
+    float h = normalize(vWorldPosition + vec3(0.0, offset, 0.0)).y;
+    float t = max(pow(max(h, 0.0), exponent), 0.0);
+    vec3 lower = mix(bottomColor, midColor, smoothstep(0.0, 0.35, h));
+    vec3 col = mix(lower, topColor, t);
+    gl_FragColor = vec4(col, 1.0);
+  }
+`;

@@ -379,7 +379,7 @@ function handleMessage(msg: ServerMessage): void {
       pvpMap = msg.pvp;
       gameState.clearExceptSelf();
       gameState.self?.teleport(msg.x, msg.z);
-      scene.setTheme(msg.theme);
+      scene.setTheme(msg.theme, msg.mapId);
       chat.system(msg.pvp ? `Entered ${msg.name} — PvP enabled!` : `Entered ${msg.name}.`);
       break;
     case MsgType.DamageEvent:

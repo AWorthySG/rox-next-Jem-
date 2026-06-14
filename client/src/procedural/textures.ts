@@ -56,6 +56,154 @@ export function makeGrassTexture(): THREE.Texture {
   return tex;
 }
 
+// Richer tileable ground: layered greens with large-scale variation, blades,
+// dirt patches and the odd flower. Used as the albedo for the PBR ground.
+export function makeGroundTexture(): THREE.Texture {
+  const N = 512;
+  const { c, ctx } = canvas(N);
+  const base = ctx.createLinearGradient(0, 0, N, N);
+  base.addColorStop(0, "#588f44");
+  base.addColorStop(1, "#3f7536");
+  ctx.fillStyle = base;
+  ctx.fillRect(0, 0, N, N);
+
+  // large-scale soft blotches of lighter/darker grass
+  for (let i = 0; i < 40; i++) {
+    const x = Math.random() * N;
+    const y = Math.random() * N;
+    const r = 40 + Math.random() * 90;
+    const light = Math.random() > 0.5;
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
+    grad.addColorStop(0, light ? "rgba(120,170,80,0.25)" : "rgba(40,80,40,0.25)");
+    grad.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  // fine mottled noise
+  for (let i = 0; i < 9000; i++) {
+    const x = Math.random() * N;
+    const y = Math.random() * N;
+    const g = 90 + Math.floor(Math.random() * 90);
+    ctx.fillStyle = `rgba(${Math.floor(g * 0.5)},${g},${Math.floor(g * 0.45)},0.14)`;
+    ctx.fillRect(x, y, 2, 2);
+  }
+  // a couple of dirt patches
+  for (let i = 0; i < 6; i++) {
+    const x = Math.random() * N;
+    const y = Math.random() * N;
+    const r = 16 + Math.random() * 30;
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
+    grad.addColorStop(0, "rgba(120,92,54,0.5)");
+    grad.addColorStop(1, "rgba(120,92,54,0)");
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  // grass blades
+  for (let i = 0; i < 900; i++) {
+    const x = Math.random() * N;
+    const y = Math.random() * N;
+    ctx.strokeStyle = Math.random() > 0.5 ? "#6cb255" : "#356b2c";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(x, y);
+    ctx.lineTo(x + (Math.random() - 0.5) * 5, y - 5 - Math.random() * 4);
+    ctx.stroke();
+  }
+  // flowers
+  for (let i = 0; i < 40; i++) {
+    const x = Math.random() * N;
+    const y = Math.random() * N;
+    ctx.fillStyle = ["#f4d35e", "#f48fb1", "#fff", "#c79bff"][Math.floor(Math.random() * 4)];
+    ctx.beginPath();
+    ctx.arc(x, y, 2.2, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(32, 32);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  tex.anisotropy = 8;
+  return tex;
+}
+
+// Grayscale roughness variation so the ground catches light unevenly (matte
+// grass, slightly shinier dirt/worn patches).
+export function makeGroundRoughness(): THREE.Texture {
+  const N = 256;
+  const { c, ctx } = canvas(N);
+  ctx.fillStyle = "#cfcfcf"; // fairly rough overall
+  ctx.fillRect(0, 0, N, N);
+  for (let i = 0; i < 60; i++) {
+    const x = Math.random() * N;
+    const y = Math.random() * N;
+    const r = 8 + Math.random() * 30;
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
+    const v = 150 + Math.floor(Math.random() * 80);
+    grad.addColorStop(0, `rgba(${v},${v},${v},0.5)`);
+    grad.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  const tex = new THREE.CanvasTexture(c);
+  tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
+  tex.repeat.set(32, 32);
+  return tex;
+}
+
+// A stepped grayscale ramp for MeshToonMaterial — gives characters/monsters the
+// banded cel-shaded look of an anime MMO.
+let toonGradientCache: THREE.Texture | null = null;
+export function makeToonGradient(): THREE.Texture {
+  if (toonGradientCache) return toonGradientCache;
+  const data = new Uint8Array([90, 90, 90, 255, 160, 160, 160, 255, 215, 215, 215, 255, 255, 255, 255, 255]);
+  const tex = new THREE.DataTexture(data, 4, 1, THREE.RGBAFormat);
+  tex.minFilter = THREE.NearestFilter;
+  tex.magFilter = THREE.NearestFilter;
+  tex.generateMipmaps = false;
+  tex.needsUpdate = true;
+  toonGradientCache = tex;
+  return tex;
+}
+
+// Soft round blob alpha for a fake contact shadow under entities.
+let blobCache: THREE.Texture | null = null;
+export function makeBlobShadow(): THREE.Texture {
+  if (blobCache) return blobCache;
+  const N = 128;
+  const { c, ctx } = canvas(N);
+  const g = ctx.createRadialGradient(N / 2, N / 2, 0, N / 2, N / 2, N / 2);
+  g.addColorStop(0, "rgba(0,0,0,0.55)");
+  g.addColorStop(0.7, "rgba(0,0,0,0.25)");
+  g.addColorStop(1, "rgba(0,0,0,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, N, N);
+  blobCache = new THREE.CanvasTexture(c);
+  return blobCache;
+}
+
+// Soft radial sun glow sprite (additive). Bloom turns it into a warm halo.
+export function makeSunSprite(): THREE.Texture {
+  const N = 256;
+  const { c, ctx } = canvas(N);
+  const g = ctx.createRadialGradient(N / 2, N / 2, 0, N / 2, N / 2, N / 2);
+  g.addColorStop(0, "rgba(255,250,230,1)");
+  g.addColorStop(0.18, "rgba(255,240,200,0.95)");
+  g.addColorStop(0.5, "rgba(255,221,150,0.35)");
+  g.addColorStop(1, "rgba(255,221,150,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, N, N);
+  const tex = new THREE.CanvasTexture(c);
+  tex.colorSpace = THREE.SRGBColorSpace;
+  return tex;
+}
+
 // Vertical sky gradient with a few soft clouds, used on a backside sky dome.
 export function makeSkyTexture(): THREE.Texture {
   const { c, ctx } = canvas(512);
@@ -65,7 +213,6 @@ export function makeSkyTexture(): THREE.Texture {
   g.addColorStop(1, "#dfeefc");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, 512, 512);
-  // clouds in the upper band
   for (let i = 0; i < 16; i++) {
     const x = Math.random() * 512;
     const y = 30 + Math.random() * 200;
