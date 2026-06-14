@@ -220,6 +220,24 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
       { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
       { name: "Lutie Exit", role: "portal", x: 0, z: 24, dest: { toMap: "aldebaran", toX: 18, toZ: 16 } },
+      { name: "Ice Cave Portal", role: "portal", x: 0, z: -46, dest: { toMap: "ice_cave", toX: 0, toZ: 18 } },
+    ],
+  },
+  ice_cave: {
+    id: "ice_cave",
+    name: "Ice Cave",
+    theme: { ground: 0xbfe0ec, fog: 0x9ac0d8, sky: 0xcfe8f4 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "ic-snowier", templateId: "snowier", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "ic-gazeti", templateId: "gazeti", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "ic-siroma", templateId: "siroma", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "ic-frostgiant", templateId: "frost_giant", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "ic-icequeen", templateId: "ice_queen", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Ice Cave Exit", role: "portal", x: 0, z: 24, dest: { toMap: "lutie", toX: 0, toZ: -38 } },
     ],
   },
   comodo: {

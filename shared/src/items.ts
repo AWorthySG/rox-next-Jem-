@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Ice Cave gear ----
+  glacier_blade: {
+    id: "glacier_blade", name: "Glacier Blade", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A blade of unmelting ice. ATK +82, AGI +5.", atk: 82, bonusStats: { agi: 5 }, sellPrice: 4800,
+  },
+  frost_crown: {
+    id: "frost_crown", name: "Frost Crown", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A crown of rime. MATK +12, INT +5, Max SP +50.", matk: 12, maxSp: 50, bonusStats: { int: 5 }, sellPrice: 4400,
+  },
+  glacial_plate: {
+    id: "glacial_plate", name: "Glacial Plate", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Armor of solid ice. DEF +32, Max HP +360, VIT +5.", def: 32, maxHp: 360, bonusStats: { vit: 5 }, sellPrice: 4800,
+  },
+
   // ---- Scaraba Hole gear ----
   chitin_blade: {
     id: "chitin_blade", name: "Chitin Blade", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -987,6 +1001,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Ice Cave
+  snowier: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "glacial_plate", chance: 0.025 }],
+  gazeti: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "frost_crown", chance: 0.025 }],
+  siroma: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "glacier_blade", chance: 0.025 }],
+  frost_giant: HI([{ itemId: "glacier_blade", chance: 0.6 }, { itemId: "glacial_plate", chance: 0.5 }, { itemId: "frost_crown", chance: 0.4 }]),
+  ice_queen: HI([{ itemId: "frost_crown", chance: 0.6 }, { itemId: "glacial_plate", chance: 0.5 }, { itemId: "garm_card", chance: 0.05 }]),
   // Scaraba Hole
   scaraba: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "carapace_armor", chance: 0.022 }],
   dolomedes: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "antenna_crown", chance: 0.022 }],
@@ -1069,6 +1089,7 @@ const ORE_REGULARS = [
   "piranha", "curupira", "iara",
   "dustiness", "hode", "galapago",
   "scaraba", "dolomedes", "centipede",
+  "snowier", "gazeti", "siroma",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1088,7 +1109,7 @@ const ORE_BOSSES = [
   "phreeoni", "deviace", "orc_lord", "orc_hero", "abysmal_knight", "amdarais", "pharaoh", "osiris",
   "freezer", "turtle_general", "chung_e", "evil_snake_lord", "dark_illusion", "corrupt_monk",
   "jade_warlord", "spirit_empress", "bangungot", "bungisngis", "jaguar_king", "anaconda",
-  "gold_acidus", "tatacho", "queen_scaraba", "kublin",
+  "gold_acidus", "tatacho", "queen_scaraba", "kublin", "frost_giant", "ice_queen",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

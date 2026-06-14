@@ -138,6 +138,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 108,
     reward: { exp: 200000, zeny: 110000, items: [{ id: "bloody_sword", qty: 1 }] },
   },
+  frozen_throne: {
+    id: "frozen_throne",
+    name: "The Frozen Throne",
+    desc: "The Ice Queen rules a frozen cavern beyond Lutie. Shatter her reign.",
+    targetTemplate: "ice_queen",
+    targetName: "Ice Queen",
+    count: 1,
+    requiredLevel: 104,
+    reward: { exp: 190000, zeny: 105000, items: [{ id: "glacier_blade", qty: 1 }] },
+  },
   queen_of_the_hive: {
     id: "queen_of_the_hive",
     name: "Queen of the Hive",
