@@ -184,9 +184,21 @@ body {
   color: var(--gold);
 }
 .tagline {
-  margin: 0 0 20px;
+  margin: 0 0 14px;
   opacity: 0.75;
   font-size: 13px;
+}
+.login-preview {
+  width: 100%;
+  height: 200px;
+  margin: 0 0 16px;
+  border-radius: 12px;
+  background: radial-gradient(circle at 50% 35%, rgba(120, 96, 180, 0.35), rgba(20, 16, 34, 0.6) 70%);
+  border: 1px solid rgba(244, 217, 138, 0.18);
+  overflow: hidden;
+}
+.login-preview canvas {
+  display: block;
 }
 .field {
   display: block;

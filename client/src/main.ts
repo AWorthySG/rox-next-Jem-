@@ -32,6 +32,7 @@ import { SkillPopup } from "./ui/SkillPopup.js";
 import { TargetFrame } from "./ui/TargetFrame.js";
 import { SkillVfx } from "./ui/SkillVfx.js";
 import { ScreenFx } from "./ui/ScreenFx.js";
+import { LoginPreview } from "./ui/LoginPreview.js";
 import { Sfx } from "./ui/Sfx.js";
 import { AutoBattle } from "./ui/AutoBattle.js";
 import { MiniMap } from "./ui/MiniMap.js";
@@ -311,6 +312,7 @@ function handleMessage(msg: ServerMessage): void {
       jobAdvance.update(msg.self);
       hud.show();
       document.getElementById("login")!.classList.add("hidden");
+      loginPreview.stop();
       chat.system(
         mode === "solo"
           ? `Welcome to Prontera Field, ${msg.self.name}! (solo mode)`
@@ -443,11 +445,15 @@ function onDamage(msg: Extract<ServerMessage, { t: MsgType.DamageEvent }>): void
 let selectedJob: JobId = JobId.Novice;
 const nameInput = document.getElementById("name-input") as HTMLInputElement;
 
+const loginPreview = new LoginPreview();
+loginPreview.start();
+
 document.querySelectorAll<HTMLButtonElement>(".job-btn").forEach((btn) => {
   btn.addEventListener("click", () => {
     document.querySelectorAll(".job-btn").forEach((b) => b.classList.remove("selected"));
     btn.classList.add("selected");
     selectedJob = btn.dataset.job as JobId;
+    loginPreview.setJob(selectedJob);
   });
 });
 
