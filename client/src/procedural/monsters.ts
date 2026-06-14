@@ -68,6 +68,7 @@ const ARCH: Record<string, MonsterArch> = {
   bugis_corsair: "humanoid", djinn: "demon", batik_serpent: "dragon", sultan_jinn: "demon", naga_emas: "dragon",
   chrome_sentry: "golem", neon_wisp: "ghost", drone_swarm: "bug", skyline_colossus: "golem", spectra_dragon: "dragon",
   lab_slime: "jelly", raptor: "beast", pterodactyl: "bird", t_rex: "dragon", mecha_dino: "golem",
+  wild_boar: "beast", kampong_rooster: "bird", mangrove_crab: "aquatic", boar_king: "beast", mangrove_naga: "dragon",
 };
 
 function hex(s: string): number {
@@ -350,6 +351,12 @@ const DEFS: Record<string, AppearanceDef> = {
   pterodactyl: { inner: "#c0b090", outer: "#5a4a30", scale: 1.3 },
   t_rex: { inner: "#a0c070", outer: "#3a5a20", scale: 3.0, boss: true },
   mecha_dino: { inner: "#c0c8d0", outer: "#4a525c", scale: 3.1, boss: true },
+  // Pulau Ubin (Singapore)
+  wild_boar: { inner: "#b09070", outer: "#4a3020", scale: 1.2 },
+  kampong_rooster: { inner: "#e0a040", outer: "#7a2818", scale: 1.0 },
+  mangrove_crab: { inner: "#c08060", outer: "#5a2818", scale: 1.1 },
+  boar_king: { inner: "#c0a080", outer: "#5a3a20", scale: 2.8, boss: true },
+  mangrove_naga: { inner: "#80b890", outer: "#1a5a3a", scale: 2.9, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

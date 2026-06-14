@@ -138,6 +138,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 108,
     reward: { exp: 200000, zeny: 110000, items: [{ id: "bloody_sword", qty: 1 }] },
   },
+  the_boar_king: {
+    id: "the_boar_king",
+    name: "The Boar King",
+    desc: "A monstrous Boar King tramples Pulau Ubin's kampongs. Defend the island.",
+    targetTemplate: "boar_king",
+    targetName: "Boar King",
+    count: 1,
+    requiredLevel: 42,
+    reward: { exp: 12000, zeny: 8000, items: [{ id: "ubin_machete", qty: 1 }] },
+  },
   jurassic_breakout: {
     id: "jurassic_breakout",
     name: "Jurassic Breakout",

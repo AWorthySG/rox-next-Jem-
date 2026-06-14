@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Pulau Ubin (Singapore) gear ----
+  ubin_machete: {
+    id: "ubin_machete", name: "Ubin Machete", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A worn island parang. ATK +46, STR +3.", atk: 46, bonusStats: { str: 3 }, sellPrice: 950,
+  },
+  straw_hat: {
+    id: "straw_hat", name: "Straw Hat", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A woven farmer's hat. DEF +12, AGI +3, Max HP +70.", def: 12, maxHp: 70, bonusStats: { agi: 3 }, sellPrice: 850,
+  },
+  fisher_vest: {
+    id: "fisher_vest", name: "Fisher Vest", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "A rugged kampong vest. DEF +14, Max HP +120, AGI +3.", def: 14, maxHp: 120, bonusStats: { agi: 3 }, sellPrice: 950,
+  },
+
   // ---- Jurong (Singapore) gear ----
   fossil_blade: {
     id: "fossil_blade", name: "Fossil Blade", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1187,6 +1201,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Pulau Ubin (Singapore)
+  wild_boar: [{ itemId: "apple", chance: 0.3 }, { itemId: "fisher_vest", chance: 0.04 }],
+  kampong_rooster: [{ itemId: "apple", chance: 0.3 }, { itemId: "straw_hat", chance: 0.04 }],
+  mangrove_crab: [{ itemId: "red_potion", chance: 0.25 }, { itemId: "ubin_machete", chance: 0.04 }],
+  boar_king: HI([{ itemId: "ubin_machete", chance: 0.6 }, { itemId: "fisher_vest", chance: 0.5 }, { itemId: "straw_hat", chance: 0.4 }]),
+  mangrove_naga: HI([{ itemId: "fisher_vest", chance: 0.6 }, { itemId: "ubin_machete", chance: 0.45 }, { itemId: "marc_card", chance: 0.05 }]),
   // Jurong (Singapore)
   lab_slime: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "lab_coat", chance: 0.035 }],
   raptor: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "goggle_helm", chance: 0.035 }],
@@ -1367,6 +1387,7 @@ const ORE_REGULARS = [
   "bugis_corsair", "djinn", "batik_serpent",
   "chrome_sentry", "neon_wisp", "drone_swarm",
   "lab_slime", "raptor", "pterodactyl",
+  "wild_boar", "kampong_rooster", "mangrove_crab",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1392,7 +1413,7 @@ const ORE_BOSSES = [
   "king_macaque", "reticulated_python", "jiangshi_lord", "nian_beast",
   "supertree_guardian", "flower_dome_titan", "pontianak_queen", "penanggalan",
   "sentosa_merlion", "leviathan", "sultan_jinn", "naga_emas",
-  "skyline_colossus", "spectra_dragon", "t_rex", "mecha_dino",
+  "skyline_colossus", "spectra_dragon", "t_rex", "mecha_dino", "boar_king", "mangrove_naga",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

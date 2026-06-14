@@ -482,6 +482,12 @@ Object.assign(MONSTER_TEMPLATES, {
   pterodactyl: mk("pterodactyl", "Pterodactyl", 49, 2600, 5100),
   t_rex: mk("t_rex", "T-Rex", 55, 11000, 19000, true),
   mecha_dino: mk("mecha_dino", "Mecha Dino", 57, 12500, 22000, true),
+  // ---- Pulau Ubin (Singapore) ----
+  wild_boar: mk("wild_boar", "Wild Boar", 35, 1450, 1500),
+  kampong_rooster: mk("kampong_rooster", "Kampong Rooster", 37, 1550, 1700),
+  mangrove_crab: mk("mangrove_crab", "Mangrove Crab", 39, 1650, 1900),
+  boar_king: mk("boar_king", "Boar King", 46, 7000, 12000, true),
+  mangrove_naga: mk("mangrove_naga", "Mangrove Naga", 48, 8000, 14000, true),
 });
 
 export interface SpawnZone {
@@ -880,6 +886,14 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "summon", intervalMs: 8000, templateId: "raptor", count: 2, max: 5 },
     { kind: "enrage", hpPct: 0.3, atkMult: 1.5 },
   ],
+  boar_king: [
+    { kind: "enrage", hpPct: 0.3, atkMult: 1.6 },
+    { kind: "summon", intervalMs: 8500, templateId: "wild_boar", count: 2, max: 4 },
+  ],
+  mangrove_naga: [
+    { kind: "nova", intervalMs: 5500, radius: 10, powerMult: 1.5 },
+    { kind: "heal", intervalMs: 11000, pct: 0.06 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -1108,6 +1122,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   pterodactyl: Element.Wind,
   t_rex: Element.Fire,
   mecha_dino: Element.Earth,
+  wild_boar: Element.Earth,
+  kampong_rooster: Element.Wind,
+  mangrove_crab: Element.Water,
+  boar_king: Element.Earth,
+  mangrove_naga: Element.Water,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

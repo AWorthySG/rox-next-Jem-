@@ -62,6 +62,24 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Guide", role: "guide", x: -6, z: 24, facing: Math.PI },
       { name: "Merlion Bay Exit", role: "portal", x: 0, z: 26, dest: { toMap: "field", toX: -14, toZ: 16 } },
       { name: "Bukit Timah Portal", role: "portal", x: 0, z: -50, dest: { toMap: "bukit_timah", toX: 0, toZ: 18 } },
+      { name: "Pulau Ubin Portal", role: "portal", x: 18, z: 14, dest: { toMap: "pulau_ubin", toX: 0, toZ: 18 } },
+    ],
+  },
+  pulau_ubin: {
+    id: "pulau_ubin",
+    name: "Pulau Ubin",
+    theme: { ground: 0x3a6a34, fog: 0x7aaa5a, sky: 0xa0c87a },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "pu-boar", templateId: "wild_boar", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "pu-rooster", templateId: "kampong_rooster", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "pu-crab", templateId: "mangrove_crab", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "pu-boarking", templateId: "boar_king", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "pu-naga", templateId: "mangrove_naga", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Pulau Ubin Exit", role: "portal", x: 0, z: 24, dest: { toMap: "merlion_bay", toX: 18, toZ: 16 } },
     ],
   },
   bukit_timah: {
