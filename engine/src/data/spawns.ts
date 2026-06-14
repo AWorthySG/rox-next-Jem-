@@ -350,6 +350,12 @@ Object.assign(MONSTER_TEMPLATES, {
   thief_bug: mk("thief_bug", "Thief Bug", 5, 120, 70),
   creamy: mk("creamy", "Creamy", 6, 150, 88),
   willow: mk("willow", "Willow", 4, 95, 52),
+  // ---- Turtle Island ----
+  solid_skull: mk("solid_skull", "Solid Skull", 66, 3600, 7800),
+  assaulter: mk("assaulter", "Assaulter", 68, 3900, 8600),
+  permeter: mk("permeter", "Permeter", 70, 4200, 9400),
+  freezer: mk("freezer", "Freezer", 75, 23000, 39000, true),
+  turtle_general: mk("turtle_general", "Turtle General", 78, 28000, 48000, true),
 });
 
 export interface SpawnZone {
@@ -557,6 +563,15 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "nova", intervalMs: 5500, radius: 10, powerMult: 1.6 },
     { kind: "heal", intervalMs: 9000, pct: 0.07 },
   ],
+  freezer: [
+    { kind: "nova", intervalMs: 5500, radius: 10, powerMult: 1.6 },
+    { kind: "heal", intervalMs: 11000, pct: 0.06 },
+  ],
+  turtle_general: [
+    { kind: "enrage", hpPct: 0.4, atkMult: 1.6 },
+    { kind: "summon", intervalMs: 8000, templateId: "assaulter", count: 2, max: 5 },
+    { kind: "nova", intervalMs: 6000, radius: 11, powerMult: 1.6 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -675,6 +690,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   thief_bug: Element.Shadow,
   creamy: Element.Wind,
   willow: Element.Earth,
+  solid_skull: Element.Shadow,
+  assaulter: Element.Wind,
+  permeter: Element.Fire,
+  freezer: Element.Water,
+  turtle_general: Element.Earth,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

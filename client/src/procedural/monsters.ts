@@ -46,6 +46,7 @@ const ARCH: Record<string, MonsterArch> = {
   raydric: "undead", khalitzburg: "humanoid", evil_druid: "plant", abysmal_knight: "humanoid", amdarais: "demon",
   mummy: "undead", matyr: "beast", minorous: "humanoid", pharaoh: "demon", osiris: "undead",
   pupa: "bug", roda_frog: "beast", thief_bug: "bug", creamy: "bird", willow: "plant",
+  solid_skull: "undead", assaulter: "beast", permeter: "golem", freezer: "aquatic", turtle_general: "golem",
 };
 
 function hex(s: string): number {
@@ -196,6 +197,12 @@ const DEFS: Record<string, AppearanceDef> = {
   thief_bug: { inner: "#b0b0c0", outer: "#3a3a4a", scale: 0.85 },
   creamy: { inner: "#ffd8e0", outer: "#e08aa8", scale: 0.9 },
   willow: { inner: "#c0e090", outer: "#5a7a30", scale: 1.0 },
+  // Turtle Island
+  solid_skull: { inner: "#dcdce4", outer: "#5a5a6a", scale: 1.3 },
+  assaulter: { inner: "#c0a070", outer: "#5a3a18", scale: 1.35 },
+  permeter: { inner: "#90b0a0", outer: "#3a5a4a", scale: 1.4 },
+  freezer: { inner: "#a0d0e0", outer: "#2a6a8a", scale: 2.7, boss: true },
+  turtle_general: { inner: "#8ac090", outer: "#2a5a34", scale: 3.0, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

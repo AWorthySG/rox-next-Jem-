@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Turtle Island gear ----
+  shell_blade: {
+    id: "shell_blade", name: "Shell Blade", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "Carved from a great shell. ATK +56, VIT +3.", atk: 56, bonusStats: { vit: 3 }, sellPrice: 2600,
+  },
+  turtle_cap: {
+    id: "turtle_cap", name: "Turtle Shell Cap", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A hardy shell helm. DEF +20, VIT +4, Max HP +120.", def: 20, maxHp: 120, bonusStats: { vit: 4 }, sellPrice: 2400,
+  },
+  shell_plate: {
+    id: "shell_plate", name: "Shell Plate", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Layered carapace armor. DEF +26, Max HP +240, VIT +4.", def: 26, maxHp: 240, bonusStats: { vit: 4 }, sellPrice: 2700,
+  },
+
   // ---- Pyramid of the Sphinx gear ----
   ankh_staff: {
     id: "ankh_staff", name: "Ankh Staff", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -875,6 +889,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Turtle Island
+  solid_skull: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "turtle_cap", chance: 0.035 }],
+  assaulter: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "shell_blade", chance: 0.03 }],
+  permeter: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "shell_plate", chance: 0.03 }],
+  freezer: HI([{ itemId: "shell_plate", chance: 0.6 }, { itemId: "turtle_cap", chance: 0.5 }, { itemId: "tidal_shoes", chance: 0.3 }]),
+  turtle_general: HI([{ itemId: "shell_blade", chance: 0.6 }, { itemId: "shell_plate", chance: 0.5 }, { itemId: "turtle_cap", chance: 0.4 }, { itemId: "ghostring_card", chance: 0.05 }]),
   // extra early regulars
   pupa: [{ itemId: "apple", chance: 0.25 }],
   roda_frog: [{ itemId: "apple", chance: 0.25 }, { itemId: "blue_potion", chance: 0.08 }],
@@ -901,6 +921,7 @@ const ORE_REGULARS = [
   "orc_warrior", "orc_archer", "orc_zombie",
   "raydric", "khalitzburg", "evil_druid",
   "mummy", "matyr", "minorous",
+  "solid_skull", "assaulter", "permeter",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -918,6 +939,7 @@ const ORE_BOSSES = [
   "doppelganger", "dark_priest", "bacsojin", "fallen_bishop", "samurai_specter", "kapha",
   "stormy_knight", "garm", "lady_tanee", "leak", "gopinich", "baba_yaga", "gigantes", "ifrit",
   "phreeoni", "deviace", "orc_lord", "orc_hero", "abysmal_knight", "amdarais", "pharaoh", "osiris",
+  "freezer", "turtle_general",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

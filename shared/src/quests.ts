@@ -128,6 +128,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 40,
     reward: { exp: 9000, zeny: 6000, items: [{ id: "mage_staff", qty: 1 }] },
   },
+  shell_breaker: {
+    id: "shell_breaker",
+    name: "Shell Breaker",
+    desc: "The Turtle General fortifies the island. Crack his command.",
+    targetTemplate: "turtle_general",
+    targetName: "Turtle General",
+    count: 1,
+    requiredLevel: 72,
+    reward: { exp: 52000, zeny: 30000, items: [{ id: "shell_blade", qty: 1 }] },
+  },
   curse_of_osiris: {
     id: "curse_of_osiris",
     name: "Curse of Osiris",
