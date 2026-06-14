@@ -553,6 +553,12 @@ export const ITEMS: Record<string, ItemDef> = {
   willow_card: { id: "willow_card", name: "Willow Card", type: ItemType.Card, cardSlot: EquipSlot.Headgear, desc: "Headgear card. Max SP +60, INT +3.", maxSp: 60, bonusStats: { int: 3 }, sellPrice: 700 },
   drake_card: { id: "drake_card", name: "Drake Card", type: ItemType.Card, cardSlot: EquipSlot.Weapon, desc: "Weapon card. ATK +25, STR +3.", atk: 25, bonusStats: { str: 3 }, sellPrice: 4500 },
   nidhoggr_card: { id: "nidhoggr_card", name: "Nidhoggr Shadow Card", type: ItemType.Card, cardSlot: EquipSlot.Armor, desc: "Armor card. Max HP +550, all stats +3.", maxHp: 550, bonusStats: { str: 3, agi: 3, vit: 3, int: 3, dex: 3, luk: 3 }, sellPrice: 14000 },
+  ifrit_card: { id: "ifrit_card", name: "Ifrit Card", type: ItemType.Card, cardSlot: EquipSlot.Weapon, desc: "Weapon card. ATK +26, STR +4, CRIT-ish via DEX +4.", atk: 26, bonusStats: { str: 4, dex: 4 }, sellPrice: 8000 },
+  garm_card: { id: "garm_card", name: "Garm Card", type: ItemType.Card, cardSlot: EquipSlot.Armor, desc: "Armor card. Max HP +320, VIT +5.", maxHp: 320, bonusStats: { vit: 5 }, sellPrice: 6000 },
+  gigantes_card: { id: "gigantes_card", name: "Gigantes Card", type: ItemType.Card, cardSlot: EquipSlot.Armor, desc: "Armor card. DEF +10, Max HP +220.", def: 10, maxHp: 220, sellPrice: 5500 },
+  baba_card: { id: "baba_card", name: "Baba Yaga Card", type: ItemType.Card, cardSlot: EquipSlot.Headgear, desc: "Headgear card. MATK +16, INT +4.", matk: 16, bonusStats: { int: 4 }, sellPrice: 6500 },
+  leak_card: { id: "leak_card", name: "Leak Card", type: ItemType.Card, cardSlot: EquipSlot.Accessory, desc: "Accessory card. AGI +6, DEX +4.", bonusStats: { agi: 6, dex: 4 }, sellPrice: 5000 },
+  phreeoni_card: { id: "phreeoni_card", name: "Phreeoni Card", type: ItemType.Card, cardSlot: EquipSlot.Accessory, desc: "Accessory card. DEX +9 (sharp aim).", bonusStats: { dex: 9 }, sellPrice: 4000 },
   stainer_card: { id: "stainer_card", name: "Stainer Card", type: ItemType.Card, cardSlot: EquipSlot.Headgear, desc: "Headgear card. AGI +5, FLEE via DEF +4.", def: 4, bonusStats: { agi: 5 }, sellPrice: 1500 },
 };
 
@@ -771,30 +777,30 @@ Object.assign(DROP_TABLES, {
   myst_case: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "fur_coat", chance: 0.035 }],
   antonio: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "frost_blade", chance: 0.03 }],
   stormy_knight: HI([{ itemId: "frost_blade", chance: 0.6 }, { itemId: "fur_coat", chance: 0.5 }, { itemId: "santa_hat", chance: 0.3 }]),
-  garm: HI([{ itemId: "frost_blade", chance: 0.6 }, { itemId: "fur_coat", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  garm: HI([{ itemId: "frost_blade", chance: 0.6 }, { itemId: "fur_coat", chance: 0.5 }, { itemId: "garm_card", chance: 0.08 }]),
   // Ayothaya
   kobold: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "jade_spear", chance: 0.03 }],
   elder_willow: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "temple_robe", chance: 0.035 }],
   brilight: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "monkey_circlet", chance: 0.035 }],
   lady_tanee: HI([{ itemId: "temple_robe", chance: 0.6 }, { itemId: "monkey_circlet", chance: 0.5 }, { itemId: "spirit_staff", chance: 0.3 }]),
-  leak: HI([{ itemId: "jade_spear", chance: 0.6 }, { itemId: "temple_robe", chance: 0.5 }, { itemId: "tidal_shoes", chance: 0.3 }]),
+  leak: HI([{ itemId: "jade_spear", chance: 0.6 }, { itemId: "temple_robe", chance: 0.5 }, { itemId: "leak_card", chance: 0.08 }]),
   // Moscovia
   les: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "bear_claw", chance: 0.03 }],
   mavka: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "forest_garb", chance: 0.035 }],
   uzhas: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "ushanka", chance: 0.035 }],
   gopinich: HI([{ itemId: "bear_claw", chance: 0.6 }, { itemId: "forest_garb", chance: 0.5 }, { itemId: "baphomet_card", chance: 0.05 }]),
-  baba_yaga: HI([{ itemId: "ushanka", chance: 0.6 }, { itemId: "forest_garb", chance: 0.5 }, { itemId: "ghostring_card", chance: 0.06 }]),
+  baba_yaga: HI([{ itemId: "ushanka", chance: 0.6 }, { itemId: "forest_garb", chance: 0.5 }, { itemId: "baba_card", chance: 0.08 }]),
   // Thor Volcano
   magmaring: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "ifrit_mask", chance: 0.025 }],
   kasa: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "magma_axe", chance: 0.025 }],
   salamander: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "volcanic_plate", chance: 0.025 }],
-  gigantes: HI([{ itemId: "volcanic_plate", chance: 0.6 }, { itemId: "magma_axe", chance: 0.5 }, { itemId: "valkyrie_armor", chance: 0.3 }]),
-  ifrit: HI([{ itemId: "magma_axe", chance: 0.6 }, { itemId: "ifrit_mask", chance: 0.55 }, { itemId: "volcanic_plate", chance: 0.5 }, { itemId: "doppelganger_card", chance: 0.06 }]),
+  gigantes: HI([{ itemId: "volcanic_plate", chance: 0.6 }, { itemId: "magma_axe", chance: 0.5 }, { itemId: "gigantes_card", chance: 0.08 }]),
+  ifrit: HI([{ itemId: "magma_axe", chance: 0.6 }, { itemId: "ifrit_mask", chance: 0.55 }, { itemId: "volcanic_plate", chance: 0.5 }, { itemId: "ifrit_card", chance: 0.08 }]),
   // Byalan
   marc: [{ itemId: "apple", chance: 0.3 }, { itemId: "shell_helm", chance: 0.04 }],
   vadon: [{ itemId: "red_potion", chance: 0.2 }, { itemId: "diver_suit", chance: 0.04 }],
   kukre: [{ itemId: "red_potion", chance: 0.2 }, { itemId: "coral_blade", chance: 0.04 }],
-  phreeoni: HI([{ itemId: "coral_blade", chance: 0.6 }, { itemId: "diver_suit", chance: 0.5 }, { itemId: "marc_card", chance: 0.08 }]),
+  phreeoni: HI([{ itemId: "coral_blade", chance: 0.6 }, { itemId: "diver_suit", chance: 0.5 }, { itemId: "phreeoni_card", chance: 0.1 }]),
   deviace: HI([{ itemId: "shell_helm", chance: 0.6 }, { itemId: "diver_suit", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
 });
 
