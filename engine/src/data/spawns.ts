@@ -392,6 +392,42 @@ Object.assign(MONSTER_TEMPLATES, {
   galapago: mk("galapago", "Galapago", 76, 4900, 10600),
   gold_acidus: mk("gold_acidus", "Gold Acidus", 82, 30000, 50000, true),
   tatacho: mk("tatacho", "Tatacho", 84, 33000, 56000, true),
+  // ---- Scaraba Hole ----
+  scaraba: mk("scaraba", "Scaraba", 112, 11000, 21000),
+  dolomedes: mk("dolomedes", "Dolomedes", 114, 11800, 22800),
+  centipede: mk("centipede", "Centipede", 116, 12600, 24600),
+  queen_scaraba: mk("queen_scaraba", "Queen Scaraba", 122, 96000, 165000, true),
+  kublin: mk("kublin", "Kublin", 124, 105000, 185000, true),
+  // ---- Ice Cave ----
+  snowier: mk("snowier", "Snowier", 96, 8200, 16800),
+  gazeti: mk("gazeti", "Gazeti", 98, 8600, 17600),
+  siroma: mk("siroma", "Siroma", 100, 9000, 18400),
+  frost_giant: mk("frost_giant", "Frost Giant", 106, 64000, 104000, true),
+  ice_queen: mk("ice_queen", "Ice Queen", 108, 70000, 116000, true),
+  // ---- Dewata ----
+  banaspaty: mk("banaspaty", "Banaspaty", 80, 5400, 11600),
+  butoijo: mk("butoijo", "Butoijo", 82, 5700, 12200),
+  kaho: mk("kaho", "Kaho", 84, 6000, 12800),
+  leyak: mk("leyak", "Leyak", 90, 40000, 62000, true),
+  rangda: mk("rangda", "Rangda", 92, 44000, 70000, true),
+  // ---- Splendide ----
+  tiyanak: mk("tiyanak", "Tiyanak", 100, 9200, 18800),
+  hilsrion: mk("hilsrion", "Hillslion", 102, 9800, 20000),
+  naga: mk("naga", "Naga", 104, 10400, 21200),
+  gioia: mk("gioia", "Gioia", 110, 66000, 108000, true),
+  kades: mk("kades", "Kades", 112, 72000, 120000, true),
+  // ---- Eclage ----
+  cornus: mk("cornus", "Cornus", 105, 9800, 19600),
+  faceworm: mk("faceworm", "Faceworm", 107, 10400, 20800),
+  pinguicula: mk("pinguicula", "Pinguicula", 109, 11000, 22000),
+  wakwak: mk("wakwak", "Wakwak", 115, 74000, 122000, true),
+  faceworm_queen: mk("faceworm_queen", "Faceworm Queen", 117, 82000, 138000, true),
+  // ---- Manuk Fortress ----
+  sentinel: mk("sentinel", "Sentinel", 100, 9000, 18400),
+  drone: mk("drone", "Drone", 102, 9600, 19600),
+  scout_bot: mk("scout_bot", "Scout Bot", 104, 10200, 20800),
+  war_machine: mk("war_machine", "War Machine", 112, 70000, 114000, true),
+  overlord_core: mk("overlord_core", "Overlord Core", 114, 76000, 126000, true),
 });
 
 export interface SpawnZone {
@@ -658,6 +694,61 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "summon", intervalMs: 8000, templateId: "hode", count: 2, max: 5 },
     { kind: "nova", intervalMs: 6000, radius: 11, powerMult: 1.6 },
   ],
+  queen_scaraba: [
+    { kind: "enrage", hpPct: 0.4, atkMult: 1.7 },
+    { kind: "summon", intervalMs: 7500, templateId: "scaraba", count: 3, max: 7 },
+    { kind: "nova", intervalMs: 5500, radius: 12, powerMult: 1.7 },
+  ],
+  kublin: [
+    { kind: "enrage", hpPct: 0.4, atkMult: 1.8 },
+    { kind: "nova", intervalMs: 5000, radius: 12, powerMult: 1.8 },
+    { kind: "heal", intervalMs: 12000, pct: 0.05 },
+  ],
+  frost_giant: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.6 },
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
+  ],
+  ice_queen: [
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
+    { kind: "summon", intervalMs: 8500, templateId: "snowier", count: 2, max: 5 },
+    { kind: "heal", intervalMs: 11000, pct: 0.06 },
+  ],
+  leyak: [
+    { kind: "nova", intervalMs: 5500, radius: 10, powerMult: 1.6 },
+    { kind: "heal", intervalMs: 10000, pct: 0.06 },
+  ],
+  rangda: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.6 },
+    { kind: "summon", intervalMs: 8000, templateId: "leyak", count: 1, max: 2 },
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
+  ],
+  gioia: [
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
+    { kind: "heal", intervalMs: 10000, pct: 0.06 },
+  ],
+  kades: [
+    { kind: "enrage", hpPct: 0.4, atkMult: 1.7 },
+    { kind: "nova", intervalMs: 5000, radius: 12, powerMult: 1.8 },
+    { kind: "summon", intervalMs: 8000, templateId: "naga", count: 2, max: 5 },
+  ],
+  wakwak: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.7 },
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
+  ],
+  faceworm_queen: [
+    { kind: "summon", intervalMs: 7500, templateId: "faceworm", count: 3, max: 6 },
+    { kind: "nova", intervalMs: 5500, radius: 12, powerMult: 1.7 },
+    { kind: "heal", intervalMs: 12000, pct: 0.05 },
+  ],
+  war_machine: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.7 },
+    { kind: "nova", intervalMs: 5500, radius: 12, powerMult: 1.7 },
+  ],
+  overlord_core: [
+    { kind: "enrage", hpPct: 0.4, atkMult: 1.8 },
+    { kind: "summon", intervalMs: 8000, templateId: "drone", count: 3, max: 6 },
+    { kind: "nova", intervalMs: 5000, radius: 12, powerMult: 1.8 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -811,6 +902,36 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   galapago: Element.Fire,
   gold_acidus: Element.Wind,
   tatacho: Element.Water,
+  scaraba: Element.Earth,
+  dolomedes: Element.Water,
+  centipede: Element.Shadow,
+  queen_scaraba: Element.Earth,
+  kublin: Element.Fire,
+  snowier: Element.Water,
+  gazeti: Element.Wind,
+  siroma: Element.Water,
+  frost_giant: Element.Earth,
+  ice_queen: Element.Holy,
+  banaspaty: Element.Fire,
+  butoijo: Element.Water,
+  kaho: Element.Fire,
+  leyak: Element.Shadow,
+  rangda: Element.Shadow,
+  tiyanak: Element.Shadow,
+  hilsrion: Element.Earth,
+  naga: Element.Wind,
+  gioia: Element.Holy,
+  kades: Element.Shadow,
+  cornus: Element.Water,
+  faceworm: Element.Earth,
+  pinguicula: Element.Earth,
+  wakwak: Element.Wind,
+  faceworm_queen: Element.Earth,
+  sentinel: Element.Earth,
+  drone: Element.Wind,
+  scout_bot: Element.Wind,
+  war_machine: Element.Fire,
+  overlord_core: Element.Shadow,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

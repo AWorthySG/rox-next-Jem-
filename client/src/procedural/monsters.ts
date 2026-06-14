@@ -53,6 +53,12 @@ const ARCH: Record<string, MonsterArch> = {
   miming: "plant", pom_spider: "bug", luciola_vespa: "bug", bangungot: "ghost", bungisngis: "humanoid",
   piranha: "aquatic", curupira: "plant", iara: "ghost", jaguar_king: "beast", anaconda: "dragon",
   dustiness: "bug", hode: "beast", galapago: "beast", gold_acidus: "dragon", tatacho: "beast",
+  scaraba: "bug", dolomedes: "bug", centipede: "bug", queen_scaraba: "bug", kublin: "demon",
+  snowier: "jelly", gazeti: "bird", siroma: "aquatic", frost_giant: "golem", ice_queen: "ghost",
+  banaspaty: "demon", butoijo: "jelly", kaho: "beast", leyak: "ghost", rangda: "demon",
+  tiyanak: "demon", hilsrion: "golem", naga: "dragon", gioia: "humanoid", kades: "demon",
+  cornus: "bird", faceworm: "dragon", pinguicula: "plant", wakwak: "humanoid", faceworm_queen: "dragon",
+  sentinel: "golem", drone: "bug", scout_bot: "bird", war_machine: "golem", overlord_core: "demon",
 };
 
 function hex(s: string): number {
@@ -245,6 +251,42 @@ const DEFS: Record<string, AppearanceDef> = {
   galapago: { inner: "#c8a878", outer: "#5a4424", scale: 1.3 },
   gold_acidus: { inner: "#f0d060", outer: "#7a5a10", scale: 2.8, boss: true },
   tatacho: { inner: "#a0c0d0", outer: "#3a5a6a", scale: 3.0, boss: true },
+  // Scaraba Hole
+  scaraba: { inner: "#b0a060", outer: "#4a3a18", scale: 1.2 },
+  dolomedes: { inner: "#a0b0c0", outer: "#3a4a5a", scale: 1.25 },
+  centipede: { inner: "#c08060", outer: "#5a2818", scale: 1.3 },
+  queen_scaraba: { inner: "#d0c060", outer: "#5a4a18", scale: 3.0, boss: true },
+  kublin: { inner: "#e09050", outer: "#5a2010", scale: 3.1, boss: true },
+  // Ice Cave
+  snowier: { inner: "#e8f4fa", outer: "#9ac0d8", scale: 1.0 },
+  gazeti: { inner: "#d0e8f4", outer: "#5a8ab0", scale: 1.25 },
+  siroma: { inner: "#bfe0ec", outer: "#3a7a9a", scale: 1.15 },
+  frost_giant: { inner: "#cfe8f4", outer: "#4a7a9a", scale: 3.1, boss: true },
+  ice_queen: { inner: "#eaf4fa", outer: "#7a9ac0", scale: 2.8, boss: true },
+  // Dewata
+  banaspaty: { inner: "#ffb060", outer: "#7a3010", scale: 1.2 },
+  butoijo: { inner: "#c0e0d0", outer: "#3a7a6a", scale: 1.1 },
+  kaho: { inner: "#e09060", outer: "#6a2810", scale: 1.3 },
+  leyak: { inner: "#d0c0d0", outer: "#4a2a4a", scale: 2.7, boss: true },
+  rangda: { inner: "#e0b0a0", outer: "#5a2818", scale: 2.9, boss: true },
+  // Splendide
+  tiyanak: { inner: "#c0a0d0", outer: "#4a2a6a", scale: 1.2 },
+  hilsrion: { inner: "#c0b088", outer: "#5a4a28", scale: 1.4 },
+  naga: { inner: "#80c0a0", outer: "#1a5a44", scale: 1.5 },
+  gioia: { inner: "#f0e0a0", outer: "#8a7030", scale: 2.8, boss: true },
+  kades: { inner: "#a070c0", outer: "#1a0a2a", scale: 3.0, boss: true },
+  // Eclage
+  cornus: { inner: "#cfe8f0", outer: "#5a8a9a", scale: 1.3 },
+  faceworm: { inner: "#d0b070", outer: "#6a4a18", scale: 1.4 },
+  pinguicula: { inner: "#b0e090", outer: "#3a7a28", scale: 1.2 },
+  wakwak: { inner: "#c0d090", outer: "#4a6a28", scale: 2.8, boss: true },
+  faceworm_queen: { inner: "#e0c060", outer: "#6a4a10", scale: 3.2, boss: true },
+  // Manuk Fortress
+  sentinel: { inner: "#a0b0c0", outer: "#3a4450", scale: 1.4 },
+  drone: { inner: "#c0c0a0", outer: "#5a5a3a", scale: 1.0 },
+  scout_bot: { inner: "#b0c0d0", outer: "#3a4a5a", scale: 1.2 },
+  war_machine: { inner: "#c08060", outer: "#4a2818", scale: 3.1, boss: true },
+  overlord_core: { inner: "#c060a0", outer: "#2a0a1a", scale: 3.0, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

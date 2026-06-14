@@ -220,6 +220,24 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
       { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
       { name: "Lutie Exit", role: "portal", x: 0, z: 24, dest: { toMap: "aldebaran", toX: 18, toZ: 16 } },
+      { name: "Ice Cave Portal", role: "portal", x: 0, z: -46, dest: { toMap: "ice_cave", toX: 0, toZ: 18 } },
+    ],
+  },
+  ice_cave: {
+    id: "ice_cave",
+    name: "Ice Cave",
+    theme: { ground: 0xbfe0ec, fog: 0x9ac0d8, sky: 0xcfe8f4 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "ic-snowier", templateId: "snowier", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "ic-gazeti", templateId: "gazeti", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "ic-siroma", templateId: "siroma", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "ic-frostgiant", templateId: "frost_giant", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "ic-icequeen", templateId: "ice_queen", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Ice Cave Exit", role: "portal", x: 0, z: 24, dest: { toMap: "lutie", toX: 0, toZ: -38 } },
     ],
   },
   comodo: {
@@ -256,6 +274,24 @@ export const MAPS: Record<string, GameMap> = {
     npcs: [
       { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
       { name: "Turtle Island Exit", role: "portal", x: 0, z: 24, dest: { toMap: "comodo", toX: -18, toZ: 16 } },
+      { name: "Dewata Portal", role: "portal", x: 0, z: -46, dest: { toMap: "dewata", toX: 0, toZ: 18 } },
+    ],
+  },
+  dewata: {
+    id: "dewata",
+    name: "Dewata",
+    theme: { ground: 0x4a6a44, fog: 0x8a7050, sky: 0xc8a874 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "de-banaspaty", templateId: "banaspaty", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "de-butoijo", templateId: "butoijo", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "de-kaho", templateId: "kaho", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "de-leyak", templateId: "leyak", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "de-rangda", templateId: "rangda", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Dewata Exit", role: "portal", x: 0, z: 24, dest: { toMap: "turtle", toX: 0, toZ: -38 } },
     ],
   },
   amatsu: {
@@ -403,6 +439,42 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Juno Exit", role: "portal", x: 0, z: 26, dest: { toMap: "umbala", toX: 0, toZ: -44 } },
       { name: "Einbroch Portal", role: "portal", x: 0, z: -52, dest: { toMap: "einbroch", toX: 0, toZ: 20 } },
       { name: "Niflheim Portal", role: "portal", x: 18, z: 14, dest: { toMap: "niflheim", toX: 0, toZ: 18 } },
+      { name: "Eclage Portal", role: "portal", x: -18, z: 14, dest: { toMap: "eclage", toX: 0, toZ: 18 } },
+    ],
+  },
+  eclage: {
+    id: "eclage",
+    name: "Eclage",
+    theme: { ground: 0x3a6a4a, fog: 0x8ad0a0, sky: 0xb0e8c0 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "ec-cornus", templateId: "cornus", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "ec-faceworm", templateId: "faceworm", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "ec-pinguicula", templateId: "pinguicula", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "ec-wakwak", templateId: "wakwak", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "ec-queen", templateId: "faceworm_queen", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Eclage Exit", role: "portal", x: 0, z: 24, dest: { toMap: "juno", toX: -18, toZ: 16 } },
+      { name: "Manuk Portal", role: "portal", x: 0, z: -46, dest: { toMap: "manuk", toX: 0, toZ: 18 } },
+    ],
+  },
+  manuk: {
+    id: "manuk",
+    name: "Manuk Fortress",
+    theme: { ground: 0x444a52, fog: 0x14181e, sky: 0x222a32 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "mn-sentinel", templateId: "sentinel", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "mn-drone", templateId: "drone", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "mn-scout", templateId: "scout_bot", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "mn-warmachine", templateId: "war_machine", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "mn-core", templateId: "overlord_core", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Manuk Exit", role: "portal", x: 0, z: 24, dest: { toMap: "eclage", toX: 0, toZ: -38 } },
     ],
   },
   niflheim: {
@@ -439,6 +511,24 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Einbroch Exit", role: "portal", x: 0, z: 26, dest: { toMap: "juno", toX: 0, toZ: -44 } },
       { name: "Rachel Portal", role: "portal", x: 0, z: -52, dest: { toMap: "rachel", toX: 0, toZ: 20 } },
       { name: "Thor Volcano Portal", role: "portal", x: 18, z: 14, dest: { toMap: "thor", toX: 0, toZ: 18 } },
+      { name: "Scaraba Hole Portal", role: "portal", x: -18, z: 14, dest: { toMap: "scaraba", toX: 0, toZ: 18 } },
+    ],
+  },
+  scaraba: {
+    id: "scaraba",
+    name: "Scaraba Hole",
+    theme: { ground: 0x4a3a2a, fog: 0x1a120a, sky: 0x2c2014 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "sc-scaraba", templateId: "scaraba", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "sc-dolomedes", templateId: "dolomedes", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "sc-centipede", templateId: "centipede", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "sc-queen", templateId: "queen_scaraba", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "sc-kublin", templateId: "kublin", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Scaraba Exit", role: "portal", x: 0, z: 24, dest: { toMap: "einbroch", toX: -18, toZ: 16 } },
     ],
   },
   thor: {
@@ -476,6 +566,24 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Tower Portal", role: "portal", x: 0, z: -52, dest: { toMap: "tower", toX: 0, toZ: 20 } },
       { name: "Bifrost Portal", role: "portal", x: 18, z: 14, dest: { toMap: "bifrost", toX: 0, toZ: 18 } },
       { name: "Veins Portal", role: "portal", x: -18, z: 14, dest: { toMap: "veins", toX: 0, toZ: 18 } },
+      { name: "Splendide Portal", role: "portal", x: 0, z: -46, dest: { toMap: "splendide", toX: 0, toZ: 18 } },
+    ],
+  },
+  splendide: {
+    id: "splendide",
+    name: "Splendide",
+    theme: { ground: 0x4a7a5a, fog: 0xa0d0c0, sky: 0xc8e8d8 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "sp-tiyanak", templateId: "tiyanak", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "sp-hilsrion", templateId: "hilsrion", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "sp-naga", templateId: "naga", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "sp-gioia", templateId: "gioia", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "sp-kades", templateId: "kades", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Splendide Exit", role: "portal", x: 0, z: 24, dest: { toMap: "bifrost", toX: 0, toZ: -38 } },
     ],
   },
   veins: {

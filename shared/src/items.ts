@@ -366,6 +366,90 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Manuk Fortress gear ----
+  plasma_cutter: {
+    id: "plasma_cutter", name: "Plasma Cutter", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A humming energy blade. ATK +90, DEX +5.", atk: 90, bonusStats: { dex: 5 }, sellPrice: 5200,
+  },
+  visor_helm: {
+    id: "visor_helm", name: "Visor Helm", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A targeting visor. DEF +20, DEX +4, Max SP +40.", def: 20, maxSp: 40, bonusStats: { dex: 4 }, sellPrice: 4800,
+  },
+  alloy_plate: {
+    id: "alloy_plate", name: "Alloy Plate", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Reinforced battle alloy. DEF +36, Max HP +400, VIT +6.", def: 36, maxHp: 400, bonusStats: { vit: 6 }, sellPrice: 5400,
+  },
+
+  // ---- Eclage gear ----
+  sky_lance: {
+    id: "sky_lance", name: "Sky Lance", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A lance of the canopy guard. ATK +92, DEX +6.", atk: 92, bonusStats: { dex: 6 }, sellPrice: 5400,
+  },
+  eclage_circlet: {
+    id: "eclage_circlet", name: "Eclage Circlet", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A circlet of green light. MATK +14, INT +6, Max SP +60.", matk: 14, maxSp: 60, bonusStats: { int: 6 }, sellPrice: 5000,
+  },
+  canopy_robe: {
+    id: "canopy_robe", name: "Canopy Robe", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Living-leaf armor. DEF +34, Max HP +400, AGI +5.", def: 34, maxHp: 400, bonusStats: { agi: 5 }, sellPrice: 5400,
+  },
+
+  // ---- Splendide gear ----
+  sapha_blade: {
+    id: "sapha_blade", name: "Sapha Blade", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A fae-forged sword. ATK +86, DEX +5.", atk: 86, bonusStats: { dex: 5 }, sellPrice: 5000,
+  },
+  laphine_circlet: {
+    id: "laphine_circlet", name: "Laphine Circlet", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A circlet of living light. MATK +14, INT +6, Max SP +50.", matk: 14, maxSp: 50, bonusStats: { int: 6 }, sellPrice: 4600,
+  },
+  splendide_robe: {
+    id: "splendide_robe", name: "Splendide Robe", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Woven of starlight. DEF +32, Max SP +90, INT +6.", def: 32, maxSp: 90, bonusStats: { int: 6 }, sellPrice: 5000,
+  },
+
+  // ---- Dewata gear ----
+  kris_dagger: {
+    id: "kris_dagger", name: "Kris Dagger", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A wavy ceremonial blade. ATK +70, AGI +4, LUK +3.", atk: 70, bonusStats: { agi: 4, luk: 3 }, sellPrice: 3400,
+  },
+  barong_mask: {
+    id: "barong_mask", name: "Barong Mask", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A guardian-spirit mask. DEF +18, STR +4, Max HP +110.", def: 18, maxHp: 110, bonusStats: { str: 4 }, sellPrice: 3000,
+  },
+  batik_robe: {
+    id: "batik_robe", name: "Batik Robe", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Patterned island silk. DEF +24, Max SP +70, INT +4.", def: 24, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 3200,
+  },
+
+  // ---- Ice Cave gear ----
+  glacier_blade: {
+    id: "glacier_blade", name: "Glacier Blade", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A blade of unmelting ice. ATK +82, AGI +5.", atk: 82, bonusStats: { agi: 5 }, sellPrice: 4800,
+  },
+  frost_crown: {
+    id: "frost_crown", name: "Frost Crown", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A crown of rime. MATK +12, INT +5, Max SP +50.", matk: 12, maxSp: 50, bonusStats: { int: 5 }, sellPrice: 4400,
+  },
+  glacial_plate: {
+    id: "glacial_plate", name: "Glacial Plate", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Armor of solid ice. DEF +32, Max HP +360, VIT +5.", def: 32, maxHp: 360, bonusStats: { vit: 5 }, sellPrice: 4800,
+  },
+
+  // ---- Scaraba Hole gear ----
+  chitin_blade: {
+    id: "chitin_blade", name: "Chitin Blade", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A razor carapace edge. ATK +90, STR +6.", atk: 90, bonusStats: { str: 6 }, sellPrice: 5400,
+  },
+  antenna_crown: {
+    id: "antenna_crown", name: "Antenna Crown", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "Twitching feelers. MATK +12, INT +6, Max SP +50.", matk: 12, maxSp: 50, bonusStats: { int: 6 }, sellPrice: 5000,
+  },
+  carapace_armor: {
+    id: "carapace_armor", name: "Carapace Armor", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Layered insect shell. DEF +36, Max HP +400, VIT +6.", def: 36, maxHp: 400, bonusStats: { vit: 6 }, sellPrice: 5600,
+  },
+
   // ---- Veins Canyon gear ----
   sand_spear: {
     id: "sand_spear", name: "Sand Spear", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -973,6 +1057,42 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Manuk Fortress
+  sentinel: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "alloy_plate", chance: 0.025 }],
+  drone: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "visor_helm", chance: 0.025 }],
+  scout_bot: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "plasma_cutter", chance: 0.025 }],
+  war_machine: HI([{ itemId: "plasma_cutter", chance: 0.6 }, { itemId: "alloy_plate", chance: 0.5 }, { itemId: "visor_helm", chance: 0.4 }]),
+  overlord_core: HI([{ itemId: "plasma_cutter", chance: 0.6 }, { itemId: "alloy_plate", chance: 0.55 }, { itemId: "thanatos_card", chance: 0.04 }]),
+  // Eclage
+  cornus: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "canopy_robe", chance: 0.025 }],
+  faceworm: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "sky_lance", chance: 0.025 }],
+  pinguicula: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "eclage_circlet", chance: 0.025 }],
+  wakwak: HI([{ itemId: "sky_lance", chance: 0.6 }, { itemId: "canopy_robe", chance: 0.5 }, { itemId: "eclage_circlet", chance: 0.4 }]),
+  faceworm_queen: HI([{ itemId: "sky_lance", chance: 0.6 }, { itemId: "canopy_robe", chance: 0.55 }, { itemId: "nidhoggr_card", chance: 0.05 }]),
+  // Splendide
+  tiyanak: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "splendide_robe", chance: 0.025 }],
+  hilsrion: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "laphine_circlet", chance: 0.025 }],
+  naga: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "sapha_blade", chance: 0.025 }],
+  gioia: HI([{ itemId: "laphine_circlet", chance: 0.6 }, { itemId: "splendide_robe", chance: 0.5 }, { itemId: "sapha_blade", chance: 0.4 }]),
+  kades: HI([{ itemId: "sapha_blade", chance: 0.6 }, { itemId: "splendide_robe", chance: 0.5 }, { itemId: "doppelganger_card", chance: 0.05 }]),
+  // Dewata
+  banaspaty: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "barong_mask", chance: 0.03 }],
+  butoijo: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "batik_robe", chance: 0.03 }],
+  kaho: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "kris_dagger", chance: 0.03 }],
+  leyak: HI([{ itemId: "kris_dagger", chance: 0.6 }, { itemId: "batik_robe", chance: 0.5 }, { itemId: "barong_mask", chance: 0.4 }]),
+  rangda: HI([{ itemId: "batik_robe", chance: 0.6 }, { itemId: "kris_dagger", chance: 0.45 }, { itemId: "baba_card", chance: 0.05 }]),
+  // Ice Cave
+  snowier: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "glacial_plate", chance: 0.025 }],
+  gazeti: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "frost_crown", chance: 0.025 }],
+  siroma: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "glacier_blade", chance: 0.025 }],
+  frost_giant: HI([{ itemId: "glacier_blade", chance: 0.6 }, { itemId: "glacial_plate", chance: 0.5 }, { itemId: "frost_crown", chance: 0.4 }]),
+  ice_queen: HI([{ itemId: "frost_crown", chance: 0.6 }, { itemId: "glacial_plate", chance: 0.5 }, { itemId: "garm_card", chance: 0.05 }]),
+  // Scaraba Hole
+  scaraba: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "carapace_armor", chance: 0.022 }],
+  dolomedes: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "antenna_crown", chance: 0.022 }],
+  centipede: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "chitin_blade", chance: 0.022 }],
+  queen_scaraba: HI([{ itemId: "chitin_blade", chance: 0.6 }, { itemId: "carapace_armor", chance: 0.5 }, { itemId: "antenna_crown", chance: 0.4 }, { itemId: "ghostring_card", chance: 0.05 }]),
+  kublin: HI([{ itemId: "chitin_blade", chance: 0.6 }, { itemId: "carapace_armor", chance: 0.55 }, { itemId: "ifrit_card", chance: 0.05 }]),
   // Veins Canyon
   dustiness: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "desert_cowl", chance: 0.03 }],
   hode: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "sandstorm_robe", chance: 0.03 }],
@@ -1048,6 +1168,12 @@ const ORE_REGULARS = [
   "miming", "pom_spider", "luciola_vespa",
   "piranha", "curupira", "iara",
   "dustiness", "hode", "galapago",
+  "scaraba", "dolomedes", "centipede",
+  "snowier", "gazeti", "siroma",
+  "banaspaty", "butoijo", "kaho",
+  "tiyanak", "hilsrion", "naga",
+  "cornus", "faceworm", "pinguicula",
+  "sentinel", "drone", "scout_bot",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1067,7 +1193,9 @@ const ORE_BOSSES = [
   "phreeoni", "deviace", "orc_lord", "orc_hero", "abysmal_knight", "amdarais", "pharaoh", "osiris",
   "freezer", "turtle_general", "chung_e", "evil_snake_lord", "dark_illusion", "corrupt_monk",
   "jade_warlord", "spirit_empress", "bangungot", "bungisngis", "jaguar_king", "anaconda",
-  "gold_acidus", "tatacho",
+  "gold_acidus", "tatacho", "queen_scaraba", "kublin", "frost_giant", "ice_queen",
+  "leyak", "rangda", "gioia", "kades", "wakwak", "faceworm_queen",
+  "war_machine", "overlord_core",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];
