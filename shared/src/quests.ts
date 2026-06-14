@@ -138,6 +138,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 108,
     reward: { exp: 200000, zeny: 110000, items: [{ id: "bloody_sword", qty: 1 }] },
   },
+  king_of_the_canopy: {
+    id: "king_of_the_canopy",
+    name: "King of the Canopy",
+    desc: "The King Macaque rules the Bukit Timah reserve. Topple the troop's leader.",
+    targetTemplate: "king_macaque",
+    targetName: "King Macaque",
+    count: 1,
+    requiredLevel: 46,
+    reward: { exp: 14000, zeny: 9000, items: [{ id: "parang", qty: 1 }] },
+  },
   guardian_of_the_bay: {
     id: "guardian_of_the_bay",
     name: "Guardian of the Bay",

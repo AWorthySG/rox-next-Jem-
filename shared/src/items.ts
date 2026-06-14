@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Bukit Timah (Singapore) gear ----
+  parang: {
+    id: "parang", name: "Parang", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A heavy jungle machete. ATK +44, AGI +3.", atk: 44, bonusStats: { agi: 3 }, sellPrice: 950,
+  },
+  explorer_hat: {
+    id: "explorer_hat", name: "Explorer Hat", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A wide-brimmed bush hat. DEF +14, DEX +3, Max HP +80.", def: 14, maxHp: 80, bonusStats: { dex: 3 }, sellPrice: 850,
+  },
+  ranger_garb: {
+    id: "ranger_garb", name: "Ranger Garb", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Rugged reserve-ranger gear. DEF +16, Max HP +150, AGI +3.", def: 16, maxHp: 150, bonusStats: { agi: 3 }, sellPrice: 950,
+  },
+
   // ---- Merlion Bay (Singapore) gear ----
   harbour_cutlass: {
     id: "harbour_cutlass", name: "Harbour Cutlass", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1075,6 +1089,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Bukit Timah (Singapore)
+  macaque: [{ itemId: "apple", chance: 0.3 }, { itemId: "explorer_hat", chance: 0.04 }],
+  pangolin: [{ itemId: "red_potion", chance: 0.25 }, { itemId: "ranger_garb", chance: 0.04 }],
+  hornbill: [{ itemId: "red_potion", chance: 0.25 }, { itemId: "parang", chance: 0.04 }],
+  king_macaque: HI([{ itemId: "parang", chance: 0.6 }, { itemId: "explorer_hat", chance: 0.5 }, { itemId: "ranger_garb", chance: 0.4 }]),
+  reticulated_python: HI([{ itemId: "ranger_garb", chance: 0.6 }, { itemId: "parang", chance: 0.45 }, { itemId: "marc_card", chance: 0.05 }]),
   // Merlion Bay (Singapore)
   mudskipper: [{ itemId: "apple", chance: 0.3 }, { itemId: "mariner_vest", chance: 0.04 }],
   horseshoe_crab: [{ itemId: "red_potion", chance: 0.2 }, { itemId: "sailor_cap", chance: 0.04 }],
@@ -1199,6 +1219,7 @@ const ORE_REGULARS = [
   "cornus", "faceworm", "pinguicula",
   "sentinel", "drone", "scout_bot",
   "mudskipper", "horseshoe_crab", "smooth_otter",
+  "macaque", "pangolin", "hornbill",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1221,6 +1242,7 @@ const ORE_BOSSES = [
   "gold_acidus", "tatacho", "queen_scaraba", "kublin", "frost_giant", "ice_queen",
   "leyak", "rangda", "gioia", "kades", "wakwak", "faceworm_queen",
   "war_machine", "overlord_core", "sea_serpent", "the_merlion",
+  "king_macaque", "reticulated_python",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

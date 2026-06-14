@@ -61,6 +61,25 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Healer", role: "healer", x: 10, z: 24, facing: Math.PI },
       { name: "Guide", role: "guide", x: -6, z: 24, facing: Math.PI },
       { name: "Merlion Bay Exit", role: "portal", x: 0, z: 26, dest: { toMap: "field", toX: -14, toZ: 16 } },
+      { name: "Bukit Timah Portal", role: "portal", x: 0, z: -50, dest: { toMap: "bukit_timah", toX: 0, toZ: 18 } },
+    ],
+  },
+  bukit_timah: {
+    id: "bukit_timah",
+    name: "Bukit Timah Reserve",
+    theme: { ground: 0x2f6a2c, fog: 0x6a9a4a, sky: 0x8fc070 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "bt-macaque", templateId: "macaque", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "bt-pangolin", templateId: "pangolin", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "bt-hornbill", templateId: "hornbill", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "bt-king", templateId: "king_macaque", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "bt-python", templateId: "reticulated_python", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Bukit Timah Exit", role: "portal", x: 0, z: 24, dest: { toMap: "merlion_bay", toX: 0, toZ: -44 } },
     ],
   },
   geffen: {

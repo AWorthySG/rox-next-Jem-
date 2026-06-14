@@ -60,6 +60,7 @@ const ARCH: Record<string, MonsterArch> = {
   cornus: "bird", faceworm: "dragon", pinguicula: "plant", wakwak: "humanoid", faceworm_queen: "dragon",
   sentinel: "golem", drone: "bug", scout_bot: "bird", war_machine: "golem", overlord_core: "demon",
   mudskipper: "aquatic", horseshoe_crab: "aquatic", smooth_otter: "beast", sea_serpent: "dragon", the_merlion: "aquatic",
+  macaque: "beast", pangolin: "beast", hornbill: "bird", king_macaque: "humanoid", reticulated_python: "dragon",
 };
 
 function hex(s: string): number {
@@ -294,6 +295,12 @@ const DEFS: Record<string, AppearanceDef> = {
   smooth_otter: { inner: "#b08860", outer: "#5a3a20", scale: 1.0 },
   sea_serpent: { inner: "#70c0c0", outer: "#1a5a5a", scale: 2.7, boss: true },
   the_merlion: { inner: "#f0e0a0", outer: "#b08040", scale: 3.0, boss: true },
+  // Bukit Timah (Singapore)
+  macaque: { inner: "#c0a880", outer: "#5a4428", scale: 1.0 },
+  pangolin: { inner: "#c0a070", outer: "#5a4020", scale: 1.1 },
+  hornbill: { inner: "#e0d040", outer: "#3a2a10", scale: 1.2 },
+  king_macaque: { inner: "#d0b888", outer: "#6a4a28", scale: 2.7, boss: true },
+  reticulated_python: { inner: "#c0b060", outer: "#4a3a18", scale: 2.9, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";
