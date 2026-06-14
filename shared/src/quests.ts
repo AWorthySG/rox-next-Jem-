@@ -728,6 +728,26 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 78,
     reward: { exp: 58000, zeny: 34000, items: [{ id: "pilgrim_staff", qty: 1 }] },
   },
+  the_bandstand_golem: {
+    id: "the_bandstand_golem",
+    name: "The Bandstand Golem",
+    desc: "The Botanic Gardens' heritage bandstand has woken as a golem. Settle it down.",
+    targetTemplate: "bandstand_golem",
+    targetName: "Bandstand Golem",
+    count: 1,
+    requiredLevel: 30,
+    reward: { exp: 7000, zeny: 4500, items: [{ id: "garden_tunic", qty: 1 }] },
+  },
+  swan_of_the_lake: {
+    id: "swan_of_the_lake",
+    name: "Swan of the Lake",
+    desc: "A Naga lurks in the Botanic Gardens' Swan Lake. Restore the garden's calm.",
+    targetTemplate: "swan_lake_naga",
+    targetName: "Swan Lake Naga",
+    count: 1,
+    requiredLevel: 32,
+    reward: { exp: 8500, zeny: 5500, items: [{ id: "orchid_wand", qty: 1 }] },
+  },
 
   // ---- repeatable daily bounties (turn in and re-accept for steady income) ----
   bounty_porings: {

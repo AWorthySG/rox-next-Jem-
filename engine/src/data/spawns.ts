@@ -554,6 +554,12 @@ Object.assign(MONSTER_TEMPLATES, {
   pilgrim_wisp: mk("pilgrim_wisp", "Pilgrim Wisp", 72, 4000, 8400),
   kusu_tortoise_god: mk("kusu_tortoise_god", "Kusu Tortoise God", 76, 24000, 40000, true),
   wishing_well_naga: mk("wishing_well_naga", "Wishing Well Naga", 78, 27000, 45000, true),
+  // ---- Botanic Gardens (Singapore) ----
+  garden_swan: mk("garden_swan", "Garden Swan", 22, 720, 1500),
+  orchid_sprite: mk("orchid_sprite", "Orchid Sprite", 24, 820, 1700),
+  koi_spirit: mk("koi_spirit", "Koi Spirit", 26, 920, 1900),
+  bandstand_golem: mk("bandstand_golem", "Bandstand Golem", 30, 5200, 9000, true),
+  swan_lake_naga: mk("swan_lake_naga", "Swan Lake Naga", 32, 6000, 10500, true),
 });
 
 export interface SpawnZone {
@@ -1053,6 +1059,13 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "nova", intervalMs: 5200, radius: 11, powerMult: 1.7 },
     { kind: "summon", intervalMs: 8500, templateId: "shrine_carp", count: 2, max: 5 },
   ],
+  bandstand_golem: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.6 },
+  ],
+  swan_lake_naga: [
+    { kind: "nova", intervalMs: 6000, radius: 10, powerMult: 1.6 },
+    { kind: "heal", intervalMs: 12000, pct: 0.05 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -1341,6 +1354,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   pilgrim_wisp: Element.Holy,
   kusu_tortoise_god: Element.Water,
   wishing_well_naga: Element.Water,
+  garden_swan: Element.Wind,
+  orchid_sprite: Element.Earth,
+  koi_spirit: Element.Water,
+  bandstand_golem: Element.Earth,
+  swan_lake_naga: Element.Water,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

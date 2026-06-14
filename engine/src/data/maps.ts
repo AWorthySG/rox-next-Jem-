@@ -254,6 +254,25 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
       { name: "Fort Canning Exit", role: "portal", x: 0, z: 24, dest: { toMap: "chinatown", toX: -18, toZ: 16 } },
       { name: "Mount Faber Portal", role: "portal", x: 0, z: -50, dest: { toMap: "mount_faber", toX: 0, toZ: 18 } },
+      { name: "Botanic Gardens Portal", role: "portal", x: 18, z: 14, dest: { toMap: "botanic_gardens", toX: 0, toZ: 18 } },
+    ],
+  },
+  botanic_gardens: {
+    id: "botanic_gardens",
+    name: "Botanic Gardens",
+    theme: { ground: 0x4aae5a, fog: 0x9ad8a0, sky: 0xc0ecc0 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "bg-swan", templateId: "garden_swan", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "bg-orchid", templateId: "orchid_sprite", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "bg-koi", templateId: "koi_spirit", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "bg-bandstand", templateId: "bandstand_golem", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "bg-naga", templateId: "swan_lake_naga", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Botanic Gardens Exit", role: "portal", x: 0, z: 24, dest: { toMap: "fort_canning", toX: 18, toZ: 10 } },
     ],
   },
   mount_faber: {

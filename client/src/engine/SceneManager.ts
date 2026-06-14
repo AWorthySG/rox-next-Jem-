@@ -297,6 +297,7 @@ const WATER_MAPS: Record<string, [number, number]> = {
   macritchie: [0x4a9a6a, 0x14483a],
   sungei_buloh: [0x6a9a6a, 0x244a2a],
   kusu_island: [0x7fe0e8, 0x1a7090],
+  botanic_gardens: [0x6abada, 0x1e5a7a],
 };
 
 const SKY_VERT = /* glsl */ `

@@ -80,6 +80,7 @@ const ARCH: Record<string, MonsterArch> = {
   wetland_heron: "bird", fiddler_crab: "aquatic", marsh_terrapin: "beast", estuarine_titan: "beast", garuda_matriarch: "bird",
   night_panther: "beast", giant_flying_fox: "bird", moonlit_moth: "bug", malayan_tiger_lord: "beast", mandai_naga: "dragon",
   temple_tortoise: "beast", shrine_carp: "aquatic", pilgrim_wisp: "ghost", kusu_tortoise_god: "beast", wishing_well_naga: "dragon",
+  garden_swan: "bird", orchid_sprite: "plant", koi_spirit: "aquatic", bandstand_golem: "golem", swan_lake_naga: "dragon",
 };
 
 function hex(s: string): number {
@@ -428,6 +429,11 @@ const DEFS: Record<string, AppearanceDef> = {
   pilgrim_wisp: { inner: "#ffe0a0", outer: "#a07020", scale: 1.3 },
   kusu_tortoise_god: { inner: "#8ab060", outer: "#2a4a1a", scale: 3.0, boss: true },
   wishing_well_naga: { inner: "#50b0b0", outer: "#0a4a4a", scale: 3.0, boss: true },
+  garden_swan: { inner: "#f0f0f8", outer: "#9a9aa8", scale: 1.3 },
+  orchid_sprite: { inner: "#e070c0", outer: "#6a1a5a", scale: 1.2 },
+  koi_spirit: { inner: "#f08040", outer: "#8a3010", scale: 1.3 },
+  bandstand_golem: { inner: "#c0b070", outer: "#5a4a20", scale: 2.7, boss: true },
+  swan_lake_naga: { inner: "#80c0e0", outer: "#1a5a7a", scale: 2.8, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

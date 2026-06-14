@@ -464,6 +464,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "A Kusu shrine blessing charm. LUK +6, Max SP +40.", maxSp: 40, bonusStats: { luk: 6 }, sellPrice: 3400,
   },
 
+  // ---- Botanic Gardens (Singapore) gear ----
+  orchid_wand: {
+    id: "orchid_wand", name: "Orchid Wand", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A wand budding with Vanda Miss Joaquim. MATK +20, INT +3.", matk: 20, bonusStats: { int: 3 }, sellPrice: 1200,
+  },
+  swan_feather_hat: {
+    id: "swan_feather_hat", name: "Swan Feather Hat", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "Plumed with garden swan down. AGI +3, DEX +3, Max SP +20.", maxSp: 20, bonusStats: { agi: 3, dex: 3 }, sellPrice: 1200,
+  },
+  garden_tunic: {
+    id: "garden_tunic", name: "Garden Tunic", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "A heritage gardener's tunic. DEF +12, Max HP +110, VIT +3.", def: 12, maxHp: 110, bonusStats: { vit: 3 }, sellPrice: 1200,
+  },
+
   // ---- Mount Faber (Singapore) gear ----
   summit_lance: {
     id: "summit_lance", name: "Summit Lance", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1397,6 +1411,12 @@ Object.assign(DROP_TABLES, {
   pilgrim_wisp: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "pilgrim_staff", chance: 0.03 }],
   kusu_tortoise_god: HI([{ itemId: "tortoise_shell_plate", chance: 0.6 }, { itemId: "fortune_amulet", chance: 0.5 }, { itemId: "pilgrim_staff", chance: 0.4 }]),
   wishing_well_naga: HI([{ itemId: "pilgrim_staff", chance: 0.6 }, { itemId: "fortune_amulet", chance: 0.45 }, { itemId: "marc_card", chance: 0.05 }]),
+  // Botanic Gardens (Singapore)
+  garden_swan: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "swan_feather_hat", chance: 0.03 }],
+  orchid_sprite: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "orchid_wand", chance: 0.03 }],
+  koi_spirit: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "garden_tunic", chance: 0.03 }],
+  bandstand_golem: HI([{ itemId: "garden_tunic", chance: 0.6 }, { itemId: "swan_feather_hat", chance: 0.5 }, { itemId: "orchid_wand", chance: 0.4 }]),
+  swan_lake_naga: HI([{ itemId: "orchid_wand", chance: 0.6 }, { itemId: "garden_tunic", chance: 0.45 }, { itemId: "poring_card", chance: 0.05 }]),
   // Mount Faber (Singapore)
   cable_wraith: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "alpine_plate", chance: 0.03 }],
   peak_eagle: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "aviator_cap", chance: 0.03 }],
@@ -1619,6 +1639,7 @@ const ORE_REGULARS = [
   "wetland_heron", "fiddler_crab", "marsh_terrapin",
   "night_panther", "giant_flying_fox", "moonlit_moth",
   "temple_tortoise", "shrine_carp", "pilgrim_wisp",
+  "garden_swan", "orchid_sprite", "koi_spirit",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1653,6 +1674,7 @@ const ORE_BOSSES = [
   "estuarine_titan", "garuda_matriarch",
   "malayan_tiger_lord", "mandai_naga",
   "kusu_tortoise_god", "wishing_well_naga",
+  "bandstand_golem", "swan_lake_naga",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];
