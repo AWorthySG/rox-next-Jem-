@@ -9,6 +9,7 @@ import {
   getItem,
   getPet,
   getQuest,
+  getRune,
   isStatKey,
   jobHasSkill,
   JOB_BASE_STATS,
@@ -16,14 +17,18 @@ import {
   JobId,
   ItemType,
   isMagicJob,
+  ENCHANT_COST,
+  MAX_ENCHANT_LINES,
   MAX_REFINE,
   refineBonus,
   refineCost,
+  rollEnchantLine,
   SKILL_MAX_LEVEL,
   SKILLS_BY_JOB,
   STAT_POINTS_PER_LEVEL,
   xpToNext,
   type DerivedStats,
+  type EnchantLine,
   type EntityFull,
   type EntitySnapshot,
   type SelfState,
@@ -52,11 +57,15 @@ export class Player {
 
   statPoints = 0;
   skillPoints = 0;
+  runePoints = 0;
+  runes: string[] = []; // unlocked Aesir rune ids
   skillLevels: Record<string, number> = {}; // skillId -> level (>=1 when learned)
   inventory: Record<string, number> = {}; // itemId -> qty
+  storage: Record<string, number> = {}; // Kafra storage: itemId -> qty
   equipped: Partial<Record<EquipSlot, string>> = {}; // slot -> itemId
   cards: Partial<Record<EquipSlot, string>> = {}; // slot -> socketed card itemId
   refineByItem: Record<string, number> = {}; // itemId -> refine level
+  enchantByItem: Record<string, EnchantLine[]> = {}; // itemId -> rolled enchant lines
   partyId: number | null = null;
   guildId: number | null = null;
   guildName: string | null = null;
@@ -65,6 +74,7 @@ export class Player {
   activeQuests: Record<string, number> = {}; // questId -> kill progress
   completedQuests: string[] = [];
   totalKills = 0;
+  killCounts: Record<string, number> = {}; // templateId -> kills (Monster Codex)
   bossesKilled: string[] = [];
   achievements: string[] = [];
 
@@ -76,6 +86,7 @@ export class Player {
   pendingSkillTargetId: number | null = null;
   skillCooldowns: Record<string, number> = {}; // skillId -> ms remaining
   buffs: Array<{ stat: "atk" | "matk"; mult: number; expiresAt: number }> = [];
+  foodBuffs: Array<{ id: string; expiresAt: number }> = []; // timed food/cooking buffs
 
   constructor(id: number, connId: number, name: string, job: JobId, x: number, z: number) {
     this.id = id;
@@ -112,6 +123,17 @@ export class Player {
     return true;
   }
 
+  unlockRune(runeId: string): boolean {
+    const rune = getRune(runeId);
+    if (!rune || this.runes.includes(runeId)) return false;
+    if (rune.requires && !this.runes.includes(rune.requires)) return false;
+    if (this.runePoints < rune.cost) return false;
+    this.runePoints -= rune.cost;
+    this.runes.push(runeId);
+    this.recompute();
+    return true;
+  }
+
   get isMagic(): boolean {
     return isMagicJob(this.job);
   }
@@ -129,6 +151,27 @@ export class Player {
     return m;
   }
 
+  // Eat a food item: refresh its timed buff (same food re-eaten resets the timer)
+  // and fold its bonus into the stats. Returns true if applied.
+  applyFood(itemId: string, now: number): boolean {
+    const food = getItem(itemId)?.food;
+    if (!food) return false;
+    this.foodBuffs = this.foodBuffs.filter((b) => b.id !== itemId);
+    this.foodBuffs.push({ id: itemId, expiresAt: now + food.durationMs });
+    this.recompute();
+    return true;
+  }
+
+  // Drop expired food buffs; recompute (and report) only when something changed.
+  tickFoodBuffs(now: number): boolean {
+    if (this.foodBuffs.length === 0) return false;
+    const before = this.foodBuffs.length;
+    this.foodBuffs = this.foodBuffs.filter((b) => b.expiresAt > now);
+    if (this.foodBuffs.length === before) return false;
+    this.recompute();
+    return true;
+  }
+
   // Recompute derived stats, folding in bonuses from equipped gear. Clamps
   // current HP/SP to the (possibly changed) maximums.
   recompute(): void {
@@ -138,6 +181,7 @@ export class Player {
     let flatDef = 0;
     let flatHp = 0;
     let flatSp = 0;
+    let flatCrit = 0;
     for (const itemId of Object.values(this.equipped)) {
       const item = itemId ? getItem(itemId) : undefined;
       if (!item || !itemId) continue;
@@ -153,6 +197,17 @@ export class Player {
       flatMatk += rb.matk;
       flatDef += rb.def;
       flatHp += rb.maxHp;
+      // enchant lines
+      for (const line of this.enchantByItem[itemId] ?? []) {
+        if (isStatKey(line.stat)) {
+          effective[line.stat] += line.value;
+        } else if (line.stat === "atk") flatAtk += line.value;
+        else if (line.stat === "matk") flatMatk += line.value;
+        else if (line.stat === "def") flatDef += line.value;
+        else if (line.stat === "maxHp") flatHp += line.value;
+        else if (line.stat === "maxSp") flatSp += line.value;
+        else if (line.stat === "crit") flatCrit += line.value;
+      }
     }
     // socketed card bonuses
     for (const cardId of Object.values(this.cards)) {
@@ -173,6 +228,30 @@ export class Player {
       flatMatk += pet.matk ?? 0;
       flatHp += pet.maxHp ?? 0;
     }
+    // unlocked Aesir rune bonuses
+    for (const runeId of this.runes) {
+      const rune = getRune(runeId);
+      if (!rune) continue;
+      if (rune.bonusStats) effective = addStats(effective, fullStats(rune.bonusStats));
+      flatAtk += rune.atk ?? 0;
+      flatMatk += rune.matk ?? 0;
+      flatDef += rune.def ?? 0;
+      flatHp += rune.maxHp ?? 0;
+      flatSp += rune.maxSp ?? 0;
+      flatCrit += rune.crit ?? 0;
+    }
+    // active food/cooking buffs (expiry is handled in the tick, which recomputes)
+    for (const fb of this.foodBuffs) {
+      const food = getItem(fb.id)?.food;
+      if (!food) continue;
+      if (food.bonusStats) effective = addStats(effective, fullStats(food.bonusStats));
+      flatAtk += food.atk ?? 0;
+      flatMatk += food.matk ?? 0;
+      flatDef += food.def ?? 0;
+      flatHp += food.maxHp ?? 0;
+      flatSp += food.maxSp ?? 0;
+      flatCrit += food.crit ?? 0;
+    }
     const d = deriveStats(effective, this.level, this.job);
     this.derived = {
       ...d,
@@ -181,6 +260,7 @@ export class Player {
       def: d.def + flatDef,
       maxHp: d.maxHp + flatHp,
       maxSp: d.maxSp + flatSp,
+      crit: Math.min(100, d.crit + flatCrit),
     };
     if (this.hp > this.derived.maxHp) this.hp = this.derived.maxHp;
     if (this.sp > this.derived.maxSp) this.sp = this.derived.maxSp;
@@ -208,6 +288,34 @@ export class Player {
     this.zeny -= cost;
     this.refineByItem[itemId] = level + 1;
     this.recompute();
+    return true;
+  }
+
+  // ---- enchantment ----
+
+  // Re-roll the enchant lines on the item equipped in `slot`. Locked lines are
+  // preserved; the remaining slots are re-rolled to fill up to MAX_ENCHANT_LINES.
+  enchantItem(slot: EquipSlot, rng: () => number = Math.random): boolean {
+    const itemId = this.equipped[slot];
+    if (!itemId || !getItem(itemId)) return false;
+    if (this.zeny < ENCHANT_COST) return false;
+    const existing = this.enchantByItem[itemId] ?? [];
+    const kept = existing.filter((l) => l.locked).slice(0, MAX_ENCHANT_LINES);
+    const next: EnchantLine[] = [...kept];
+    while (next.length < MAX_ENCHANT_LINES) next.push(rollEnchantLine(rng));
+    this.zeny -= ENCHANT_COST;
+    this.enchantByItem[itemId] = next;
+    this.recompute();
+    return true;
+  }
+
+  // Toggle the lock flag on a single enchant line (so it survives the next roll).
+  toggleEnchantLock(slot: EquipSlot, index: number): boolean {
+    const itemId = this.equipped[slot];
+    if (!itemId) return false;
+    const lines = this.enchantByItem[itemId];
+    if (!lines || index < 0 || index >= lines.length) return false;
+    lines[index].locked = !lines[index].locked;
     return true;
   }
 
@@ -241,6 +349,10 @@ export class Player {
     if (item.pet) {
       this.activePet = item.pet;
       this.recompute();
+      return true;
+    }
+    if (item.food) {
+      this.applyFood(itemId, Date.now());
       return true;
     }
     if (item.healHp) this.hp = Math.min(this.derived.maxHp, this.hp + item.healHp);
@@ -299,6 +411,32 @@ export class Player {
     return true;
   }
 
+  // ---- Kafra storage ----
+
+  // Move items from the bag into storage. Returns true if anything moved.
+  storeItem(itemId: string, qty: number): boolean {
+    if (qty <= 0) return false;
+    const have = this.inventory[itemId] ?? 0;
+    const move = Math.min(have, qty);
+    if (move <= 0) return false;
+    this.removeItem(itemId, move);
+    this.storage[itemId] = (this.storage[itemId] ?? 0) + move;
+    return true;
+  }
+
+  // Move items from storage back into the bag. Returns true if anything moved.
+  retrieveItem(itemId: string, qty: number): boolean {
+    if (qty <= 0) return false;
+    const have = this.storage[itemId] ?? 0;
+    const move = Math.min(have, qty);
+    if (move <= 0) return false;
+    const left = have - move;
+    if (left <= 0) delete this.storage[itemId];
+    else this.storage[itemId] = left;
+    this.addItem(itemId, move);
+    return true;
+  }
+
   // ---- shop ----
 
   buy(itemId: string, qty: number): boolean {
@@ -324,6 +462,7 @@ export class Player {
 
   recordKill(templateId: string, boss: boolean): void {
     this.totalKills += 1;
+    this.killCounts[templateId] = (this.killCounts[templateId] ?? 0) + 1;
     if (boss && !this.bossesKilled.includes(templateId)) this.bossesKilled.push(templateId);
   }
 
@@ -374,7 +513,8 @@ export class Player {
     if (!quest) return null;
     if ((this.activeQuests[id] ?? -1) < quest.count) return null;
     delete this.activeQuests[id];
-    this.completedQuests.push(id);
+    // Repeatable bounties never lock out — they can be re-accepted immediately.
+    if (!quest.repeatable) this.completedQuests.push(id);
     this.zeny += quest.reward.zeny;
     for (const it of quest.reward.items ?? []) this.addItem(it.id, it.qty);
     const leveled = this.gainExp(quest.reward.exp);
@@ -407,6 +547,7 @@ export class Player {
       this.stats = addStats(this.stats, JOB_GROWTH[this.job]);
       this.statPoints += STAT_POINTS_PER_LEVEL;
       this.skillPoints += 1;
+      this.runePoints += 1;
       this.recompute();
       // Full heal on level-up (classic RO).
       this.hp = this.derived.maxHp;
@@ -429,25 +570,34 @@ export class Player {
     this.zeny = s.zeny;
     this.statPoints = s.statPoints;
     this.skillPoints = s.skillPoints;
+    this.runePoints = s.runePoints ?? 0;
+    this.runes = [...(s.runes ?? [])];
     this.stats = { ...s.stats };
     this.skillLevels = {};
     for (const sk of s.skillLevels) this.skillLevels[sk.id] = sk.level;
     this.inventory = {};
     for (const it of s.inventory) this.inventory[it.id] = it.qty;
+    this.storage = {};
+    for (const it of s.storage ?? []) this.storage[it.id] = it.qty;
     this.equipped = {};
     for (const e of s.equipped) this.equipped[e.slot] = e.id;
     this.cards = {};
     for (const c of s.cards ?? []) this.cards[c.slot] = c.id;
     this.refineByItem = {};
     for (const r of s.refine) this.refineByItem[r.id] = r.level;
+    this.enchantByItem = {};
+    for (const e of s.enchants ?? []) this.enchantByItem[e.id] = e.lines.map((l) => ({ ...l }));
     this.activeQuests = {};
     for (const q of s.quests.active) this.activeQuests[q.id] = q.progress;
     this.completedQuests = [...s.quests.completed];
     this.achievements = [...(s.achievements ?? [])];
+    this.killCounts = {};
+    for (const k of s.killCounts ?? []) this.killCounts[k.id] = k.count;
     this.mapId = s.mapId ?? "field";
     this.activePet = s.pet ?? null;
     this.mounted = !!s.mounted;
     this.buffs = [];
+    this.foodBuffs = [];
     this.learnJobSkills();
     this.recompute();
     this.hp = Math.min(s.hp, this.derived.maxHp);
@@ -468,6 +618,7 @@ export class Player {
       job: this.job,
       colorSeed: this.colorSeed,
       guildName: this.guildName ?? undefined,
+      headgear: this.equipped[EquipSlot.Headgear] ?? undefined,
     };
   }
 
@@ -498,8 +649,11 @@ export class Player {
       stats: { ...this.stats },
       statPoints: this.statPoints,
       skillPoints: this.skillPoints,
+      runePoints: this.runePoints,
+      runes: [...this.runes],
       skillLevels: Object.entries(this.skillLevels).map(([id, level]) => ({ id, level })),
       inventory: Object.entries(this.inventory).map(([id, qty]) => ({ id, qty })),
+      storage: Object.entries(this.storage).map(([id, qty]) => ({ id, qty })),
       equipped: Object.entries(this.equipped)
         .filter(([, id]) => !!id)
         .map(([slot, id]) => ({ slot: slot as EquipSlot, id: id as string })),
@@ -509,14 +663,23 @@ export class Player {
       refine: Object.entries(this.refineByItem)
         .filter(([, level]) => level > 0)
         .map(([id, level]) => ({ id, level })),
+      enchants: Object.entries(this.enchantByItem)
+        .filter(([, lines]) => lines.length > 0)
+        .map(([id, lines]) => ({ id, lines: lines.map((l) => ({ ...l })) })),
       quests: {
         active: Object.entries(this.activeQuests).map(([id, progress]) => ({ id, progress })),
         completed: [...this.completedQuests],
       },
       achievements: [...this.achievements],
-      buffs: this.buffs
-        .filter((b) => b.expiresAt > Date.now())
-        .map((b) => ({ type: b.stat, remainingMs: Math.round(b.expiresAt - Date.now()) })),
+      killCounts: Object.entries(this.killCounts).map(([id, count]) => ({ id, count })),
+      buffs: [
+        ...this.buffs
+          .filter((b) => b.expiresAt > Date.now())
+          .map((b) => ({ type: b.stat, remainingMs: Math.round(b.expiresAt - Date.now()) })),
+        ...this.foodBuffs
+          .filter((b) => b.expiresAt > Date.now())
+          .map((b) => ({ type: getItem(b.id)?.name ?? "Food", remainingMs: Math.round(b.expiresAt - Date.now()) })),
+      ],
       pet: this.activePet,
       mounted: this.mounted,
       mapId: this.mapId,

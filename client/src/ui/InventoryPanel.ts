@@ -14,13 +14,15 @@ function iconFor(item: ItemDef): string {
   if (item.type === ItemType.Card) return "🃏";
   if (item.type === ItemType.Consumable) return item.healSp ? "🔷" : "🧪";
   if (item.type === ItemType.Weapon) return item.matk ? "🪄" : "⚔️";
+  if (item.type === ItemType.Headgear) return "🎩";
   if (item.type === ItemType.Armor) return "🛡️";
   return "💍"; // accessory
 }
 
-const SLOT_ORDER: EquipSlot[] = [EquipSlot.Weapon, EquipSlot.Armor, EquipSlot.Accessory];
+const SLOT_ORDER: EquipSlot[] = [EquipSlot.Weapon, EquipSlot.Headgear, EquipSlot.Armor, EquipSlot.Accessory];
 const SLOT_LABEL: Record<EquipSlot, string> = {
   [EquipSlot.Weapon]: "Weapon",
+  [EquipSlot.Headgear]: "Headgear",
   [EquipSlot.Armor]: "Armor",
   [EquipSlot.Accessory]: "Accessory",
 };
@@ -29,6 +31,7 @@ type Filter = "all" | ItemType;
 const TABS: Array<{ id: Filter; label: string }> = [
   { id: "all", label: "All" },
   { id: ItemType.Weapon, label: "Weapon" },
+  { id: ItemType.Headgear, label: "Head" },
   { id: ItemType.Armor, label: "Armor" },
   { id: ItemType.Accessory, label: "Accessory" },
   { id: ItemType.Card, label: "Card" },

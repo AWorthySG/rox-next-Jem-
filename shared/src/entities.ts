@@ -1,5 +1,6 @@
 import { EntityKind, EquipSlot, JobId, MonsterAIState } from "./enums.js";
 import type { Stats } from "./stats.js";
+import type { EnchantLine } from "./items.js";
 import type { QuestState } from "./quests.js";
 
 export interface InventoryEntry {
@@ -40,9 +41,11 @@ export interface EntityFull {
   job?: JobId;
   colorSeed?: number; // deterministic tint for the procedural character mesh
   guildName?: string; // shown as a [tag] above the player
+  headgear?: string; // equipped headgear item id (rendered as a hat)
   // monsters
   templateId?: string;
   aiState?: MonsterAIState;
+  element?: string; // defensive element (for the target frame)
   // npcs
   npcRole?: string;
 }
@@ -63,13 +66,19 @@ export interface SelfState {
   stats: Stats;
   statPoints: number;
   skillPoints: number;
+  runePoints: number;
+  runes: string[];
   skillLevels: Array<{ id: string; level: number }>;
   inventory: InventoryEntry[];
+  storage: InventoryEntry[]; // Kafra storage contents
   equipped: EquipEntry[];
   cards: EquipEntry[]; // socketed card per slot
   refine: Array<{ id: string; level: number }>;
+  enchants: Array<{ id: string; lines: EnchantLine[] }>; // enchant lines per item
+
   quests: QuestState;
   achievements: string[];
+  killCounts: Array<{ id: string; count: number }>; // Monster Codex tallies
   buffs: Array<{ type: string; remainingMs: number }>;
   pet: string | null;
   mounted: boolean;

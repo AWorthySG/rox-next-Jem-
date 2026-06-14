@@ -31,29 +31,47 @@ copyrighted assets.
   Bowling Bash, Jupitel Thunder, Meteor Storm, Blitz Beat, Sharp Shooting, Magnus Exorcismus,
   Blessing) — with SP cost, cooldowns, range, AoE, status effects and buffs.
 - **Items, loot & equipment**: monsters drop from per-species loot tables (auto-pickup);
-  bag + equipment panel (key `I`); equip weapons/armor/accessories for stat bonuses (ATK/MATK/
-  DEF/HP/SP and base-stat boosts) and quaff potions to restore HP/SP. The Poring King drops
-  rare gear (King's Cleaver, Poring Crown).
+  bag + equipment panel (key `I`); equip weapons, **headgear**, armor and accessories for stat
+  bonuses (ATK/MATK/DEF/HP/SP and base-stat boosts) and quaff potions to restore HP/SP. The
+  Poring King drops rare gear (King's Cleaver, Poring Crown, Poring Hat). **Headgear is worn
+  visibly** — each hat (beret, Poring hat, circlet, gem crown, Valkyrie helm) renders as a
+  distinct low-poly piece on your character and on other players around you.
 - **Cards & sockets**: monster/boss **cards** drop and socket into equipped gear for bonuses
   (e.g. Skeleton Card → ATK, Ghostring Card → Max HP, Thanatos Card → ATK/MATK); cards pop back
   to the bag when you unequip the item.
 - **Town services**: a Kafra shopkeeper (buy/sell), a Guide (quests), a Blacksmith (refine),
   a **Healer** (full HP/SP restore) and a **Warp Girl** (quick-travel to any map) staff the town.
+- **Kafra storage**: a persistent item bank (window `B`) — deposit and withdraw items between
+  your bag and storage (shift-click moves a whole stack); storage survives across sessions.
 - **Parties**: click another player to invite them; accept to group up. Party HUD shows live
   member HP, and EXP from kills is shared (with a bonus) among nearby members.
 - **Guilds**: create or join a named guild (window `G`); members show a `[guild]` tag above
   their head and share a roster.
 - **Quests**: a town Guide offers a kill-quest board (Poring Purge → Slay the King). Accept,
   track progress as you hunt, and claim EXP/Zeny/item rewards; quest credit shares with party.
+  Alongside the one-shot story quests are **repeatable daily bounties** you can turn in and
+  immediately re-accept for steady EXP/Zeny.
 - **Character building**: spend stat points earned on level-up into STR/AGI/VIT/INT/DEX/LUK
   from the HUD; level up individual skills (window `K`) with skill points to scale their power;
-  visit the Blacksmith to refine equipped gear (+1…+10) with Zeny for flat ATK/MATK/DEF/HP.
+  unlock passive **Aesir runes** (window `R`) along five paths (Might/Guard/Mystic/Swift/Fortune)
+  with rune points; visit the Blacksmith to refine equipped gear (+1…+10) with Zeny.
+- **Gear enchantment**: at the Blacksmith, roll up to **three "Overall Rating" stat lines**
+  onto each equipped piece (STR/AGI/VIT/INT/DEX/LUK, ATK/MATK/DEF, Max HP/SP, CRIT); **lock**
+  the lines you like and re-roll the rest, classic ROX-style, for a Zeny fee.
+- **Elements**: every monster has a defensive element and every skill an offensive one, scored
+  on the classic RO triangle (Fire>Earth>Wind>Water>Fire, Holy↔Shadow). Hit a foe's weakness
+  with the right element for up to +75% damage; the target frame shows the monster's element.
 - **Status effects**: skills inflict debuffs — Fire Bolt/Meteor Storm **burn** (DoT),
   Magnum Break **slows**, Thunder Storm/Bowling Bash **stun** — resolved server-side.
 - **Self-buffs**: Battle Focus (+30% ATK) and Mystic Focus (+30% MATK) temporarily empower
   the caster, shown as timed chips on the HUD.
+- **Food & cooking buffs**: eat dishes (Fried Egg, Honey Pancake, Spicy Skewer, Steamed Tuna,
+  the boss-drop Royal Feast) for stacking timed stat boosts (STR/VIT/INT/AGI, ATK/MATK, CRIT,
+  Max HP/SP); buffs show as HUD chips, refresh on re-eat, and revert when they lapse.
 - **Achievements**: milestone goals (kills, levels, boss slays) tracked server-side, unlocked
   with Zeny rewards and an unlock toast (window `V`).
+- **Monster Codex**: a handbook (window `N`) of every species you've encountered, listing its
+  level, element and a running kill tally — a collection meta-goal that persists across sessions.
 - **Pets**: use a pet egg (dropped by Porings, Lunatics, Baphomet, or bought) to summon a
   companion that trails you and grants a passive stat bonus.
 - **Mounts**: buy a Peco Peco Whistle to ride a mount for faster movement (toggle on/off).

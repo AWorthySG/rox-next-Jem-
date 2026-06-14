@@ -16,10 +16,13 @@ import { DamageNumbers } from "./ui/DamageNumbers.js";
 import { PetCompanion } from "./entities/PetCompanion.js";
 import { SkillBar } from "./ui/SkillBar.js";
 import { InventoryPanel } from "./ui/InventoryPanel.js";
+import { StoragePanel } from "./ui/StoragePanel.js";
+import { BestiaryPanel } from "./ui/BestiaryPanel.js";
 import { ShopPanel } from "./ui/ShopPanel.js";
 import { QuestPanel } from "./ui/QuestPanel.js";
 import { RefinePanel } from "./ui/RefinePanel.js";
 import { SkillsPanel } from "./ui/SkillsPanel.js";
+import { AesirPanel } from "./ui/AesirPanel.js";
 import { JobAdvance } from "./ui/JobAdvance.js";
 import { PartyHud } from "./ui/PartyHud.js";
 import { GuildPanel } from "./ui/GuildPanel.js";
@@ -30,7 +33,7 @@ import { TargetFrame } from "./ui/TargetFrame.js";
 import { Sfx } from "./ui/Sfx.js";
 import { AutoBattle } from "./ui/AutoBattle.js";
 import { MiniMap } from "./ui/MiniMap.js";
-import { getItem, JOB_NAME, type SelfState } from "@rox/shared";
+import { EquipSlot, getItem, JOB_NAME, type SelfState } from "@rox/shared";
 import { buildMonsterAppearances } from "./procedural/monsters.js";
 
 // ---- bootstrap engine ----
@@ -165,6 +168,13 @@ const shop = new ShopPanel({
   onSell: (itemId) => transport?.send({ t: MsgType.SellItem, itemId, qty: 1 }),
 });
 
+const storage = new StoragePanel({
+  onStore: (itemId, qty) => transport?.send({ t: MsgType.StoreItem, itemId, qty }),
+  onRetrieve: (itemId, qty) => transport?.send({ t: MsgType.RetrieveItem, itemId, qty }),
+});
+
+const bestiary = new BestiaryPanel(gameState);
+
 const quests = new QuestPanel({
   onAccept: (questId) => transport?.send({ t: MsgType.AcceptQuest, questId }),
   onClaim: (questId) => transport?.send({ t: MsgType.ClaimQuest, questId }),
@@ -172,6 +182,8 @@ const quests = new QuestPanel({
 
 const refine = new RefinePanel({
   onRefine: (slot) => transport?.send({ t: MsgType.RefineItem, slot }),
+  onEnchant: (slot) => transport?.send({ t: MsgType.EnchantItem, slot }),
+  onToggleLock: (slot, index) => transport?.send({ t: MsgType.ToggleEnchantLock, slot, index }),
 });
 
 const skills = new SkillsPanel({
@@ -180,6 +192,7 @@ const skills = new SkillsPanel({
 
 const warp = new WarpPanel((npcId, mapId) => transport?.send({ t: MsgType.Warp, npcId, mapId }));
 const achievements = new AchievementsPanel();
+const aesir = new AesirPanel({ onUnlock: (runeId) => transport?.send({ t: MsgType.UnlockRune, runeId }) });
 
 let currentJob: JobId | null = null;
 const jobAdvance = new JobAdvance((job) => transport?.send({ t: MsgType.JobAdvance, targetJob: job }));
@@ -321,13 +334,17 @@ function handleMessage(msg: ServerMessage): void {
       hud.update(msg.self);
       skillBar.setSp(msg.self.sp);
       inventory.sync(msg.self);
+      storage.sync(msg.self);
+      bestiary.sync(msg.self);
       shop.sync(msg.self);
       quests.sync(msg.self);
       refine.sync(msg.self);
       skills.sync(msg.self);
       achievements.sync(msg.self);
+      aesir.sync(msg.self);
       petCompanion.setPet(msg.self.pet);
       gameState.self?.setMounted(msg.self.mounted);
+      gameState.self?.setHeadgear(msg.self.equipped.find((e) => e.slot === EquipSlot.Headgear)?.id ?? null);
       jobAdvance.update(msg.self);
       break;
     case MsgType.Loot: {
@@ -375,7 +392,9 @@ function handleMessage(msg: ServerMessage): void {
       }
       break;
     case MsgType.ChatBroadcast:
-      chat.add(msg.name, msg.text, msg.fromId === selfId);
+      // Server-originated announcements (fromId 0) render as system lines.
+      if (msg.fromId === 0) chat.system(msg.text);
+      else chat.add(msg.name, msg.text, msg.fromId === selfId);
       break;
     case MsgType.Pong:
       hud.setLatency(Math.round(performance.now() - msg.clientTime));
@@ -392,7 +411,9 @@ function onDamage(msg: Extract<ServerMessage, { t: MsgType.DamageEvent }>): void
     damageNumbers.spawn(pos, "Miss", "miss");
   } else {
     const variant = msg.targetId === selfId ? "taken" : msg.crit ? "crit" : "";
-    damageNumbers.spawn(pos, String(msg.amount), variant);
+    const mult = msg.elementMult ?? 1;
+    const suffix = mult > 1 ? " ▲" : mult < 1 ? " ▼" : "";
+    damageNumbers.spawn(pos, `${msg.amount}${suffix}`, variant, mult);
     if (msg.sourceId === selfId) (msg.crit ? sfx.crit() : sfx.hit());
   }
 }

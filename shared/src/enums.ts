@@ -11,6 +11,8 @@ export enum MsgType {
   Unequip = "unequip",
   BuyItem = "buyItem",
   SellItem = "sellItem",
+  StoreItem = "storeItem",
+  RetrieveItem = "retrieveItem",
   PartyInvite = "partyInvite",
   PartyAccept = "partyAccept",
   PartyLeave = "partyLeave",
@@ -21,7 +23,10 @@ export enum MsgType {
   ClaimQuest = "claimQuest",
   AllocateStat = "allocateStat",
   LevelSkill = "levelSkill",
+  UnlockRune = "unlockRune",
   RefineItem = "refineItem",
+  EnchantItem = "enchantItem",
+  ToggleEnchantLock = "toggleEnchantLock",
   SocketCard = "socketCard",
   UnsocketCard = "unsocketCard",
   EnterPortal = "enterPortal",
@@ -89,6 +94,7 @@ export enum DamageKind {
 
 export enum ItemType {
   Weapon = "weapon",
+  Headgear = "headgear",
   Armor = "armor",
   Accessory = "accessory",
   Consumable = "consumable",
@@ -97,6 +103,7 @@ export enum ItemType {
 
 export enum EquipSlot {
   Weapon = "weapon",
+  Headgear = "headgear",
   Armor = "armor",
   Accessory = "accessory",
 }

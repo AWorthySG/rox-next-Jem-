@@ -1,5 +1,6 @@
 import {
   DamageKind,
+  Element,
   EXP_SHARE_RANGE,
   getSkill,
   HP_REGEN_PER_SEC,
@@ -34,8 +35,10 @@ export class CombatSystem {
 
   update(dtMs: number): void {
     const dt = dtMs / 1000;
+    const now = Date.now();
     for (const p of this.world.players.values()) {
       this.regen(p, dt);
+      p.tickFoodBuffs(now);
       if (p.attackCooldown > 0) p.attackCooldown -= dtMs;
       for (const id of Object.keys(p.skillCooldowns)) {
         if (p.skillCooldowns[id] > 0) p.skillCooldowns[id] = Math.max(0, p.skillCooldowns[id] - dtMs);
@@ -261,7 +264,10 @@ export class CombatSystem {
 
   private applySkillHit(p: Player, target: Monster, def: SkillDef, lvl: number): void {
     const buffMul = p.buffMul(def.kind === DamageKind.Magic ? "matk" : "atk", Date.now());
-    const result = resolveAttack(p.derived, target.derived, def.kind, Math.random, skillPower(def, lvl) * buffMul);
+    const result = resolveAttack(p.derived, target.derived, def.kind, Math.random, skillPower(def, lvl) * buffMul, {
+      attack: def.element ?? Element.Neutral,
+      defense: target.element,
+    });
     this.world.broadcastToMap(target.mapId, {
       t: MsgType.DamageEvent,
       sourceId: p.id,
@@ -271,6 +277,7 @@ export class CombatSystem {
       miss: result.miss,
       kind: result.kind,
       skillId: def.id,
+      elementMult: result.elementMult,
     });
     if (result.miss) return;
     target.hp -= result.amount;
@@ -327,7 +334,10 @@ export class CombatSystem {
 
     const kind = p.isMagic ? DamageKind.Magic : DamageKind.Physical;
     const buffMul = p.buffMul(kind === DamageKind.Magic ? "matk" : "atk", Date.now());
-    const result = resolveAttack(p.derived, target.derived, kind, Math.random, buffMul);
+    const result = resolveAttack(p.derived, target.derived, kind, Math.random, buffMul, {
+      attack: Element.Neutral,
+      defense: target.element,
+    });
     this.world.broadcastToMap(p.mapId, {
       t: MsgType.DamageEvent,
       sourceId: p.id,
@@ -336,6 +346,7 @@ export class CombatSystem {
       crit: result.crit,
       miss: result.miss,
       kind: result.kind,
+      elementMult: result.elementMult,
     });
     if (result.miss) return;
 
@@ -400,6 +411,16 @@ export class CombatSystem {
 
   private killMonster(target: Monster, killer: Player): void {
     this.slay(target);
+
+    // World-wide MVP announcement (the classic "an MVP has fallen" broadcast).
+    if (target.template.boss) {
+      this.world.broadcast({
+        t: MsgType.ChatBroadcast,
+        fromId: 0,
+        name: "World",
+        text: `⚔ ${killer.name} has slain the MVP ${target.template.name}!`,
+      });
+    }
 
     // Zeny + loot (auto-pickup to the killer's bag), then notify them.
     const zenyGain =

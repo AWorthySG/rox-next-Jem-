@@ -1,3 +1,4 @@
+import { Element } from "./elements.js";
 import { DamageKind, JobId, StatusType } from "./enums.js";
 
 export interface SkillEffect {
@@ -20,6 +21,7 @@ export interface SkillDef {
   heal?: boolean; // restores the caster's HP instead of dealing damage
   buff?: { stat: "atk" | "matk"; mult: number; durationMs: number }; // self-buff
   effect?: SkillEffect; // status applied to enemies hit
+  element?: Element; // offensive element (defaults to Neutral)
   desc: string;
 }
 
@@ -393,6 +395,28 @@ export const SKILLS: Record<string, SkillDef> = {
     desc: "Divine lances smite and stun an area.",
   },
 };
+
+// Tag elemental skills (everything else stays Neutral). Lets the combat chart
+// reward hitting a monster's elemental weakness.
+const SKILL_ELEMENTS: Record<string, Element> = {
+  fire_bolt: Element.Fire,
+  meteor_storm: Element.Fire,
+  crimson_rock: Element.Fire,
+  magnum_break: Element.Fire,
+  dragon_breath: Element.Fire,
+  thunder_storm: Element.Wind,
+  jupitel_thunder: Element.Wind,
+  gale_storm: Element.Wind,
+  storm_slash: Element.Wind,
+  storm_gust: Element.Water,
+  holy_light: Element.Holy,
+  magnus_exorcismus: Element.Holy,
+  judex: Element.Holy,
+  adoramus: Element.Holy,
+};
+for (const [id, el] of Object.entries(SKILL_ELEMENTS)) {
+  if (SKILLS[id]) SKILLS[id].element = el;
+}
 
 export const SKILLS_BY_JOB: Record<JobId, SkillDef[]> = {
   [JobId.Novice]: [SKILLS.first_aid],

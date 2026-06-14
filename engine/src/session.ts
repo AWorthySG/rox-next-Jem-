@@ -87,6 +87,16 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       if (p) p.sell(msg.itemId, Math.max(1, Math.min(99, Math.floor(msg.qty || 1))));
       break;
     }
+    case MsgType.StoreItem: {
+      const p = playerOf(world, link);
+      if (p) p.storeItem(msg.itemId, Math.max(1, Math.min(999, Math.floor(msg.qty || 1))));
+      break;
+    }
+    case MsgType.RetrieveItem: {
+      const p = playerOf(world, link);
+      if (p) p.retrieveItem(msg.itemId, Math.max(1, Math.min(999, Math.floor(msg.qty || 1))));
+      break;
+    }
     case MsgType.PartyInvite: {
       const p = playerOf(world, link);
       if (p) {
@@ -143,9 +153,24 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       if (p) p.levelSkill(msg.skillId);
       break;
     }
+    case MsgType.UnlockRune: {
+      const p = playerOf(world, link);
+      if (p) p.unlockRune(msg.runeId);
+      break;
+    }
     case MsgType.RefineItem: {
       const p = playerOf(world, link);
       if (p && isEquipSlot(msg.slot)) p.refineEquipped(msg.slot);
+      break;
+    }
+    case MsgType.EnchantItem: {
+      const p = playerOf(world, link);
+      if (p && isEquipSlot(msg.slot)) p.enchantItem(msg.slot);
+      break;
+    }
+    case MsgType.ToggleEnchantLock: {
+      const p = playerOf(world, link);
+      if (p && isEquipSlot(msg.slot)) p.toggleEnchantLock(msg.slot, msg.index);
       break;
     }
     case MsgType.SocketCard: {
@@ -252,7 +277,12 @@ export function sanitizeName(raw: string): string {
 }
 
 function isEquipSlot(s: string): s is EquipSlot {
-  return s === EquipSlot.Weapon || s === EquipSlot.Armor || s === EquipSlot.Accessory;
+  return (
+    s === EquipSlot.Weapon ||
+    s === EquipSlot.Headgear ||
+    s === EquipSlot.Armor ||
+    s === EquipSlot.Accessory
+  );
 }
 
 function clampMap(v: number): number {

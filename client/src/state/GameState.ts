@@ -8,8 +8,19 @@ import { DEFAULT_TEMPLATE, type MonsterAppearance } from "../procedural/monsters
 
 // Client-side mirror of the world: maps entity ids to their views and keeps the
 // Three.js scene in sync with spawn / despawn / snapshot messages.
+// Display metadata for a monster species, accumulated as the player meets them.
+export interface DexEntry {
+  templateId: string;
+  name: string;
+  level: number;
+  element: string;
+  boss: boolean;
+}
+
 export class GameState {
   readonly views = new Map<number, EntityView>();
+  // Monster Codex registry: every species the player has ever seen this session.
+  readonly monsterDex = new Map<string, DexEntry>();
   selfId = -1;
 
   constructor(
@@ -46,6 +57,15 @@ export class GameState {
       const appearance =
         this.appearances[entity.templateId ?? DEFAULT_TEMPLATE] ?? this.appearances[DEFAULT_TEMPLATE];
       view = new MonsterView(entity, appearance);
+      if (entity.templateId && !this.monsterDex.has(entity.templateId)) {
+        this.monsterDex.set(entity.templateId, {
+          templateId: entity.templateId,
+          name: entity.name,
+          level: entity.level,
+          element: entity.element ?? "neutral",
+          boss: !!appearance.boss,
+        });
+      }
     }
     this.views.set(entity.id, view);
     this.scene.add(view.group);
@@ -115,10 +135,12 @@ export class GameState {
     return this.views.get(id) instanceof MonsterView;
   }
 
-  targetInfo(id: number): { name: string; level: number; hp: number; maxHp: number; boss: boolean } | null {
+  targetInfo(
+    id: number,
+  ): { name: string; level: number; hp: number; maxHp: number; boss: boolean; element: string } | null {
     const v = this.views.get(id);
     if (!(v instanceof MonsterView)) return null;
-    return { name: v.name, level: v.level, hp: v.hp, maxHp: v.maxHp, boss: v.boss };
+    return { name: v.name, level: v.level, hp: v.hp, maxHp: v.maxHp, boss: v.boss, element: v.element };
   }
 
   entityHp(id: number): { hp: number; maxHp: number } | null {

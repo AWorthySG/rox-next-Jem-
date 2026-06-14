@@ -59,6 +59,18 @@ export interface SellItemMsg {
   qty: number;
 }
 
+export interface StoreItemMsg {
+  t: MsgType.StoreItem;
+  itemId: string;
+  qty: number;
+}
+
+export interface RetrieveItemMsg {
+  t: MsgType.RetrieveItem;
+  itemId: string;
+  qty: number;
+}
+
 export interface PartyInviteMsg {
   t: MsgType.PartyInvite;
   targetId: number;
@@ -107,9 +119,25 @@ export interface LevelSkillMsg {
   skillId: string;
 }
 
+export interface UnlockRuneMsg {
+  t: MsgType.UnlockRune;
+  runeId: string;
+}
+
 export interface RefineItemMsg {
   t: MsgType.RefineItem;
   slot: string;
+}
+
+export interface EnchantItemMsg {
+  t: MsgType.EnchantItem;
+  slot: string;
+}
+
+export interface ToggleEnchantLockMsg {
+  t: MsgType.ToggleEnchantLock;
+  slot: string;
+  index: number;
 }
 
 export interface SocketCardMsg {
@@ -189,6 +217,8 @@ export type ClientMessage =
   | UnequipMsg
   | BuyItemMsg
   | SellItemMsg
+  | StoreItemMsg
+  | RetrieveItemMsg
   | PartyInviteMsg
   | PartyAcceptMsg
   | PartyLeaveMsg
@@ -199,7 +229,10 @@ export type ClientMessage =
   | ClaimQuestMsg
   | AllocateStatMsg
   | LevelSkillMsg
+  | UnlockRuneMsg
   | RefineItemMsg
+  | EnchantItemMsg
+  | ToggleEnchantLockMsg
   | SocketCardMsg
   | UnsocketCardMsg
   | EnterPortalMsg
@@ -294,6 +327,7 @@ export interface DamageEventMsg {
   kind: DamageKind;
   skillId?: string; // present when the hit came from a skill (drives VFX)
   heal?: boolean; // amount restored HP rather than dealt damage
+  elementMult?: number; // elemental effectiveness (>1 super-effective, <1 resisted)
 }
 
 export interface LevelUpMsg {

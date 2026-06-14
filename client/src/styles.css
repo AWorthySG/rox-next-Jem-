@@ -114,6 +114,16 @@ body {
 .dmg.heal {
   color: #7CFC7C;
 }
+.dmg.super {
+  color: #aef9b0;
+  font-size: 22px;
+  text-shadow: 0 0 8px #2fbf4a, 0 2px 4px #000;
+}
+.dmg.resist {
+  color: #9fb4c8;
+  font-size: 15px;
+  opacity: 0.92;
+}
 
 /* ---- Login overlay ---- */
 .overlay {
@@ -861,6 +871,15 @@ body {
   font-size: 14px;
   font-weight: 700;
 }
+.quest-repeat {
+  font-size: 10px;
+  font-weight: 700;
+  color: #1a1430;
+  background: linear-gradient(180deg, #9fe0a0, #59b85e);
+  padding: 1px 6px;
+  border-radius: 8px;
+  vertical-align: middle;
+}
 .quest-desc {
   font-size: 11px;
   opacity: 0.7;
@@ -913,6 +932,113 @@ body {
   grid-template-columns: 1fr 1fr;
   gap: 0;
   overflow: hidden;
+}
+
+/* ---- Monster Codex ---- */
+.bestiary {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 480px;
+  max-width: 94vw;
+  max-height: 78vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 2px solid var(--gold);
+  border-radius: 12px;
+  pointer-events: auto;
+  overflow: hidden;
+  z-index: 30;
+}
+.bestiary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px;
+  overflow-y: auto;
+}
+.bestiary-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  font-size: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(244, 217, 138, 0.12);
+  border-radius: 7px;
+}
+.bestiary-row.boss {
+  border-color: var(--gold);
+  background: rgba(120, 92, 36, 0.32);
+}
+.bestiary-row .bx-name {
+  font-weight: 700;
+}
+.bestiary-row .bx-lv {
+  opacity: 0.7;
+}
+.bestiary-row .bx-elem {
+  opacity: 0.85;
+  min-width: 74px;
+  text-align: right;
+}
+.bestiary-row .bx-kills {
+  color: var(--gold);
+  font-weight: 700;
+  min-width: 46px;
+  text-align: right;
+}
+
+/* ---- Kafra storage ---- */
+.storage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 560px;
+  max-width: 94vw;
+  max-height: 78vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 2px solid var(--gold);
+  border-radius: 12px;
+  pointer-events: auto;
+  overflow: hidden;
+  z-index: 30;
+}
+.storage-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+}
+.storage-col {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.storage-col:first-child {
+  border-right: 1px solid var(--panel-border);
+}
+.storage-col h4 {
+  margin: 0;
+  padding: 8px 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.7;
+  border-bottom: 1px solid var(--panel-border);
+}
+.storage-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  overflow-y: auto;
+  max-height: 56vh;
 }
 .shop-col {
   display: flex;
@@ -1353,6 +1479,89 @@ body {
   font-size: 13px;
 }
 
+/* ---- Aesir monument ---- */
+.aesir {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 560px;
+  max-width: 94vw;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 2px solid var(--gold);
+  border-radius: 12px;
+  pointer-events: auto;
+  overflow: hidden;
+  z-index: 31;
+}
+.aesir-body {
+  padding: 10px;
+  overflow-y: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.aesir-line {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+.aesir-line-name {
+  width: 64px;
+  flex: 0 0 auto;
+  font-weight: 800;
+  font-size: 12px;
+  color: var(--gold);
+  text-align: right;
+}
+.aesir-nodes {
+  display: flex;
+  gap: 6px;
+  flex: 1;
+}
+.aesir-node {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1px;
+  padding: 7px 4px;
+  border-radius: 10px;
+  border: 2px solid var(--panel-border);
+  background: rgba(0, 0, 0, 0.3);
+  color: #f3eede;
+  cursor: default;
+}
+.aesir-node b {
+  font-size: 11px;
+}
+.aesir-node i {
+  font-style: normal;
+  font-size: 9px;
+  opacity: 0.7;
+  text-align: center;
+}
+.aesir-node .rn-cost {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--gold);
+}
+.aesir-node.done {
+  border-color: #4cae3e;
+  background: rgba(76, 174, 62, 0.18);
+}
+.aesir-node.avail {
+  border-color: var(--gold);
+  box-shadow: 0 0 8px rgba(255, 217, 112, 0.4);
+  cursor: pointer;
+}
+.aesir-node.locked {
+  opacity: 0.45;
+}
+
 /* ---- skills panel ---- */
 .skills {
   position: absolute;
@@ -1464,6 +1673,67 @@ body {
   cursor: pointer;
 }
 .refine-btn.dim {
+  opacity: 0.45;
+}
+
+/* ---- enchant ("Overall Rating") lines ---- */
+.ench-block {
+  margin: 2px 0 10px;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(244, 217, 138, 0.18);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.ench-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.ench-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 9px;
+  font-size: 11px;
+  color: #f0e6c8;
+  background: rgba(60, 48, 92, 0.55);
+  border: 1px solid rgba(244, 217, 138, 0.16);
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+}
+.ench-line.locked {
+  border-color: var(--gold);
+  background: rgba(120, 92, 36, 0.5);
+}
+.ench-line.empty {
+  opacity: 0.4;
+  cursor: default;
+  font-style: italic;
+}
+.ench-line .el-stat {
+  flex: 1;
+  font-weight: 700;
+}
+.ench-line .el-val {
+  color: var(--gold);
+  font-weight: 700;
+}
+.enchant-btn {
+  align-self: flex-end;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1a1430;
+  background: linear-gradient(180deg, #c9a8ff, #8f6fd8);
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+}
+.enchant-btn.dim {
   opacity: 0.45;
 }
 

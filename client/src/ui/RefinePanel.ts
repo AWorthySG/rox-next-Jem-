@@ -1,12 +1,26 @@
-import { EquipSlot, getItem, MAX_REFINE, refineBonus, refineCost, type SelfState } from "@rox/shared";
+import {
+  ENCHANT_COST,
+  enchantStatLabel,
+  EquipSlot,
+  getItem,
+  MAX_ENCHANT_LINES,
+  MAX_REFINE,
+  refineBonus,
+  refineCost,
+  type EnchantLine,
+  type SelfState,
+} from "@rox/shared";
 
 export interface RefineHandlers {
   onRefine(slot: EquipSlot): void;
+  onEnchant(slot: EquipSlot): void;
+  onToggleLock(slot: EquipSlot, index: number): void;
 }
 
-const SLOTS: EquipSlot[] = [EquipSlot.Weapon, EquipSlot.Armor, EquipSlot.Accessory];
+const SLOTS: EquipSlot[] = [EquipSlot.Weapon, EquipSlot.Headgear, EquipSlot.Armor, EquipSlot.Accessory];
 const SLOT_LABEL: Record<EquipSlot, string> = {
   [EquipSlot.Weapon]: "Weapon",
+  [EquipSlot.Headgear]: "Headgear",
   [EquipSlot.Armor]: "Armor",
   [EquipSlot.Accessory]: "Accessory",
 };
@@ -48,6 +62,7 @@ export class RefinePanel {
     this.zenyEl.textContent = self.zeny.toLocaleString();
     const equippedBySlot = new Map(self.equipped.map((e) => [e.slot, e.id]));
     const refineMap = new Map(self.refine.map((r) => [r.id, r.level]));
+    const enchantMap = new Map((self.enchants ?? []).map((e) => [e.id, e.lines]));
 
     this.list.innerHTML = "";
     for (const slot of SLOTS) {
@@ -80,10 +95,45 @@ export class RefinePanel {
           ? `<span class="rr-max">MAX</span>`
           : `<button class="refine-btn${afford ? "" : " dim"}" data-slot="${slot}">⚒ ${cost.toLocaleString()}z</button>`);
       this.list.appendChild(row);
+      this.list.appendChild(this.enchantBlock(slot, enchantMap.get(id) ?? [], self.zeny >= ENCHANT_COST));
     }
 
-    this.list.querySelectorAll<HTMLButtonElement>("[data-slot]").forEach((b) =>
+    this.list.querySelectorAll<HTMLButtonElement>(".refine-btn[data-slot]").forEach((b) =>
       b.addEventListener("click", () => this.handlers.onRefine(b.dataset.slot as EquipSlot)),
     );
+    this.list.querySelectorAll<HTMLButtonElement>(".enchant-btn[data-slot]").forEach((b) =>
+      b.addEventListener("click", () => this.handlers.onEnchant(b.dataset.slot as EquipSlot)),
+    );
+    this.list.querySelectorAll<HTMLButtonElement>(".ench-line[data-slot]").forEach((b) =>
+      b.addEventListener("click", () =>
+        this.handlers.onToggleLock(b.dataset.slot as EquipSlot, Number(b.dataset.idx)),
+      ),
+    );
+  }
+
+  // "Overall Rating" enchant lines for one equipped item: tap a line to lock it
+  // (locked lines survive a re-roll), then pay Zeny to re-roll the rest.
+  private enchantBlock(slot: EquipSlot, lines: EnchantLine[], afford: boolean): HTMLElement {
+    const wrap = document.createElement("div");
+    wrap.className = "ench-block";
+    const rows: string[] = [];
+    for (let i = 0; i < MAX_ENCHANT_LINES; i++) {
+      const line = lines[i];
+      if (line) {
+        rows.push(
+          `<button class="ench-line${line.locked ? " locked" : ""}" data-slot="${slot}" data-idx="${i}">` +
+            `<span class="el-lock">${line.locked ? "🔒" : "🔓"}</span>` +
+            `<span class="el-stat">${enchantStatLabel(line.stat)}</span>` +
+            `<span class="el-val">+${line.value}</span></button>`,
+        );
+      } else {
+        rows.push(`<div class="ench-line empty"><span class="el-stat">— empty slot —</span></div>`);
+      }
+    }
+    const verb = lines.length ? "Re-roll" : "Enchant";
+    wrap.innerHTML =
+      `<div class="ench-lines">${rows.join("")}</div>` +
+      `<button class="enchant-btn${afford ? "" : " dim"}" data-slot="${slot}">✦ ${verb} · ${ENCHANT_COST.toLocaleString()}z</button>`;
+    return wrap;
   }
 }

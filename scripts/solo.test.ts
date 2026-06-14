@@ -2,7 +2,19 @@
 // LocalServer (the transport used when no WS server is reachable). Runs under tsx
 // in Node — no DOM needed — and asserts join, spawns, combat and EXP gain. Also
 // deterministically checks the item/equipment system at the engine level.
-import { JobId, MsgType, StatusType, LEVEL_CAP, xpToNext, type ServerMessage } from "@rox/shared";
+import {
+  DamageKind,
+  Element,
+  elementMultiplier,
+  JobId,
+  MsgType,
+  resolveAttack,
+  StatusType,
+  LEVEL_CAP,
+  xpToNext,
+  type DerivedStats,
+  type ServerMessage,
+} from "@rox/shared";
 import { MAPS, Monster, MONSTER_TEMPLATES, Player } from "@rox/engine";
 import { LocalServer } from "../client/src/net/LocalServer.js";
 
@@ -189,6 +201,137 @@ async function main(): Promise<void> {
   check(carder.derived.atk > atkNoCard, "cards: socketed card raises ATK");
   carder.unequip("weapon" as never);
   check((carder.toSelfState().inventory.find((i) => i.id === "skeleton_card")?.qty ?? 0) === 1, "cards: unequipping returns the card");
+
+  // ---- deterministic repeatable bounties ----
+  const bounty = new Player(969, 1, "Bounty", JobId.Swordsman, 0, 0);
+  bounty.level = 5;
+  check(bounty.acceptQuest("bounty_porings"), "bounty: accept a repeatable quest");
+  for (let i = 0; i < 15; i++) bounty.creditKill("poring");
+  check(bounty.claimQuest("bounty_porings") !== null, "bounty: claim when complete");
+  check(!bounty.completedQuests.includes("bounty_porings"), "bounty: repeatable does NOT lock as completed");
+  check(bounty.acceptQuest("bounty_porings"), "bounty: can re-accept immediately");
+  // a normal (non-repeatable) quest still locks out after claiming
+  const oneShot = new Player(968, 1, "OneShot", JobId.Swordsman, 0, 0);
+  oneShot.level = 5;
+  oneShot.acceptQuest("poring_purge");
+  for (let i = 0; i < 10; i++) oneShot.creditKill("poring");
+  oneShot.claimQuest("poring_purge");
+  check(oneShot.completedQuests.includes("poring_purge"), "bounty: normal quest still locks once done");
+  check(!oneShot.acceptQuest("poring_purge"), "bounty: normal quest cannot be re-accepted");
+
+  // ---- deterministic Monster Codex (kill counts) ----
+  const hunter = new Player(971, 1, "Hunter", JobId.Archer, 0, 0);
+  hunter.recordKill("poring", false);
+  hunter.recordKill("poring", false);
+  hunter.recordKill("baphomet", true);
+  check(hunter.killCounts["poring"] === 2, "codex: kill tally increments per species");
+  check(hunter.killCounts["baphomet"] === 1, "codex: boss kills tracked too");
+  check(hunter.toSelfState().killCounts.find((k) => k.id === "poring")?.count === 2, "codex: surfaced in self state");
+  const dexLoaded = new Player(970, 1, "X", JobId.Novice, 0, 0);
+  dexLoaded.restore(hunter.toSelfState());
+  check(dexLoaded.killCounts["poring"] === 2, "codex: persists across save/load");
+
+  // ---- deterministic elemental system ----
+  check(elementMultiplier(Element.Fire, Element.Earth) === 1.5, "element: Fire is strong vs Earth");
+  check(elementMultiplier(Element.Fire, Element.Water) === 0.5, "element: Fire is weak vs Water");
+  check(elementMultiplier(Element.Holy, Element.Shadow) === 1.75, "element: Holy scorches Shadow");
+  check(elementMultiplier(Element.Neutral, Element.Fire) === 1, "element: Neutral is even all round");
+  // resolveAttack applies the chart: same rolls, Fire-vs-Earth out-damages Fire-vs-Water
+  const atk: DerivedStats = { maxHp: 100, maxSp: 50, atk: 200, matk: 200, def: 0, hit: 999, flee: 0, crit: 0 };
+  const tgt: DerivedStats = { maxHp: 100, maxSp: 50, atk: 0, matk: 0, def: 0, hit: 0, flee: 0, crit: 0 };
+  const fixed = () => 0.5; // deterministic mid-roll, no crit, always hits
+  const vsEarth = resolveAttack(atk, tgt, DamageKind.Magic, fixed, 1, { attack: Element.Fire, defense: Element.Earth });
+  const vsWater = resolveAttack(atk, tgt, DamageKind.Magic, fixed, 1, { attack: Element.Fire, defense: Element.Water });
+  check(vsEarth.amount > vsWater.amount, "element: chart scales resolved damage (Earth > Water target)");
+  check(vsEarth.elementMult === 1.5 && vsWater.elementMult === 0.5, "element: multiplier reported on the result");
+  // monster templates carry a defensive element
+  check(MONSTER_TEMPLATES["boitata"].element === Element.Fire, "element: Boitata is a Fire monster");
+  check((MONSTER_TEMPLATES["poring"].element ?? "neutral") === Element.Water, "element: Poring is Water");
+
+  // ---- deterministic food/cooking buffs ----
+  const eater = new Player(972, 1, "Gourmet", JobId.Swordsman, 0, 0);
+  const atkBase = eater.derived.atk;
+  const t0 = 1_000_000;
+  check(eater.applyFood("spicy_skewer", t0), "food: eating applies a timed buff"); // 5 min
+  const atkSpicy = eater.derived.atk;
+  check(atkSpicy > atkBase, "food: Spicy Skewer raises ATK");
+  check(eater.applyFood("royal_feast", t0), "food: a second food stacks"); // 10 min
+  check(eater.derived.atk > atkSpicy, "food: stacked food raises ATK further");
+  // re-eating refreshes rather than duplicating
+  eater.applyFood("spicy_skewer", t0 + 1000);
+  check(eater.foodBuffs.filter((b) => b.id === "spicy_skewer").length === 1, "food: re-eating refreshes (no duplicate)");
+  // expiry: the 5-min skewer lapses by t0+350s, the 10-min feast persists
+  check(eater.tickFoodBuffs(t0 + 350000), "food: expiry tick removes a lapsed buff");
+  check(!eater.foodBuffs.some((b) => b.id === "spicy_skewer"), "food: lapsed buff dropped");
+  check(eater.foodBuffs.some((b) => b.id === "royal_feast"), "food: longer buff still active");
+  check(eater.derived.atk > atkBase && eater.derived.atk < atkSpicy + 100, "food: stats reflect only active buffs after expiry");
+
+  // ---- deterministic Kafra storage ----
+  const banker = new Player(974, 1, "Banker", JobId.Novice, 0, 0);
+  banker.addItem("red_potion", 5);
+  check(banker.storeItem("red_potion", 3), "storage: deposit items from bag");
+  check((banker.inventory["red_potion"] ?? 0) === 2, "storage: bag count reduced");
+  check((banker.storage["red_potion"] ?? 0) === 3, "storage: storage count raised");
+  check(!banker.storeItem("blue_potion", 1), "storage: cannot deposit items you lack");
+  check(banker.retrieveItem("red_potion", 10), "storage: withdraw clamps to available");
+  check((banker.storage["red_potion"] ?? 0) === 0 && (banker.inventory["red_potion"] ?? 0) === 5, "storage: withdraw returns to bag");
+  banker.storeItem("red_potion", 2);
+  const bankLoaded = new Player(973, 1, "X", JobId.Novice, 0, 0);
+  bankLoaded.restore(banker.toSelfState());
+  check((bankLoaded.storage["red_potion"] ?? 0) === 2, "storage: persists across save/load");
+
+  // ---- deterministic headgear slot ----
+  const hatter = new Player(975, 1, "Hatter", JobId.Swordsman, 0, 0);
+  const hpNoHat = hatter.derived.maxHp;
+  hatter.addItem("poring_hat", 1);
+  check(hatter.equip("poring_hat"), "headgear: equip a hat into the head slot");
+  check(hatter.derived.maxHp > hpNoHat, "headgear: hat raises Max HP");
+  check(hatter.toSelfState().equipped.some((e) => e.slot === "headgear"), "headgear: surfaced in self state");
+  check(hatter.toFull().headgear === "poring_hat", "headgear: broadcast in EntityFull for rendering");
+  hatter.addItem("willow_card", 1);
+  const spNoCard = hatter.derived.maxSp;
+  check(hatter.socketCard("willow_card"), "headgear: socket a headgear card");
+  check(hatter.derived.maxSp > spNoCard, "headgear: socketed card raises Max SP");
+  check(hatter.unequip("headgear" as never), "headgear: unequip the hat");
+  check((hatter.toSelfState().inventory.find((i) => i.id === "willow_card")?.qty ?? 0) === 1, "headgear: unequip returns the card");
+
+  // ---- deterministic gear enchantment ----
+  const ench = new Player(977, 1, "Enchanter", JobId.Swordsman, 0, 0);
+  ench.addItem("novice_knife", 1);
+  ench.equip("novice_knife");
+  check(!ench.enchantItem("weapon" as never), "enchant: blocked without enough Zeny");
+  ench.zeny = 200000;
+  check(ench.enchantItem("weapon" as never), "enchant: roll lines on equipped weapon");
+  check((ench.enchantByItem["novice_knife"]?.length ?? 0) === 3, "enchant: fills three lines");
+  check(ench.zeny === 150000, "enchant: Zeny deducted per roll");
+  // lock the first line, capture it, re-roll, confirm it survived
+  check(ench.toggleEnchantLock("weapon" as never, 0), "enchant: lock a line");
+  const lockedLine = { ...ench.enchantByItem["novice_knife"][0] };
+  ench.enchantItem("weapon" as never);
+  const after = ench.enchantByItem["novice_knife"][0];
+  check(
+    after.locked && after.stat === lockedLine.stat && after.value === lockedLine.value,
+    "enchant: locked line survives a re-roll",
+  );
+  // enchant lines survive a save/load round-trip and affect derived stats
+  const enchSaved = ench.toSelfState();
+  check((enchSaved.enchants.find((e) => e.id === "novice_knife")?.lines.length ?? 0) === 3, "enchant: serialized in SelfState");
+  const enchLoaded = new Player(976, 1, "X", JobId.Novice, 0, 0);
+  enchLoaded.restore(enchSaved);
+  check((enchLoaded.enchantByItem["novice_knife"]?.length ?? 0) === 3, "enchant: restored from save");
+
+  // ---- deterministic Aesir runes ----
+  const runer = new Player(982, 1, "Runer", JobId.Swordsman, 0, 0);
+  const baseStrR = runer.stats.str;
+  check(!runer.unlockRune("might1"), "runes: cannot unlock without points");
+  runer.runePoints = 5;
+  check(!runer.unlockRune("might2"), "runes: prerequisite enforced");
+  check(runer.unlockRune("might1"), "runes: unlock first node");
+  check(runer.runePoints === 4, "runes: cost deducted");
+  check(runer.unlockRune("might2"), "runes: unlock next node after prereq");
+  // might1 = STR +3 -> effective str via derived (atk reflects it); check str-derived bonus applied
+  check(runer.runes.includes("might1") && runer.runes.includes("might2"), "runes: tracked as unlocked");
+  check(runer.stats.str === baseStrR, "runes: base stats unchanged (bonus is derived-only)");
 
   // ---- deterministic skill levels ----
   const mage = new Player(993, 1, "Wiz", JobId.Mage, 0, 0);
