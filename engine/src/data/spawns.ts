@@ -416,6 +416,12 @@ Object.assign(MONSTER_TEMPLATES, {
   naga: mk("naga", "Naga", 104, 10400, 21200),
   gioia: mk("gioia", "Gioia", 110, 66000, 108000, true),
   kades: mk("kades", "Kades", 112, 72000, 120000, true),
+  // ---- Eclage ----
+  cornus: mk("cornus", "Cornus", 105, 9800, 19600),
+  faceworm: mk("faceworm", "Faceworm", 107, 10400, 20800),
+  pinguicula: mk("pinguicula", "Pinguicula", 109, 11000, 22000),
+  wakwak: mk("wakwak", "Wakwak", 115, 74000, 122000, true),
+  faceworm_queen: mk("faceworm_queen", "Faceworm Queen", 117, 82000, 138000, true),
 });
 
 export interface SpawnZone {
@@ -719,6 +725,15 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "nova", intervalMs: 5000, radius: 12, powerMult: 1.8 },
     { kind: "summon", intervalMs: 8000, templateId: "naga", count: 2, max: 5 },
   ],
+  wakwak: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.7 },
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
+  ],
+  faceworm_queen: [
+    { kind: "summon", intervalMs: 7500, templateId: "faceworm", count: 3, max: 6 },
+    { kind: "nova", intervalMs: 5500, radius: 12, powerMult: 1.7 },
+    { kind: "heal", intervalMs: 12000, pct: 0.05 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -892,6 +907,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   naga: Element.Wind,
   gioia: Element.Holy,
   kades: Element.Shadow,
+  cornus: Element.Water,
+  faceworm: Element.Earth,
+  pinguicula: Element.Earth,
+  wakwak: Element.Wind,
+  faceworm_queen: Element.Earth,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

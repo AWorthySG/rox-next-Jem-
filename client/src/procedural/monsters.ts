@@ -57,6 +57,7 @@ const ARCH: Record<string, MonsterArch> = {
   snowier: "jelly", gazeti: "bird", siroma: "aquatic", frost_giant: "golem", ice_queen: "ghost",
   banaspaty: "demon", butoijo: "jelly", kaho: "beast", leyak: "ghost", rangda: "demon",
   tiyanak: "demon", hilsrion: "golem", naga: "dragon", gioia: "humanoid", kades: "demon",
+  cornus: "bird", faceworm: "dragon", pinguicula: "plant", wakwak: "humanoid", faceworm_queen: "dragon",
 };
 
 function hex(s: string): number {
@@ -273,6 +274,12 @@ const DEFS: Record<string, AppearanceDef> = {
   naga: { inner: "#80c0a0", outer: "#1a5a44", scale: 1.5 },
   gioia: { inner: "#f0e0a0", outer: "#8a7030", scale: 2.8, boss: true },
   kades: { inner: "#a070c0", outer: "#1a0a2a", scale: 3.0, boss: true },
+  // Eclage
+  cornus: { inner: "#cfe8f0", outer: "#5a8a9a", scale: 1.3 },
+  faceworm: { inner: "#d0b070", outer: "#6a4a18", scale: 1.4 },
+  pinguicula: { inner: "#b0e090", outer: "#3a7a28", scale: 1.2 },
+  wakwak: { inner: "#c0d090", outer: "#4a6a28", scale: 2.8, boss: true },
+  faceworm_queen: { inner: "#e0c060", outer: "#6a4a10", scale: 3.2, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

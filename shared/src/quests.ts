@@ -138,6 +138,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 108,
     reward: { exp: 200000, zeny: 110000, items: [{ id: "bloody_sword", qty: 1 }] },
   },
+  queen_of_worms: {
+    id: "queen_of_worms",
+    name: "Queen of Worms",
+    desc: "The Faceworm Queen burrows through Eclage's roots. Sever the brood-mother.",
+    targetTemplate: "faceworm_queen",
+    targetName: "Faceworm Queen",
+    count: 1,
+    requiredLevel: 113,
+    reward: { exp: 230000, zeny: 125000, items: [{ id: "sky_lance", qty: 1 }] },
+  },
   the_fae_lord: {
     id: "the_fae_lord",
     name: "The Fae Lord",

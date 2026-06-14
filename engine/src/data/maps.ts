@@ -439,6 +439,24 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Juno Exit", role: "portal", x: 0, z: 26, dest: { toMap: "umbala", toX: 0, toZ: -44 } },
       { name: "Einbroch Portal", role: "portal", x: 0, z: -52, dest: { toMap: "einbroch", toX: 0, toZ: 20 } },
       { name: "Niflheim Portal", role: "portal", x: 18, z: 14, dest: { toMap: "niflheim", toX: 0, toZ: 18 } },
+      { name: "Eclage Portal", role: "portal", x: -18, z: 14, dest: { toMap: "eclage", toX: 0, toZ: 18 } },
+    ],
+  },
+  eclage: {
+    id: "eclage",
+    name: "Eclage",
+    theme: { ground: 0x3a6a4a, fog: 0x8ad0a0, sky: 0xb0e8c0 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "ec-cornus", templateId: "cornus", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "ec-faceworm", templateId: "faceworm", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "ec-pinguicula", templateId: "pinguicula", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "ec-wakwak", templateId: "wakwak", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "ec-queen", templateId: "faceworm_queen", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Eclage Exit", role: "portal", x: 0, z: 24, dest: { toMap: "juno", toX: -18, toZ: 16 } },
     ],
   },
   niflheim: {
