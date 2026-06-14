@@ -77,6 +77,7 @@ const ARCH: Record<string, MonsterArch> = {
   water_monitor: "beast", treetop_colugo: "bird", swamp_leech: "bug", treetop_warden: "plant", reservoir_naga: "dragon",
   festival_effigy: "golem", deepavali_wisp: "ghost", saree_serpent: "dragon", kali_avatar: "demon", gopuram_guardian: "golem",
   mall_mannequin: "humanoid", neon_phantom: "ghost", holo_serpent: "dragon", ion_colossus: "golem", orchard_specter: "demon",
+  wetland_heron: "bird", fiddler_crab: "aquatic", marsh_terrapin: "beast", estuarine_titan: "beast", garuda_matriarch: "bird",
 };
 
 function hex(s: string): number {
@@ -410,6 +411,11 @@ const DEFS: Record<string, AppearanceDef> = {
   holo_serpent: { inner: "#40d0e0", outer: "#0a4a6a", scale: 1.5 },
   ion_colossus: { inner: "#80e0ff", outer: "#1a3a6a", scale: 3.3, boss: true },
   orchard_specter: { inner: "#a040c0", outer: "#1a0824", scale: 3.3, boss: true },
+  wetland_heron: { inner: "#e0e0d0", outer: "#7a7a5a", scale: 1.4 },
+  fiddler_crab: { inner: "#e08040", outer: "#7a3a10", scale: 1.2 },
+  marsh_terrapin: { inner: "#6a8a4a", outer: "#2a3a1a", scale: 1.4 },
+  estuarine_titan: { inner: "#5a7a3a", outer: "#1a2a0a", scale: 2.9, boss: true },
+  garuda_matriarch: { inner: "#d0a050", outer: "#5a3a10", scale: 3.0, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

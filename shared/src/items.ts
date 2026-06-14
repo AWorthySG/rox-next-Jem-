@@ -422,6 +422,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "Mirror-plated mall armor. DEF +38, Max HP +400, VIT +8.", def: 38, maxHp: 400, bonusStats: { vit: 8 }, sellPrice: 6400,
   },
 
+  // ---- Sungei Buloh Wetland Reserve (Singapore) gear ----
+  heron_glaive: {
+    id: "heron_glaive", name: "Heron Glaive", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A long beaked wetland glaive. ATK +52, DEX +4.", atk: 52, bonusStats: { dex: 4 }, sellPrice: 3000,
+  },
+  marsh_cloak: {
+    id: "marsh_cloak", name: "Marsh Cloak", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Reed-woven wetland cloak. DEF +20, Max HP +180, AGI +4.", def: 20, maxHp: 180, bonusStats: { agi: 4 }, sellPrice: 3000,
+  },
+  terrapin_shell_charm: {
+    id: "terrapin_shell_charm", name: "Terrapin Shell Charm", type: ItemType.Accessory, slot: EquipSlot.Accessory,
+    desc: "A polished terrapin scute. Max HP +200, VIT +4, DEF +4.", def: 4, maxHp: 200, bonusStats: { vit: 4 }, sellPrice: 3000,
+  },
+
   // ---- Mount Faber (Singapore) gear ----
   summit_lance: {
     id: "summit_lance", name: "Summit Lance", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1337,6 +1351,12 @@ Object.assign(DROP_TABLES, {
   holo_serpent: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "neon_edge", chance: 0.03 }],
   ion_colossus: HI([{ itemId: "neon_edge", chance: 0.6 }, { itemId: "chrome_carapace", chance: 0.5 }, { itemId: "holo_circlet", chance: 0.4 }]),
   orchard_specter: HI([{ itemId: "chrome_carapace", chance: 0.6 }, { itemId: "neon_edge", chance: 0.45 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Sungei Buloh Wetland Reserve (Singapore)
+  wetland_heron: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "heron_glaive", chance: 0.03 }],
+  fiddler_crab: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "terrapin_shell_charm", chance: 0.03 }],
+  marsh_terrapin: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "marsh_cloak", chance: 0.03 }],
+  estuarine_titan: HI([{ itemId: "marsh_cloak", chance: 0.6 }, { itemId: "terrapin_shell_charm", chance: 0.5 }, { itemId: "heron_glaive", chance: 0.4 }]),
+  garuda_matriarch: HI([{ itemId: "heron_glaive", chance: 0.6 }, { itemId: "marsh_cloak", chance: 0.45 }, { itemId: "marc_card", chance: 0.05 }]),
   // Mount Faber (Singapore)
   cable_wraith: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "alpine_plate", chance: 0.03 }],
   peak_eagle: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "aviator_cap", chance: 0.03 }],
@@ -1556,6 +1576,7 @@ const ORE_REGULARS = [
   "water_monitor", "treetop_colugo", "swamp_leech",
   "festival_effigy", "deepavali_wisp", "saree_serpent",
   "mall_mannequin", "neon_phantom", "holo_serpent",
+  "wetland_heron", "fiddler_crab", "marsh_terrapin",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1587,6 +1608,7 @@ const ORE_BOSSES = [
   "treetop_warden", "reservoir_naga",
   "kali_avatar", "gopuram_guardian",
   "ion_colossus", "orchard_specter",
+  "estuarine_titan", "garuda_matriarch",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

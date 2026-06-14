@@ -668,6 +668,26 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 134,
     reward: { exp: 360000, zeny: 200000, items: [{ id: "chrome_carapace", qty: 1 }] },
   },
+  the_estuarine_titan: {
+    id: "the_estuarine_titan",
+    name: "The Estuarine Titan",
+    desc: "A monstrous Estuarine Titan rules the Sungei Buloh mudflats. Drive it off.",
+    targetTemplate: "estuarine_titan",
+    targetName: "Estuarine Titan",
+    count: 1,
+    requiredLevel: 62,
+    reward: { exp: 28000, zeny: 17000, items: [{ id: "marsh_cloak", qty: 1 }] },
+  },
+  matriarch_of_the_marsh: {
+    id: "matriarch_of_the_marsh",
+    name: "Matriarch of the Marsh",
+    desc: "The Garuda Matriarch nests over the wetland's migratory birds. Calm her.",
+    targetTemplate: "garuda_matriarch",
+    targetName: "Garuda Matriarch",
+    count: 1,
+    requiredLevel: 64,
+    reward: { exp: 32000, zeny: 19000, items: [{ id: "heron_glaive", qty: 1 }] },
+  },
 
   // ---- repeatable daily bounties (turn in and re-accept for steady income) ----
   bounty_porings: {

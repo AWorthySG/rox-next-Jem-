@@ -100,6 +100,7 @@ const THEMES: Record<string, Partial<Theme>> = {
   macritchie: { trunk: 0x4a3420, foliage: [0x2f7a3a, 0x4faa4a], rock: 0x5a6a44, tree: "jungle", trees: 90, rocks: 28, tufts: 150, tuft: 0x3f8f3f },
   little_india: { trunk: 0x6a4a30, foliage: [0xe05a40, 0xf0a040], rock: 0xb07050, tree: "leafy", trees: 40, rocks: 36, tufts: 90, tuft: 0xe08040 },
   orchard_road: { trunk: 0x3a3a4a, foliage: [0xc040e0, 0x40c0e0], rock: 0x4a4a5a, tree: "crystal", trees: 44, rocks: 40, tufts: 60, tuft: 0x40c0e0 },
+  sungei_buloh: { trunk: 0x5a4a30, foliage: [0x4a9a4a, 0x6cba5f], rock: 0x6a7a5a, tree: "jungle", trees: 70, rocks: 24, tufts: 130, tuft: 0x5a9a4f },
   arena: { trees: 0, rocks: 10, tufts: 30 },
 };
 

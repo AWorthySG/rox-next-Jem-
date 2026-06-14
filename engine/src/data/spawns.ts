@@ -536,6 +536,12 @@ Object.assign(MONSTER_TEMPLATES, {
   holo_serpent: mk("holo_serpent", "Holo Serpent", 126, 10000, 20000),
   ion_colossus: mk("ion_colossus", "ION Colossus", 132, 92000, 150000, true),
   orchard_specter: mk("orchard_specter", "Orchard Specter", 134, 100000, 165000, true),
+  // ---- Sungei Buloh Wetland Reserve (Singapore) ----
+  wetland_heron: mk("wetland_heron", "Wetland Heron", 52, 2900, 6000),
+  fiddler_crab: mk("fiddler_crab", "Fiddler Crab", 54, 3100, 6500),
+  marsh_terrapin: mk("marsh_terrapin", "Marsh Terrapin", 56, 3300, 7000),
+  estuarine_titan: mk("estuarine_titan", "Estuarine Titan", 62, 14000, 24000, true),
+  garuda_matriarch: mk("garuda_matriarch", "Garuda Matriarch", 64, 16000, 27000, true),
 });
 
 export interface SpawnZone {
@@ -1010,6 +1016,14 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "nova", intervalMs: 5200, radius: 13, powerMult: 1.9 },
     { kind: "heal", intervalMs: 11000, pct: 0.06 },
   ],
+  estuarine_titan: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.7 },
+    { kind: "summon", intervalMs: 9000, templateId: "fiddler_crab", count: 2, max: 5 },
+  ],
+  garuda_matriarch: [
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
+    { kind: "heal", intervalMs: 11000, pct: 0.06 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -1283,6 +1297,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   holo_serpent: Element.Wind,
   ion_colossus: Element.Holy,
   orchard_specter: Element.Shadow,
+  wetland_heron: Element.Wind,
+  fiddler_crab: Element.Water,
+  marsh_terrapin: Element.Earth,
+  estuarine_titan: Element.Water,
+  garuda_matriarch: Element.Wind,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

@@ -135,6 +135,25 @@ export const MAPS: Record<string, GameMap> = {
     npcs: [
       { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
       { name: "Pulau Ubin Exit", role: "portal", x: 0, z: 24, dest: { toMap: "merlion_bay", toX: 18, toZ: 16 } },
+      { name: "Sungei Buloh Portal", role: "portal", x: 0, z: -50, dest: { toMap: "sungei_buloh", toX: 0, toZ: 18 } },
+    ],
+  },
+  sungei_buloh: {
+    id: "sungei_buloh",
+    name: "Sungei Buloh Wetland",
+    theme: { ground: 0x4a6a4a, fog: 0x7aaa7a, sky: 0xa8c8a0 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "sb-heron", templateId: "wetland_heron", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "sb-crab", templateId: "fiddler_crab", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "sb-terrapin", templateId: "marsh_terrapin", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "sb-titan", templateId: "estuarine_titan", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "sb-garuda", templateId: "garuda_matriarch", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Sungei Buloh Exit", role: "portal", x: 0, z: 24, dest: { toMap: "pulau_ubin", toX: 0, toZ: -44 } },
     ],
   },
   bukit_timah: {
