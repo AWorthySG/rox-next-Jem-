@@ -60,6 +60,8 @@ export function buildMonsterMesh(app: MonsterAppearance): MonsterMesh {
       return ghost(app);
     case "dragon":
       return dragon(app);
+    case "golem":
+      return golem(app);
     default: {
       const p = buildPoring(app.texture);
       return { group: p.group, body: p.body, squash: true };
@@ -273,6 +275,50 @@ function bird(app: MonsterAppearance): MonsterMesh {
   g.add(blob(1.3));
   shade(g);
   return { group: g, body, squash: false };
+}
+
+function golem(app: MonsterAppearance): MonsterMesh {
+  const g = new THREE.Group();
+  const stone = () => new THREE.MeshToonMaterial({ color: app.main, gradientMap: makeToonGradient(), flatShading: true });
+  const torso = new THREE.Mesh(new THREE.BoxGeometry(0.85, 1.0, 0.6), stone());
+  torso.position.y = 1.15;
+  g.add(torso);
+  // glowing power core in the chest
+  const core = new THREE.Mesh(new THREE.OctahedronGeometry(0.16), glow(app.accent));
+  core.position.set(0, 1.2, 0.32);
+  g.add(core);
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.42, 0.45), stone());
+  head.position.y = 1.85;
+  g.add(head);
+  eyes(g, 1.88, 0.24, 0.12, 0.05, app.accent);
+  // chunky shoulders + arms
+  for (const s of [-1, 1]) {
+    const shoulder = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.34, 0.34), stone());
+    shoulder.position.set(s * 0.62, 1.45, 0);
+    g.add(shoulder);
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.8, 0.3), stone());
+    arm.position.set(s * 0.66, 0.95, 0.05);
+    g.add(arm);
+    const fist = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.36, 0.38), stone());
+    fist.position.set(s * 0.66, 0.5, 0.07);
+    g.add(fist);
+  }
+  // stumpy legs
+  for (const s of [-1, 1]) {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.6, 0.36), stone());
+    leg.position.set(s * 0.22, 0.32, 0);
+    g.add(leg);
+  }
+  // a couple of floating rock chunks for menace
+  for (let i = 0; i < 3; i++) {
+    const chunk = new THREE.Mesh(new THREE.IcosahedronGeometry(0.12 + Math.random() * 0.08, 0), stone());
+    const a = (i / 3) * Math.PI * 2;
+    chunk.position.set(Math.sin(a) * 0.9, 1.0 + Math.cos(a) * 0.4, Math.cos(a) * 0.5);
+    g.add(chunk);
+  }
+  g.add(blob(1.7));
+  shade(g);
+  return { group: g, body: torso, squash: false };
 }
 
 function dragon(app: MonsterAppearance): MonsterMesh {
