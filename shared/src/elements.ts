@@ -32,6 +32,17 @@ export const ELEMENT_LABEL: Record<Element, string> = {
   [Element.Shadow]: "Shadow",
 };
 
+// Representative hex tint per element, for UI accents and combat VFX.
+export const ELEMENT_COLOR: Record<Element, number> = {
+  [Element.Neutral]: 0xffffff,
+  [Element.Fire]: 0xff6a3a,
+  [Element.Water]: 0x4aa6ff,
+  [Element.Wind]: 0x6cffa6,
+  [Element.Earth]: 0xc79a5a,
+  [Element.Holy]: 0xfff0a0,
+  [Element.Shadow]: 0xb060ff,
+};
+
 export const ELEMENT_ICON: Record<Element, string> = {
   [Element.Neutral]: "⬜",
   [Element.Fire]: "🔥",

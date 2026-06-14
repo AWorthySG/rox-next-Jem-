@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { JobId, MsgType, getSkill, type ServerMessage } from "@rox/shared";
+import { Element, ELEMENT_COLOR, JobId, MsgType, getSkill, type ServerMessage } from "@rox/shared";
 import { SceneManager } from "./engine/SceneManager.js";
 import { CameraRig } from "./engine/CameraRig.js";
 import { InputController } from "./engine/InputController.js";
@@ -30,6 +30,7 @@ import { WarpPanel } from "./ui/WarpPanel.js";
 import { AchievementsPanel } from "./ui/AchievementsPanel.js";
 import { SkillPopup } from "./ui/SkillPopup.js";
 import { TargetFrame } from "./ui/TargetFrame.js";
+import { SkillVfx } from "./ui/SkillVfx.js";
 import { Sfx } from "./ui/Sfx.js";
 import { AutoBattle } from "./ui/AutoBattle.js";
 import { MiniMap } from "./ui/MiniMap.js";
@@ -52,6 +53,7 @@ const targetFrame = new TargetFrame();
 const sfx = new Sfx();
 const clickMarker = new ClickMarker(scene.scene);
 const novaTelegraph = new NovaTelegraph(scene.scene);
+const skillVfx = new SkillVfx(scene.scene);
 
 // Help panel toggle (button + key H).
 const helpPanel = document.getElementById("help-panel")!;
@@ -415,6 +417,11 @@ function onDamage(msg: Extract<ServerMessage, { t: MsgType.DamageEvent }>): void
     const suffix = mult > 1 ? " ▲" : mult < 1 ? " ▼" : "";
     damageNumbers.spawn(pos, `${msg.amount}${suffix}`, variant, mult);
     if (msg.sourceId === selfId) (msg.crit ? sfx.crit() : sfx.hit());
+    // Impact VFX for skill hits, colored by the skill's element.
+    if (msg.skillId && msg.skillId !== "burn") {
+      const el = getSkill(msg.skillId)?.element ?? Element.Neutral;
+      skillVfx.impact(pos, ELEMENT_COLOR[el], msg.crit ? 1.4 : 1);
+    }
   }
 }
 
@@ -458,6 +465,7 @@ new Loop((dt) => {
   clickMarker.update(dt);
   novaTelegraph.update();
   damageNumbers.update();
+  skillVfx.update();
   skillBar.update();
   partyHud.update();
   miniMap.update(gameState.blips());

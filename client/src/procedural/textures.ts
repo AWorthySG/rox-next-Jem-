@@ -172,6 +172,22 @@ export function makeToonGradient(): THREE.Texture {
   return tex;
 }
 
+// A soft round white spark for additive particle VFX (tinted per use).
+let sparkCache: THREE.Texture | null = null;
+export function makeSpark(): THREE.Texture {
+  if (sparkCache) return sparkCache;
+  const N = 64;
+  const { c, ctx } = canvas(N);
+  const g = ctx.createRadialGradient(N / 2, N / 2, 0, N / 2, N / 2, N / 2);
+  g.addColorStop(0, "rgba(255,255,255,1)");
+  g.addColorStop(0.4, "rgba(255,255,255,0.7)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = g;
+  ctx.fillRect(0, 0, N, N);
+  sparkCache = new THREE.CanvasTexture(c);
+  return sparkCache;
+}
+
 // Soft round blob alpha for a fake contact shadow under entities.
 let blobCache: THREE.Texture | null = null;
 export function makeBlobShadow(): THREE.Texture {
