@@ -1,8 +1,13 @@
 import * as THREE from "three";
 import { makePoringTexture } from "./textures.js";
 
+export type MonsterArch = "jelly" | "bug" | "beast" | "undead" | "plant" | "rock" | "demon" | "bird" | "ghost";
+
 export interface MonsterAppearance {
-  texture: THREE.Texture;
+  arch: MonsterArch;
+  texture: THREE.Texture; // jelly face (also a fallback)
+  main: number; // primary toon colour
+  accent: number; // secondary toon colour
   scale: number;
   boss?: boolean;
 }
@@ -12,6 +17,23 @@ interface AppearanceDef {
   outer: string;
   scale: number;
   boss?: boolean;
+}
+
+// Visual family per template — drives which low-poly mesh archetype is built.
+const ARCH: Record<string, MonsterArch> = {
+  poring: "jelly", drops: "jelly", lunatic: "jelly", angeling: "jelly",
+  fabre: "bug", chonchon: "bug", stem_worm: "bug", metaling: "bug", venatu: "bug", sleeper: "bug",
+  wolf: "beast", coco: "beast", eddga: "beast", kraken: "beast", boitata: "beast", tao_gunka: "beast",
+  zombie: "undead", skeleton: "undead", wraith: "undead", gargoyle: "undead", vanberk: "undead", hodremlin: "undead", amon_ra: "undead",
+  spore: "plant", dryad: "plant", tendrilion: "plant",
+  hardrock_mammoth: "rock", clock: "rock", clock_tower_manager: "rock", sandman: "rock", anolian: "rock",
+  baphomet: "demon", dark_lord: "demon", beelzebub: "demon", gloom: "demon", thanatos_phantom: "demon", memory_of_thanatos: "demon",
+  hill_wind: "bird", owl_duke: "bird", vesper: "bird", valkyrie_randgris: "bird", kiel: "bird",
+  moonlight: "ghost", mistress: "ghost", punk: "ghost", aliot: "ghost", aliza: "ghost",
+};
+
+function hex(s: string): number {
+  return parseInt(s.replace("#", ""), 16);
 }
 
 // Per-template look. Same jelly art, recoloured + rescaled per species.
@@ -79,7 +101,15 @@ export const DEFAULT_TEMPLATE = "poring";
 export function buildMonsterAppearances(): Record<string, MonsterAppearance> {
   const out: Record<string, MonsterAppearance> = {};
   for (const [id, d] of Object.entries(DEFS)) {
-    out[id] = { texture: makePoringTexture(d.inner, d.outer), scale: d.scale, boss: d.boss };
+    const arch = ARCH[id] ?? "jelly";
+    out[id] = {
+      arch,
+      texture: makePoringTexture(d.inner, d.outer),
+      main: hex(d.outer),
+      accent: hex(d.inner),
+      scale: d.scale,
+      boss: d.boss,
+    };
   }
   return out;
 }

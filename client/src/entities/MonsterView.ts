@@ -1,13 +1,13 @@
 import * as THREE from "three";
 import type { EntityFull } from "@rox/shared";
-import { buildPoring, type PoringMesh } from "../procedural/poringMesh.js";
+import { buildMonsterMesh, type MonsterMesh } from "../procedural/monsterMeshes.js";
 import type { MonsterAppearance } from "../procedural/monsters.js";
 import { EntityView } from "./EntityView.js";
 
-// A Poring-family view: textured jelly body with an idle squash-and-bob
-// animation. Bosses are larger and wear a golden crown.
+// A monster view: a per-family low-poly mesh with an idle bob (jelly archetypes
+// also squash). Bosses are larger and wear a golden crown.
 export class MonsterView extends EntityView {
-  private poring: PoringMesh;
+  private poring: MonsterMesh;
   private phase = Math.random() * Math.PI * 2;
   private readonly scale: number;
   readonly boss: boolean;
@@ -18,7 +18,7 @@ export class MonsterView extends EntityView {
     this.scale = appearance.scale;
     this.boss = !!appearance.boss;
     this.element = entity.element ?? "neutral";
-    this.poring = buildPoring(appearance.texture);
+    this.poring = buildMonsterMesh(appearance);
     this.poring.group.scale.setScalar(appearance.scale);
     this.poring.group.traverse((o) => (o.userData.entityId = entity.id));
     this.group.add(this.poring.group);
@@ -57,9 +57,12 @@ export class MonsterView extends EntityView {
 
   protected override animate(dt: number): void {
     this.phase += dt * (this.moving ? 9 : 3);
-    const squash = 0.82 + Math.sin(this.phase) * (this.moving ? 0.14 : 0.06);
-    this.poring.body.scale.set(1, squash, 1);
-    this.poring.group.position.y = this.moving ? Math.abs(Math.sin(this.phase)) * 0.18 * this.scale : 0;
+    if (this.poring.squash) {
+      const squash = 0.82 + Math.sin(this.phase) * (this.moving ? 0.14 : 0.06);
+      this.poring.body.scale.set(1, squash, 1);
+    }
+    const bobAmp = this.poring.squash ? 0.18 : 0.1;
+    this.poring.group.position.y = this.moving ? Math.abs(Math.sin(this.phase)) * bobAmp * this.scale : 0;
     if (this.aura) this.aura.rotation.z += dt * 3;
   }
 }
