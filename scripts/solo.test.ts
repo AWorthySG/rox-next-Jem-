@@ -190,6 +190,20 @@ async function main(): Promise<void> {
   carder.unequip("weapon" as never);
   check((carder.toSelfState().inventory.find((i) => i.id === "skeleton_card")?.qty ?? 0) === 1, "cards: unequipping returns the card");
 
+  // ---- deterministic Kafra storage ----
+  const banker = new Player(974, 1, "Banker", JobId.Novice, 0, 0);
+  banker.addItem("red_potion", 5);
+  check(banker.storeItem("red_potion", 3), "storage: deposit items from bag");
+  check((banker.inventory["red_potion"] ?? 0) === 2, "storage: bag count reduced");
+  check((banker.storage["red_potion"] ?? 0) === 3, "storage: storage count raised");
+  check(!banker.storeItem("blue_potion", 1), "storage: cannot deposit items you lack");
+  check(banker.retrieveItem("red_potion", 10), "storage: withdraw clamps to available");
+  check((banker.storage["red_potion"] ?? 0) === 0 && (banker.inventory["red_potion"] ?? 0) === 5, "storage: withdraw returns to bag");
+  banker.storeItem("red_potion", 2);
+  const bankLoaded = new Player(973, 1, "X", JobId.Novice, 0, 0);
+  bankLoaded.restore(banker.toSelfState());
+  check((bankLoaded.storage["red_potion"] ?? 0) === 2, "storage: persists across save/load");
+
   // ---- deterministic headgear slot ----
   const hatter = new Player(975, 1, "Hatter", JobId.Swordsman, 0, 0);
   const hpNoHat = hatter.derived.maxHp;

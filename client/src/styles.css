@@ -914,6 +914,55 @@ body {
   gap: 0;
   overflow: hidden;
 }
+
+/* ---- Kafra storage ---- */
+.storage {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 560px;
+  max-width: 94vw;
+  max-height: 78vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 2px solid var(--gold);
+  border-radius: 12px;
+  pointer-events: auto;
+  overflow: hidden;
+  z-index: 30;
+}
+.storage-cols {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  overflow: hidden;
+}
+.storage-col {
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+.storage-col:first-child {
+  border-right: 1px solid var(--panel-border);
+}
+.storage-col h4 {
+  margin: 0;
+  padding: 8px 12px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  opacity: 0.7;
+  border-bottom: 1px solid var(--panel-border);
+}
+.storage-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 8px;
+  overflow-y: auto;
+  max-height: 56vh;
+}
 .shop-col {
   display: flex;
   flex-direction: column;

@@ -87,6 +87,16 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       if (p) p.sell(msg.itemId, Math.max(1, Math.min(99, Math.floor(msg.qty || 1))));
       break;
     }
+    case MsgType.StoreItem: {
+      const p = playerOf(world, link);
+      if (p) p.storeItem(msg.itemId, Math.max(1, Math.min(999, Math.floor(msg.qty || 1))));
+      break;
+    }
+    case MsgType.RetrieveItem: {
+      const p = playerOf(world, link);
+      if (p) p.retrieveItem(msg.itemId, Math.max(1, Math.min(999, Math.floor(msg.qty || 1))));
+      break;
+    }
     case MsgType.PartyInvite: {
       const p = playerOf(world, link);
       if (p) {

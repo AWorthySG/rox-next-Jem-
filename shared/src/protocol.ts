@@ -59,6 +59,18 @@ export interface SellItemMsg {
   qty: number;
 }
 
+export interface StoreItemMsg {
+  t: MsgType.StoreItem;
+  itemId: string;
+  qty: number;
+}
+
+export interface RetrieveItemMsg {
+  t: MsgType.RetrieveItem;
+  itemId: string;
+  qty: number;
+}
+
 export interface PartyInviteMsg {
   t: MsgType.PartyInvite;
   targetId: number;
@@ -205,6 +217,8 @@ export type ClientMessage =
   | UnequipMsg
   | BuyItemMsg
   | SellItemMsg
+  | StoreItemMsg
+  | RetrieveItemMsg
   | PartyInviteMsg
   | PartyAcceptMsg
   | PartyLeaveMsg

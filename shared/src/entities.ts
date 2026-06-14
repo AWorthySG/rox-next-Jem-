@@ -69,6 +69,7 @@ export interface SelfState {
   runes: string[];
   skillLevels: Array<{ id: string; level: number }>;
   inventory: InventoryEntry[];
+  storage: InventoryEntry[]; // Kafra storage contents
   equipped: EquipEntry[];
   cards: EquipEntry[]; // socketed card per slot
   refine: Array<{ id: string; level: number }>;

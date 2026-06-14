@@ -16,6 +16,7 @@ import { DamageNumbers } from "./ui/DamageNumbers.js";
 import { PetCompanion } from "./entities/PetCompanion.js";
 import { SkillBar } from "./ui/SkillBar.js";
 import { InventoryPanel } from "./ui/InventoryPanel.js";
+import { StoragePanel } from "./ui/StoragePanel.js";
 import { ShopPanel } from "./ui/ShopPanel.js";
 import { QuestPanel } from "./ui/QuestPanel.js";
 import { RefinePanel } from "./ui/RefinePanel.js";
@@ -164,6 +165,11 @@ const inventory = new InventoryPanel({
 const shop = new ShopPanel({
   onBuy: (itemId) => transport?.send({ t: MsgType.BuyItem, itemId, qty: 1 }),
   onSell: (itemId) => transport?.send({ t: MsgType.SellItem, itemId, qty: 1 }),
+});
+
+const storage = new StoragePanel({
+  onStore: (itemId, qty) => transport?.send({ t: MsgType.StoreItem, itemId, qty }),
+  onRetrieve: (itemId, qty) => transport?.send({ t: MsgType.RetrieveItem, itemId, qty }),
 });
 
 const quests = new QuestPanel({
@@ -325,6 +331,7 @@ function handleMessage(msg: ServerMessage): void {
       hud.update(msg.self);
       skillBar.setSp(msg.self.sp);
       inventory.sync(msg.self);
+      storage.sync(msg.self);
       shop.sync(msg.self);
       quests.sync(msg.self);
       refine.sync(msg.self);

@@ -11,6 +11,8 @@ export enum MsgType {
   Unequip = "unequip",
   BuyItem = "buyItem",
   SellItem = "sellItem",
+  StoreItem = "storeItem",
+  RetrieveItem = "retrieveItem",
   PartyInvite = "partyInvite",
   PartyAccept = "partyAccept",
   PartyLeave = "partyLeave",

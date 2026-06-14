@@ -88,7 +88,7 @@
           <p><b>Move</b> — click the ground. <b>Attack</b> — click a monster.</p>
           <p><b>Skills</b> — number keys 1–7 or tap the round skill buttons (bottom-right).</p>
           <p><b>Auto-battle</b> — toggle <b>Auto</b> (or <b>T</b>) to farm hands-free.</p>
-          <p><b>Panels</b> — <b>I</b> bag/equip · <b>K</b> skills · <b>G</b> guild · <b>V</b> achievements.</p>
+          <p><b>Panels</b> — <b>I</b> bag/equip · <b>K</b> skills · <b>B</b> storage · <b>G</b> guild · <b>V</b> achievements.</p>
           <p><b>NPCs</b> — click the ⬥ townsfolk: Shop, Guide (quests), Blacksmith (refine &amp; enchant), Healer, Warp, and portals to other maps.</p>
           <p><b>Party</b> — click another player to invite. <b>Chat</b> — press Enter.</p>
           <p><b>Goal</b> — level to 130 across four job tiers, gear up, and slay each map's two MVP bosses up to Beelzebub.</p>
@@ -150,7 +150,7 @@
         <div class="refine-list" id="refine-list"></div>
       </div>
 
-      <div class="hud-help">Move: click ground · Attack: click monster · Shop/Quests: click ⬥ NPCs · Party: click a player · Keys 1–7 skills · I bag · K skills · R runes · G guild · V achievements · Enter chat</div>
+      <div class="hud-help">Move: click ground · Attack: click monster · Shop/Quests: click ⬥ NPCs · Party: click a player · Keys 1–7 skills · I bag · K skills · R runes · B storage · G guild · V achievements · Enter chat</div>
 
       <div class="quests hidden" id="quests">
         <div class="inv-header">
@@ -181,6 +181,17 @@
         <div class="equip-slots" id="equip-slots"></div>
         <div class="inv-tabs" id="inv-tabs"></div>
         <div class="inv-grid" id="inv-grid"></div>
+      </div>
+
+      <div class="storage hidden" id="storage">
+        <div class="inv-header">
+          <span>Kafra Storage</span>
+          <button class="inv-close" id="storage-close">✕</button>
+        </div>
+        <div class="storage-cols">
+          <div class="storage-col"><h4>Bag</h4><div class="storage-grid" id="storage-bag"></div></div>
+          <div class="storage-col"><h4>Storage</h4><div class="storage-grid" id="storage-vault"></div></div>
+        </div>
       </div>
 
       <div class="chat" id="chat">

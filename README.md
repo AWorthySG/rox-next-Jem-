@@ -41,6 +41,8 @@ copyrighted assets.
   to the bag when you unequip the item.
 - **Town services**: a Kafra shopkeeper (buy/sell), a Guide (quests), a Blacksmith (refine),
   a **Healer** (full HP/SP restore) and a **Warp Girl** (quick-travel to any map) staff the town.
+- **Kafra storage**: a persistent item bank (window `B`) — deposit and withdraw items between
+  your bag and storage (shift-click moves a whole stack); storage survives across sessions.
 - **Parties**: click another player to invite them; accept to group up. Party HUD shows live
   member HP, and EXP from kills is shared (with a bonus) among nearby members.
 - **Guilds**: create or join a named guild (window `G`); members show a `[guild]` tag above

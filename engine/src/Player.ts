@@ -61,6 +61,7 @@ export class Player {
   runes: string[] = []; // unlocked Aesir rune ids
   skillLevels: Record<string, number> = {}; // skillId -> level (>=1 when learned)
   inventory: Record<string, number> = {}; // itemId -> qty
+  storage: Record<string, number> = {}; // Kafra storage: itemId -> qty
   equipped: Partial<Record<EquipSlot, string>> = {}; // slot -> itemId
   cards: Partial<Record<EquipSlot, string>> = {}; // slot -> socketed card itemId
   refineByItem: Record<string, number> = {}; // itemId -> refine level
@@ -371,6 +372,32 @@ export class Player {
     return true;
   }
 
+  // ---- Kafra storage ----
+
+  // Move items from the bag into storage. Returns true if anything moved.
+  storeItem(itemId: string, qty: number): boolean {
+    if (qty <= 0) return false;
+    const have = this.inventory[itemId] ?? 0;
+    const move = Math.min(have, qty);
+    if (move <= 0) return false;
+    this.removeItem(itemId, move);
+    this.storage[itemId] = (this.storage[itemId] ?? 0) + move;
+    return true;
+  }
+
+  // Move items from storage back into the bag. Returns true if anything moved.
+  retrieveItem(itemId: string, qty: number): boolean {
+    if (qty <= 0) return false;
+    const have = this.storage[itemId] ?? 0;
+    const move = Math.min(have, qty);
+    if (move <= 0) return false;
+    const left = have - move;
+    if (left <= 0) delete this.storage[itemId];
+    else this.storage[itemId] = left;
+    this.addItem(itemId, move);
+    return true;
+  }
+
   // ---- shop ----
 
   buy(itemId: string, qty: number): boolean {
@@ -509,6 +536,8 @@ export class Player {
     for (const sk of s.skillLevels) this.skillLevels[sk.id] = sk.level;
     this.inventory = {};
     for (const it of s.inventory) this.inventory[it.id] = it.qty;
+    this.storage = {};
+    for (const it of s.storage ?? []) this.storage[it.id] = it.qty;
     this.equipped = {};
     for (const e of s.equipped) this.equipped[e.slot] = e.id;
     this.cards = {};
@@ -580,6 +609,7 @@ export class Player {
       runes: [...this.runes],
       skillLevels: Object.entries(this.skillLevels).map(([id, level]) => ({ id, level })),
       inventory: Object.entries(this.inventory).map(([id, qty]) => ({ id, qty })),
+      storage: Object.entries(this.storage).map(([id, qty]) => ({ id, qty })),
       equipped: Object.entries(this.equipped)
         .filter(([, id]) => !!id)
         .map(([slot, id]) => ({ slot: slot as EquipSlot, id: id as string })),
