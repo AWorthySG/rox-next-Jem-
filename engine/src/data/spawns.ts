@@ -446,6 +446,12 @@ Object.assign(MONSTER_TEMPLATES, {
   lantern_wisp: mk("lantern_wisp", "Lantern Wisp", 59, 3300, 7700),
   jiangshi_lord: mk("jiangshi_lord", "Jiangshi Lord", 65, 15000, 26000, true),
   nian_beast: mk("nian_beast", "Nian Beast", 67, 17000, 30000, true),
+  // ---- Gardens by the Bay (Singapore) ----
+  supertree_sprite: mk("supertree_sprite", "Supertree Sprite", 75, 4800, 10400),
+  firefly_swarm: mk("firefly_swarm", "Firefly Swarm", 77, 5100, 11200),
+  orchid_fae: mk("orchid_fae", "Orchid Fae", 79, 5400, 12000),
+  supertree_guardian: mk("supertree_guardian", "Supertree Guardian", 86, 32000, 54000, true),
+  flower_dome_titan: mk("flower_dome_titan", "Flower Dome Titan", 88, 35000, 60000, true),
 });
 
 export interface SpawnZone {
@@ -792,6 +798,14 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "enrage", hpPct: 0.35, atkMult: 1.7 },
     { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.6 },
   ],
+  supertree_guardian: [
+    { kind: "summon", intervalMs: 8000, templateId: "supertree_sprite", count: 2, max: 5 },
+    { kind: "heal", intervalMs: 10000, pct: 0.06 },
+  ],
+  flower_dome_titan: [
+    { kind: "enrage", hpPct: 0.4, atkMult: 1.6 },
+    { kind: "nova", intervalMs: 6000, radius: 11, powerMult: 1.6 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -990,6 +1004,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   lantern_wisp: Element.Fire,
   jiangshi_lord: Element.Shadow,
   nian_beast: Element.Fire,
+  supertree_sprite: Element.Earth,
+  firefly_swarm: Element.Fire,
+  orchid_fae: Element.Wind,
+  supertree_guardian: Element.Earth,
+  flower_dome_titan: Element.Water,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

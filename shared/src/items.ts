@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Gardens by the Bay (Singapore) gear ----
+  bloom_staff: {
+    id: "bloom_staff", name: "Bloom Staff", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A staff that flowers with magic. MATK +52, INT +6.", matk: 52, bonusStats: { int: 6 }, sellPrice: 3000,
+  },
+  petal_circlet: {
+    id: "petal_circlet", name: "Petal Circlet", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A circlet of living orchids. MATK +10, INT +5, Max SP +40.", matk: 10, maxSp: 40, bonusStats: { int: 5 }, sellPrice: 2700,
+  },
+  verdant_plate: {
+    id: "verdant_plate", name: "Verdant Plate", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Bark-and-leaf armor. DEF +26, Max HP +240, VIT +4.", def: 26, maxHp: 240, bonusStats: { vit: 4 }, sellPrice: 2900,
+  },
+
   // ---- Chinatown (Singapore) gear ----
   ghost_fan: {
     id: "ghost_fan", name: "Hungry Ghost Fan", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1103,6 +1117,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Gardens by the Bay (Singapore)
+  supertree_sprite: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "verdant_plate", chance: 0.03 }],
+  firefly_swarm: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "petal_circlet", chance: 0.03 }],
+  orchid_fae: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "bloom_staff", chance: 0.03 }],
+  supertree_guardian: HI([{ itemId: "bloom_staff", chance: 0.6 }, { itemId: "verdant_plate", chance: 0.5 }, { itemId: "petal_circlet", chance: 0.4 }]),
+  flower_dome_titan: HI([{ itemId: "verdant_plate", chance: 0.6 }, { itemId: "bloom_staff", chance: 0.45 }, { itemId: "ghostring_card", chance: 0.05 }]),
   // Chinatown (Singapore)
   jiangshi: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "lion_dance_head", chance: 0.035 }],
   street_cat: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "silk_changshan", chance: 0.035 }],
@@ -1241,6 +1261,7 @@ const ORE_REGULARS = [
   "mudskipper", "horseshoe_crab", "smooth_otter",
   "macaque", "pangolin", "hornbill",
   "jiangshi", "street_cat", "lantern_wisp",
+  "supertree_sprite", "firefly_swarm", "orchid_fae",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1264,6 +1285,7 @@ const ORE_BOSSES = [
   "leyak", "rangda", "gioia", "kades", "wakwak", "faceworm_queen",
   "war_machine", "overlord_core", "sea_serpent", "the_merlion",
   "king_macaque", "reticulated_python", "jiangshi_lord", "nian_beast",
+  "supertree_guardian", "flower_dome_titan",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

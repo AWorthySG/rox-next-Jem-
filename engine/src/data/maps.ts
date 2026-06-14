@@ -101,6 +101,25 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Guide", role: "guide", x: -6, z: 22, facing: Math.PI },
       { name: "Blacksmith", role: "refine", x: -10, z: 22, facing: Math.PI },
       { name: "Chinatown Exit", role: "portal", x: 0, z: 26, dest: { toMap: "bukit_timah", toX: 0, toZ: -44 } },
+      { name: "Gardens Portal", role: "portal", x: 0, z: -50, dest: { toMap: "gardens_bay", toX: 0, toZ: 18 } },
+    ],
+  },
+  gardens_bay: {
+    id: "gardens_bay",
+    name: "Gardens by the Bay",
+    theme: { ground: 0x3a7a4a, fog: 0x8ad0a0, sky: 0xb0e8c0 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "gb-sprite", templateId: "supertree_sprite", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "gb-firefly", templateId: "firefly_swarm", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "gb-orchid", templateId: "orchid_fae", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "gb-guardian", templateId: "supertree_guardian", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "gb-titan", templateId: "flower_dome_titan", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Gardens Exit", role: "portal", x: 0, z: 24, dest: { toMap: "chinatown", toX: 0, toZ: -44 } },
     ],
   },
   geffen: {

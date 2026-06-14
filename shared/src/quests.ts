@@ -138,6 +138,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 108,
     reward: { exp: 200000, zeny: 110000, items: [{ id: "bloody_sword", qty: 1 }] },
   },
+  heart_of_the_garden: {
+    id: "heart_of_the_garden",
+    name: "Heart of the Garden",
+    desc: "The Supertree Guardian has turned hostile. Calm the heart of the Gardens.",
+    targetTemplate: "supertree_guardian",
+    targetName: "Supertree Guardian",
+    count: 1,
+    requiredLevel: 82,
+    reward: { exp: 56000, zeny: 33000, items: [{ id: "bloom_staff", qty: 1 }] },
+  },
   hungry_ghost_festival: {
     id: "hungry_ghost_festival",
     name: "Hungry Ghost Festival",

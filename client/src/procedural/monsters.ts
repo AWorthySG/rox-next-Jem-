@@ -62,6 +62,7 @@ const ARCH: Record<string, MonsterArch> = {
   mudskipper: "aquatic", horseshoe_crab: "aquatic", smooth_otter: "beast", sea_serpent: "dragon", the_merlion: "aquatic",
   macaque: "beast", pangolin: "beast", hornbill: "bird", king_macaque: "humanoid", reticulated_python: "dragon",
   jiangshi: "undead", street_cat: "beast", lantern_wisp: "ghost", jiangshi_lord: "undead", nian_beast: "beast",
+  supertree_sprite: "plant", firefly_swarm: "bug", orchid_fae: "plant", supertree_guardian: "golem", flower_dome_titan: "golem",
 };
 
 function hex(s: string): number {
@@ -308,6 +309,12 @@ const DEFS: Record<string, AppearanceDef> = {
   lantern_wisp: { inner: "#ffd070", outer: "#c04020", scale: 1.1 },
   jiangshi_lord: { inner: "#b0d0c0", outer: "#2a5a4a", scale: 2.7, boss: true },
   nian_beast: { inner: "#e0a040", outer: "#7a2820", scale: 2.9, boss: true },
+  // Gardens by the Bay (Singapore)
+  supertree_sprite: { inner: "#b0e080", outer: "#3a7a28", scale: 1.2 },
+  firefly_swarm: { inner: "#f0e060", outer: "#7a6010", scale: 0.9 },
+  orchid_fae: { inner: "#f0a0d0", outer: "#8a3060", scale: 1.1 },
+  supertree_guardian: { inner: "#90c060", outer: "#2a5a20", scale: 3.2, boss: true },
+  flower_dome_titan: { inner: "#a0d0c0", outer: "#2a6a5a", scale: 3.1, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";
