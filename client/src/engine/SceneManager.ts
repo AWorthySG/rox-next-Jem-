@@ -9,6 +9,7 @@ import { SMAAPass } from "three/addons/postprocessing/SMAAPass.js";
 import { MAP_SIZE, type MapTheme } from "@rox/shared";
 import { makeGroundTexture, makeGroundRoughness, makeSunSprite, makeCloud, makeSpark } from "../procedural/textures.js";
 import { buildScenery, type Scenery } from "../procedural/scenery.js";
+import { buildWater, type Water } from "../procedural/water.js";
 
 // Owns the renderer, the CSS2D label layer, scene, lights, ground, sky dome and
 // the post-processing pipeline (bloom + SMAA), styled for a warm anime-MMO look.
@@ -25,6 +26,7 @@ export class SceneManager {
   private composer: EffectComposer;
   private bloom: UnrealBloomPass;
   private scenery: Scenery | null = null;
+  private water: Water | null = null;
   private clouds: THREE.Sprite[] = [];
   private motes!: THREE.Points;
   private moteBox = 34;
@@ -200,6 +202,18 @@ export class SceneManager {
     }
     this.scenery = buildScenery(mapId);
     this.scene.add(this.scenery.group);
+
+    // ocean surrounding the island, on coastal/lake maps only
+    if (this.water) {
+      this.scene.remove(this.water.mesh);
+      this.water.dispose();
+      this.water = null;
+    }
+    const w = WATER_MAPS[mapId];
+    if (w) {
+      this.water = buildWater(w[0], w[1]);
+      this.scene.add(this.water.mesh);
+    }
   }
 
   private onResize(): void {
@@ -231,6 +245,7 @@ export class SceneManager {
       pos.setX(i, x);
     }
     pos.needsUpdate = true;
+    if (this.water) this.water.material.uniforms.time.value += dt;
     (this.composer.passes[0] as RenderPass).camera = camera;
     this.composer.render();
     this.labelRenderer.render(this.scene, camera);
@@ -269,6 +284,12 @@ const GRADE_SHADER = {
       gl_FragColor = c;
     }
   `,
+};
+
+// Maps that get an ocean around the island: [shallow, deep] water colours.
+const WATER_MAPS: Record<string, [number, number]> = {
+  comodo: [0x6fd0e0, 0x12586f],
+  abyss: [0x3a8fb0, 0x081f2e],
 };
 
 const SKY_VERT = /* glsl */ `
