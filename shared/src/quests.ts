@@ -128,6 +128,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 40,
     reward: { exp: 9000, zeny: 6000, items: [{ id: "mage_staff", qty: 1 }] },
   },
+  witch_of_the_woods: {
+    id: "witch_of_the_woods",
+    name: "Witch of the Woods",
+    desc: "Baba Yaga curses the Moscovia forest. Break her hold over it.",
+    targetTemplate: "baba_yaga",
+    targetName: "Baba Yaga",
+    count: 1,
+    requiredLevel: 84,
+    reward: { exp: 90000, zeny: 52000, items: [{ id: "forest_garb", qty: 1 }] },
+  },
   temple_guardian: {
     id: "temple_guardian",
     name: "Temple Guardian",

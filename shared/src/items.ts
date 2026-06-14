@@ -357,6 +357,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Moscovia (northern forest) gear ----
+  bear_claw: {
+    id: "bear_claw", name: "Bear Claw", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "Torn from a forest beast. ATK +60, STR +5.", atk: 60, bonusStats: { str: 5 }, sellPrice: 3200,
+  },
+  ushanka: {
+    id: "ushanka", name: "Ushanka", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "Warm fur cap. DEF +18, VIT +4, Max HP +110.", def: 18, maxHp: 110, bonusStats: { vit: 4 }, sellPrice: 2700,
+  },
+  forest_garb: {
+    id: "forest_garb", name: "Forest Garb", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Hide of the deep woods. DEF +22, Max HP +200, AGI +4.", def: 22, maxHp: 200, bonusStats: { agi: 4 }, sellPrice: 2900,
+  },
+
   // ---- Ayothaya (jungle temple) gear ----
   jade_spear: {
     id: "jade_spear", name: "Jade Spear", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -736,6 +750,12 @@ Object.assign(DROP_TABLES, {
   brilight: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "monkey_circlet", chance: 0.035 }],
   lady_tanee: HI([{ itemId: "temple_robe", chance: 0.6 }, { itemId: "monkey_circlet", chance: 0.5 }, { itemId: "spirit_staff", chance: 0.3 }]),
   leak: HI([{ itemId: "jade_spear", chance: 0.6 }, { itemId: "temple_robe", chance: 0.5 }, { itemId: "tidal_shoes", chance: 0.3 }]),
+  // Moscovia
+  les: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "bear_claw", chance: 0.03 }],
+  mavka: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "forest_garb", chance: 0.035 }],
+  uzhas: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "ushanka", chance: 0.035 }],
+  gopinich: HI([{ itemId: "bear_claw", chance: 0.6 }, { itemId: "forest_garb", chance: 0.5 }, { itemId: "baphomet_card", chance: 0.05 }]),
+  baba_yaga: HI([{ itemId: "ushanka", chance: 0.6 }, { itemId: "forest_garb", chance: 0.5 }, { itemId: "ghostring_card", chance: 0.06 }]),
 });
 
 // Sprinkle refine ores across the bestiary so refining has a farming loop:
@@ -750,6 +770,7 @@ const ORE_REGULARS = [
   "poison_spore", "karakasa", "tengu",
   "cookie", "myst_case", "antonio",
   "kobold", "elder_willow", "brilight",
+  "les", "mavka", "uzhas",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -765,7 +786,7 @@ const ORE_BOSSES = [
   "memory_of_thanatos", "eddga", "moonlight", "mistress", "angeling",
   "drake", "satan_morroc", "egnigem", "kathryne", "detale", "nidhoggr",
   "doppelganger", "dark_priest", "bacsojin", "fallen_bishop", "samurai_specter", "kapha",
-  "stormy_knight", "garm", "lady_tanee", "leak",
+  "stormy_knight", "garm", "lady_tanee", "leak", "gopinich", "baba_yaga",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];
