@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Pulau Hantu (Singapore — Ghost Island) gear ----
+  soul_kris: {
+    id: "soul_kris", name: "Soul Kris", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A dagger that drinks spirits. ATK +84, LUK +5.", atk: 84, bonusStats: { luk: 5 }, sellPrice: 4600,
+  },
+  veil_of_night: {
+    id: "veil_of_night", name: "Veil of Night", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A shroud of darkness. MATK +12, INT +6, Max SP +50.", matk: 12, maxSp: 50, bonusStats: { int: 6 }, sellPrice: 4200,
+  },
+  shroud_robe: {
+    id: "shroud_robe", name: "Shroud Robe", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Funeral linen turned armor. DEF +30, Max HP +320, VIT +5.", def: 30, maxHp: 320, bonusStats: { vit: 5 }, sellPrice: 4600,
+  },
+
   // ---- Gardens by the Bay (Singapore) gear ----
   bloom_staff: {
     id: "bloom_staff", name: "Bloom Staff", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1117,6 +1131,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Pulau Hantu (Singapore — Ghost Island)
+  pontianak: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "shroud_robe", chance: 0.025 }],
+  orang_minyak: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "veil_of_night", chance: 0.025 }],
+  hantu_air: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "soul_kris", chance: 0.025 }],
+  pontianak_queen: HI([{ itemId: "soul_kris", chance: 0.6 }, { itemId: "shroud_robe", chance: 0.5 }, { itemId: "veil_of_night", chance: 0.4 }]),
+  penanggalan: HI([{ itemId: "veil_of_night", chance: 0.6 }, { itemId: "shroud_robe", chance: 0.5 }, { itemId: "ghostring_card", chance: 0.06 }]),
   // Gardens by the Bay (Singapore)
   supertree_sprite: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "verdant_plate", chance: 0.03 }],
   firefly_swarm: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "petal_circlet", chance: 0.03 }],
@@ -1262,6 +1282,7 @@ const ORE_REGULARS = [
   "macaque", "pangolin", "hornbill",
   "jiangshi", "street_cat", "lantern_wisp",
   "supertree_sprite", "firefly_swarm", "orchid_fae",
+  "pontianak", "orang_minyak", "hantu_air",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1285,7 +1306,7 @@ const ORE_BOSSES = [
   "leyak", "rangda", "gioia", "kades", "wakwak", "faceworm_queen",
   "war_machine", "overlord_core", "sea_serpent", "the_merlion",
   "king_macaque", "reticulated_python", "jiangshi_lord", "nian_beast",
-  "supertree_guardian", "flower_dome_titan",
+  "supertree_guardian", "flower_dome_titan", "pontianak_queen", "penanggalan",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

@@ -63,6 +63,7 @@ const ARCH: Record<string, MonsterArch> = {
   macaque: "beast", pangolin: "beast", hornbill: "bird", king_macaque: "humanoid", reticulated_python: "dragon",
   jiangshi: "undead", street_cat: "beast", lantern_wisp: "ghost", jiangshi_lord: "undead", nian_beast: "beast",
   supertree_sprite: "plant", firefly_swarm: "bug", orchid_fae: "plant", supertree_guardian: "golem", flower_dome_titan: "golem",
+  pontianak: "ghost", orang_minyak: "demon", hantu_air: "ghost", pontianak_queen: "ghost", penanggalan: "demon",
 };
 
 function hex(s: string): number {
@@ -315,6 +316,12 @@ const DEFS: Record<string, AppearanceDef> = {
   orchid_fae: { inner: "#f0a0d0", outer: "#8a3060", scale: 1.1 },
   supertree_guardian: { inner: "#90c060", outer: "#2a5a20", scale: 3.2, boss: true },
   flower_dome_titan: { inner: "#a0d0c0", outer: "#2a6a5a", scale: 3.1, boss: true },
+  // Pulau Hantu (Singapore — Ghost Island)
+  pontianak: { inner: "#e0e0e8", outer: "#6a6a7a", scale: 1.3 },
+  orang_minyak: { inner: "#5a5a5a", outer: "#101010", scale: 1.35 },
+  hantu_air: { inner: "#a0c0d0", outer: "#2a4a5a", scale: 1.25 },
+  pontianak_queen: { inner: "#f0f0f8", outer: "#7a7a8a", scale: 2.9, boss: true },
+  penanggalan: { inner: "#e0a0a0", outer: "#5a1818", scale: 2.8, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

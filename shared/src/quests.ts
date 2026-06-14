@@ -138,6 +138,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 108,
     reward: { exp: 200000, zeny: 110000, items: [{ id: "bloody_sword", qty: 1 }] },
   },
+  queen_of_ghosts: {
+    id: "queen_of_ghosts",
+    name: "Queen of Ghosts",
+    desc: "The Pontianak Queen haunts Pulau Hantu. Lay the spectral matriarch to rest.",
+    targetTemplate: "pontianak_queen",
+    targetName: "Pontianak Queen",
+    count: 1,
+    requiredLevel: 102,
+    reward: { exp: 190000, zeny: 105000, items: [{ id: "soul_kris", qty: 1 }] },
+  },
   heart_of_the_garden: {
     id: "heart_of_the_garden",
     name: "Heart of the Garden",

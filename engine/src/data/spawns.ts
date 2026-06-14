@@ -452,6 +452,12 @@ Object.assign(MONSTER_TEMPLATES, {
   orchid_fae: mk("orchid_fae", "Orchid Fae", 79, 5400, 12000),
   supertree_guardian: mk("supertree_guardian", "Supertree Guardian", 86, 32000, 54000, true),
   flower_dome_titan: mk("flower_dome_titan", "Flower Dome Titan", 88, 35000, 60000, true),
+  // ---- Pulau Hantu (Singapore — Ghost Island) ----
+  pontianak: mk("pontianak", "Pontianak", 95, 7600, 16200),
+  orang_minyak: mk("orang_minyak", "Orang Minyak", 97, 8000, 17000),
+  hantu_air: mk("hantu_air", "Hantu Air", 99, 8400, 17800),
+  pontianak_queen: mk("pontianak_queen", "Pontianak Queen", 106, 64000, 104000, true),
+  penanggalan: mk("penanggalan", "Penanggalan", 108, 70000, 116000, true),
 });
 
 export interface SpawnZone {
@@ -806,6 +812,15 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "enrage", hpPct: 0.4, atkMult: 1.6 },
     { kind: "nova", intervalMs: 6000, radius: 11, powerMult: 1.6 },
   ],
+  pontianak_queen: [
+    { kind: "summon", intervalMs: 8000, templateId: "pontianak", count: 2, max: 5 },
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
+    { kind: "heal", intervalMs: 11000, pct: 0.06 },
+  ],
+  penanggalan: [
+    { kind: "enrage", hpPct: 0.4, atkMult: 1.7 },
+    { kind: "nova", intervalMs: 5000, radius: 11, powerMult: 1.7 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -1009,6 +1024,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   orchid_fae: Element.Wind,
   supertree_guardian: Element.Earth,
   flower_dome_titan: Element.Water,
+  pontianak: Element.Shadow,
+  orang_minyak: Element.Fire,
+  hantu_air: Element.Water,
+  pontianak_queen: Element.Shadow,
+  penanggalan: Element.Wind,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

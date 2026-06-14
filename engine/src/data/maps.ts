@@ -120,6 +120,24 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
       { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
       { name: "Gardens Exit", role: "portal", x: 0, z: 24, dest: { toMap: "chinatown", toX: 0, toZ: -44 } },
+      { name: "Pulau Hantu Portal", role: "portal", x: 0, z: -50, dest: { toMap: "pulau_hantu", toX: 0, toZ: 18 } },
+    ],
+  },
+  pulau_hantu: {
+    id: "pulau_hantu",
+    name: "Pulau Hantu",
+    theme: { ground: 0x2a3a30, fog: 0x0a140e, sky: 0x16241c },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "ph-pontianak", templateId: "pontianak", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "ph-minyak", templateId: "orang_minyak", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "ph-air", templateId: "hantu_air", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "ph-queen", templateId: "pontianak_queen", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "ph-penanggalan", templateId: "penanggalan", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Pulau Hantu Exit", role: "portal", x: 0, z: 24, dest: { toMap: "gardens_bay", toX: 0, toZ: -44 } },
     ],
   },
   geffen: {
