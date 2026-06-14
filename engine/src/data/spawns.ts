@@ -344,6 +344,12 @@ Object.assign(MONSTER_TEMPLATES, {
   minorous: mk("minorous", "Minorous", 55, 3300, 6200),
   pharaoh: mk("pharaoh", "Pharaoh", 62, 14000, 24000, true),
   osiris: mk("osiris", "Osiris", 64, 16000, 28000, true),
+  // ---- extra early-game regulars ----
+  pupa: mk("pupa", "Pupa", 2, 60, 30),
+  roda_frog: mk("roda_frog", "Roda Frog", 3, 80, 42),
+  thief_bug: mk("thief_bug", "Thief Bug", 5, 120, 70),
+  creamy: mk("creamy", "Creamy", 6, 150, 88),
+  willow: mk("willow", "Willow", 4, 95, 52),
 });
 
 export interface SpawnZone {
@@ -664,6 +670,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   minorous: Element.Fire,
   pharaoh: Element.Shadow,
   osiris: Element.Holy,
+  pupa: Element.Earth,
+  roda_frog: Element.Water,
+  thief_bug: Element.Shadow,
+  creamy: Element.Wind,
+  willow: Element.Earth,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

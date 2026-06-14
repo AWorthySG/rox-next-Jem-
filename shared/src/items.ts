@@ -875,6 +875,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // extra early regulars
+  pupa: [{ itemId: "apple", chance: 0.25 }],
+  roda_frog: [{ itemId: "apple", chance: 0.25 }, { itemId: "blue_potion", chance: 0.08 }],
+  thief_bug: [{ itemId: "apple", chance: 0.22 }, { itemId: "novice_knife", chance: 0.05 }],
+  creamy: [{ itemId: "apple", chance: 0.25 }, { itemId: "feather_beret", chance: 0.03 }],
+  willow: [{ itemId: "apple", chance: 0.25 }, { itemId: "apprentice_rod", chance: 0.04 }],
 });
 
 // Sprinkle refine ores across the bestiary so refining has a farming loop:

@@ -45,6 +45,7 @@ const ARCH: Record<string, MonsterArch> = {
   orc_warrior: "humanoid", orc_archer: "humanoid", orc_zombie: "undead", orc_lord: "humanoid", orc_hero: "humanoid",
   raydric: "undead", khalitzburg: "humanoid", evil_druid: "plant", abysmal_knight: "humanoid", amdarais: "demon",
   mummy: "undead", matyr: "beast", minorous: "humanoid", pharaoh: "demon", osiris: "undead",
+  pupa: "bug", roda_frog: "beast", thief_bug: "bug", creamy: "bird", willow: "plant",
 };
 
 function hex(s: string): number {
@@ -189,6 +190,12 @@ const DEFS: Record<string, AppearanceDef> = {
   minorous: { inner: "#c08060", outer: "#5a2818", scale: 1.5 },
   pharaoh: { inner: "#e0c060", outer: "#5a4010", scale: 2.8, boss: true },
   osiris: { inner: "#e0d090", outer: "#6a5418", scale: 2.9, boss: true },
+  // extra early regulars
+  pupa: { inner: "#f0d8a0", outer: "#b08840", scale: 0.8 },
+  roda_frog: { inner: "#a8d088", outer: "#3a7a3a", scale: 0.95 },
+  thief_bug: { inner: "#b0b0c0", outer: "#3a3a4a", scale: 0.85 },
+  creamy: { inner: "#ffd8e0", outer: "#e08aa8", scale: 0.9 },
+  willow: { inner: "#c0e090", outer: "#5a7a30", scale: 1.0 },
 };
 
 export const DEFAULT_TEMPLATE = "poring";
