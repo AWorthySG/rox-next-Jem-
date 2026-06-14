@@ -138,6 +138,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 108,
     reward: { exp: 200000, zeny: 110000, items: [{ id: "bloody_sword", qty: 1 }] },
   },
+  river_terror: {
+    id: "river_terror",
+    name: "Terror of the River",
+    desc: "A Giant Anaconda devours Brasilis's fishers. Slay the river terror.",
+    targetTemplate: "anaconda",
+    targetName: "Giant Anaconda",
+    count: 1,
+    requiredLevel: 66,
+    reward: { exp: 36000, zeny: 22000, items: [{ id: "machete", qty: 1 }] },
+  },
   bridge_of_dreams: {
     id: "bridge_of_dreams",
     name: "Bridge of Dreams",

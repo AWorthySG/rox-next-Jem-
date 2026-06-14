@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Brasilis gear ----
+  machete: {
+    id: "machete", name: "Machete", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A jungle blade. ATK +54, AGI +3.", atk: 54, bonusStats: { agi: 3 }, sellPrice: 2500,
+  },
+  feather_crown: {
+    id: "feather_crown", name: "Feathered Crown", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A tribal crown. AGI +5, DEX +3, Max HP +90.", maxHp: 90, bonusStats: { agi: 5, dex: 3 }, sellPrice: 2300,
+  },
+  jungle_vest: {
+    id: "jungle_vest", name: "Jungle Vest", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Light river-hunter gear. DEF +20, Max HP +180, AGI +4.", def: 20, maxHp: 180, bonusStats: { agi: 4 }, sellPrice: 2500,
+  },
+
   // ---- Bifrost gear ----
   fairy_bow: {
     id: "fairy_bow", name: "Fairy Bow", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -945,6 +959,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Brasilis
+  piranha: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "jungle_vest", chance: 0.03 }],
+  curupira: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "feather_crown", chance: 0.03 }],
+  iara: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "machete", chance: 0.03 }],
+  jaguar_king: HI([{ itemId: "machete", chance: 0.6 }, { itemId: "feather_crown", chance: 0.5 }, { itemId: "jungle_vest", chance: 0.4 }]),
+  anaconda: HI([{ itemId: "jungle_vest", chance: 0.6 }, { itemId: "machete", chance: 0.45 }, { itemId: "tidal_shoes", chance: 0.3 }]),
   // Bifrost
   miming: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "bifrost_garb", chance: 0.025 }],
   pom_spider: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "spider_circlet", chance: 0.025 }],
@@ -1006,6 +1026,7 @@ const ORE_REGULARS = [
   "bloody_knight", "wanderer", "owl_baron",
   "ronin", "shrine_spirit", "stone_lion",
   "miming", "pom_spider", "luciola_vespa",
+  "piranha", "curupira", "iara",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1024,7 +1045,7 @@ const ORE_BOSSES = [
   "stormy_knight", "garm", "lady_tanee", "leak", "gopinich", "baba_yaga", "gigantes", "ifrit",
   "phreeoni", "deviace", "orc_lord", "orc_hero", "abysmal_knight", "amdarais", "pharaoh", "osiris",
   "freezer", "turtle_general", "chung_e", "evil_snake_lord", "dark_illusion", "corrupt_monk",
-  "jade_warlord", "spirit_empress", "bangungot", "bungisngis",
+  "jade_warlord", "spirit_empress", "bangungot", "bungisngis", "jaguar_king", "anaconda",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

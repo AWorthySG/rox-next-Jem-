@@ -349,6 +349,24 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Umbala Exit", role: "portal", x: 0, z: 26, dest: { toMap: "comodo", toX: 0, toZ: -38 } },
       { name: "Juno Portal", role: "portal", x: 0, z: -50, dest: { toMap: "juno", toX: 0, toZ: 20 } },
       { name: "Moscovia Portal", role: "portal", x: 18, z: 14, dest: { toMap: "moscovia", toX: 0, toZ: 18 } },
+      { name: "Brasilis Portal", role: "portal", x: -18, z: 14, dest: { toMap: "brasilis", toX: 0, toZ: 18 } },
+    ],
+  },
+  brasilis: {
+    id: "brasilis",
+    name: "Brasilis",
+    theme: { ground: 0x3a6a3a, fog: 0x6aa05a, sky: 0x9ad08a },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "br-piranha", templateId: "piranha", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "br-curupira", templateId: "curupira", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "br-iara", templateId: "iara", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "br-jaguar", templateId: "jaguar_king", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "br-anaconda", templateId: "anaconda", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Brasilis Exit", role: "portal", x: 0, z: 24, dest: { toMap: "umbala", toX: -18, toZ: 16 } },
     ],
   },
   moscovia: {
