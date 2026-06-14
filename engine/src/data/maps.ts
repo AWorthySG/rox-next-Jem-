@@ -138,6 +138,27 @@ export const MAPS: Record<string, GameMap> = {
     npcs: [
       { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
       { name: "Pulau Hantu Exit", role: "portal", x: 0, z: 24, dest: { toMap: "gardens_bay", toX: 0, toZ: -44 } },
+      { name: "Sentosa Portal", role: "portal", x: 0, z: -50, dest: { toMap: "sentosa", toX: 0, toZ: 18 } },
+    ],
+  },
+  sentosa: {
+    id: "sentosa",
+    name: "Sentosa",
+    theme: { ground: 0x6fc08a, fog: 0x7fc6e0, sky: 0xbfe8f4 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "se-otter", templateId: "otter_alpha", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "se-grouper", templateId: "giant_grouper", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "se-peacock", templateId: "resort_peacock", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "se-merlion", templateId: "sentosa_merlion", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "se-leviathan", templateId: "leviathan", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Kafra Employee", role: "shop", x: 6, z: 24, facing: Math.PI },
+      { name: "Healer", role: "healer", x: 10, z: 24, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -6, z: 24, facing: Math.PI },
+      { name: "Blacksmith", role: "refine", x: -10, z: 24, facing: Math.PI },
+      { name: "Sentosa Exit", role: "portal", x: 0, z: 26, dest: { toMap: "pulau_hantu", toX: 0, toZ: -44 } },
     ],
   },
   geffen: {

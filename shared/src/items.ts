@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Sentosa (Singapore — capstone) gear ----
+  trident_of_tides: {
+    id: "trident_of_tides", name: "Trident of Tides", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A trident humming with the sea. ATK +100, STR +7.", atk: 100, bonusStats: { str: 7 }, sellPrice: 6000,
+  },
+  sentosa_helm: {
+    id: "sentosa_helm", name: "Sentosa Helm", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "Crown of the island guardian. DEF +22, all stats +3, Max HP +140.", def: 22, maxHp: 140, bonusStats: { str: 3, agi: 3, vit: 3, int: 3, dex: 3, luk: 3 }, sellPrice: 6000,
+  },
+  tide_plate: {
+    id: "tide_plate", name: "Tide Plate", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Armor forged from coral and steel. DEF +38, Max HP +420, VIT +6.", def: 38, maxHp: 420, bonusStats: { vit: 6 }, sellPrice: 6200,
+  },
+
   // ---- Pulau Hantu (Singapore — Ghost Island) gear ----
   soul_kris: {
     id: "soul_kris", name: "Soul Kris", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1131,6 +1145,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Sentosa (Singapore — capstone)
+  otter_alpha: [{ itemId: "white_potion", chance: 0.4 }, { itemId: "tide_plate", chance: 0.022 }],
+  giant_grouper: [{ itemId: "white_potion", chance: 0.4 }, { itemId: "trident_of_tides", chance: 0.022 }],
+  resort_peacock: [{ itemId: "white_potion", chance: 0.4 }, { itemId: "sentosa_helm", chance: 0.022 }],
+  sentosa_merlion: HI([{ itemId: "sentosa_helm", chance: 0.7 }, { itemId: "trident_of_tides", chance: 0.5 }, { itemId: "tide_plate", chance: 0.5 }]),
+  leviathan: HI([{ itemId: "trident_of_tides", chance: 0.6 }, { itemId: "tide_plate", chance: 0.55 }, { itemId: "nidhoggr_card", chance: 0.05 }]),
   // Pulau Hantu (Singapore — Ghost Island)
   pontianak: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "shroud_robe", chance: 0.025 }],
   orang_minyak: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "veil_of_night", chance: 0.025 }],
@@ -1283,6 +1303,7 @@ const ORE_REGULARS = [
   "jiangshi", "street_cat", "lantern_wisp",
   "supertree_sprite", "firefly_swarm", "orchid_fae",
   "pontianak", "orang_minyak", "hantu_air",
+  "otter_alpha", "giant_grouper", "resort_peacock",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1307,6 +1328,7 @@ const ORE_BOSSES = [
   "war_machine", "overlord_core", "sea_serpent", "the_merlion",
   "king_macaque", "reticulated_python", "jiangshi_lord", "nian_beast",
   "supertree_guardian", "flower_dome_titan", "pontianak_queen", "penanggalan",
+  "sentosa_merlion", "leviathan",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

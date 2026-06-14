@@ -138,6 +138,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 108,
     reward: { exp: 200000, zeny: 110000, items: [{ id: "bloody_sword", qty: 1 }] },
   },
+  lord_of_the_tides: {
+    id: "lord_of_the_tides",
+    name: "Lord of the Tides",
+    desc: "The Leviathan surfaces off Sentosa, summoned by the deep. Slay the sea-lord.",
+    targetTemplate: "leviathan",
+    targetName: "Leviathan",
+    count: 1,
+    requiredLevel: 124,
+    reward: { exp: 280000, zeny: 150000, items: [{ id: "trident_of_tides", qty: 1 }] },
+  },
   queen_of_ghosts: {
     id: "queen_of_ghosts",
     name: "Queen of Ghosts",

@@ -458,6 +458,12 @@ Object.assign(MONSTER_TEMPLATES, {
   hantu_air: mk("hantu_air", "Hantu Air", 99, 8400, 17800),
   pontianak_queen: mk("pontianak_queen", "Pontianak Queen", 106, 64000, 104000, true),
   penanggalan: mk("penanggalan", "Penanggalan", 108, 70000, 116000, true),
+  // ---- Sentosa (Singapore — capstone) ----
+  otter_alpha: mk("otter_alpha", "Otter Alpha", 115, 12000, 23000),
+  giant_grouper: mk("giant_grouper", "Giant Grouper", 117, 12800, 24800),
+  resort_peacock: mk("resort_peacock", "Resort Peacock", 119, 13600, 26600),
+  sentosa_merlion: mk("sentosa_merlion", "Sentosa Merlion", 126, 90000, 160000, true),
+  leviathan: mk("leviathan", "Leviathan", 128, 100000, 180000, true),
 });
 
 export interface SpawnZone {
@@ -821,6 +827,16 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "enrage", hpPct: 0.4, atkMult: 1.7 },
     { kind: "nova", intervalMs: 5000, radius: 11, powerMult: 1.7 },
   ],
+  sentosa_merlion: [
+    { kind: "enrage", hpPct: 0.4, atkMult: 1.7 },
+    { kind: "nova", intervalMs: 5000, radius: 12, powerMult: 1.8 },
+    { kind: "heal", intervalMs: 11000, pct: 0.06 },
+  ],
+  leviathan: [
+    { kind: "enrage", hpPct: 0.5, atkMult: 1.8 },
+    { kind: "nova", intervalMs: 4800, radius: 13, powerMult: 1.8 },
+    { kind: "summon", intervalMs: 8000, templateId: "giant_grouper", count: 3, max: 6 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -1029,6 +1045,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   hantu_air: Element.Water,
   pontianak_queen: Element.Shadow,
   penanggalan: Element.Wind,
+  otter_alpha: Element.Wind,
+  giant_grouper: Element.Water,
+  resort_peacock: Element.Wind,
+  sentosa_merlion: Element.Holy,
+  leviathan: Element.Water,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

@@ -64,6 +64,7 @@ const ARCH: Record<string, MonsterArch> = {
   jiangshi: "undead", street_cat: "beast", lantern_wisp: "ghost", jiangshi_lord: "undead", nian_beast: "beast",
   supertree_sprite: "plant", firefly_swarm: "bug", orchid_fae: "plant", supertree_guardian: "golem", flower_dome_titan: "golem",
   pontianak: "ghost", orang_minyak: "demon", hantu_air: "ghost", pontianak_queen: "ghost", penanggalan: "demon",
+  otter_alpha: "beast", giant_grouper: "aquatic", resort_peacock: "bird", sentosa_merlion: "aquatic", leviathan: "dragon",
 };
 
 function hex(s: string): number {
@@ -322,6 +323,12 @@ const DEFS: Record<string, AppearanceDef> = {
   hantu_air: { inner: "#a0c0d0", outer: "#2a4a5a", scale: 1.25 },
   pontianak_queen: { inner: "#f0f0f8", outer: "#7a7a8a", scale: 2.9, boss: true },
   penanggalan: { inner: "#e0a0a0", outer: "#5a1818", scale: 2.8, boss: true },
+  // Sentosa (Singapore — capstone)
+  otter_alpha: { inner: "#c0a070", outer: "#5a3a20", scale: 1.2 },
+  giant_grouper: { inner: "#80b0a0", outer: "#2a5a4a", scale: 1.4 },
+  resort_peacock: { inner: "#40c0c0", outer: "#1a5a6a", scale: 1.3 },
+  sentosa_merlion: { inner: "#f0e8b0", outer: "#a07830", scale: 3.3, boss: true },
+  leviathan: { inner: "#60a0c0", outer: "#0a3a5a", scale: 3.4, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";
