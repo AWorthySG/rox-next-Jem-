@@ -62,6 +62,8 @@ export function buildMonsterMesh(app: MonsterAppearance): MonsterMesh {
       return dragon(app);
     case "golem":
       return golem(app);
+    case "aquatic":
+      return aquatic(app);
     default: {
       const p = buildPoring(app.texture);
       return { group: p.group, body: p.body, squash: true };
@@ -273,6 +275,52 @@ function bird(app: MonsterAppearance): MonsterMesh {
   tail.rotation.x = Math.PI / 2.2;
   g.add(tail);
   g.add(blob(1.3));
+  shade(g);
+  return { group: g, body, squash: false };
+}
+
+function aquatic(app: MonsterAppearance): MonsterMesh {
+  const g = new THREE.Group();
+  // bulbous mantle/head
+  const body = new THREE.Mesh(new THREE.SphereGeometry(0.55, 16, 14), toon(app.main, { transparent: true, opacity: 0.95 }));
+  body.scale.set(1, 1.2, 1);
+  body.position.y = 1.0;
+  g.add(body);
+  // a crest fin
+  const fin = new THREE.Mesh(
+    new THREE.ConeGeometry(0.3, 0.5, 4),
+    new THREE.MeshToonMaterial({ color: app.accent, gradientMap: makeToonGradient(), side: THREE.DoubleSide }),
+  );
+  fin.position.set(0, 1.6, -0.1);
+  fin.scale.set(0.4, 1, 1);
+  g.add(fin);
+  eyes(g, 1.05, 0.45, 0.18, 0.08, 0xffffff);
+  // dangling tentacles
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * Math.PI * 2;
+    const tent = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.85, 6), toon(app.accent));
+    tent.position.set(Math.sin(a) * 0.34, 0.45, Math.cos(a) * 0.34);
+    tent.rotation.x = Math.PI;
+    tent.rotation.z = Math.sin(a) * 0.3;
+    g.add(tent);
+  }
+  // side fins
+  for (const s of [-1, 1]) {
+    const sf = new THREE.Mesh(
+      new THREE.CircleGeometry(0.32, 8, 0, Math.PI),
+      new THREE.MeshToonMaterial({ color: app.accent, gradientMap: makeToonGradient(), side: THREE.DoubleSide }),
+    );
+    sf.position.set(s * 0.5, 1.05, 0);
+    sf.rotation.set(Math.PI / 2, 0, s * 0.5);
+    g.add(sf);
+  }
+  const halo = new THREE.Mesh(
+    new THREE.CircleGeometry(0.6, 18),
+    new THREE.MeshBasicMaterial({ color: app.main, transparent: true, opacity: 0.16, depthWrite: false }),
+  );
+  halo.rotation.x = -Math.PI / 2;
+  halo.position.y = 0.03;
+  g.add(halo);
   shade(g);
   return { group: g, body, squash: false };
 }

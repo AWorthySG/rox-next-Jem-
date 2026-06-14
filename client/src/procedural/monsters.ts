@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { makePoringTexture } from "./textures.js";
 
-export type MonsterArch = "jelly" | "bug" | "beast" | "undead" | "plant" | "rock" | "demon" | "bird" | "ghost" | "dragon" | "golem";
+export type MonsterArch = "jelly" | "bug" | "beast" | "undead" | "plant" | "rock" | "demon" | "bird" | "ghost" | "dragon" | "golem" | "aquatic";
 
 export interface MonsterAppearance {
   arch: MonsterArch;
@@ -23,10 +23,10 @@ interface AppearanceDef {
 const ARCH: Record<string, MonsterArch> = {
   poring: "jelly", drops: "jelly", lunatic: "jelly", angeling: "jelly",
   fabre: "bug", chonchon: "bug", stem_worm: "bug", metaling: "bug", venatu: "bug", sleeper: "bug",
-  wolf: "beast", coco: "beast", eddga: "beast", kraken: "beast", boitata: "beast", tao_gunka: "beast",
+  wolf: "beast", coco: "beast", eddga: "beast", kraken: "aquatic", boitata: "beast", tao_gunka: "beast",
   zombie: "undead", skeleton: "undead", wraith: "undead", gargoyle: "undead", vanberk: "undead", hodremlin: "undead", amon_ra: "undead",
   spore: "plant", dryad: "plant", tendrilion: "plant",
-  hardrock_mammoth: "golem", clock: "rock", clock_tower_manager: "golem", sandman: "rock", anolian: "rock",
+  hardrock_mammoth: "golem", clock: "rock", clock_tower_manager: "golem", sandman: "rock", anolian: "aquatic",
   tao_gunka: "golem", ktullanux: "golem",
   baphomet: "demon", dark_lord: "demon", beelzebub: "demon", gloom: "demon", thanatos_phantom: "demon", memory_of_thanatos: "demon",
   hill_wind: "bird", owl_duke: "bird", vesper: "bird", valkyrie_randgris: "bird", kiel: "bird",
@@ -36,7 +36,7 @@ const ARCH: Record<string, MonsterArch> = {
   cecil: "bird", wickebine: "bug", ferus: "dragon", acidus: "dragon", detale: "dragon", boitata: "dragon",
   marionette: "ghost", nightmare: "beast", marduk: "bug", doppelganger: "demon", dark_priest: "ghost",
   loli_ruri: "ghost", quve: "ghost", gibbet: "undead", bacsojin: "ghost", fallen_bishop: "demon",
-  poison_spore: "plant", karakasa: "ghost", tengu: "demon", samurai_specter: "undead", kapha: "beast",
+  poison_spore: "plant", karakasa: "ghost", tengu: "demon", samurai_specter: "undead", kapha: "aquatic",
   cookie: "jelly", myst_case: "rock", antonio: "beast", stormy_knight: "undead", garm: "beast",
   kobold: "beast", elder_willow: "plant", brilight: "bug", lady_tanee: "plant", leak: "dragon",
 };
