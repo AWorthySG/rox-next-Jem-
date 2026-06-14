@@ -74,6 +74,7 @@ export class Player {
   activeQuests: Record<string, number> = {}; // questId -> kill progress
   completedQuests: string[] = [];
   totalKills = 0;
+  killCounts: Record<string, number> = {}; // templateId -> kills (Monster Codex)
   bossesKilled: string[] = [];
   achievements: string[] = [];
 
@@ -461,6 +462,7 @@ export class Player {
 
   recordKill(templateId: string, boss: boolean): void {
     this.totalKills += 1;
+    this.killCounts[templateId] = (this.killCounts[templateId] ?? 0) + 1;
     if (boss && !this.bossesKilled.includes(templateId)) this.bossesKilled.push(templateId);
   }
 
@@ -588,6 +590,8 @@ export class Player {
     for (const q of s.quests.active) this.activeQuests[q.id] = q.progress;
     this.completedQuests = [...s.quests.completed];
     this.achievements = [...(s.achievements ?? [])];
+    this.killCounts = {};
+    for (const k of s.killCounts ?? []) this.killCounts[k.id] = k.count;
     this.mapId = s.mapId ?? "field";
     this.activePet = s.pet ?? null;
     this.mounted = !!s.mounted;
@@ -666,6 +670,7 @@ export class Player {
         completed: [...this.completedQuests],
       },
       achievements: [...this.achievements],
+      killCounts: Object.entries(this.killCounts).map(([id, count]) => ({ id, count })),
       buffs: [
         ...this.buffs
           .filter((b) => b.expiresAt > Date.now())

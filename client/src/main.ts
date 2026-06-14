@@ -17,6 +17,7 @@ import { PetCompanion } from "./entities/PetCompanion.js";
 import { SkillBar } from "./ui/SkillBar.js";
 import { InventoryPanel } from "./ui/InventoryPanel.js";
 import { StoragePanel } from "./ui/StoragePanel.js";
+import { BestiaryPanel } from "./ui/BestiaryPanel.js";
 import { ShopPanel } from "./ui/ShopPanel.js";
 import { QuestPanel } from "./ui/QuestPanel.js";
 import { RefinePanel } from "./ui/RefinePanel.js";
@@ -171,6 +172,8 @@ const storage = new StoragePanel({
   onStore: (itemId, qty) => transport?.send({ t: MsgType.StoreItem, itemId, qty }),
   onRetrieve: (itemId, qty) => transport?.send({ t: MsgType.RetrieveItem, itemId, qty }),
 });
+
+const bestiary = new BestiaryPanel(gameState);
 
 const quests = new QuestPanel({
   onAccept: (questId) => transport?.send({ t: MsgType.AcceptQuest, questId }),
@@ -332,6 +335,7 @@ function handleMessage(msg: ServerMessage): void {
       skillBar.setSp(msg.self.sp);
       inventory.sync(msg.self);
       storage.sync(msg.self);
+      bestiary.sync(msg.self);
       shop.sync(msg.self);
       quests.sync(msg.self);
       refine.sync(msg.self);

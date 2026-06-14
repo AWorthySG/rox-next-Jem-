@@ -925,6 +925,64 @@ body {
   overflow: hidden;
 }
 
+/* ---- Monster Codex ---- */
+.bestiary {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 480px;
+  max-width: 94vw;
+  max-height: 78vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 2px solid var(--gold);
+  border-radius: 12px;
+  pointer-events: auto;
+  overflow: hidden;
+  z-index: 30;
+}
+.bestiary-list {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  padding: 8px;
+  overflow-y: auto;
+}
+.bestiary-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto auto;
+  align-items: center;
+  gap: 10px;
+  padding: 7px 10px;
+  font-size: 12px;
+  background: rgba(0, 0, 0, 0.2);
+  border: 1px solid rgba(244, 217, 138, 0.12);
+  border-radius: 7px;
+}
+.bestiary-row.boss {
+  border-color: var(--gold);
+  background: rgba(120, 92, 36, 0.32);
+}
+.bestiary-row .bx-name {
+  font-weight: 700;
+}
+.bestiary-row .bx-lv {
+  opacity: 0.7;
+}
+.bestiary-row .bx-elem {
+  opacity: 0.85;
+  min-width: 74px;
+  text-align: right;
+}
+.bestiary-row .bx-kills {
+  color: var(--gold);
+  font-weight: 700;
+  min-width: 46px;
+  text-align: right;
+}
+
 /* ---- Kafra storage ---- */
 .storage {
   position: absolute;

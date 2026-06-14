@@ -202,6 +202,18 @@ async function main(): Promise<void> {
   carder.unequip("weapon" as never);
   check((carder.toSelfState().inventory.find((i) => i.id === "skeleton_card")?.qty ?? 0) === 1, "cards: unequipping returns the card");
 
+  // ---- deterministic Monster Codex (kill counts) ----
+  const hunter = new Player(971, 1, "Hunter", JobId.Archer, 0, 0);
+  hunter.recordKill("poring", false);
+  hunter.recordKill("poring", false);
+  hunter.recordKill("baphomet", true);
+  check(hunter.killCounts["poring"] === 2, "codex: kill tally increments per species");
+  check(hunter.killCounts["baphomet"] === 1, "codex: boss kills tracked too");
+  check(hunter.toSelfState().killCounts.find((k) => k.id === "poring")?.count === 2, "codex: surfaced in self state");
+  const dexLoaded = new Player(970, 1, "X", JobId.Novice, 0, 0);
+  dexLoaded.restore(hunter.toSelfState());
+  check(dexLoaded.killCounts["poring"] === 2, "codex: persists across save/load");
+
   // ---- deterministic elemental system ----
   check(elementMultiplier(Element.Fire, Element.Earth) === 1.5, "element: Fire is strong vs Earth");
   check(elementMultiplier(Element.Fire, Element.Water) === 0.5, "element: Fire is weak vs Water");

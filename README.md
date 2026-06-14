@@ -68,6 +68,8 @@ copyrighted assets.
   Max HP/SP); buffs show as HUD chips, refresh on re-eat, and revert when they lapse.
 - **Achievements**: milestone goals (kills, levels, boss slays) tracked server-side, unlocked
   with Zeny rewards and an unlock toast (window `V`).
+- **Monster Codex**: a handbook (window `N`) of every species you've encountered, listing its
+  level, element and a running kill tally — a collection meta-goal that persists across sessions.
 - **Pets**: use a pet egg (dropped by Porings, Lunatics, Baphomet, or bought) to summon a
   companion that trails you and grants a passive stat bonus.
 - **Mounts**: buy a Peco Peco Whistle to ride a mount for faster movement (toggle on/off).

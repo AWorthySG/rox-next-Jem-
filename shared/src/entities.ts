@@ -78,6 +78,7 @@ export interface SelfState {
 
   quests: QuestState;
   achievements: string[];
+  killCounts: Array<{ id: string; count: number }>; // Monster Codex tallies
   buffs: Array<{ type: string; remainingMs: number }>;
   pet: string | null;
   mounted: boolean;
