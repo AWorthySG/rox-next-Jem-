@@ -470,6 +470,12 @@ Object.assign(MONSTER_TEMPLATES, {
   batik_serpent: mk("batik_serpent", "Batik Serpent", 64, 3800, 8800),
   sultan_jinn: mk("sultan_jinn", "Sultan Jinn", 70, 17000, 30000, true),
   naga_emas: mk("naga_emas", "Naga Emas", 72, 19000, 34000, true),
+  // ---- Marina Bay (Singapore) ----
+  chrome_sentry: mk("chrome_sentry", "Chrome Sentry", 100, 9200, 18800),
+  neon_wisp: mk("neon_wisp", "Neon Wisp", 102, 9800, 20000),
+  drone_swarm: mk("drone_swarm", "Drone Swarm", 104, 10400, 21200),
+  skyline_colossus: mk("skyline_colossus", "Skyline Colossus", 112, 70000, 114000, true),
+  spectra_dragon: mk("spectra_dragon", "Spectra Dragon", 114, 76000, 126000, true),
 });
 
 export interface SpawnZone {
@@ -851,6 +857,15 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "enrage", hpPct: 0.35, atkMult: 1.7 },
     { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
   ],
+  skyline_colossus: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.7 },
+    { kind: "nova", intervalMs: 5500, radius: 12, powerMult: 1.7 },
+  ],
+  spectra_dragon: [
+    { kind: "nova", intervalMs: 5000, radius: 12, powerMult: 1.8 },
+    { kind: "summon", intervalMs: 8000, templateId: "drone_swarm", count: 3, max: 6 },
+    { kind: "heal", intervalMs: 12000, pct: 0.05 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -1069,6 +1084,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   batik_serpent: Element.Earth,
   sultan_jinn: Element.Fire,
   naga_emas: Element.Holy,
+  chrome_sentry: Element.Earth,
+  neon_wisp: Element.Wind,
+  drone_swarm: Element.Wind,
+  skyline_colossus: Element.Fire,
+  spectra_dragon: Element.Water,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

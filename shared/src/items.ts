@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Marina Bay (Singapore) gear ----
+  laser_lance: {
+    id: "laser_lance", name: "Laser Lance", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A coherent-light polearm. ATK +90, DEX +6.", atk: 90, bonusStats: { dex: 6 }, sellPrice: 5200,
+  },
+  skyline_visor: {
+    id: "skyline_visor", name: "Skyline Visor", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "An augmented-reality visor. MATK +12, INT +6, Max SP +50.", matk: 12, maxSp: 50, bonusStats: { int: 6 }, sellPrice: 4800,
+  },
+  chrome_plate: {
+    id: "chrome_plate", name: "Chrome Plate", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Mirror-polished battle plate. DEF +34, Max HP +380, VIT +6.", def: 34, maxHp: 380, bonusStats: { vit: 6 }, sellPrice: 5200,
+  },
+
   // ---- Kampong Glam (Singapore) gear ----
   corsair_scimitar: {
     id: "corsair_scimitar", name: "Corsair Scimitar", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1159,6 +1173,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Marina Bay (Singapore)
+  chrome_sentry: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "chrome_plate", chance: 0.025 }],
+  neon_wisp: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "skyline_visor", chance: 0.025 }],
+  drone_swarm: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "laser_lance", chance: 0.025 }],
+  skyline_colossus: HI([{ itemId: "laser_lance", chance: 0.6 }, { itemId: "chrome_plate", chance: 0.5 }, { itemId: "skyline_visor", chance: 0.4 }]),
+  spectra_dragon: HI([{ itemId: "laser_lance", chance: 0.6 }, { itemId: "chrome_plate", chance: 0.55 }, { itemId: "doppelganger_card", chance: 0.05 }]),
   // Kampong Glam (Singapore)
   bugis_corsair: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "corsair_scimitar", chance: 0.03 }],
   djinn: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "songkok", chance: 0.03 }],
@@ -1325,6 +1345,7 @@ const ORE_REGULARS = [
   "pontianak", "orang_minyak", "hantu_air",
   "otter_alpha", "giant_grouper", "resort_peacock",
   "bugis_corsair", "djinn", "batik_serpent",
+  "chrome_sentry", "neon_wisp", "drone_swarm",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1350,6 +1371,7 @@ const ORE_BOSSES = [
   "king_macaque", "reticulated_python", "jiangshi_lord", "nian_beast",
   "supertree_guardian", "flower_dome_titan", "pontianak_queen", "penanggalan",
   "sentosa_merlion", "leviathan", "sultan_jinn", "naga_emas",
+  "skyline_colossus", "spectra_dragon",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

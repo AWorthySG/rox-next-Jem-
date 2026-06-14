@@ -140,6 +140,25 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
       { name: "Gardens Exit", role: "portal", x: 0, z: 24, dest: { toMap: "chinatown", toX: 0, toZ: -44 } },
       { name: "Pulau Hantu Portal", role: "portal", x: 0, z: -50, dest: { toMap: "pulau_hantu", toX: 0, toZ: 18 } },
+      { name: "Marina Bay Portal", role: "portal", x: 18, z: 14, dest: { toMap: "marina_bay", toX: 0, toZ: 18 } },
+    ],
+  },
+  marina_bay: {
+    id: "marina_bay",
+    name: "Marina Bay",
+    theme: { ground: 0x3a4a6a, fog: 0x6a90c0, sky: 0x90b8e0 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "ma-sentry", templateId: "chrome_sentry", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "ma-wisp", templateId: "neon_wisp", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "ma-drone", templateId: "drone_swarm", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "ma-colossus", templateId: "skyline_colossus", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "ma-spectra", templateId: "spectra_dragon", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Marina Bay Exit", role: "portal", x: 0, z: 24, dest: { toMap: "gardens_bay", toX: 18, toZ: 16 } },
     ],
   },
   pulau_hantu: {

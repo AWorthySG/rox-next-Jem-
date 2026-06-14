@@ -138,6 +138,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 108,
     reward: { exp: 200000, zeny: 110000, items: [{ id: "bloody_sword", qty: 1 }] },
   },
+  the_skyline_colossus: {
+    id: "the_skyline_colossus",
+    name: "The Skyline Colossus",
+    desc: "Marina Bay's towers have woken as a colossus. Topple the steel giant.",
+    targetTemplate: "skyline_colossus",
+    targetName: "Skyline Colossus",
+    count: 1,
+    requiredLevel: 108,
+    reward: { exp: 210000, zeny: 118000, items: [{ id: "laser_lance", qty: 1 }] },
+  },
   the_sultans_jinn: {
     id: "the_sultans_jinn",
     name: "The Sultan's Jinn",
