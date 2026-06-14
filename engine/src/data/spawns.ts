@@ -1,5 +1,12 @@
 import { makeStats, type Stats } from "@rox/shared";
 
+// Distinct boss behaviours, driven on the server tick.
+export type BossMechanic =
+  | { kind: "enrage"; hpPct: number; atkMult: number } // hits harder below hpPct
+  | { kind: "nova"; intervalMs: number; radius: number; powerMult: number } // periodic AoE around the boss
+  | { kind: "summon"; intervalMs: number; templateId: string; count: number; max: number } // spawn minions
+  | { kind: "heal"; intervalMs: number; pct: number }; // periodic self-heal
+
 export interface MonsterTemplate {
   id: string;
   name: string;
@@ -9,6 +16,7 @@ export interface MonsterTemplate {
   baseExp: number;
   respawnMs?: number; // overrides the default respawn delay (bosses respawn slowly)
   boss?: boolean;
+  mechanics?: BossMechanic[];
 }
 
 // A small bestiary of classic-feeling field monsters plus an MVP-style boss.
@@ -249,6 +257,11 @@ Object.assign(MONSTER_TEMPLATES, {
   hodremlin: mk("hodremlin", "Hodremlin", 106, 9800, 19000),
   ktullanux: mk("ktullanux", "Ktullanux", 118, 82000, 140000, true),
   beelzebub: mk("beelzebub", "Beelzebub", 125, 115000, 210000, true),
+  // Thanatos Tower
+  aliot: mk("aliot", "Aliot", 100, 9000, 17000),
+  aliza: mk("aliza", "Aliza", 106, 10500, 20000),
+  thanatos_phantom: mk("thanatos_phantom", "Thanatos Phantom", 122, 95000, 160000, true),
+  memory_of_thanatos: mk("memory_of_thanatos", "Memory of Thanatos", 128, 140000, 260000, true),
 });
 
 export interface SpawnZone {
@@ -269,3 +282,74 @@ export const SPAWN_ZONES: SpawnZone[] = [
   { id: "lunatic-meadow", templateId: "lunatic", cx: -30, cz: -26, radius: 12, count: 5 },
   { id: "boss-arena", templateId: "poring_king", cx: 0, cz: -48, radius: 4, count: 1 },
 ];
+
+// ---- per-boss fight mechanics ----
+const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
+  poring_king: [
+    { kind: "summon", intervalMs: 9000, templateId: "poring", count: 3, max: 6 },
+    { kind: "heal", intervalMs: 12000, pct: 0.06 },
+  ],
+  baphomet: [
+    { kind: "enrage", hpPct: 0.3, atkMult: 1.6 },
+    { kind: "nova", intervalMs: 7000, radius: 9, powerMult: 1.4 },
+  ],
+  clock_tower_manager: [
+    { kind: "summon", intervalMs: 8000, templateId: "punk", count: 2, max: 5 },
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.5 },
+  ],
+  hardrock_mammoth: [
+    { kind: "nova", intervalMs: 6000, radius: 10, powerMult: 1.5 },
+    { kind: "heal", intervalMs: 14000, pct: 0.05 },
+  ],
+  kraken: [{ kind: "nova", intervalMs: 6500, radius: 11, powerMult: 1.3 }],
+  tao_gunka: [{ kind: "enrage", hpPct: 0.5, atkMult: 1.8 }],
+  gloom: [
+    { kind: "nova", intervalMs: 6000, radius: 9, powerMult: 1.6 },
+    { kind: "enrage", hpPct: 0.3, atkMult: 1.5 },
+  ],
+  dark_lord: [
+    { kind: "enrage", hpPct: 0.4, atkMult: 1.6 },
+    { kind: "nova", intervalMs: 6000, radius: 10, powerMult: 1.5 },
+    { kind: "summon", intervalMs: 11000, templateId: "skeleton", count: 2, max: 4 },
+  ],
+  kiel: [
+    { kind: "nova", intervalMs: 5500, radius: 9, powerMult: 1.7 },
+    { kind: "enrage", hpPct: 0.3, atkMult: 1.6 },
+  ],
+  vesper: [
+    { kind: "summon", intervalMs: 10000, templateId: "venatu", count: 2, max: 4 },
+    { kind: "nova", intervalMs: 6500, radius: 10, powerMult: 1.5 },
+  ],
+  boitata: [{ kind: "nova", intervalMs: 6000, radius: 11, powerMult: 1.6 }],
+  tendrilion: [
+    { kind: "summon", intervalMs: 9000, templateId: "venatu", count: 3, max: 5 },
+    { kind: "heal", intervalMs: 13000, pct: 0.05 },
+  ],
+  valkyrie_randgris: [
+    { kind: "heal", intervalMs: 11000, pct: 0.06 },
+    { kind: "nova", intervalMs: 6000, radius: 10, powerMult: 1.6 },
+  ],
+  ktullanux: [
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
+    { kind: "enrage", hpPct: 0.3, atkMult: 1.6 },
+  ],
+  beelzebub: [
+    { kind: "enrage", hpPct: 0.5, atkMult: 1.8 },
+    { kind: "nova", intervalMs: 5000, radius: 12, powerMult: 1.8 },
+    { kind: "summon", intervalMs: 9000, templateId: "venatu", count: 3, max: 6 },
+    { kind: "heal", intervalMs: 15000, pct: 0.04 },
+  ],
+  thanatos_phantom: [
+    { kind: "enrage", hpPct: 0.4, atkMult: 1.7 },
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
+  ],
+  memory_of_thanatos: [
+    { kind: "enrage", hpPct: 0.5, atkMult: 1.9 },
+    { kind: "nova", intervalMs: 4500, radius: 13, powerMult: 1.9 },
+    { kind: "summon", intervalMs: 8000, templateId: "aliot", count: 3, max: 6 },
+    { kind: "heal", intervalMs: 14000, pct: 0.05 },
+  ],
+};
+for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
+  if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
+}

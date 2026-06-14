@@ -71,7 +71,9 @@ export class GameState {
   applySnapshot(entities: EntitySnapshot[], clientTime: number): void {
     for (const e of entities) {
       const view = this.views.get(e.id);
-      if (view) view.pushSnapshot(e.x, e.z, e.facing, e.hp, clientTime);
+      if (!view) continue;
+      view.pushSnapshot(e.x, e.z, e.facing, e.hp, clientTime);
+      if (view instanceof MonsterView) view.setEnraged(!!e.enraged);
     }
   }
 

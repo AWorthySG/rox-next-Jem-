@@ -23,6 +23,7 @@ export interface ItemDef {
   type: ItemType;
   desc: string;
   slot?: EquipSlot; // for equipment
+  cardSlot?: EquipSlot; // for cards: which equipped item type it sockets into
   // equipment bonuses
   bonusStats?: Partial<Stats>;
   atk?: number;
@@ -252,6 +253,37 @@ export const ITEMS: Record<string, ItemDef> = {
     maxSp: 80,
     sellPrice: 6000,
   },
+  thanatos_sword: {
+    id: "thanatos_sword",
+    name: "Sword of Thanatos",
+    type: ItemType.Weapon,
+    slot: EquipSlot.Weapon,
+    desc: "The cursed blade. ATK +90, MATK +60, STR +8, INT +8.",
+    atk: 90,
+    matk: 60,
+    bonusStats: { str: 8, int: 8 },
+    sellPrice: 9000,
+  },
+  fallen_angel_wing: {
+    id: "fallen_angel_wing",
+    name: "Fallen Angel Wing",
+    type: ItemType.Armor,
+    slot: EquipSlot.Armor,
+    desc: "Wings of the abyss. DEF +40, Max HP +500, all stats +4.",
+    def: 40,
+    maxHp: 500,
+    bonusStats: { str: 4, agi: 4, vit: 4, int: 4, dex: 4, luk: 4 },
+    sellPrice: 12000,
+  },
+
+  // ---- cards (socket into equipped gear) ----
+  poring_card: { id: "poring_card", name: "Poring Card", type: ItemType.Card, cardSlot: EquipSlot.Accessory, desc: "Accessory card. LUK +4, Max HP +30.", bonusStats: { luk: 4 }, maxHp: 30, sellPrice: 400 },
+  skeleton_card: { id: "skeleton_card", name: "Skeleton Card", type: ItemType.Card, cardSlot: EquipSlot.Weapon, desc: "Weapon card. ATK +12.", atk: 12, sellPrice: 800 },
+  marc_card: { id: "marc_card", name: "Marc Card", type: ItemType.Card, cardSlot: EquipSlot.Armor, desc: "Armor card. DEF +6, Max HP +120.", def: 6, maxHp: 120, sellPrice: 900 },
+  baphomet_card: { id: "baphomet_card", name: "Baphomet Card", type: ItemType.Card, cardSlot: EquipSlot.Weapon, desc: "Weapon card. ATK +18, STR +4.", atk: 18, bonusStats: { str: 4 }, sellPrice: 3000 },
+  doppelganger_card: { id: "doppelganger_card", name: "Doppelganger Card", type: ItemType.Card, cardSlot: EquipSlot.Weapon, desc: "Weapon card. ATK +20, MATK +20.", atk: 20, matk: 20, sellPrice: 5000 },
+  ghostring_card: { id: "ghostring_card", name: "Ghostring Card", type: ItemType.Card, cardSlot: EquipSlot.Armor, desc: "Armor card. Max HP +400, VIT +6.", maxHp: 400, bonusStats: { vit: 6 }, sellPrice: 6000 },
+  thanatos_card: { id: "thanatos_card", name: "Thanatos Card", type: ItemType.Card, cardSlot: EquipSlot.Weapon, desc: "Weapon card. ATK +30, MATK +30, STR +5, INT +5.", atk: 30, matk: 30, bonusStats: { str: 5, int: 5 }, sellPrice: 12000 },
 };
 
 // What the town shop sells.
@@ -306,6 +338,7 @@ export const DROP_TABLES: Record<string, DropEntry[]> = {
     { itemId: "poring_crown", chance: 0.8 },
     { itemId: "kings_cleaver", chance: 0.55 },
     { itemId: "leather_armor", chance: 0.5 },
+    { itemId: "poring_card", chance: 0.1 },
   ],
   spore: [
     { itemId: "apple", chance: 0.3 },
@@ -324,6 +357,7 @@ export const DROP_TABLES: Record<string, DropEntry[]> = {
     { itemId: "red_potion", chance: 0.3 },
     { itemId: "claymore", chance: 0.06 },
     { itemId: "rosary", chance: 0.05 },
+    { itemId: "skeleton_card", chance: 0.03 },
   ],
   baphomet: [
     { itemId: "red_potion", chance: 1, qty: 5 },
@@ -331,6 +365,7 @@ export const DROP_TABLES: Record<string, DropEntry[]> = {
     { itemId: "claymore", chance: 0.5 },
     { itemId: "saint_robe", chance: 0.5 },
     { itemId: "baphomet_egg", chance: 0.25 },
+    { itemId: "baphomet_card", chance: 0.08 },
   ],
   punk: [
     { itemId: "red_potion", chance: 0.35 },
@@ -383,6 +418,7 @@ export const DROP_TABLES: Record<string, DropEntry[]> = {
     { itemId: "immortal_heart", chance: 0.6 },
     { itemId: "dragon_slayer", chance: 0.4 },
     { itemId: "valkyrie_armor", chance: 0.4 },
+    { itemId: "doppelganger_card", chance: 0.06 },
   ],
 };
 
@@ -396,7 +432,7 @@ Object.assign(DROP_TABLES, {
   eddga: HI([{ itemId: "leather_armor", chance: 0.6 }, { itemId: "novice_knife", chance: 0.5 }]),
   moonlight: HI([{ itemId: "ring_of_power", chance: 0.6 }, { itemId: "apprentice_rod", chance: 0.5 }]),
   mistress: HI([{ itemId: "cotton_shirt", chance: 0.6 }, { itemId: "ring_of_power", chance: 0.5 }]),
-  amon_ra: HI([{ itemId: "saint_robe", chance: 0.6 }, { itemId: "claymore", chance: 0.45 }, { itemId: "rosary", chance: 0.5 }]),
+  amon_ra: HI([{ itemId: "saint_robe", chance: 0.6 }, { itemId: "claymore", chance: 0.45 }, { itemId: "marc_card", chance: 0.08 }]),
   owl_duke: HI([{ itemId: "clock_gear", chance: 0.7 }, { itemId: "claymore", chance: 0.4 }]),
   kraken: HI([{ itemId: "tidal_shoes", chance: 0.7 }, { itemId: "claymore", chance: 0.4 }]),
   tao_gunka: HI([{ itemId: "valkyrie_armor", chance: 0.4 }, { itemId: "tidal_shoes", chance: 0.6 }]),
@@ -413,7 +449,11 @@ Object.assign(DROP_TABLES, {
   vanberk: [{ itemId: "red_potion", chance: 0.5 }],
   hodremlin: [{ itemId: "red_potion", chance: 0.5 }, { itemId: "valkyrie_armor", chance: 0.03 }],
   ktullanux: HI([{ itemId: "immortal_heart", chance: 0.6 }, { itemId: "valkyrie_armor", chance: 0.5 }]),
-  beelzebub: HI([{ itemId: "immortal_heart", chance: 0.8 }, { itemId: "dragon_slayer", chance: 0.6 }, { itemId: "valkyrie_armor", chance: 0.6 }]),
+  beelzebub: HI([{ itemId: "immortal_heart", chance: 0.8 }, { itemId: "dragon_slayer", chance: 0.6 }, { itemId: "ghostring_card", chance: 0.1 }]),
+  aliot: [{ itemId: "red_potion", chance: 0.5 }],
+  aliza: [{ itemId: "red_potion", chance: 0.5 }, { itemId: "immortal_heart", chance: 0.02 }],
+  thanatos_phantom: HI([{ itemId: "thanatos_sword", chance: 0.5 }, { itemId: "immortal_heart", chance: 0.5 }]),
+  memory_of_thanatos: HI([{ itemId: "fallen_angel_wing", chance: 0.7 }, { itemId: "thanatos_sword", chance: 0.6 }, { itemId: "thanatos_card", chance: 0.12 }]),
 });
 
 // Roll a monster's drop table into a concrete item list.

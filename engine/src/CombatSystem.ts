@@ -22,9 +22,10 @@ import {
 } from "@rox/shared";
 import type { World } from "./World.js";
 import type { Player } from "./Player.js";
-import type { Monster } from "./Monster.js";
+import { Monster } from "./Monster.js";
 import { dist2d } from "./MovementSystem.js";
 import { MAPS } from "./data/maps.js";
+import { MONSTER_TEMPLATES } from "./data/spawns.js";
 
 // Resolves player auto-attacks and skills, applies monster-dealt damage, and
 // handles regen, kills, EXP/Zeny rewards and respawns.
@@ -44,6 +45,104 @@ export class CombatSystem {
       this.updatePlayerAttack(p);
     }
     this.processStatuses();
+    this.processBosses(dtMs);
+  }
+
+  // ---- boss mechanics ----
+
+  private processBosses(dtMs: number): void {
+    const now = Date.now();
+    for (const m of this.world.monsters.values()) {
+      const mechs = m.template.mechanics;
+      if (!mechs || m.isDead) continue;
+      // resolve a telegraphed nova once its warning elapses
+      if (m.pendingNova && now >= m.pendingNova.fireAt) this.executeNova(m);
+      if (m.mechTimers.length !== mechs.length) m.mechTimers = mechs.map((me) => ("intervalMs" in me ? me.intervalMs : 0));
+      mechs.forEach((mech, i) => {
+        if (mech.kind === "enrage") {
+          if (!m.enraged && m.hp / m.derived.maxHp <= mech.hpPct) {
+            m.enraged = true;
+            m.damageMult = mech.atkMult;
+            this.bossAnnounce(m, `${m.template.name} enrages!`);
+          }
+          return;
+        }
+        m.mechTimers[i] -= dtMs;
+        if (m.mechTimers[i] > 0) return;
+        m.mechTimers[i] = mech.intervalMs;
+        if (mech.kind === "nova") this.bossNova(m, mech.radius, mech.powerMult);
+        else if (mech.kind === "summon") this.bossSummon(m, mech.templateId, mech.count, mech.max);
+        else if (mech.kind === "heal") this.bossHeal(m, mech.pct);
+      });
+    }
+  }
+
+  // Telegraph the nova: warn clients now, deal damage after a short delay so
+  // players can step out of the marked area.
+  private bossNova(m: Monster, radius: number, powerMult: number): void {
+    if (m.pendingNova) return; // one at a time
+    const delayMs = 1200;
+    m.pendingNova = { x: m.x, z: m.z, radius, powerMult, fireAt: Date.now() + delayMs };
+    this.bossAnnounce(m, `${m.template.name} is charging a nova!`);
+    this.world.broadcastToMap(m.mapId, { t: MsgType.BossTelegraph, x: m.x, z: m.z, radius, delayMs });
+  }
+
+  private executeNova(m: Monster): void {
+    const pn = m.pendingNova;
+    m.pendingNova = null;
+    if (!pn) return;
+    const dmg = Math.max(1, Math.round(m.derived.atk * pn.powerMult));
+    for (const p of this.world.playersOnMap(m.mapId)) {
+      if (dist2d(p.x, p.z, pn.x, pn.z) > pn.radius) continue; // dodged it
+      this.world.broadcastToMap(m.mapId, {
+        t: MsgType.DamageEvent,
+        sourceId: m.id,
+        targetId: p.id,
+        amount: dmg,
+        crit: false,
+        miss: false,
+        kind: DamageKind.Physical,
+      });
+      p.hp -= dmg;
+      if (p.hp <= 0) this.respawnPlayer(p, m.template.name);
+    }
+  }
+
+  private bossSummon(m: Monster, templateId: string, count: number, max: number): void {
+    const tmpl = MONSTER_TEMPLATES[templateId];
+    if (!tmpl) return;
+    let alive = 0;
+    for (const o of this.world.monsters.values()) if (o.summonerId === m.id && !o.isDead) alive++;
+    const toSpawn = Math.min(count, max - alive);
+    if (toSpawn <= 0) return;
+    this.bossAnnounce(m, `${m.template.name} summons minions!`);
+    for (let i = 0; i < toSpawn; i++) {
+      const pt = this.world.randomPointInZone(m.x, m.z, 5);
+      const add = new Monster(this.world.allocId(), tmpl, "summon", m.mapId, pt.x, pt.z);
+      add.summonerId = m.id;
+      add.temporary = true;
+      this.world.monsters.set(add.id, add);
+      this.world.broadcastToMap(m.mapId, { t: MsgType.Spawn, entity: add.toFull() });
+    }
+  }
+
+  private bossHeal(m: Monster, pct: number): void {
+    const heal = Math.round(m.derived.maxHp * pct);
+    m.hp = Math.min(m.derived.maxHp, m.hp + heal);
+    this.world.broadcastToMap(m.mapId, {
+      t: MsgType.DamageEvent,
+      sourceId: m.id,
+      targetId: m.id,
+      amount: heal,
+      crit: false,
+      miss: false,
+      kind: DamageKind.Magic,
+      heal: true,
+    });
+  }
+
+  private bossAnnounce(m: Monster, text: string): void {
+    this.world.broadcastToMap(m.mapId, { t: MsgType.ChatBroadcast, fromId: 0, name: "Boss", text });
   }
 
   // Apply damage-over-time ticks from status effects (e.g. Burn).
@@ -372,7 +471,8 @@ export class CombatSystem {
       kind: result.kind,
     });
     if (result.miss) return;
-    player.hp -= result.amount;
+    const dmg = Math.round(result.amount * monster.damageMult); // enrage multiplier
+    player.hp -= dmg;
     if (player.hp <= 0) this.respawnPlayer(player, monster.template.name);
   }
 

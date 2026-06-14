@@ -116,6 +116,13 @@ async function main(): Promise<void> {
     check(bosses >= 2, `world: ${m.id} has >= 2 bosses (${bosses})`);
   }
 
+  // ---- boss mechanics ----
+  const withMech = Object.values(MONSTER_TEMPLATES).filter((t) => t.boss && (t.mechanics?.length ?? 0) > 0).length;
+  check(withMech >= 12, `boss mechanics: ${withMech} bosses have mechanics`);
+  check((MONSTER_TEMPLATES.beelzebub.mechanics?.length ?? 0) === 4, "boss mechanics: Beelzebub has all four");
+  check(!!MONSTER_TEMPLATES.baphomet.mechanics?.some((x) => x.kind === "enrage"), "boss mechanics: Baphomet enrages");
+  check(!!MONSTER_TEMPLATES.dark_lord.mechanics?.some((x) => x.kind === "summon"), "boss mechanics: Dark Lord summons");
+
   // ---- deterministic achievements ----
   const hero2 = new Player(984, 1, "Achiever", JobId.Swordsman, 0, 0);
   hero2.recordKill("poring", false);
@@ -170,6 +177,18 @@ async function main(): Promise<void> {
   check(smith.refineEquipped("weapon" as never), "refine: upgrade equipped weapon");
   check(smith.derived.atk > baseAtk2, "refine: ATK increased after refine");
   check(smith.zeny < 10000, "refine: Zeny spent on refine");
+
+  // ---- deterministic card sockets ----
+  const carder = new Player(983, 1, "Carder", JobId.Swordsman, 0, 0);
+  carder.addItem("novice_knife", 1);
+  carder.equip("novice_knife");
+  const atkNoCard = carder.derived.atk;
+  carder.addItem("skeleton_card", 1);
+  check(!carder.socketCard("poring_card"), "cards: cannot socket a card you don't own");
+  check(carder.socketCard("skeleton_card"), "cards: socket a weapon card");
+  check(carder.derived.atk > atkNoCard, "cards: socketed card raises ATK");
+  carder.unequip("weapon" as never);
+  check((carder.toSelfState().inventory.find((i) => i.id === "skeleton_card")?.qty ?? 0) === 1, "cards: unequipping returns the card");
 
   // ---- deterministic skill levels ----
   const mage = new Player(993, 1, "Wiz", JobId.Mage, 0, 0);

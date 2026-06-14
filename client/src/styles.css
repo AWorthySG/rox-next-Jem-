@@ -330,6 +330,26 @@ body {
   transition: width 0.15s linear;
 }
 
+/* item icons */
+.iicon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  font-size: 15px;
+  background: rgba(0, 0, 0, 0.35);
+  border: 1px solid var(--rar, var(--panel-border));
+  flex: 0 0 auto;
+}
+.inv-cell .iicon {
+  margin-right: 2px;
+}
+.equip-cell .iicon {
+  margin: 2px auto 0;
+}
+
 /* item rarity colours */
 .rar-common { --rar: #9aa0a8; }
 .rar-uncommon { --rar: #5fd17a; }
@@ -1071,6 +1091,14 @@ body {
 .equip-cell .slot-item {
   font-size: 11px;
   font-weight: 600;
+}
+.equip-cell .socket {
+  font-size: 9px;
+  color: #5fd1ff;
+  margin-top: 1px;
+}
+.inv-cell.card .iname {
+  color: #5fd1ff;
 }
 .inv-grid {
   display: flex;

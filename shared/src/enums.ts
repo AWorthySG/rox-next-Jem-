@@ -22,6 +22,8 @@ export enum MsgType {
   AllocateStat = "allocateStat",
   LevelSkill = "levelSkill",
   RefineItem = "refineItem",
+  SocketCard = "socketCard",
+  UnsocketCard = "unsocketCard",
   EnterPortal = "enterPortal",
   NpcHeal = "npcHeal",
   Warp = "warp",
@@ -39,6 +41,7 @@ export enum MsgType {
   GuildUpdate = "guildUpdate",
   MapChange = "mapChange",
   Defeated = "defeated",
+  BossTelegraph = "bossTelegraph",
   DamageEvent = "damage",
   LevelUp = "levelUp",
   ChatBroadcast = "chatMsg",
@@ -89,6 +92,7 @@ export enum ItemType {
   Armor = "armor",
   Accessory = "accessory",
   Consumable = "consumable",
+  Card = "card",
 }
 
 export enum EquipSlot {

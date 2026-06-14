@@ -203,7 +203,24 @@ export const MAPS: Record<string, GameMap> = {
       { id: "tower-darklord", templateId: "dark_lord", cx: 0, cz: -46, radius: 4, count: 1 },
       { id: "tower-randgris", templateId: "valkyrie_randgris", cx: 34, cz: -40, radius: 4, count: 1 },
     ],
-    npcs: [{ name: "Tower Exit", role: "portal", x: 0, z: 26, dest: { toMap: "rachel", toX: 0, toZ: -44 } }],
+    npcs: [
+      { name: "Tower Exit", role: "portal", x: 0, z: 26, dest: { toMap: "rachel", toX: 0, toZ: -44 } },
+      { name: "Thanatos Portal", role: "portal", x: 0, z: -52, dest: { toMap: "thanatos", toX: 0, toZ: 20 } },
+    ],
+  },
+  thanatos: {
+    id: "thanatos",
+    name: "Thanatos Tower",
+    theme: { ground: 0x3a1f2c, fog: 0x0a0408, sky: 0x1c0c16 },
+    spawn: { x: 0, z: 20 },
+    zones: [
+      { id: "th-aliot", templateId: "aliot", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "th-aliza", templateId: "aliza", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "th-aliot-2", templateId: "aliot", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "th-phantom", templateId: "thanatos_phantom", cx: 34, cz: -42, radius: 4, count: 1 },
+      { id: "th-memory", templateId: "memory_of_thanatos", cx: -34, cz: -42, radius: 4, count: 1 },
+    ],
+    npcs: [{ name: "Thanatos Exit", role: "portal", x: 0, z: 26, dest: { toMap: "tower", toX: 0, toZ: -44 } }],
   },
   arena: {
     id: "arena",

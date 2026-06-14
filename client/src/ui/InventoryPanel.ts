@@ -1,9 +1,21 @@
-import { EquipSlot, getItem, ItemType, rarityOf, type SelfState } from "@rox/shared";
+import { EquipSlot, getItem, ItemType, rarityOf, type ItemDef, type SelfState } from "@rox/shared";
 
 export interface InventoryHandlers {
   onUse(itemId: string): void;
   onEquip(itemId: string): void;
   onUnequip(slot: EquipSlot): void;
+  onSocket(cardId: string): void;
+}
+
+// A small glyph per item, ROX-icon style.
+function iconFor(item: ItemDef): string {
+  if (item.pet) return "🥚";
+  if (item.mount) return "🐎";
+  if (item.type === ItemType.Card) return "🃏";
+  if (item.type === ItemType.Consumable) return item.healSp ? "🔷" : "🧪";
+  if (item.type === ItemType.Weapon) return item.matk ? "🪄" : "⚔️";
+  if (item.type === ItemType.Armor) return "🛡️";
+  return "💍"; // accessory
 }
 
 const SLOT_ORDER: EquipSlot[] = [EquipSlot.Weapon, EquipSlot.Armor, EquipSlot.Accessory];
@@ -19,6 +31,7 @@ const TABS: Array<{ id: Filter; label: string }> = [
   { id: ItemType.Weapon, label: "Weapon" },
   { id: ItemType.Armor, label: "Armor" },
   { id: ItemType.Accessory, label: "Accessory" },
+  { id: ItemType.Card, label: "Card" },
   { id: ItemType.Consumable, label: "Use" },
 ];
 
@@ -80,6 +93,7 @@ export class InventoryPanel {
   private render(self: SelfState): void {
     this.zenyEl.textContent = self.zeny.toLocaleString();
     const refineOf = new Map(self.refine.map((r) => [r.id, r.level]));
+    const cardOf = new Map(self.cards.map((c) => [c.slot, c.id]));
 
     // equipment slots
     this.slotsEl.innerHTML = "";
@@ -90,8 +104,12 @@ export class InventoryPanel {
       const cell = document.createElement("button");
       cell.className = `equip-cell${item ? ` filled rar-${rarityOf(item)}` : ""}`;
       const refine = item && (refineOf.get(item.id) ?? 0) > 0 ? `<span class="refine-badge">+${refineOf.get(item.id)}</span>` : "";
+      const icon = item ? `<span class="iicon">${iconFor(item)}</span>` : "";
+      const cardId = cardOf.get(slot);
+      const cardName = cardId ? getItem(cardId)?.name : undefined;
+      const socket = cardName ? `<span class="socket">🃏 ${cardName}</span>` : "";
       cell.innerHTML =
-        `<span class="slot-label">${SLOT_LABEL[slot]}</span><span class="slot-item">${item ? item.name : "—"}</span>${refine}`;
+        `<span class="slot-label">${SLOT_LABEL[slot]}</span>${icon}<span class="slot-item">${item ? item.name : "—"}</span>${socket}${refine}`;
       if (item) {
         cell.title = `${item.desc}\n(click to unequip)`;
         cell.addEventListener("click", () => this.handlers.onUnequip(slot));
@@ -116,16 +134,20 @@ export class InventoryPanel {
       const item = getItem(entry.id);
       if (!item) continue;
       const isConsumable = item.type === ItemType.Consumable;
+      const isCard = item.type === ItemType.Card;
       const lvl = refineOf.get(entry.id) ?? 0;
+      const action = isCard ? "Socket" : isConsumable ? "Use" : "Equip";
       const cell = document.createElement("button");
       cell.className = `inv-cell ${item.type} rar-${rarityOf(item)}`;
       cell.title = item.desc;
       cell.innerHTML =
+        `<span class="iicon">${iconFor(item)}</span>` +
         `<span class="iname">${item.name}${lvl > 0 ? ` <span class="refine-badge">+${lvl}</span>` : ""}</span>` +
         `<span class="iqty">×${entry.qty}</span>` +
-        `<span class="iact">${isConsumable ? "Use" : "Equip"}</span>`;
+        `<span class="iact">${action}</span>`;
       cell.addEventListener("click", () => {
-        if (isConsumable) this.handlers.onUse(entry.id);
+        if (isCard) this.handlers.onSocket(entry.id);
+        else if (isConsumable) this.handlers.onUse(entry.id);
         else this.handlers.onEquip(entry.id);
       });
       this.grid.appendChild(cell);

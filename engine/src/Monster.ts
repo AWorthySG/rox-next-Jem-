@@ -60,6 +60,13 @@ export class Monster {
   }
 
   statuses: ActiveStatus[] = [];
+  // boss-mechanic state
+  enraged = false;
+  damageMult = 1;
+  mechTimers: number[] = [];
+  summonerId: number | null = null;
+  temporary = false; // summoned add: removed on death rather than respawning
+  pendingNova: { x: number; z: number; radius: number; powerMult: number; fireAt: number } | null = null;
 
   get isDead(): boolean {
     return this.aiState === MonsterAIState.Dead;
@@ -132,6 +139,7 @@ export class Monster {
       hp: Math.round(this.hp),
       maxHp: this.derived.maxHp,
       aiState: this.aiState,
+      ...(this.enraged ? { enraged: true } : {}),
     };
   }
 }

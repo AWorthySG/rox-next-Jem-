@@ -148,6 +148,16 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       if (p && isEquipSlot(msg.slot)) p.refineEquipped(msg.slot);
       break;
     }
+    case MsgType.SocketCard: {
+      const p = playerOf(world, link);
+      if (p) p.socketCard(msg.cardId);
+      break;
+    }
+    case MsgType.UnsocketCard: {
+      const p = playerOf(world, link);
+      if (p && isEquipSlot(msg.slot)) p.unsocketCard(msg.slot);
+      break;
+    }
     case MsgType.EnterPortal: {
       const p = playerOf(world, link);
       const npc = world.npcs.get(msg.npcId);

@@ -112,6 +112,16 @@ export interface RefineItemMsg {
   slot: string;
 }
 
+export interface SocketCardMsg {
+  t: MsgType.SocketCard;
+  cardId: string;
+}
+
+export interface UnsocketCardMsg {
+  t: MsgType.UnsocketCard;
+  slot: string;
+}
+
 export interface EnterPortalMsg {
   t: MsgType.EnterPortal;
   npcId: number;
@@ -149,6 +159,15 @@ export interface DefeatedMsg {
   byName: string;
 }
 
+// A telegraphed AoE about to land — clients render a growing warning ring.
+export interface BossTelegraphMsg {
+  t: MsgType.BossTelegraph;
+  x: number;
+  z: number;
+  radius: number;
+  delayMs: number;
+}
+
 export interface ChatMsg {
   t: MsgType.Chat;
   text: string;
@@ -181,6 +200,8 @@ export type ClientMessage =
   | AllocateStatMsg
   | LevelSkillMsg
   | RefineItemMsg
+  | SocketCardMsg
+  | UnsocketCardMsg
   | EnterPortalMsg
   | NpcHealMsg
   | WarpMsg
@@ -310,6 +331,7 @@ export type ServerMessage =
   | GuildUpdateMsg
   | MapChangeMsg
   | DefeatedMsg
+  | BossTelegraphMsg
   | DamageEventMsg
   | LevelUpMsg
   | ChatBroadcastMsg

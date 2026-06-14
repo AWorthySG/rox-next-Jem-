@@ -21,6 +21,7 @@ export interface EntitySnapshot {
   hp: number;
   maxHp: number;
   aiState?: MonsterAIState; // monsters only (drives animation cues)
+  enraged?: boolean; // boss enrage aura
 }
 
 // Full entity record sent on Spawn / JoinAck. Includes static descriptive fields
@@ -65,6 +66,7 @@ export interface SelfState {
   skillLevels: Array<{ id: string; level: number }>;
   inventory: InventoryEntry[];
   equipped: EquipEntry[];
+  cards: EquipEntry[]; // socketed card per slot
   refine: Array<{ id: string; level: number }>;
   quests: QuestState;
   achievements: string[];
