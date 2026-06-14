@@ -125,6 +125,26 @@ body {
   opacity: 0.92;
 }
 
+/* ---- subtle panel open animation (opacity only — safe for any anchoring) ---- */
+.inventory:not(.hidden),
+.shop:not(.hidden),
+.storage:not(.hidden),
+.bestiary:not(.hidden),
+.quests:not(.hidden),
+.refine:not(.hidden),
+.skills:not(.hidden),
+.aesir:not(.hidden),
+.guild:not(.hidden),
+.achievements:not(.hidden),
+.warp:not(.hidden),
+.help-panel:not(.hidden) {
+  animation: panel-fade 0.16s ease-out;
+}
+@keyframes panel-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
 /* ---- full-screen feedback overlays ---- */
 .screen-fx {
   position: fixed;
