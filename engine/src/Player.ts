@@ -85,6 +85,7 @@ export class Player {
   pendingSkillTargetId: number | null = null;
   skillCooldowns: Record<string, number> = {}; // skillId -> ms remaining
   buffs: Array<{ stat: "atk" | "matk"; mult: number; expiresAt: number }> = [];
+  foodBuffs: Array<{ id: string; expiresAt: number }> = []; // timed food/cooking buffs
 
   constructor(id: number, connId: number, name: string, job: JobId, x: number, z: number) {
     this.id = id;
@@ -147,6 +148,27 @@ export class Player {
     let m = 1;
     for (const b of this.buffs) if (b.stat === stat && b.expiresAt > now) m *= b.mult;
     return m;
+  }
+
+  // Eat a food item: refresh its timed buff (same food re-eaten resets the timer)
+  // and fold its bonus into the stats. Returns true if applied.
+  applyFood(itemId: string, now: number): boolean {
+    const food = getItem(itemId)?.food;
+    if (!food) return false;
+    this.foodBuffs = this.foodBuffs.filter((b) => b.id !== itemId);
+    this.foodBuffs.push({ id: itemId, expiresAt: now + food.durationMs });
+    this.recompute();
+    return true;
+  }
+
+  // Drop expired food buffs; recompute (and report) only when something changed.
+  tickFoodBuffs(now: number): boolean {
+    if (this.foodBuffs.length === 0) return false;
+    const before = this.foodBuffs.length;
+    this.foodBuffs = this.foodBuffs.filter((b) => b.expiresAt > now);
+    if (this.foodBuffs.length === before) return false;
+    this.recompute();
+    return true;
   }
 
   // Recompute derived stats, folding in bonuses from equipped gear. Clamps
@@ -216,6 +238,18 @@ export class Player {
       flatHp += rune.maxHp ?? 0;
       flatSp += rune.maxSp ?? 0;
       flatCrit += rune.crit ?? 0;
+    }
+    // active food/cooking buffs (expiry is handled in the tick, which recomputes)
+    for (const fb of this.foodBuffs) {
+      const food = getItem(fb.id)?.food;
+      if (!food) continue;
+      if (food.bonusStats) effective = addStats(effective, fullStats(food.bonusStats));
+      flatAtk += food.atk ?? 0;
+      flatMatk += food.matk ?? 0;
+      flatDef += food.def ?? 0;
+      flatHp += food.maxHp ?? 0;
+      flatSp += food.maxSp ?? 0;
+      flatCrit += food.crit ?? 0;
     }
     const d = deriveStats(effective, this.level, this.job);
     this.derived = {
@@ -314,6 +348,10 @@ export class Player {
     if (item.pet) {
       this.activePet = item.pet;
       this.recompute();
+      return true;
+    }
+    if (item.food) {
+      this.applyFood(itemId, Date.now());
       return true;
     }
     if (item.healHp) this.hp = Math.min(this.derived.maxHp, this.hp + item.healHp);
@@ -554,6 +592,7 @@ export class Player {
     this.activePet = s.pet ?? null;
     this.mounted = !!s.mounted;
     this.buffs = [];
+    this.foodBuffs = [];
     this.learnJobSkills();
     this.recompute();
     this.hp = Math.min(s.hp, this.derived.maxHp);
@@ -627,9 +666,14 @@ export class Player {
         completed: [...this.completedQuests],
       },
       achievements: [...this.achievements],
-      buffs: this.buffs
-        .filter((b) => b.expiresAt > Date.now())
-        .map((b) => ({ type: b.stat, remainingMs: Math.round(b.expiresAt - Date.now()) })),
+      buffs: [
+        ...this.buffs
+          .filter((b) => b.expiresAt > Date.now())
+          .map((b) => ({ type: b.stat, remainingMs: Math.round(b.expiresAt - Date.now()) })),
+        ...this.foodBuffs
+          .filter((b) => b.expiresAt > Date.now())
+          .map((b) => ({ type: getItem(b.id)?.name ?? "Food", remainingMs: Math.round(b.expiresAt - Date.now()) })),
+      ],
       pet: this.activePet,
       mounted: this.mounted,
       mapId: this.mapId,

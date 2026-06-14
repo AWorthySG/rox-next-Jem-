@@ -17,6 +17,18 @@ export function refineBonus(item: { atk?: number; matk?: number; def?: number; m
   };
 }
 
+// A timed buff granted by eating a food/cooking item.
+export interface FoodBuff {
+  durationMs: number;
+  bonusStats?: Partial<Stats>;
+  atk?: number;
+  matk?: number;
+  def?: number;
+  crit?: number;
+  maxHp?: number;
+  maxSp?: number;
+}
+
 export interface ItemDef {
   id: string;
   name: string;
@@ -34,6 +46,7 @@ export interface ItemDef {
   // consumable effects
   healHp?: number;
   healSp?: number;
+  food?: FoodBuff; // eating grants a timed stat buff
   pet?: string; // summons this pet when used
   mount?: boolean; // toggles riding a mount when used
   // economy
@@ -60,6 +73,13 @@ export const ITEMS: Record<string, ItemDef> = {
   apple: { id: "apple", name: "Apple", type: ItemType.Consumable, desc: "Restores 60 HP.", healHp: 60, price: 15, sellPrice: 4 },
   red_potion: { id: "red_potion", name: "Red Potion", type: ItemType.Consumable, desc: "Restores 150 HP.", healHp: 150, price: 50, sellPrice: 12 },
   blue_potion: { id: "blue_potion", name: "Blue Potion", type: ItemType.Consumable, desc: "Restores 80 SP.", healSp: 80, price: 60, sellPrice: 15 },
+
+  // food / cooking (eat for a timed stat buff; 5 min unless noted)
+  fried_egg: { id: "fried_egg", name: "Fried Egg", type: ItemType.Consumable, desc: "Eat: VIT +5, Max HP +80 for 5 min.", food: { durationMs: 300000, bonusStats: { vit: 5 }, maxHp: 80 }, price: 120, sellPrice: 20 },
+  honey_pancake: { id: "honey_pancake", name: "Honey Pancake", type: ItemType.Consumable, desc: "Eat: INT +5, Max SP +60 for 5 min.", food: { durationMs: 300000, bonusStats: { int: 5 }, maxSp: 60 }, price: 120, sellPrice: 20 },
+  spicy_skewer: { id: "spicy_skewer", name: "Spicy Skewer", type: ItemType.Consumable, desc: "Eat: STR +5, ATK +15 for 5 min.", food: { durationMs: 300000, bonusStats: { str: 5 }, atk: 15 }, price: 160, sellPrice: 28 },
+  steamed_tuna: { id: "steamed_tuna", name: "Steamed Tuna", type: ItemType.Consumable, desc: "Eat: AGI +5, CRIT +6 for 5 min.", food: { durationMs: 300000, bonusStats: { agi: 5 }, crit: 6 }, price: 160, sellPrice: 28 },
+  royal_feast: { id: "royal_feast", name: "Royal Feast", type: ItemType.Consumable, desc: "Eat: all stats +4, ATK/MATK +12 for 10 min.", food: { durationMs: 600000, bonusStats: { str: 4, agi: 4, vit: 4, int: 4, dex: 4, luk: 4 }, atk: 12, matk: 12 }, sellPrice: 200 },
 
   // pet eggs (use to summon a companion)
   poring_egg: { id: "poring_egg", name: "Poring Egg", type: ItemType.Consumable, desc: "Summons a Poring pet (LUK +3, Max HP +50).", pet: "poring_pet", price: 800, sellPrice: 100 },
@@ -350,6 +370,10 @@ export const SHOP_STOCK: string[] = [
   "apple",
   "red_potion",
   "blue_potion",
+  "fried_egg",
+  "honey_pancake",
+  "spicy_skewer",
+  "steamed_tuna",
   "novice_knife",
   "apprentice_rod",
   "cotton_shirt",
@@ -494,7 +518,7 @@ Object.assign(DROP_TABLES, {
   eddga: HI([{ itemId: "leather_armor", chance: 0.6 }, { itemId: "novice_knife", chance: 0.5 }]),
   moonlight: HI([{ itemId: "ring_of_power", chance: 0.6 }, { itemId: "apprentice_rod", chance: 0.5 }]),
   mistress: HI([{ itemId: "cotton_shirt", chance: 0.6 }, { itemId: "ring_of_power", chance: 0.5 }]),
-  amon_ra: HI([{ itemId: "saint_robe", chance: 0.6 }, { itemId: "claymore", chance: 0.45 }, { itemId: "apprentice_circlet", chance: 0.5 }, { itemId: "marc_card", chance: 0.08 }]),
+  amon_ra: HI([{ itemId: "saint_robe", chance: 0.6 }, { itemId: "claymore", chance: 0.45 }, { itemId: "apprentice_circlet", chance: 0.5 }, { itemId: "royal_feast", chance: 0.3 }, { itemId: "marc_card", chance: 0.08 }]),
   owl_duke: HI([{ itemId: "clock_gear", chance: 0.7 }, { itemId: "apprentice_circlet", chance: 0.5 }, { itemId: "claymore", chance: 0.4 }]),
   kraken: HI([{ itemId: "tidal_shoes", chance: 0.7 }, { itemId: "claymore", chance: 0.4 }]),
   tao_gunka: HI([{ itemId: "valkyrie_armor", chance: 0.4 }, { itemId: "tidal_shoes", chance: 0.6 }]),

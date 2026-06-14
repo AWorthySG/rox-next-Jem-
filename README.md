@@ -60,6 +60,9 @@ copyrighted assets.
   Magnum Break **slows**, Thunder Storm/Bowling Bash **stun** — resolved server-side.
 - **Self-buffs**: Battle Focus (+30% ATK) and Mystic Focus (+30% MATK) temporarily empower
   the caster, shown as timed chips on the HUD.
+- **Food & cooking buffs**: eat dishes (Fried Egg, Honey Pancake, Spicy Skewer, Steamed Tuna,
+  the boss-drop Royal Feast) for stacking timed stat boosts (STR/VIT/INT/AGI, ATK/MATK, CRIT,
+  Max HP/SP); buffs show as HUD chips, refresh on re-eat, and revert when they lapse.
 - **Achievements**: milestone goals (kills, levels, boss slays) tracked server-side, unlocked
   with Zeny rewards and an unlock toast (window `V`).
 - **Pets**: use a pet egg (dropped by Porings, Lunatics, Baphomet, or bought) to summon a

@@ -34,8 +34,10 @@ export class CombatSystem {
 
   update(dtMs: number): void {
     const dt = dtMs / 1000;
+    const now = Date.now();
     for (const p of this.world.players.values()) {
       this.regen(p, dt);
+      p.tickFoodBuffs(now);
       if (p.attackCooldown > 0) p.attackCooldown -= dtMs;
       for (const id of Object.keys(p.skillCooldowns)) {
         if (p.skillCooldowns[id] > 0) p.skillCooldowns[id] = Math.max(0, p.skillCooldowns[id] - dtMs);

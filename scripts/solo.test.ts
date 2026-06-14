@@ -190,6 +190,24 @@ async function main(): Promise<void> {
   carder.unequip("weapon" as never);
   check((carder.toSelfState().inventory.find((i) => i.id === "skeleton_card")?.qty ?? 0) === 1, "cards: unequipping returns the card");
 
+  // ---- deterministic food/cooking buffs ----
+  const eater = new Player(972, 1, "Gourmet", JobId.Swordsman, 0, 0);
+  const atkBase = eater.derived.atk;
+  const t0 = 1_000_000;
+  check(eater.applyFood("spicy_skewer", t0), "food: eating applies a timed buff"); // 5 min
+  const atkSpicy = eater.derived.atk;
+  check(atkSpicy > atkBase, "food: Spicy Skewer raises ATK");
+  check(eater.applyFood("royal_feast", t0), "food: a second food stacks"); // 10 min
+  check(eater.derived.atk > atkSpicy, "food: stacked food raises ATK further");
+  // re-eating refreshes rather than duplicating
+  eater.applyFood("spicy_skewer", t0 + 1000);
+  check(eater.foodBuffs.filter((b) => b.id === "spicy_skewer").length === 1, "food: re-eating refreshes (no duplicate)");
+  // expiry: the 5-min skewer lapses by t0+350s, the 10-min feast persists
+  check(eater.tickFoodBuffs(t0 + 350000), "food: expiry tick removes a lapsed buff");
+  check(!eater.foodBuffs.some((b) => b.id === "spicy_skewer"), "food: lapsed buff dropped");
+  check(eater.foodBuffs.some((b) => b.id === "royal_feast"), "food: longer buff still active");
+  check(eater.derived.atk > atkBase && eater.derived.atk < atkSpicy + 100, "food: stats reflect only active buffs after expiry");
+
   // ---- deterministic Kafra storage ----
   const banker = new Player(974, 1, "Banker", JobId.Novice, 0, 0);
   banker.addItem("red_potion", 5);
