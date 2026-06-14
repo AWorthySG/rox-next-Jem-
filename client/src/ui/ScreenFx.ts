@@ -3,6 +3,7 @@
 export class ScreenFx {
   private dmg = document.getElementById("screen-damage")!;
   private lvl = document.getElementById("screen-levelup")!;
+  private low = document.getElementById("screen-lowhp")!;
 
   damage(): void {
     this.retrigger(this.dmg, "flash");
@@ -10,6 +11,11 @@ export class ScreenFx {
 
   levelUp(): void {
     this.retrigger(this.lvl, "flash");
+  }
+
+  // Persistent pulsing red edge while HP is critically low.
+  setLowHp(active: boolean): void {
+    this.low.classList.toggle("active", active);
   }
 
   private retrigger(el: HTMLElement, cls: string): void {

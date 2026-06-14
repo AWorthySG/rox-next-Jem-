@@ -344,6 +344,7 @@ function handleMessage(msg: ServerMessage): void {
         chat.system(`You advanced to ${JOB_NAME[msg.self.job]}!`);
       }
       hud.update(msg.self);
+      screenFx.setLowHp(msg.self.maxHp > 0 && msg.self.hp / msg.self.maxHp < 0.25);
       skillBar.setSp(msg.self.sp);
       inventory.sync(msg.self);
       storage.sync(msg.self);
