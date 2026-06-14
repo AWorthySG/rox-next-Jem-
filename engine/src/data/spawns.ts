@@ -542,6 +542,12 @@ Object.assign(MONSTER_TEMPLATES, {
   marsh_terrapin: mk("marsh_terrapin", "Marsh Terrapin", 56, 3300, 7000),
   estuarine_titan: mk("estuarine_titan", "Estuarine Titan", 62, 14000, 24000, true),
   garuda_matriarch: mk("garuda_matriarch", "Garuda Matriarch", 64, 16000, 27000, true),
+  // ---- Mandai Night Safari (Singapore) ----
+  night_panther: mk("night_panther", "Night Panther", 136, 10800, 21600),
+  giant_flying_fox: mk("giant_flying_fox", "Giant Flying Fox", 138, 11200, 22400),
+  moonlit_moth: mk("moonlit_moth", "Moonlit Moth", 140, 11600, 23200),
+  malayan_tiger_lord: mk("malayan_tiger_lord", "Malayan Tiger Lord", 144, 110000, 180000, true),
+  mandai_naga: mk("mandai_naga", "Mandai Naga", 146, 120000, 200000, true),
 });
 
 export interface SpawnZone {
@@ -1024,6 +1030,15 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
     { kind: "heal", intervalMs: 11000, pct: 0.06 },
   ],
+  malayan_tiger_lord: [
+    { kind: "enrage", hpPct: 0.4, atkMult: 2.0 },
+    { kind: "summon", intervalMs: 8000, templateId: "night_panther", count: 2, max: 6 },
+  ],
+  mandai_naga: [
+    { kind: "enrage", hpPct: 0.3, atkMult: 2.0 },
+    { kind: "nova", intervalMs: 4800, radius: 13, powerMult: 2.0 },
+    { kind: "heal", intervalMs: 11000, pct: 0.06 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -1302,6 +1317,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   marsh_terrapin: Element.Earth,
   estuarine_titan: Element.Water,
   garuda_matriarch: Element.Wind,
+  night_panther: Element.Shadow,
+  giant_flying_fox: Element.Wind,
+  moonlit_moth: Element.Shadow,
+  malayan_tiger_lord: Element.Shadow,
+  mandai_naga: Element.Earth,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

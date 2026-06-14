@@ -78,6 +78,7 @@ const ARCH: Record<string, MonsterArch> = {
   festival_effigy: "golem", deepavali_wisp: "ghost", saree_serpent: "dragon", kali_avatar: "demon", gopuram_guardian: "golem",
   mall_mannequin: "humanoid", neon_phantom: "ghost", holo_serpent: "dragon", ion_colossus: "golem", orchard_specter: "demon",
   wetland_heron: "bird", fiddler_crab: "aquatic", marsh_terrapin: "beast", estuarine_titan: "beast", garuda_matriarch: "bird",
+  night_panther: "beast", giant_flying_fox: "bird", moonlit_moth: "bug", malayan_tiger_lord: "beast", mandai_naga: "dragon",
 };
 
 function hex(s: string): number {
@@ -416,6 +417,11 @@ const DEFS: Record<string, AppearanceDef> = {
   marsh_terrapin: { inner: "#6a8a4a", outer: "#2a3a1a", scale: 1.4 },
   estuarine_titan: { inner: "#5a7a3a", outer: "#1a2a0a", scale: 2.9, boss: true },
   garuda_matriarch: { inner: "#d0a050", outer: "#5a3a10", scale: 3.0, boss: true },
+  night_panther: { inner: "#3a3a4a", outer: "#0a0a14", scale: 1.6 },
+  giant_flying_fox: { inner: "#5a3a2a", outer: "#1a0a08", scale: 1.5 },
+  moonlit_moth: { inner: "#a0b0d0", outer: "#3a3a5a", scale: 1.3 },
+  malayan_tiger_lord: { inner: "#e0a040", outer: "#3a2008", scale: 3.2, boss: true },
+  mandai_naga: { inner: "#4a8a5a", outer: "#0a2414", scale: 3.2, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

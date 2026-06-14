@@ -118,6 +118,25 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
       { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
       { name: "MacRitchie Exit", role: "portal", x: 0, z: 24, dest: { toMap: "bukit_timah", toX: -18, toZ: 10 } },
+      { name: "Night Safari Portal", role: "portal", x: 0, z: -50, dest: { toMap: "night_safari", toX: 0, toZ: 18 } },
+    ],
+  },
+  night_safari: {
+    id: "night_safari",
+    name: "Mandai Night Safari",
+    theme: { ground: 0x16241a, fog: 0x0a160e, sky: 0x12201a },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "ns-panther", templateId: "night_panther", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "ns-fox", templateId: "giant_flying_fox", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "ns-moth", templateId: "moonlit_moth", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "ns-tiger", templateId: "malayan_tiger_lord", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "ns-naga", templateId: "mandai_naga", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Night Safari Exit", role: "portal", x: 0, z: 24, dest: { toMap: "macritchie", toX: 0, toZ: -44 } },
     ],
   },
   pulau_ubin: {

@@ -436,6 +436,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "A polished terrapin scute. Max HP +200, VIT +4, DEF +4.", def: 4, maxHp: 200, bonusStats: { vit: 4 }, sellPrice: 3000,
   },
 
+  // ---- Mandai Night Safari (Singapore) gear ----
+  panther_claw: {
+    id: "panther_claw", name: "Panther Claw", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "Twin claws of the night hunter. ATK +118, AGI +9, LUK +5.", atk: 118, bonusStats: { agi: 9, luk: 5 }, sellPrice: 6800,
+  },
+  nocturne_mask: {
+    id: "nocturne_mask", name: "Nocturne Mask", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A mask that sees in the dark. MATK +17, INT +8, DEX +6, Max SP +90.", matk: 17, maxSp: 90, bonusStats: { int: 8, dex: 6 }, sellPrice: 6800,
+  },
+  tiger_hide_armor: {
+    id: "tiger_hide_armor", name: "Tiger Hide Armor", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Striped hide of the tiger lord. DEF +40, Max HP +420, VIT +9.", def: 40, maxHp: 420, bonusStats: { vit: 9 }, sellPrice: 6800,
+  },
+
   // ---- Mount Faber (Singapore) gear ----
   summit_lance: {
     id: "summit_lance", name: "Summit Lance", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1357,6 +1371,12 @@ Object.assign(DROP_TABLES, {
   marsh_terrapin: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "marsh_cloak", chance: 0.03 }],
   estuarine_titan: HI([{ itemId: "marsh_cloak", chance: 0.6 }, { itemId: "terrapin_shell_charm", chance: 0.5 }, { itemId: "heron_glaive", chance: 0.4 }]),
   garuda_matriarch: HI([{ itemId: "heron_glaive", chance: 0.6 }, { itemId: "marsh_cloak", chance: 0.45 }, { itemId: "marc_card", chance: 0.05 }]),
+  // Mandai Night Safari (Singapore)
+  night_panther: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "panther_claw", chance: 0.03 }],
+  giant_flying_fox: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "nocturne_mask", chance: 0.03 }],
+  moonlit_moth: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "tiger_hide_armor", chance: 0.03 }],
+  malayan_tiger_lord: HI([{ itemId: "panther_claw", chance: 0.6 }, { itemId: "tiger_hide_armor", chance: 0.5 }, { itemId: "nocturne_mask", chance: 0.4 }]),
+  mandai_naga: HI([{ itemId: "tiger_hide_armor", chance: 0.6 }, { itemId: "panther_claw", chance: 0.45 }, { itemId: "marc_card", chance: 0.06 }]),
   // Mount Faber (Singapore)
   cable_wraith: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "alpine_plate", chance: 0.03 }],
   peak_eagle: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "aviator_cap", chance: 0.03 }],
@@ -1577,6 +1597,7 @@ const ORE_REGULARS = [
   "festival_effigy", "deepavali_wisp", "saree_serpent",
   "mall_mannequin", "neon_phantom", "holo_serpent",
   "wetland_heron", "fiddler_crab", "marsh_terrapin",
+  "night_panther", "giant_flying_fox", "moonlit_moth",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1609,6 +1630,7 @@ const ORE_BOSSES = [
   "kali_avatar", "gopuram_guardian",
   "ion_colossus", "orchard_specter",
   "estuarine_titan", "garuda_matriarch",
+  "malayan_tiger_lord", "mandai_naga",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

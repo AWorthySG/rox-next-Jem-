@@ -688,6 +688,26 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 64,
     reward: { exp: 32000, zeny: 19000, items: [{ id: "heron_glaive", qty: 1 }] },
   },
+  lord_of_the_night: {
+    id: "lord_of_the_night",
+    name: "Lord of the Night",
+    desc: "The Malayan Tiger Lord stalks the Night Safari trails. Face the apex predator.",
+    targetTemplate: "malayan_tiger_lord",
+    targetName: "Malayan Tiger Lord",
+    count: 1,
+    requiredLevel: 144,
+    reward: { exp: 380000, zeny: 210000, items: [{ id: "panther_claw", qty: 1 }] },
+  },
+  serpent_of_mandai: {
+    id: "serpent_of_mandai",
+    name: "Serpent of Mandai",
+    desc: "The Mandai Naga coils through the night reserve's deepest dark. End it.",
+    targetTemplate: "mandai_naga",
+    targetName: "Mandai Naga",
+    count: 1,
+    requiredLevel: 146,
+    reward: { exp: 420000, zeny: 235000, items: [{ id: "tiger_hide_armor", qty: 1 }] },
+  },
 
   // ---- repeatable daily bounties (turn in and re-accept for steady income) ----
   bounty_porings: {
