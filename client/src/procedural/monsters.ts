@@ -47,6 +47,7 @@ const ARCH: Record<string, MonsterArch> = {
   mummy: "undead", matyr: "beast", minorous: "humanoid", pharaoh: "demon", osiris: "undead",
   pupa: "bug", roda_frog: "beast", thief_bug: "bug", creamy: "bird", willow: "plant",
   solid_skull: "undead", assaulter: "beast", permeter: "golem", freezer: "aquatic", turtle_general: "golem",
+  increase_soil: "golem", mao_guai: "demon", zhu_po_long: "dragon", chung_e: "humanoid", evil_snake_lord: "dragon",
 };
 
 function hex(s: string): number {
@@ -203,6 +204,12 @@ const DEFS: Record<string, AppearanceDef> = {
   permeter: { inner: "#90b0a0", outer: "#3a5a4a", scale: 1.4 },
   freezer: { inner: "#a0d0e0", outer: "#2a6a8a", scale: 2.7, boss: true },
   turtle_general: { inner: "#8ac090", outer: "#2a5a34", scale: 3.0, boss: true },
+  // Louyang
+  increase_soil: { inner: "#c0a878", outer: "#5a4424", scale: 1.35 },
+  mao_guai: { inner: "#d0a0c0", outer: "#5a2a4a", scale: 1.3 },
+  zhu_po_long: { inner: "#e0c060", outer: "#7a5418", scale: 1.5 },
+  chung_e: { inner: "#f0c0d0", outer: "#a83050", scale: 2.7, boss: true },
+  evil_snake_lord: { inner: "#80c890", outer: "#1a5a34", scale: 3.1, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

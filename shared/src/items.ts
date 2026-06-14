@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Louyang gear ----
+  serpent_spear: {
+    id: "serpent_spear", name: "Serpent Spear", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A coiled-dragon polearm. ATK +62, DEX +4.", atk: 62, bonusStats: { dex: 4 }, sellPrice: 3000,
+  },
+  jade_crown: {
+    id: "jade_crown", name: "Jade Crown", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "An imperial crown. MATK +10, INT +5, Max SP +40.", matk: 10, maxSp: 40, bonusStats: { int: 5 }, sellPrice: 2700,
+  },
+  silk_robe: {
+    id: "silk_robe", name: "Imperial Silk Robe", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Robe of the eastern court. DEF +22, Max SP +70, INT +4.", def: 22, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 2800,
+  },
+
   // ---- Turtle Island gear ----
   shell_blade: {
     id: "shell_blade", name: "Shell Blade", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -889,6 +903,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Louyang
+  increase_soil: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "silk_robe", chance: 0.03 }],
+  mao_guai: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "jade_crown", chance: 0.03 }],
+  zhu_po_long: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "serpent_spear", chance: 0.03 }],
+  chung_e: HI([{ itemId: "silk_robe", chance: 0.6 }, { itemId: "jade_crown", chance: 0.5 }, { itemId: "spirit_staff", chance: 0.3 }]),
+  evil_snake_lord: HI([{ itemId: "serpent_spear", chance: 0.6 }, { itemId: "silk_robe", chance: 0.5 }, { itemId: "doppelganger_card", chance: 0.05 }]),
   // Turtle Island
   solid_skull: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "turtle_cap", chance: 0.035 }],
   assaulter: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "shell_blade", chance: 0.03 }],
@@ -922,6 +942,7 @@ const ORE_REGULARS = [
   "raydric", "khalitzburg", "evil_druid",
   "mummy", "matyr", "minorous",
   "solid_skull", "assaulter", "permeter",
+  "increase_soil", "mao_guai", "zhu_po_long",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -939,7 +960,7 @@ const ORE_BOSSES = [
   "doppelganger", "dark_priest", "bacsojin", "fallen_bishop", "samurai_specter", "kapha",
   "stormy_knight", "garm", "lady_tanee", "leak", "gopinich", "baba_yaga", "gigantes", "ifrit",
   "phreeoni", "deviace", "orc_lord", "orc_hero", "abysmal_knight", "amdarais", "pharaoh", "osiris",
-  "freezer", "turtle_general",
+  "freezer", "turtle_general", "chung_e", "evil_snake_lord",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

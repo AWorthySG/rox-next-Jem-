@@ -356,6 +356,12 @@ Object.assign(MONSTER_TEMPLATES, {
   permeter: mk("permeter", "Permeter", 70, 4200, 9400),
   freezer: mk("freezer", "Freezer", 75, 23000, 39000, true),
   turtle_general: mk("turtle_general", "Turtle General", 78, 28000, 48000, true),
+  // ---- Louyang ----
+  increase_soil: mk("increase_soil", "Increase Soil", 72, 4400, 9500),
+  mao_guai: mk("mao_guai", "Mao Guai", 76, 4900, 10800),
+  zhu_po_long: mk("zhu_po_long", "Zhu Po Long", 74, 4600, 10000),
+  chung_e: mk("chung_e", "Chung E", 82, 30000, 50000, true),
+  evil_snake_lord: mk("evil_snake_lord", "Evil Snake Lord", 84, 34000, 58000, true),
 });
 
 export interface SpawnZone {
@@ -572,6 +578,14 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "summon", intervalMs: 8000, templateId: "assaulter", count: 2, max: 5 },
     { kind: "nova", intervalMs: 6000, radius: 11, powerMult: 1.6 },
   ],
+  chung_e: [
+    { kind: "nova", intervalMs: 5500, radius: 10, powerMult: 1.6 },
+    { kind: "heal", intervalMs: 10000, pct: 0.06 },
+  ],
+  evil_snake_lord: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.7 },
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -695,6 +709,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   permeter: Element.Fire,
   freezer: Element.Water,
   turtle_general: Element.Earth,
+  increase_soil: Element.Earth,
+  mao_guai: Element.Shadow,
+  zhu_po_long: Element.Wind,
+  chung_e: Element.Fire,
+  evil_snake_lord: Element.Water,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

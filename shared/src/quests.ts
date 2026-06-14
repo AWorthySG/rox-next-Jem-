@@ -128,6 +128,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 40,
     reward: { exp: 9000, zeny: 6000, items: [{ id: "mage_staff", qty: 1 }] },
   },
+  serpent_lord: {
+    id: "serpent_lord",
+    name: "The Serpent Lord",
+    desc: "The Evil Snake Lord poisons Louyang's gardens. Sever the serpent.",
+    targetTemplate: "evil_snake_lord",
+    targetName: "Evil Snake Lord",
+    count: 1,
+    requiredLevel: 80,
+    reward: { exp: 56000, zeny: 32000, items: [{ id: "serpent_spear", qty: 1 }] },
+  },
   shell_breaker: {
     id: "shell_breaker",
     name: "Shell Breaker",

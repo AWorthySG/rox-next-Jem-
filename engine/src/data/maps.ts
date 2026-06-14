@@ -293,6 +293,25 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
       { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
       { name: "Ayothaya Exit", role: "portal", x: 0, z: 24, dest: { toMap: "amatsu", toX: 0, toZ: -38 } },
+      { name: "Louyang Portal", role: "portal", x: 0, z: -46, dest: { toMap: "louyang", toX: 0, toZ: 18 } },
+    ],
+  },
+  louyang: {
+    id: "louyang",
+    name: "Louyang",
+    theme: { ground: 0x5a6a3a, fog: 0xb09a70, sky: 0xd4c49a },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "ly-soil", templateId: "increase_soil", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "ly-mao", templateId: "mao_guai", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "ly-zhu", templateId: "zhu_po_long", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "ly-chung", templateId: "chung_e", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "ly-snake", templateId: "evil_snake_lord", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Louyang Exit", role: "portal", x: 0, z: 24, dest: { toMap: "ayothaya", toX: 0, toZ: -38 } },
     ],
   },
   umbala: {
