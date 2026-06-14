@@ -173,6 +173,8 @@ const quests = new QuestPanel({
 
 const refine = new RefinePanel({
   onRefine: (slot) => transport?.send({ t: MsgType.RefineItem, slot }),
+  onEnchant: (slot) => transport?.send({ t: MsgType.EnchantItem, slot }),
+  onToggleLock: (slot, index) => transport?.send({ t: MsgType.ToggleEnchantLock, slot, index }),
 });
 
 const skills = new SkillsPanel({

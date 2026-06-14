@@ -117,6 +117,17 @@ export interface RefineItemMsg {
   slot: string;
 }
 
+export interface EnchantItemMsg {
+  t: MsgType.EnchantItem;
+  slot: string;
+}
+
+export interface ToggleEnchantLockMsg {
+  t: MsgType.ToggleEnchantLock;
+  slot: string;
+  index: number;
+}
+
 export interface SocketCardMsg {
   t: MsgType.SocketCard;
   cardId: string;
@@ -206,6 +217,8 @@ export type ClientMessage =
   | LevelSkillMsg
   | UnlockRuneMsg
   | RefineItemMsg
+  | EnchantItemMsg
+  | ToggleEnchantLockMsg
   | SocketCardMsg
   | UnsocketCardMsg
   | EnterPortalMsg

@@ -1,5 +1,6 @@
 import { EntityKind, EquipSlot, JobId, MonsterAIState } from "./enums.js";
 import type { Stats } from "./stats.js";
+import type { EnchantLine } from "./items.js";
 import type { QuestState } from "./quests.js";
 
 export interface InventoryEntry {
@@ -70,6 +71,8 @@ export interface SelfState {
   equipped: EquipEntry[];
   cards: EquipEntry[]; // socketed card per slot
   refine: Array<{ id: string; level: number }>;
+  enchants: Array<{ id: string; lines: EnchantLine[] }>; // enchant lines per item
+
   quests: QuestState;
   achievements: string[];
   buffs: Array<{ type: string; remainingMs: number }>;

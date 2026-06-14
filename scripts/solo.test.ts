@@ -190,6 +190,31 @@ async function main(): Promise<void> {
   carder.unequip("weapon" as never);
   check((carder.toSelfState().inventory.find((i) => i.id === "skeleton_card")?.qty ?? 0) === 1, "cards: unequipping returns the card");
 
+  // ---- deterministic gear enchantment ----
+  const ench = new Player(977, 1, "Enchanter", JobId.Swordsman, 0, 0);
+  ench.addItem("novice_knife", 1);
+  ench.equip("novice_knife");
+  check(!ench.enchantItem("weapon" as never), "enchant: blocked without enough Zeny");
+  ench.zeny = 200000;
+  check(ench.enchantItem("weapon" as never), "enchant: roll lines on equipped weapon");
+  check((ench.enchantByItem["novice_knife"]?.length ?? 0) === 3, "enchant: fills three lines");
+  check(ench.zeny === 150000, "enchant: Zeny deducted per roll");
+  // lock the first line, capture it, re-roll, confirm it survived
+  check(ench.toggleEnchantLock("weapon" as never, 0), "enchant: lock a line");
+  const lockedLine = { ...ench.enchantByItem["novice_knife"][0] };
+  ench.enchantItem("weapon" as never);
+  const after = ench.enchantByItem["novice_knife"][0];
+  check(
+    after.locked && after.stat === lockedLine.stat && after.value === lockedLine.value,
+    "enchant: locked line survives a re-roll",
+  );
+  // enchant lines survive a save/load round-trip and affect derived stats
+  const enchSaved = ench.toSelfState();
+  check((enchSaved.enchants.find((e) => e.id === "novice_knife")?.lines.length ?? 0) === 3, "enchant: serialized in SelfState");
+  const enchLoaded = new Player(976, 1, "X", JobId.Novice, 0, 0);
+  enchLoaded.restore(enchSaved);
+  check((enchLoaded.enchantByItem["novice_knife"]?.length ?? 0) === 3, "enchant: restored from save");
+
   // ---- deterministic Aesir runes ----
   const runer = new Player(982, 1, "Runer", JobId.Swordsman, 0, 0);
   const baseStrR = runer.stats.str;

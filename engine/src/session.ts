@@ -153,6 +153,16 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       if (p && isEquipSlot(msg.slot)) p.refineEquipped(msg.slot);
       break;
     }
+    case MsgType.EnchantItem: {
+      const p = playerOf(world, link);
+      if (p && isEquipSlot(msg.slot)) p.enchantItem(msg.slot);
+      break;
+    }
+    case MsgType.ToggleEnchantLock: {
+      const p = playerOf(world, link);
+      if (p && isEquipSlot(msg.slot)) p.toggleEnchantLock(msg.slot, msg.index);
+      break;
+    }
     case MsgType.SocketCard: {
       const p = playerOf(world, link);
       if (p) p.socketCard(msg.cardId);

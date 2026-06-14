@@ -456,6 +456,78 @@ Object.assign(DROP_TABLES, {
   memory_of_thanatos: HI([{ itemId: "fallen_angel_wing", chance: 0.7 }, { itemId: "thanatos_sword", chance: 0.6 }, { itemId: "thanatos_card", chance: 0.12 }]),
 });
 
+// ---- Gear enchantment ----
+
+// A single rolled enchant line on an equipment piece. `stat` is either a base
+// stat key (str/agi/…) folded into effective stats, or one of the flat derived
+// keys (atk/matk/def/maxHp/maxSp/crit). `locked` lines survive a re-roll.
+export interface EnchantLine {
+  stat: string;
+  value: number;
+  locked: boolean;
+}
+
+interface EnchantPoolEntry {
+  stat: string;
+  min: number;
+  max: number;
+  weight: number; // relative roll weight
+}
+
+// Weighted pool of possible enchant outcomes. Flat combat stats are rarer and
+// rolled in bigger numbers; base stats are common and small.
+export const ENCHANT_POOL: EnchantPoolEntry[] = [
+  { stat: "str", min: 1, max: 6, weight: 10 },
+  { stat: "agi", min: 1, max: 6, weight: 10 },
+  { stat: "vit", min: 1, max: 6, weight: 10 },
+  { stat: "int", min: 1, max: 6, weight: 10 },
+  { stat: "dex", min: 1, max: 6, weight: 10 },
+  { stat: "luk", min: 1, max: 6, weight: 10 },
+  { stat: "atk", min: 4, max: 18, weight: 7 },
+  { stat: "matk", min: 4, max: 18, weight: 7 },
+  { stat: "def", min: 2, max: 10, weight: 6 },
+  { stat: "maxHp", min: 30, max: 180, weight: 6 },
+  { stat: "maxSp", min: 15, max: 80, weight: 5 },
+  { stat: "crit", min: 1, max: 5, weight: 3 },
+];
+
+const ENCHANT_TOTAL_WEIGHT = ENCHANT_POOL.reduce((s, e) => s + e.weight, 0);
+
+// Human-friendly label for an enchant stat key.
+export function enchantStatLabel(stat: string): string {
+  switch (stat) {
+    case "maxHp":
+      return "Max HP";
+    case "maxSp":
+      return "Max SP";
+    case "atk":
+      return "ATK";
+    case "matk":
+      return "MATK";
+    case "def":
+      return "DEF";
+    case "crit":
+      return "CRIT";
+    default:
+      return stat.toUpperCase();
+  }
+}
+
+// Roll a single random enchant line from the weighted pool.
+export function rollEnchantLine(rng: () => number = Math.random): EnchantLine {
+  let r = rng() * ENCHANT_TOTAL_WEIGHT;
+  let chosen = ENCHANT_POOL[0];
+  for (const e of ENCHANT_POOL) {
+    if (r < e.weight) {
+      chosen = e;
+      break;
+    }
+    r -= e.weight;
+  }
+  const value = chosen.min + Math.floor(rng() * (chosen.max - chosen.min + 1));
+  return { stat: chosen.stat, value, locked: false };
+}
+
 // Roll a monster's drop table into a concrete item list.
 export function rollDrops(templateId: string, rng: () => number = Math.random): Array<{ id: string; qty: number }> {
   const table = DROP_TABLES[templateId];

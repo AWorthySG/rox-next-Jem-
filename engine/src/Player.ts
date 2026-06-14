@@ -17,14 +17,18 @@ import {
   JobId,
   ItemType,
   isMagicJob,
+  ENCHANT_COST,
+  MAX_ENCHANT_LINES,
   MAX_REFINE,
   refineBonus,
   refineCost,
+  rollEnchantLine,
   SKILL_MAX_LEVEL,
   SKILLS_BY_JOB,
   STAT_POINTS_PER_LEVEL,
   xpToNext,
   type DerivedStats,
+  type EnchantLine,
   type EntityFull,
   type EntitySnapshot,
   type SelfState,
@@ -60,6 +64,7 @@ export class Player {
   equipped: Partial<Record<EquipSlot, string>> = {}; // slot -> itemId
   cards: Partial<Record<EquipSlot, string>> = {}; // slot -> socketed card itemId
   refineByItem: Record<string, number> = {}; // itemId -> refine level
+  enchantByItem: Record<string, EnchantLine[]> = {}; // itemId -> rolled enchant lines
   partyId: number | null = null;
   guildId: number | null = null;
   guildName: string | null = null;
@@ -168,6 +173,17 @@ export class Player {
       flatMatk += rb.matk;
       flatDef += rb.def;
       flatHp += rb.maxHp;
+      // enchant lines
+      for (const line of this.enchantByItem[itemId] ?? []) {
+        if (isStatKey(line.stat)) {
+          effective[line.stat] += line.value;
+        } else if (line.stat === "atk") flatAtk += line.value;
+        else if (line.stat === "matk") flatMatk += line.value;
+        else if (line.stat === "def") flatDef += line.value;
+        else if (line.stat === "maxHp") flatHp += line.value;
+        else if (line.stat === "maxSp") flatSp += line.value;
+        else if (line.stat === "crit") flatCrit += line.value;
+      }
     }
     // socketed card bonuses
     for (const cardId of Object.values(this.cards)) {
@@ -236,6 +252,34 @@ export class Player {
     this.zeny -= cost;
     this.refineByItem[itemId] = level + 1;
     this.recompute();
+    return true;
+  }
+
+  // ---- enchantment ----
+
+  // Re-roll the enchant lines on the item equipped in `slot`. Locked lines are
+  // preserved; the remaining slots are re-rolled to fill up to MAX_ENCHANT_LINES.
+  enchantItem(slot: EquipSlot, rng: () => number = Math.random): boolean {
+    const itemId = this.equipped[slot];
+    if (!itemId || !getItem(itemId)) return false;
+    if (this.zeny < ENCHANT_COST) return false;
+    const existing = this.enchantByItem[itemId] ?? [];
+    const kept = existing.filter((l) => l.locked).slice(0, MAX_ENCHANT_LINES);
+    const next: EnchantLine[] = [...kept];
+    while (next.length < MAX_ENCHANT_LINES) next.push(rollEnchantLine(rng));
+    this.zeny -= ENCHANT_COST;
+    this.enchantByItem[itemId] = next;
+    this.recompute();
+    return true;
+  }
+
+  // Toggle the lock flag on a single enchant line (so it survives the next roll).
+  toggleEnchantLock(slot: EquipSlot, index: number): boolean {
+    const itemId = this.equipped[slot];
+    if (!itemId) return false;
+    const lines = this.enchantByItem[itemId];
+    if (!lines || index < 0 || index >= lines.length) return false;
+    lines[index].locked = !lines[index].locked;
     return true;
   }
 
@@ -471,6 +515,8 @@ export class Player {
     for (const c of s.cards ?? []) this.cards[c.slot] = c.id;
     this.refineByItem = {};
     for (const r of s.refine) this.refineByItem[r.id] = r.level;
+    this.enchantByItem = {};
+    for (const e of s.enchants ?? []) this.enchantByItem[e.id] = e.lines.map((l) => ({ ...l }));
     this.activeQuests = {};
     for (const q of s.quests.active) this.activeQuests[q.id] = q.progress;
     this.completedQuests = [...s.quests.completed];
@@ -542,6 +588,9 @@ export class Player {
       refine: Object.entries(this.refineByItem)
         .filter(([, level]) => level > 0)
         .map(([id, level]) => ({ id, level })),
+      enchants: Object.entries(this.enchantByItem)
+        .filter(([, lines]) => lines.length > 0)
+        .map(([id, lines]) => ({ id, lines: lines.map((l) => ({ ...l })) })),
       quests: {
         active: Object.entries(this.activeQuests).map(([id, progress]) => ({ id, progress })),
         completed: [...this.completedQuests],

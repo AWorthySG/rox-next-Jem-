@@ -40,6 +40,12 @@ export const STAT_POINTS_PER_LEVEL = 3;
 export const MAX_REFINE = 10;
 export const REFINE_BASE_COST = 200; // cost of +1; scales with level
 
+// Gear enchantment ("Overall Rating" stat-lines). Each equipment piece holds up
+// to MAX_ENCHANT_LINES rolled stat lines; re-rolling costs Zeny and rerolls any
+// unlocked lines, letting players lock the lines they want to keep.
+export const MAX_ENCHANT_LINES = 3;
+export const ENCHANT_COST = 50000; // Zeny per enchant roll
+
 // Networking.
 export const DEFAULT_PORT = 8080;
 export const HEARTBEAT_INTERVAL_MS = 5000;

@@ -1550,6 +1550,67 @@ body {
   opacity: 0.45;
 }
 
+/* ---- enchant ("Overall Rating") lines ---- */
+.ench-block {
+  margin: 2px 0 10px;
+  padding: 8px 10px;
+  background: rgba(0, 0, 0, 0.22);
+  border: 1px solid rgba(244, 217, 138, 0.18);
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+}
+.ench-lines {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.ench-line {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 5px 9px;
+  font-size: 11px;
+  color: #f0e6c8;
+  background: rgba(60, 48, 92, 0.55);
+  border: 1px solid rgba(244, 217, 138, 0.16);
+  border-radius: 6px;
+  cursor: pointer;
+  text-align: left;
+}
+.ench-line.locked {
+  border-color: var(--gold);
+  background: rgba(120, 92, 36, 0.5);
+}
+.ench-line.empty {
+  opacity: 0.4;
+  cursor: default;
+  font-style: italic;
+}
+.ench-line .el-stat {
+  flex: 1;
+  font-weight: 700;
+}
+.ench-line .el-val {
+  color: var(--gold);
+  font-weight: 700;
+}
+.enchant-btn {
+  align-self: flex-end;
+  padding: 6px 12px;
+  font-size: 11px;
+  font-weight: 700;
+  color: #1a1430;
+  background: linear-gradient(180deg, #c9a8ff, #8f6fd8);
+  border: none;
+  border-radius: 7px;
+  cursor: pointer;
+}
+.enchant-btn.dim {
+  opacity: 0.45;
+}
+
 .hud-help {
   position: absolute;
   top: 12px;

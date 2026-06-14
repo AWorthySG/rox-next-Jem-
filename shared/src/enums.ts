@@ -23,6 +23,8 @@ export enum MsgType {
   LevelSkill = "levelSkill",
   UnlockRune = "unlockRune",
   RefineItem = "refineItem",
+  EnchantItem = "enchantItem",
+  ToggleEnchantLock = "toggleEnchantLock",
   SocketCard = "socketCard",
   UnsocketCard = "unsocketCard",
   EnterPortal = "enterPortal",
