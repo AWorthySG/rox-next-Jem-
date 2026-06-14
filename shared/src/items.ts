@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Manuk Fortress gear ----
+  plasma_cutter: {
+    id: "plasma_cutter", name: "Plasma Cutter", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A humming energy blade. ATK +90, DEX +5.", atk: 90, bonusStats: { dex: 5 }, sellPrice: 5200,
+  },
+  visor_helm: {
+    id: "visor_helm", name: "Visor Helm", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A targeting visor. DEF +20, DEX +4, Max SP +40.", def: 20, maxSp: 40, bonusStats: { dex: 4 }, sellPrice: 4800,
+  },
+  alloy_plate: {
+    id: "alloy_plate", name: "Alloy Plate", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Reinforced battle alloy. DEF +36, Max HP +400, VIT +6.", def: 36, maxHp: 400, bonusStats: { vit: 6 }, sellPrice: 5400,
+  },
+
   // ---- Eclage gear ----
   sky_lance: {
     id: "sky_lance", name: "Sky Lance", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1043,6 +1057,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Manuk Fortress
+  sentinel: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "alloy_plate", chance: 0.025 }],
+  drone: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "visor_helm", chance: 0.025 }],
+  scout_bot: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "plasma_cutter", chance: 0.025 }],
+  war_machine: HI([{ itemId: "plasma_cutter", chance: 0.6 }, { itemId: "alloy_plate", chance: 0.5 }, { itemId: "visor_helm", chance: 0.4 }]),
+  overlord_core: HI([{ itemId: "plasma_cutter", chance: 0.6 }, { itemId: "alloy_plate", chance: 0.55 }, { itemId: "thanatos_card", chance: 0.04 }]),
   // Eclage
   cornus: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "canopy_robe", chance: 0.025 }],
   faceworm: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "sky_lance", chance: 0.025 }],
@@ -1153,6 +1173,7 @@ const ORE_REGULARS = [
   "banaspaty", "butoijo", "kaho",
   "tiyanak", "hilsrion", "naga",
   "cornus", "faceworm", "pinguicula",
+  "sentinel", "drone", "scout_bot",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1174,6 +1195,7 @@ const ORE_BOSSES = [
   "jade_warlord", "spirit_empress", "bangungot", "bungisngis", "jaguar_king", "anaconda",
   "gold_acidus", "tatacho", "queen_scaraba", "kublin", "frost_giant", "ice_queen",
   "leyak", "rangda", "gioia", "kades", "wakwak", "faceworm_queen",
+  "war_machine", "overlord_core",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

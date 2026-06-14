@@ -138,6 +138,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 108,
     reward: { exp: 200000, zeny: 110000, items: [{ id: "bloody_sword", qty: 1 }] },
   },
+  core_meltdown: {
+    id: "core_meltdown",
+    name: "Core Meltdown",
+    desc: "The Overlord Core directs Manuk's war machines. Shut it down for good.",
+    targetTemplate: "overlord_core",
+    targetName: "Overlord Core",
+    count: 1,
+    requiredLevel: 110,
+    reward: { exp: 210000, zeny: 118000, items: [{ id: "plasma_cutter", qty: 1 }] },
+  },
   queen_of_worms: {
     id: "queen_of_worms",
     name: "Queen of Worms",

@@ -457,6 +457,24 @@ export const MAPS: Record<string, GameMap> = {
     npcs: [
       { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
       { name: "Eclage Exit", role: "portal", x: 0, z: 24, dest: { toMap: "juno", toX: -18, toZ: 16 } },
+      { name: "Manuk Portal", role: "portal", x: 0, z: -46, dest: { toMap: "manuk", toX: 0, toZ: 18 } },
+    ],
+  },
+  manuk: {
+    id: "manuk",
+    name: "Manuk Fortress",
+    theme: { ground: 0x444a52, fog: 0x14181e, sky: 0x222a32 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "mn-sentinel", templateId: "sentinel", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "mn-drone", templateId: "drone", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "mn-scout", templateId: "scout_bot", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "mn-warmachine", templateId: "war_machine", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "mn-core", templateId: "overlord_core", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Manuk Exit", role: "portal", x: 0, z: 24, dest: { toMap: "eclage", toX: 0, toZ: -38 } },
     ],
   },
   niflheim: {
