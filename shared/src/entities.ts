@@ -41,6 +41,7 @@ export interface EntityFull {
   job?: JobId;
   colorSeed?: number; // deterministic tint for the procedural character mesh
   guildName?: string; // shown as a [tag] above the player
+  headgear?: string; // equipped headgear item id (rendered as a hat)
   // monsters
   templateId?: string;
   aiState?: MonsterAIState;

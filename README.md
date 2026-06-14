@@ -33,7 +33,9 @@ copyrighted assets.
 - **Items, loot & equipment**: monsters drop from per-species loot tables (auto-pickup);
   bag + equipment panel (key `I`); equip weapons, **headgear**, armor and accessories for stat
   bonuses (ATK/MATK/DEF/HP/SP and base-stat boosts) and quaff potions to restore HP/SP. The
-  Poring King drops rare gear (King's Cleaver, Poring Crown, Poring Hat).
+  Poring King drops rare gear (King's Cleaver, Poring Crown, Poring Hat). **Headgear is worn
+  visibly** — each hat (beret, Poring hat, circlet, gem crown, Valkyrie helm) renders as a
+  distinct low-poly piece on your character and on other players around you.
 - **Cards & sockets**: monster/boss **cards** drop and socket into equipped gear for bonuses
   (e.g. Skeleton Card → ATK, Ghostring Card → Max HP, Thanatos Card → ATK/MATK); cards pop back
   to the bag when you unequip the item.

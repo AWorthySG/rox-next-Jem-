@@ -545,6 +545,7 @@ export class Player {
       job: this.job,
       colorSeed: this.colorSeed,
       guildName: this.guildName ?? undefined,
+      headgear: this.equipped[EquipSlot.Headgear] ?? undefined,
     };
   }
 

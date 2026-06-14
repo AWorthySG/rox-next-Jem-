@@ -31,7 +31,7 @@ import { TargetFrame } from "./ui/TargetFrame.js";
 import { Sfx } from "./ui/Sfx.js";
 import { AutoBattle } from "./ui/AutoBattle.js";
 import { MiniMap } from "./ui/MiniMap.js";
-import { getItem, JOB_NAME, type SelfState } from "@rox/shared";
+import { EquipSlot, getItem, JOB_NAME, type SelfState } from "@rox/shared";
 import { buildMonsterAppearances } from "./procedural/monsters.js";
 
 // ---- bootstrap engine ----
@@ -333,6 +333,7 @@ function handleMessage(msg: ServerMessage): void {
       aesir.sync(msg.self);
       petCompanion.setPet(msg.self.pet);
       gameState.self?.setMounted(msg.self.mounted);
+      gameState.self?.setHeadgear(msg.self.equipped.find((e) => e.slot === EquipSlot.Headgear)?.id ?? null);
       jobAdvance.update(msg.self);
       break;
     case MsgType.Loot: {

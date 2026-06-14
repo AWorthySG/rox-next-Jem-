@@ -1,7 +1,7 @@
 import type { EntityFull } from "@rox/shared";
 import { isMagicJob, MOUNT_SPEED_MULT, PLAYER_SPEED } from "@rox/shared";
 import * as THREE from "three";
-import { buildCharacter, type CharacterMesh } from "../procedural/characterMesh.js";
+import { applyHeadgear, buildCharacter, type CharacterMesh } from "../procedural/characterMesh.js";
 import { EntityView } from "./EntityView.js";
 
 // A player avatar. The local player ("self") is client-predicted; remote players
@@ -12,6 +12,7 @@ export class PlayerView extends EntityView {
   private speedMul = 1;
   private mount: THREE.Mesh | null = null;
   private bodyBaseY = 0;
+  private headgearId: string | null = null;
 
   isSelf = false;
   // server-authoritative position (used for self correction / remote idle)
@@ -30,6 +31,8 @@ export class PlayerView extends EntityView {
     const magic = entity.job ? isMagicJob(entity.job) : false;
     this.char = buildCharacter(entity.colorSeed ?? 0, magic);
     this.char.group.userData.entityId = entity.id;
+    applyHeadgear(this.char, entity.headgear);
+    this.headgearId = entity.headgear ?? null;
     this.group.add(this.char.group);
 
     this.serverX = entity.x;
@@ -72,6 +75,13 @@ export class PlayerView extends EntityView {
 
   clearMoveTarget(): void {
     this.predTarget = null;
+  }
+
+  // Swap the worn hat live (e.g. when the local player equips/unequips headgear).
+  setHeadgear(id: string | null): void {
+    if (id === this.headgearId) return;
+    this.headgearId = id;
+    applyHeadgear(this.char, id);
   }
 
   // Hard-reset position (used on map change so the avatar doesn't lerp across maps).

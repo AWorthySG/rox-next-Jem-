@@ -197,6 +197,7 @@ async function main(): Promise<void> {
   check(hatter.equip("poring_hat"), "headgear: equip a hat into the head slot");
   check(hatter.derived.maxHp > hpNoHat, "headgear: hat raises Max HP");
   check(hatter.toSelfState().equipped.some((e) => e.slot === "headgear"), "headgear: surfaced in self state");
+  check(hatter.toFull().headgear === "poring_hat", "headgear: broadcast in EntityFull for rendering");
   hatter.addItem("willow_card", 1);
   const spNoCard = hatter.derived.maxSp;
   check(hatter.socketCard("willow_card"), "headgear: socket a headgear card");
