@@ -366,6 +366,94 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Sentosa (Singapore — capstone) gear ----
+  trident_of_tides: {
+    id: "trident_of_tides", name: "Trident of Tides", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A trident humming with the sea. ATK +100, STR +7.", atk: 100, bonusStats: { str: 7 }, sellPrice: 6000,
+  },
+  sentosa_helm: {
+    id: "sentosa_helm", name: "Sentosa Helm", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "Crown of the island guardian. DEF +22, all stats +3, Max HP +140.", def: 22, maxHp: 140, bonusStats: { str: 3, agi: 3, vit: 3, int: 3, dex: 3, luk: 3 }, sellPrice: 6000,
+  },
+  tide_plate: {
+    id: "tide_plate", name: "Tide Plate", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Armor forged from coral and steel. DEF +38, Max HP +420, VIT +6.", def: 38, maxHp: 420, bonusStats: { vit: 6 }, sellPrice: 6200,
+  },
+
+  // ---- Pulau Hantu (Singapore — Ghost Island) gear ----
+  soul_kris: {
+    id: "soul_kris", name: "Soul Kris", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A dagger that drinks spirits. ATK +84, LUK +5.", atk: 84, bonusStats: { luk: 5 }, sellPrice: 4600,
+  },
+  veil_of_night: {
+    id: "veil_of_night", name: "Veil of Night", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A shroud of darkness. MATK +12, INT +6, Max SP +50.", matk: 12, maxSp: 50, bonusStats: { int: 6 }, sellPrice: 4200,
+  },
+  shroud_robe: {
+    id: "shroud_robe", name: "Shroud Robe", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Funeral linen turned armor. DEF +30, Max HP +320, VIT +5.", def: 30, maxHp: 320, bonusStats: { vit: 5 }, sellPrice: 4600,
+  },
+
+  // ---- Gardens by the Bay (Singapore) gear ----
+  bloom_staff: {
+    id: "bloom_staff", name: "Bloom Staff", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A staff that flowers with magic. MATK +52, INT +6.", matk: 52, bonusStats: { int: 6 }, sellPrice: 3000,
+  },
+  petal_circlet: {
+    id: "petal_circlet", name: "Petal Circlet", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A circlet of living orchids. MATK +10, INT +5, Max SP +40.", matk: 10, maxSp: 40, bonusStats: { int: 5 }, sellPrice: 2700,
+  },
+  verdant_plate: {
+    id: "verdant_plate", name: "Verdant Plate", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Bark-and-leaf armor. DEF +26, Max HP +240, VIT +4.", def: 26, maxHp: 240, bonusStats: { vit: 4 }, sellPrice: 2900,
+  },
+
+  // ---- Chinatown (Singapore) gear ----
+  ghost_fan: {
+    id: "ghost_fan", name: "Hungry Ghost Fan", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A folding fan of restless spirits. MATK +40, INT +5.", matk: 40, bonusStats: { int: 5 }, sellPrice: 1300,
+  },
+  lion_dance_head: {
+    id: "lion_dance_head", name: "Lion Dance Head", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A festive lion-dance mask. DEF +16, STR +4, Max HP +100.", def: 16, maxHp: 100, bonusStats: { str: 4 }, sellPrice: 1200,
+  },
+  silk_changshan: {
+    id: "silk_changshan", name: "Silk Changshan", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "An embroidered silk robe. DEF +18, Max SP +60, INT +4.", def: 18, maxSp: 60, bonusStats: { int: 4 }, sellPrice: 1300,
+  },
+
+  // ---- Bukit Timah (Singapore) gear ----
+  parang: {
+    id: "parang", name: "Parang", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A heavy jungle machete. ATK +44, AGI +3.", atk: 44, bonusStats: { agi: 3 }, sellPrice: 950,
+  },
+  explorer_hat: {
+    id: "explorer_hat", name: "Explorer Hat", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A wide-brimmed bush hat. DEF +14, DEX +3, Max HP +80.", def: 14, maxHp: 80, bonusStats: { dex: 3 }, sellPrice: 850,
+  },
+  ranger_garb: {
+    id: "ranger_garb", name: "Ranger Garb", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Rugged reserve-ranger gear. DEF +16, Max HP +150, AGI +3.", def: 16, maxHp: 150, bonusStats: { agi: 3 }, sellPrice: 950,
+  },
+
+  // ---- Merlion Bay (Singapore) gear ----
+  harbour_cutlass: {
+    id: "harbour_cutlass", name: "Harbour Cutlass", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A privateer's blade. ATK +32, AGI +3.", atk: 32, bonusStats: { agi: 3 }, price: 950, sellPrice: 230,
+  },
+  sailor_cap: {
+    id: "sailor_cap", name: "Sailor Cap", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A jaunty harbour cap. DEF +10, DEX +3, Max HP +60.", def: 10, maxHp: 60, bonusStats: { dex: 3 }, price: 700, sellPrice: 175,
+  },
+  mariner_vest: {
+    id: "mariner_vest", name: "Mariner Vest", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Salt-stained sea gear. DEF +12, Max HP +100, AGI +2.", def: 12, maxHp: 100, bonusStats: { agi: 2 }, price: 800, sellPrice: 200,
+  },
+  merlion_crown: {
+    id: "merlion_crown", name: "Merlion Crown", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "Crown of the lion-fish guardian. DEF +14, all stats +2, Max HP +90.", def: 14, maxHp: 90, bonusStats: { str: 2, agi: 2, vit: 2, int: 2, dex: 2, luk: 2 }, sellPrice: 1400,
+  },
+
   // ---- Manuk Fortress gear ----
   plasma_cutter: {
     id: "plasma_cutter", name: "Plasma Cutter", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1057,6 +1145,42 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Sentosa (Singapore — capstone)
+  otter_alpha: [{ itemId: "white_potion", chance: 0.4 }, { itemId: "tide_plate", chance: 0.022 }],
+  giant_grouper: [{ itemId: "white_potion", chance: 0.4 }, { itemId: "trident_of_tides", chance: 0.022 }],
+  resort_peacock: [{ itemId: "white_potion", chance: 0.4 }, { itemId: "sentosa_helm", chance: 0.022 }],
+  sentosa_merlion: HI([{ itemId: "sentosa_helm", chance: 0.7 }, { itemId: "trident_of_tides", chance: 0.5 }, { itemId: "tide_plate", chance: 0.5 }]),
+  leviathan: HI([{ itemId: "trident_of_tides", chance: 0.6 }, { itemId: "tide_plate", chance: 0.55 }, { itemId: "nidhoggr_card", chance: 0.05 }]),
+  // Pulau Hantu (Singapore — Ghost Island)
+  pontianak: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "shroud_robe", chance: 0.025 }],
+  orang_minyak: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "veil_of_night", chance: 0.025 }],
+  hantu_air: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "soul_kris", chance: 0.025 }],
+  pontianak_queen: HI([{ itemId: "soul_kris", chance: 0.6 }, { itemId: "shroud_robe", chance: 0.5 }, { itemId: "veil_of_night", chance: 0.4 }]),
+  penanggalan: HI([{ itemId: "veil_of_night", chance: 0.6 }, { itemId: "shroud_robe", chance: 0.5 }, { itemId: "ghostring_card", chance: 0.06 }]),
+  // Gardens by the Bay (Singapore)
+  supertree_sprite: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "verdant_plate", chance: 0.03 }],
+  firefly_swarm: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "petal_circlet", chance: 0.03 }],
+  orchid_fae: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "bloom_staff", chance: 0.03 }],
+  supertree_guardian: HI([{ itemId: "bloom_staff", chance: 0.6 }, { itemId: "verdant_plate", chance: 0.5 }, { itemId: "petal_circlet", chance: 0.4 }]),
+  flower_dome_titan: HI([{ itemId: "verdant_plate", chance: 0.6 }, { itemId: "bloom_staff", chance: 0.45 }, { itemId: "ghostring_card", chance: 0.05 }]),
+  // Chinatown (Singapore)
+  jiangshi: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "lion_dance_head", chance: 0.035 }],
+  street_cat: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "silk_changshan", chance: 0.035 }],
+  lantern_wisp: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "ghost_fan", chance: 0.03 }],
+  jiangshi_lord: HI([{ itemId: "ghost_fan", chance: 0.6 }, { itemId: "silk_changshan", chance: 0.5 }, { itemId: "lion_dance_head", chance: 0.4 }]),
+  nian_beast: HI([{ itemId: "lion_dance_head", chance: 0.6 }, { itemId: "ghost_fan", chance: 0.45 }, { itemId: "skeleton_card", chance: 0.05 }]),
+  // Bukit Timah (Singapore)
+  macaque: [{ itemId: "apple", chance: 0.3 }, { itemId: "explorer_hat", chance: 0.04 }],
+  pangolin: [{ itemId: "red_potion", chance: 0.25 }, { itemId: "ranger_garb", chance: 0.04 }],
+  hornbill: [{ itemId: "red_potion", chance: 0.25 }, { itemId: "parang", chance: 0.04 }],
+  king_macaque: HI([{ itemId: "parang", chance: 0.6 }, { itemId: "explorer_hat", chance: 0.5 }, { itemId: "ranger_garb", chance: 0.4 }]),
+  reticulated_python: HI([{ itemId: "ranger_garb", chance: 0.6 }, { itemId: "parang", chance: 0.45 }, { itemId: "marc_card", chance: 0.05 }]),
+  // Merlion Bay (Singapore)
+  mudskipper: [{ itemId: "apple", chance: 0.3 }, { itemId: "mariner_vest", chance: 0.04 }],
+  horseshoe_crab: [{ itemId: "red_potion", chance: 0.2 }, { itemId: "sailor_cap", chance: 0.04 }],
+  smooth_otter: [{ itemId: "red_potion", chance: 0.2 }, { itemId: "harbour_cutlass", chance: 0.04 }],
+  sea_serpent: HI([{ itemId: "harbour_cutlass", chance: 0.6 }, { itemId: "mariner_vest", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  the_merlion: HI([{ itemId: "merlion_crown", chance: 0.7 }, { itemId: "harbour_cutlass", chance: 0.5 }, { itemId: "mariner_vest", chance: 0.5 }]),
   // Manuk Fortress
   sentinel: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "alloy_plate", chance: 0.025 }],
   drone: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "visor_helm", chance: 0.025 }],
@@ -1174,6 +1298,12 @@ const ORE_REGULARS = [
   "tiyanak", "hilsrion", "naga",
   "cornus", "faceworm", "pinguicula",
   "sentinel", "drone", "scout_bot",
+  "mudskipper", "horseshoe_crab", "smooth_otter",
+  "macaque", "pangolin", "hornbill",
+  "jiangshi", "street_cat", "lantern_wisp",
+  "supertree_sprite", "firefly_swarm", "orchid_fae",
+  "pontianak", "orang_minyak", "hantu_air",
+  "otter_alpha", "giant_grouper", "resort_peacock",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1195,7 +1325,10 @@ const ORE_BOSSES = [
   "jade_warlord", "spirit_empress", "bangungot", "bungisngis", "jaguar_king", "anaconda",
   "gold_acidus", "tatacho", "queen_scaraba", "kublin", "frost_giant", "ice_queen",
   "leyak", "rangda", "gioia", "kades", "wakwak", "faceworm_queen",
-  "war_machine", "overlord_core",
+  "war_machine", "overlord_core", "sea_serpent", "the_merlion",
+  "king_macaque", "reticulated_python", "jiangshi_lord", "nian_beast",
+  "supertree_guardian", "flower_dome_titan", "pontianak_queen", "penanggalan",
+  "sentosa_merlion", "leviathan",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

@@ -59,6 +59,12 @@ const ARCH: Record<string, MonsterArch> = {
   tiyanak: "demon", hilsrion: "golem", naga: "dragon", gioia: "humanoid", kades: "demon",
   cornus: "bird", faceworm: "dragon", pinguicula: "plant", wakwak: "humanoid", faceworm_queen: "dragon",
   sentinel: "golem", drone: "bug", scout_bot: "bird", war_machine: "golem", overlord_core: "demon",
+  mudskipper: "aquatic", horseshoe_crab: "aquatic", smooth_otter: "beast", sea_serpent: "dragon", the_merlion: "aquatic",
+  macaque: "beast", pangolin: "beast", hornbill: "bird", king_macaque: "humanoid", reticulated_python: "dragon",
+  jiangshi: "undead", street_cat: "beast", lantern_wisp: "ghost", jiangshi_lord: "undead", nian_beast: "beast",
+  supertree_sprite: "plant", firefly_swarm: "bug", orchid_fae: "plant", supertree_guardian: "golem", flower_dome_titan: "golem",
+  pontianak: "ghost", orang_minyak: "demon", hantu_air: "ghost", pontianak_queen: "ghost", penanggalan: "demon",
+  otter_alpha: "beast", giant_grouper: "aquatic", resort_peacock: "bird", sentosa_merlion: "aquatic", leviathan: "dragon",
 };
 
 function hex(s: string): number {
@@ -287,6 +293,42 @@ const DEFS: Record<string, AppearanceDef> = {
   scout_bot: { inner: "#b0c0d0", outer: "#3a4a5a", scale: 1.2 },
   war_machine: { inner: "#c08060", outer: "#4a2818", scale: 3.1, boss: true },
   overlord_core: { inner: "#c060a0", outer: "#2a0a1a", scale: 3.0, boss: true },
+  // Merlion Bay (Singapore)
+  mudskipper: { inner: "#c0b070", outer: "#5a4a28", scale: 0.95 },
+  horseshoe_crab: { inner: "#a08060", outer: "#4a3018", scale: 1.1 },
+  smooth_otter: { inner: "#b08860", outer: "#5a3a20", scale: 1.0 },
+  sea_serpent: { inner: "#70c0c0", outer: "#1a5a5a", scale: 2.7, boss: true },
+  the_merlion: { inner: "#f0e0a0", outer: "#b08040", scale: 3.0, boss: true },
+  // Bukit Timah (Singapore)
+  macaque: { inner: "#c0a880", outer: "#5a4428", scale: 1.0 },
+  pangolin: { inner: "#c0a070", outer: "#5a4020", scale: 1.1 },
+  hornbill: { inner: "#e0d040", outer: "#3a2a10", scale: 1.2 },
+  king_macaque: { inner: "#d0b888", outer: "#6a4a28", scale: 2.7, boss: true },
+  reticulated_python: { inner: "#c0b060", outer: "#4a3a18", scale: 2.9, boss: true },
+  // Chinatown (Singapore)
+  jiangshi: { inner: "#a0c0b0", outer: "#3a5a4a", scale: 1.3 },
+  street_cat: { inner: "#d0b090", outer: "#5a4030", scale: 0.9 },
+  lantern_wisp: { inner: "#ffd070", outer: "#c04020", scale: 1.1 },
+  jiangshi_lord: { inner: "#b0d0c0", outer: "#2a5a4a", scale: 2.7, boss: true },
+  nian_beast: { inner: "#e0a040", outer: "#7a2820", scale: 2.9, boss: true },
+  // Gardens by the Bay (Singapore)
+  supertree_sprite: { inner: "#b0e080", outer: "#3a7a28", scale: 1.2 },
+  firefly_swarm: { inner: "#f0e060", outer: "#7a6010", scale: 0.9 },
+  orchid_fae: { inner: "#f0a0d0", outer: "#8a3060", scale: 1.1 },
+  supertree_guardian: { inner: "#90c060", outer: "#2a5a20", scale: 3.2, boss: true },
+  flower_dome_titan: { inner: "#a0d0c0", outer: "#2a6a5a", scale: 3.1, boss: true },
+  // Pulau Hantu (Singapore — Ghost Island)
+  pontianak: { inner: "#e0e0e8", outer: "#6a6a7a", scale: 1.3 },
+  orang_minyak: { inner: "#5a5a5a", outer: "#101010", scale: 1.35 },
+  hantu_air: { inner: "#a0c0d0", outer: "#2a4a5a", scale: 1.25 },
+  pontianak_queen: { inner: "#f0f0f8", outer: "#7a7a8a", scale: 2.9, boss: true },
+  penanggalan: { inner: "#e0a0a0", outer: "#5a1818", scale: 2.8, boss: true },
+  // Sentosa (Singapore — capstone)
+  otter_alpha: { inner: "#c0a070", outer: "#5a3a20", scale: 1.2 },
+  giant_grouper: { inner: "#80b0a0", outer: "#2a5a4a", scale: 1.4 },
+  resort_peacock: { inner: "#40c0c0", outer: "#1a5a6a", scale: 1.3 },
+  sentosa_merlion: { inner: "#f0e8b0", outer: "#a07830", scale: 3.3, boss: true },
+  leviathan: { inner: "#60a0c0", outer: "#0a3a5a", scale: 3.4, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

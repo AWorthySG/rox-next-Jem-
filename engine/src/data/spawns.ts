@@ -428,6 +428,42 @@ Object.assign(MONSTER_TEMPLATES, {
   scout_bot: mk("scout_bot", "Scout Bot", 104, 10200, 20800),
   war_machine: mk("war_machine", "War Machine", 112, 70000, 114000, true),
   overlord_core: mk("overlord_core", "Overlord Core", 114, 76000, 126000, true),
+  // ---- Merlion Bay (Singapore) ----
+  mudskipper: mk("mudskipper", "Mudskipper", 22, 680, 440),
+  horseshoe_crab: mk("horseshoe_crab", "Horseshoe Crab", 24, 760, 520),
+  smooth_otter: mk("smooth_otter", "Smooth Otter", 26, 840, 600),
+  sea_serpent: mk("sea_serpent", "Sea Serpent", 32, 6000, 9500, true),
+  the_merlion: mk("the_merlion", "The Merlion", 35, 7200, 12000, true),
+  // ---- Bukit Timah (Singapore) ----
+  macaque: mk("macaque", "Long-tailed Macaque", 40, 1500, 1050),
+  pangolin: mk("pangolin", "Sunda Pangolin", 42, 1650, 1180),
+  hornbill: mk("hornbill", "Hornbill", 44, 1800, 1320),
+  king_macaque: mk("king_macaque", "King Macaque", 50, 9500, 16000, true),
+  reticulated_python: mk("reticulated_python", "Reticulated Python", 52, 11000, 19000, true),
+  // ---- Chinatown (Singapore) ----
+  jiangshi: mk("jiangshi", "Jiangshi", 55, 2900, 6500),
+  street_cat: mk("street_cat", "Street Cat", 57, 3100, 7100),
+  lantern_wisp: mk("lantern_wisp", "Lantern Wisp", 59, 3300, 7700),
+  jiangshi_lord: mk("jiangshi_lord", "Jiangshi Lord", 65, 15000, 26000, true),
+  nian_beast: mk("nian_beast", "Nian Beast", 67, 17000, 30000, true),
+  // ---- Gardens by the Bay (Singapore) ----
+  supertree_sprite: mk("supertree_sprite", "Supertree Sprite", 75, 4800, 10400),
+  firefly_swarm: mk("firefly_swarm", "Firefly Swarm", 77, 5100, 11200),
+  orchid_fae: mk("orchid_fae", "Orchid Fae", 79, 5400, 12000),
+  supertree_guardian: mk("supertree_guardian", "Supertree Guardian", 86, 32000, 54000, true),
+  flower_dome_titan: mk("flower_dome_titan", "Flower Dome Titan", 88, 35000, 60000, true),
+  // ---- Pulau Hantu (Singapore — Ghost Island) ----
+  pontianak: mk("pontianak", "Pontianak", 95, 7600, 16200),
+  orang_minyak: mk("orang_minyak", "Orang Minyak", 97, 8000, 17000),
+  hantu_air: mk("hantu_air", "Hantu Air", 99, 8400, 17800),
+  pontianak_queen: mk("pontianak_queen", "Pontianak Queen", 106, 64000, 104000, true),
+  penanggalan: mk("penanggalan", "Penanggalan", 108, 70000, 116000, true),
+  // ---- Sentosa (Singapore — capstone) ----
+  otter_alpha: mk("otter_alpha", "Otter Alpha", 115, 12000, 23000),
+  giant_grouper: mk("giant_grouper", "Giant Grouper", 117, 12800, 24800),
+  resort_peacock: mk("resort_peacock", "Resort Peacock", 119, 13600, 26600),
+  sentosa_merlion: mk("sentosa_merlion", "Sentosa Merlion", 126, 90000, 160000, true),
+  leviathan: mk("leviathan", "Leviathan", 128, 100000, 180000, true),
 });
 
 export interface SpawnZone {
@@ -749,6 +785,58 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "summon", intervalMs: 8000, templateId: "drone", count: 3, max: 6 },
     { kind: "nova", intervalMs: 5000, radius: 12, powerMult: 1.8 },
   ],
+  sea_serpent: [
+    { kind: "nova", intervalMs: 6000, radius: 10, powerMult: 1.4 },
+    { kind: "summon", intervalMs: 9000, templateId: "mudskipper", count: 2, max: 4 },
+  ],
+  the_merlion: [
+    { kind: "enrage", hpPct: 0.3, atkMult: 1.5 },
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.6 },
+    { kind: "heal", intervalMs: 10000, pct: 0.06 },
+  ],
+  king_macaque: [
+    { kind: "summon", intervalMs: 7500, templateId: "macaque", count: 3, max: 6 },
+    { kind: "enrage", hpPct: 0.3, atkMult: 1.5 },
+  ],
+  reticulated_python: [
+    { kind: "nova", intervalMs: 5500, radius: 10, powerMult: 1.6 },
+    { kind: "heal", intervalMs: 11000, pct: 0.06 },
+  ],
+  jiangshi_lord: [
+    { kind: "summon", intervalMs: 8000, templateId: "jiangshi", count: 2, max: 5 },
+    { kind: "nova", intervalMs: 5500, radius: 10, powerMult: 1.6 },
+  ],
+  nian_beast: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.7 },
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.6 },
+  ],
+  supertree_guardian: [
+    { kind: "summon", intervalMs: 8000, templateId: "supertree_sprite", count: 2, max: 5 },
+    { kind: "heal", intervalMs: 10000, pct: 0.06 },
+  ],
+  flower_dome_titan: [
+    { kind: "enrage", hpPct: 0.4, atkMult: 1.6 },
+    { kind: "nova", intervalMs: 6000, radius: 11, powerMult: 1.6 },
+  ],
+  pontianak_queen: [
+    { kind: "summon", intervalMs: 8000, templateId: "pontianak", count: 2, max: 5 },
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
+    { kind: "heal", intervalMs: 11000, pct: 0.06 },
+  ],
+  penanggalan: [
+    { kind: "enrage", hpPct: 0.4, atkMult: 1.7 },
+    { kind: "nova", intervalMs: 5000, radius: 11, powerMult: 1.7 },
+  ],
+  sentosa_merlion: [
+    { kind: "enrage", hpPct: 0.4, atkMult: 1.7 },
+    { kind: "nova", intervalMs: 5000, radius: 12, powerMult: 1.8 },
+    { kind: "heal", intervalMs: 11000, pct: 0.06 },
+  ],
+  leviathan: [
+    { kind: "enrage", hpPct: 0.5, atkMult: 1.8 },
+    { kind: "nova", intervalMs: 4800, radius: 13, powerMult: 1.8 },
+    { kind: "summon", intervalMs: 8000, templateId: "giant_grouper", count: 3, max: 6 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -932,6 +1020,36 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   scout_bot: Element.Wind,
   war_machine: Element.Fire,
   overlord_core: Element.Shadow,
+  mudskipper: Element.Water,
+  horseshoe_crab: Element.Earth,
+  smooth_otter: Element.Wind,
+  sea_serpent: Element.Water,
+  the_merlion: Element.Holy,
+  macaque: Element.Wind,
+  pangolin: Element.Earth,
+  hornbill: Element.Wind,
+  king_macaque: Element.Earth,
+  reticulated_python: Element.Shadow,
+  jiangshi: Element.Shadow,
+  street_cat: Element.Wind,
+  lantern_wisp: Element.Fire,
+  jiangshi_lord: Element.Shadow,
+  nian_beast: Element.Fire,
+  supertree_sprite: Element.Earth,
+  firefly_swarm: Element.Fire,
+  orchid_fae: Element.Wind,
+  supertree_guardian: Element.Earth,
+  flower_dome_titan: Element.Water,
+  pontianak: Element.Shadow,
+  orang_minyak: Element.Fire,
+  hantu_air: Element.Water,
+  pontianak_queen: Element.Shadow,
+  penanggalan: Element.Wind,
+  otter_alpha: Element.Wind,
+  giant_grouper: Element.Water,
+  resort_peacock: Element.Wind,
+  sentosa_merlion: Element.Holy,
+  leviathan: Element.Water,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;
