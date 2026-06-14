@@ -49,6 +49,8 @@ copyrighted assets.
   their head and share a roster.
 - **Quests**: a town Guide offers a kill-quest board (Poring Purge → Slay the King). Accept,
   track progress as you hunt, and claim EXP/Zeny/item rewards; quest credit shares with party.
+  Alongside the one-shot story quests are **repeatable daily bounties** you can turn in and
+  immediately re-accept for steady EXP/Zeny.
 - **Character building**: spend stat points earned on level-up into STR/AGI/VIT/INT/DEX/LUK
   from the HUD; level up individual skills (window `K`) with skill points to scale their power;
   unlock passive **Aesir runes** (window `R`) along five paths (Might/Guard/Mystic/Swift/Fortune)

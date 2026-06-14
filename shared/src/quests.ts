@@ -13,6 +13,7 @@ export interface Quest {
   count: number;
   requiredLevel: number;
   reward: QuestReward;
+  repeatable?: boolean; // daily-style bounty: re-acceptable after turning in
 }
 
 // Kill-quest board offered by the town Guide. Ordered by difficulty.
@@ -156,6 +157,41 @@ export const QUESTS: Record<string, Quest> = {
     count: 1,
     requiredLevel: 120,
     reward: { exp: 800000, zeny: 300000, items: [{ id: "fallen_angel_wing", qty: 1 }] },
+  },
+
+  // ---- repeatable daily bounties (turn in and re-accept for steady income) ----
+  bounty_porings: {
+    id: "bounty_porings",
+    name: "Daily Bounty: Porings",
+    desc: "A standing order: clear Porings for the merchant guild.",
+    targetTemplate: "poring",
+    targetName: "Poring",
+    count: 15,
+    requiredLevel: 1,
+    reward: { exp: 200, zeny: 300, items: [{ id: "red_potion", qty: 2 }] },
+    repeatable: true,
+  },
+  bounty_skeletons: {
+    id: "bounty_skeletons",
+    name: "Daily Bounty: Skeletons",
+    desc: "A standing order: scatter Glast Heim's skeletons.",
+    targetTemplate: "skeleton",
+    targetName: "Skeleton",
+    count: 15,
+    requiredLevel: 18,
+    reward: { exp: 5000, zeny: 3000, items: [{ id: "blue_potion", qty: 3 }] },
+    repeatable: true,
+  },
+  bounty_metalings: {
+    id: "bounty_metalings",
+    name: "Daily Bounty: Metalings",
+    desc: "A standing order: recycle Einbroch's Metalings.",
+    targetTemplate: "metaling",
+    targetName: "Metaling",
+    count: 15,
+    requiredLevel: 80,
+    reward: { exp: 110000, zeny: 60000, items: [{ id: "royal_feast", qty: 1 }] },
+    repeatable: true,
   },
 };
 

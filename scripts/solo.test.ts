@@ -202,6 +202,23 @@ async function main(): Promise<void> {
   carder.unequip("weapon" as never);
   check((carder.toSelfState().inventory.find((i) => i.id === "skeleton_card")?.qty ?? 0) === 1, "cards: unequipping returns the card");
 
+  // ---- deterministic repeatable bounties ----
+  const bounty = new Player(969, 1, "Bounty", JobId.Swordsman, 0, 0);
+  bounty.level = 5;
+  check(bounty.acceptQuest("bounty_porings"), "bounty: accept a repeatable quest");
+  for (let i = 0; i < 15; i++) bounty.creditKill("poring");
+  check(bounty.claimQuest("bounty_porings") !== null, "bounty: claim when complete");
+  check(!bounty.completedQuests.includes("bounty_porings"), "bounty: repeatable does NOT lock as completed");
+  check(bounty.acceptQuest("bounty_porings"), "bounty: can re-accept immediately");
+  // a normal (non-repeatable) quest still locks out after claiming
+  const oneShot = new Player(968, 1, "OneShot", JobId.Swordsman, 0, 0);
+  oneShot.level = 5;
+  oneShot.acceptQuest("poring_purge");
+  for (let i = 0; i < 10; i++) oneShot.creditKill("poring");
+  oneShot.claimQuest("poring_purge");
+  check(oneShot.completedQuests.includes("poring_purge"), "bounty: normal quest still locks once done");
+  check(!oneShot.acceptQuest("poring_purge"), "bounty: normal quest cannot be re-accepted");
+
   // ---- deterministic Monster Codex (kill counts) ----
   const hunter = new Player(971, 1, "Hunter", JobId.Archer, 0, 0);
   hunter.recordKill("poring", false);

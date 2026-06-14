@@ -68,8 +68,9 @@ export class QuestPanel {
         status = `Requires Lv ${quest.requiredLevel}`;
       }
 
+      const repeatTag = quest.repeatable ? ` <span class="quest-repeat">↻ Repeatable</span>` : "";
       row.innerHTML =
-        `<div class="quest-main"><div class="quest-name">${quest.name}</div>` +
+        `<div class="quest-main"><div class="quest-name">${quest.name}${repeatTag}</div>` +
         `<div class="quest-desc">${quest.desc}</div>` +
         `<div class="quest-meta">Slay ${quest.count} ${quest.targetName} · Reward: ${reward}</div>` +
         `<div class="quest-status">${status}</div></div><div class="quest-act">${action}</div>`;

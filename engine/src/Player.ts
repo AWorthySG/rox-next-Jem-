@@ -513,7 +513,8 @@ export class Player {
     if (!quest) return null;
     if ((this.activeQuests[id] ?? -1) < quest.count) return null;
     delete this.activeQuests[id];
-    this.completedQuests.push(id);
+    // Repeatable bounties never lock out — they can be re-accepted immediately.
+    if (!quest.repeatable) this.completedQuests.push(id);
     this.zeny += quest.reward.zeny;
     for (const it of quest.reward.items ?? []) this.addItem(it.id, it.qty);
     const leveled = this.gainExp(quest.reward.exp);
