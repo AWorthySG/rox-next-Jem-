@@ -588,6 +588,26 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 130,
     reward: { exp: 2000000, zeny: 800000, items: [{ id: "nidhoggr_eye", qty: 1 }] },
   },
+  the_changi_revenant: {
+    id: "the_changi_revenant",
+    name: "The Changi Revenant",
+    desc: "A wartime Revenant haunts the old Changi camp by the sea. Lay the dead to rest.",
+    targetTemplate: "changi_revenant",
+    targetName: "Changi Revenant",
+    count: 1,
+    requiredLevel: 86,
+    reward: { exp: 88000, zeny: 50000, items: [{ id: "vortex_blade", qty: 1 }] },
+  },
+  guardian_of_the_jewel: {
+    id: "guardian_of_the_jewel",
+    name: "Guardian of the Jewel",
+    desc: "The Vortex Guardian churns the rain-vortex over Changi's Jewel. Still the storm.",
+    targetTemplate: "vortex_guardian",
+    targetName: "Vortex Guardian",
+    count: 1,
+    requiredLevel: 92,
+    reward: { exp: 112000, zeny: 64000, items: [{ id: "jewel_visor", qty: 1 }] },
+  },
 
   // ---- repeatable daily bounties (turn in and re-accept for steady income) ----
   bounty_porings: {

@@ -81,6 +81,25 @@ export const MAPS: Record<string, GameMap> = {
     npcs: [
       { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
       { name: "East Coast Exit", role: "portal", x: 0, z: 24, dest: { toMap: "merlion_bay", toX: -18, toZ: 16 } },
+      { name: "Changi Portal", role: "portal", x: 0, z: -50, dest: { toMap: "changi", toX: 0, toZ: 18 } },
+    ],
+  },
+  changi: {
+    id: "changi",
+    name: "Changi",
+    theme: { ground: 0x5a8a7a, fog: 0x7fc0d0, sky: 0xbfe0ea },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "ch-pow", templateId: "pow_spirit", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "ch-ghoul", templateId: "beach_ghoul", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "ch-drone", templateId: "jewel_drone", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "ch-revenant", templateId: "changi_revenant", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "ch-vortex", templateId: "vortex_guardian", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Changi Exit", role: "portal", x: 0, z: 24, dest: { toMap: "east_coast", toX: 0, toZ: -44 } },
     ],
   },
   pulau_ubin: {

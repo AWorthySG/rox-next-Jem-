@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Changi (Singapore) gear ----
+  vortex_blade: {
+    id: "vortex_blade", name: "Vortex Blade", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A blade that swirls like the Jewel falls. ATK +80, AGI +5.", atk: 80, bonusStats: { agi: 5 }, sellPrice: 4400,
+  },
+  jewel_visor: {
+    id: "jewel_visor", name: "Jewel Visor", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A prismatic AR visor. MATK +10, INT +5, Max SP +40.", matk: 10, maxSp: 40, bonusStats: { int: 5 }, sellPrice: 4000,
+  },
+  changi_plate: {
+    id: "changi_plate", name: "Changi Plate", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Sea-tempered coastal armor. DEF +28, Max HP +280, VIT +5.", def: 28, maxHp: 280, bonusStats: { vit: 5 }, sellPrice: 4400,
+  },
+
   // ---- Mount Faber (Singapore) gear ----
   summit_lance: {
     id: "summit_lance", name: "Summit Lance", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1257,6 +1271,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Changi (Singapore)
+  pow_spirit: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "changi_plate", chance: 0.03 }],
+  beach_ghoul: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "jewel_visor", chance: 0.03 }],
+  jewel_drone: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "vortex_blade", chance: 0.03 }],
+  changi_revenant: HI([{ itemId: "vortex_blade", chance: 0.6 }, { itemId: "changi_plate", chance: 0.5 }, { itemId: "jewel_visor", chance: 0.4 }]),
+  vortex_guardian: HI([{ itemId: "changi_plate", chance: 0.6 }, { itemId: "vortex_blade", chance: 0.45 }, { itemId: "marc_card", chance: 0.05 }]),
   // Mount Faber (Singapore)
   cable_wraith: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "alpine_plate", chance: 0.03 }],
   peak_eagle: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "aviator_cap", chance: 0.03 }],
@@ -1472,6 +1492,7 @@ const ORE_REGULARS = [
   "beach_crab", "seagull", "sand_flea",
   "spice_sprite", "war_ghost", "bunker_sentry",
   "cable_wraith", "peak_eagle", "stone_golem",
+  "pow_spirit", "beach_ghoul", "jewel_drone",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1499,7 +1520,7 @@ const ORE_BOSSES = [
   "sentosa_merlion", "leviathan", "sultan_jinn", "naga_emas",
   "skyline_colossus", "spectra_dragon", "t_rex", "mecha_dino", "boar_king", "mangrove_naga",
   "yama_king", "tiger_spirit", "giant_stingray", "tidal_kraken", "colonial_wraith", "hill_sentinel",
-  "faber_titan", "wind_djinn",
+  "faber_titan", "wind_djinn", "changi_revenant", "vortex_guardian",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

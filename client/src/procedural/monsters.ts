@@ -23,7 +23,7 @@ interface AppearanceDef {
 const ARCH: Record<string, MonsterArch> = {
   poring: "jelly", drops: "jelly", lunatic: "jelly", angeling: "jelly",
   fabre: "bug", chonchon: "bug", stem_worm: "bug", metaling: "bug", venatu: "bug", sleeper: "bug",
-  wolf: "beast", coco: "beast", eddga: "beast", kraken: "aquatic", boitata: "beast", tao_gunka: "beast",
+  wolf: "beast", coco: "beast", eddga: "beast", kraken: "aquatic",
   zombie: "undead", skeleton: "undead", wraith: "undead", gargoyle: "undead", vanberk: "undead", hodremlin: "undead", amon_ra: "undead",
   spore: "plant", dryad: "plant", tendrilion: "plant",
   hardrock_mammoth: "golem", clock: "rock", clock_tower_manager: "golem", sandman: "rock", anolian: "aquatic",
@@ -73,6 +73,7 @@ const ARCH: Record<string, MonsterArch> = {
   beach_crab: "aquatic", seagull: "bird", sand_flea: "bug", giant_stingray: "aquatic", tidal_kraken: "aquatic",
   spice_sprite: "plant", war_ghost: "ghost", bunker_sentry: "golem", colonial_wraith: "ghost", hill_sentinel: "golem",
   cable_wraith: "ghost", peak_eagle: "bird", stone_golem: "golem", faber_titan: "golem", wind_djinn: "demon",
+  pow_spirit: "ghost", beach_ghoul: "undead", jewel_drone: "golem", changi_revenant: "ghost", vortex_guardian: "golem",
 };
 
 function hex(s: string): number {
@@ -385,6 +386,12 @@ const DEFS: Record<string, AppearanceDef> = {
   stone_golem: { inner: "#a0a090", outer: "#3a3a30", scale: 1.4 },
   faber_titan: { inner: "#a0b0a0", outer: "#3a4a3a", scale: 3.1, boss: true },
   wind_djinn: { inner: "#b0e0e0", outer: "#2a6a6a", scale: 2.9, boss: true },
+  // Changi (Singapore)
+  pow_spirit: { inner: "#c0c8d0", outer: "#4a525c", scale: 1.3 },
+  beach_ghoul: { inner: "#a0b090", outer: "#3a4a30", scale: 1.4 },
+  jewel_drone: { inner: "#b0d8e0", outer: "#3a6a7a", scale: 1.2 },
+  changi_revenant: { inner: "#d0d8e0", outer: "#4a5a6a", scale: 2.8, boss: true },
+  vortex_guardian: { inner: "#80c0d0", outer: "#1a5a6a", scale: 3.1, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

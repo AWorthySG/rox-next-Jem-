@@ -512,6 +512,12 @@ Object.assign(MONSTER_TEMPLATES, {
   stone_golem: mk("stone_golem", "Stone Golem", 74, 4600, 10400),
   faber_titan: mk("faber_titan", "Faber Titan", 80, 28000, 48000, true),
   wind_djinn: mk("wind_djinn", "Wind Djinn", 82, 31000, 53000, true),
+  // ---- Changi (Singapore) ----
+  pow_spirit: mk("pow_spirit", "POW Spirit", 80, 5200, 11200),
+  beach_ghoul: mk("beach_ghoul", "Beach Ghoul", 82, 5500, 11800),
+  jewel_drone: mk("jewel_drone", "Jewel Drone", 84, 5800, 12400),
+  changi_revenant: mk("changi_revenant", "Changi Revenant", 90, 38000, 60000, true),
+  vortex_guardian: mk("vortex_guardian", "Vortex Guardian", 92, 42000, 68000, true),
 });
 
 export interface SpawnZone {
@@ -952,6 +958,15 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
     { kind: "heal", intervalMs: 11000, pct: 0.06 },
   ],
+  changi_revenant: [
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
+    { kind: "summon", intervalMs: 8500, templateId: "pow_spirit", count: 2, max: 5 },
+  ],
+  vortex_guardian: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.7 },
+    { kind: "nova", intervalMs: 5500, radius: 12, powerMult: 1.7 },
+    { kind: "heal", intervalMs: 11000, pct: 0.06 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -1205,6 +1220,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   stone_golem: Element.Earth,
   faber_titan: Element.Fire,
   wind_djinn: Element.Wind,
+  pow_spirit: Element.Shadow,
+  beach_ghoul: Element.Shadow,
+  jewel_drone: Element.Wind,
+  changi_revenant: Element.Shadow,
+  vortex_guardian: Element.Water,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;
