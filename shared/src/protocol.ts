@@ -187,6 +187,16 @@ export interface DefeatedMsg {
   byName: string;
 }
 
+// Result of a refine attempt, so the client can show success/failure feedback.
+export interface RefineResultMsg {
+  t: MsgType.RefineResult;
+  slot: string;
+  itemName: string;
+  success: boolean;
+  level: number; // resulting refine level
+  broke: boolean;
+}
+
 // A telegraphed AoE about to land — clients render a growing warning ring.
 export interface BossTelegraphMsg {
   t: MsgType.BossTelegraph;
@@ -365,6 +375,7 @@ export type ServerMessage =
   | GuildUpdateMsg
   | MapChangeMsg
   | DefeatedMsg
+  | RefineResultMsg
   | BossTelegraphMsg
   | DamageEventMsg
   | LevelUpMsg

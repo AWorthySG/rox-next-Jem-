@@ -46,6 +46,7 @@ export enum MsgType {
   GuildUpdate = "guildUpdate",
   MapChange = "mapChange",
   Defeated = "defeated",
+  RefineResult = "refineResult",
   BossTelegraph = "bossTelegraph",
   DamageEvent = "damage",
   LevelUp = "levelUp",
@@ -99,6 +100,7 @@ export enum ItemType {
   Accessory = "accessory",
   Consumable = "consumable",
   Card = "card",
+  Material = "material", // crafting/refine materials (ores, etc.)
 }
 
 export enum EquipSlot {

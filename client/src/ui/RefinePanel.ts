@@ -6,7 +6,9 @@ import {
   MAX_ENCHANT_LINES,
   MAX_REFINE,
   refineBonus,
+  refineChance,
   refineCost,
+  refineMaterial,
   type EnchantLine,
   type SelfState,
 } from "@rox/shared";
@@ -58,6 +60,22 @@ export class RefinePanel {
     if (this.isOpen) this.render(self);
   }
 
+  // Flash a success/failure banner after a refine attempt.
+  showResult(itemName: string, success: boolean, level: number): void {
+    let toast = document.getElementById("refine-toast");
+    if (!toast) {
+      toast = document.createElement("div");
+      toast.id = "refine-toast";
+      this.root.appendChild(toast);
+    }
+    toast.className = `refine-toast ${success ? "ok" : "fail"}`;
+    toast.textContent = success ? `✦ Success!  ${itemName} +${level}` : `✗ Refine failed — ${itemName} stays +${level}`;
+    // restart the fade animation
+    toast.classList.remove("show");
+    void toast.offsetWidth;
+    toast.classList.add("show");
+  }
+
   private render(self: SelfState): void {
     this.zenyEl.textContent = self.zeny.toLocaleString();
     const equippedBySlot = new Map(self.equipped.map((e) => [e.slot, e.id]));
@@ -79,18 +97,23 @@ export class RefinePanel {
       const level = refineMap.get(id) ?? 0;
       const maxed = level >= MAX_REFINE;
       const cost = refineCost(level);
-      const afford = self.zeny >= cost;
-      // before -> after stat preview
+      const ore = refineMaterial(item);
+      const oreName = getItem(ore)?.name ?? ore;
+      const oreHave = self.inventory.find((e) => e.id === ore)?.qty ?? 0;
+      const chance = Math.round(refineChance(level) * 100);
+      const afford = self.zeny >= cost && oreHave >= 1;
+      // before -> after stat preview, from the slot-aware bonus (every type gains)
       const cur = refineBonus(item, level);
       const next = refineBonus(item, level + 1);
       const deltas: string[] = [];
-      if (item.atk) deltas.push(`ATK +${cur.atk}<i>→</i>+${next.atk}`);
-      if (item.matk) deltas.push(`MATK +${cur.matk}<i>→</i>+${next.matk}`);
-      if (item.def) deltas.push(`DEF +${cur.def}<i>→</i>+${next.def}`);
-      if (item.maxHp) deltas.push(`HP +${cur.maxHp}<i>→</i>+${next.maxHp}`);
+      const L: Array<[keyof typeof next, string]> = [["atk", "ATK"], ["matk", "MATK"], ["def", "DEF"], ["maxHp", "HP"]];
+      for (const [k, label] of L) if (next[k] > 0) deltas.push(`${label} +${cur[k]}<i>→</i>+${next[k]}`);
       const preview = maxed || deltas.length === 0 ? "" : `<div class="rr-preview">${deltas.join(" · ")}</div>`;
+      const meta = maxed
+        ? ""
+        : `<div class="rr-meta"><span class="${chance < 100 ? "rr-risk" : ""}">${chance}%</span> · ⛏ ${oreName} <b class="${oreHave >= 1 ? "" : "rr-risk"}">${oreHave}</b></div>`;
       row.innerHTML =
-        `<div class="rr-info"><span class="rr-name">${item.name} <b class="rr-lv">+${level}</b></span>${preview}</div>` +
+        `<div class="rr-info"><span class="rr-name">${item.name} <b class="rr-lv">+${level}</b></span>${preview}${meta}</div>` +
         (maxed
           ? `<span class="rr-max">MAX</span>`
           : `<button class="refine-btn${afford ? "" : " dim"}" data-slot="${slot}">⚒ ${cost.toLocaleString()}z</button>`);

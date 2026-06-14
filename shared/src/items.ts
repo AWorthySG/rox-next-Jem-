@@ -1,20 +1,63 @@
-import { REFINE_BASE_COST } from "./constants.js";
+import { REFINE_BASE_COST, REFINE_SAFE } from "./constants.js";
 import { EquipSlot, ItemType } from "./enums.js";
 import type { Stats } from "./stats.js";
 
-// Zeny cost to take an item from `level` to `level + 1`.
+// Zeny cost to take an item from `level` to `level + 1` (steeper past the safe line).
 export function refineCost(level: number): number {
-  return REFINE_BASE_COST * (level + 1);
+  const over = Math.max(0, level - REFINE_SAFE + 1);
+  return Math.round(REFINE_BASE_COST * (level + 1) * (1 + over * 0.6));
 }
 
-// Stat bonuses granted by `level` refines on an equipment item.
-export function refineBonus(item: { atk?: number; matk?: number; def?: number; maxHp?: number }, level: number) {
-  return {
-    atk: item.atk ? level * 2 : 0,
-    matk: item.matk ? level * 2 : 0,
-    def: item.def ? level * 2 : 0,
-    maxHp: item.maxHp ? level * 6 : 0,
-  };
+// Stat bonuses granted by `level` refines, by equipment slot — so EVERY gear
+// type (including accessories that only carry base-stat bonuses) gains from
+// refining. Weapons gain ATK/MATK, defensive gear gains DEF/HP, accessories a
+// balanced sliver of everything.
+export function refineBonus(
+  item: { slot?: EquipSlot; atk?: number; matk?: number; def?: number; maxHp?: number },
+  level: number,
+) {
+  const out = { atk: 0, matk: 0, def: 0, maxHp: 0 };
+  if (level <= 0) return out;
+  switch (item.slot) {
+    case EquipSlot.Weapon:
+      // physical weapons gain ATK, magic weapons (matk) gain MATK; mixed gain both
+      if (item.matk) out.matk = level * 2;
+      if (item.atk || !item.matk) out.atk = level * 2;
+      break;
+    case EquipSlot.Armor:
+      out.def = level * 2;
+      out.maxHp = level * 8;
+      break;
+    case EquipSlot.Headgear:
+      out.def = level * 2;
+      out.maxHp = level * 6;
+      break;
+    case EquipSlot.Accessory:
+      out.maxHp = level * 5;
+      out.atk = level;
+      out.matk = level;
+      break;
+    default:
+      // fallback for slotless/unknown: scale whatever stats the item has
+      out.atk = item.atk ? level * 2 : 0;
+      out.matk = item.matk ? level * 2 : 0;
+      out.def = item.def ? level * 2 : 0;
+      out.maxHp = item.maxHp ? level * 6 : 0;
+  }
+  return out;
+}
+
+// Success chance for the attempt that takes an item from `level` to `level+1`.
+// Guaranteed up to the safe line, then steadily harder.
+export function refineChance(level: number): number {
+  if (level < REFINE_SAFE) return 1;
+  const table = [0.9, 0.8, 0.7, 0.6, 0.5, 0.4]; // +4→5 … +9→10
+  return table[level - REFINE_SAFE] ?? 0.4;
+}
+
+// Which ore an item consumes per refine attempt.
+export function refineMaterial(item: { slot?: EquipSlot }): string {
+  return item.slot === EquipSlot.Weapon || item.slot === EquipSlot.Headgear ? "oridecon" : "elunium";
 }
 
 // A timed buff granted by eating a food/cooking item.
@@ -80,6 +123,10 @@ export const ITEMS: Record<string, ItemDef> = {
   spicy_skewer: { id: "spicy_skewer", name: "Spicy Skewer", type: ItemType.Consumable, desc: "Eat: STR +5, ATK +15 for 5 min.", food: { durationMs: 300000, bonusStats: { str: 5 }, atk: 15 }, price: 160, sellPrice: 28 },
   steamed_tuna: { id: "steamed_tuna", name: "Steamed Tuna", type: ItemType.Consumable, desc: "Eat: AGI +5, CRIT +6 for 5 min.", food: { durationMs: 300000, bonusStats: { agi: 5 }, crit: 6 }, price: 160, sellPrice: 28 },
   royal_feast: { id: "royal_feast", name: "Royal Feast", type: ItemType.Consumable, desc: "Eat: all stats +4, ATK/MATK +12 for 10 min.", food: { durationMs: 600000, bonusStats: { str: 4, agi: 4, vit: 4, int: 4, dex: 4, luk: 4 }, atk: 12, matk: 12 }, sellPrice: 200 },
+
+  // refine ores (materials consumed per refine attempt)
+  oridecon: { id: "oridecon", name: "Oridecon", type: ItemType.Material, desc: "Refine ore for weapons & headgear.", price: 1200, sellPrice: 300 },
+  elunium: { id: "elunium", name: "Elunium", type: ItemType.Material, desc: "Refine ore for armor & accessories.", price: 1200, sellPrice: 300 },
 
   // pet eggs (use to summon a companion)
   poring_egg: { id: "poring_egg", name: "Poring Egg", type: ItemType.Consumable, desc: "Summons a Poring pet (LUK +3, Max HP +50).", pet: "poring_pet", price: 800, sellPrice: 100 },
@@ -380,6 +427,8 @@ export const SHOP_STOCK: string[] = [
   "leather_armor",
   "feather_beret",
   "ring_of_power",
+  "oridecon",
+  "elunium",
   "poring_egg",
   "peco_whistle",
 ];
@@ -541,6 +590,34 @@ Object.assign(DROP_TABLES, {
   thanatos_phantom: HI([{ itemId: "thanatos_sword", chance: 0.5 }, { itemId: "immortal_heart", chance: 0.5 }]),
   memory_of_thanatos: HI([{ itemId: "fallen_angel_wing", chance: 0.7 }, { itemId: "thanatos_sword", chance: 0.6 }, { itemId: "thanatos_card", chance: 0.12 }]),
 });
+
+// Sprinkle refine ores across the bestiary so refining has a farming loop:
+// regular monsters drop them rarely; bosses reliably.
+const ORE_REGULARS = [
+  "skeleton", "zombie", "clock", "punk", "sandman", "anolian", "dryad", "stem_worm",
+  "wraith", "gargoyle", "sleeper", "hill_wind", "metaling", "venatu", "vanberk",
+  "hodremlin", "aliot", "aliza", "coco", "spore",
+];
+for (const id of ORE_REGULARS) {
+  const t = DROP_TABLES[id];
+  if (t) {
+    t.push({ itemId: "oridecon", chance: 0.06 });
+    t.push({ itemId: "elunium", chance: 0.06 });
+  }
+}
+const ORE_BOSSES = [
+  "poring_king", "baphomet", "clock_tower_manager", "hardrock_mammoth", "dark_lord",
+  "amon_ra", "owl_duke", "kraken", "tao_gunka", "gloom", "valkyrie_randgris", "kiel",
+  "vesper", "boitata", "tendrilion", "ktullanux", "beelzebub", "thanatos_phantom",
+  "memory_of_thanatos", "eddga", "moonlight", "mistress", "angeling",
+];
+for (const id of ORE_BOSSES) {
+  const t = DROP_TABLES[id];
+  if (t) {
+    t.push({ itemId: "oridecon", chance: 0.7, qty: 2 });
+    t.push({ itemId: "elunium", chance: 0.7, qty: 2 });
+  }
+}
 
 // ---- Gear enchantment ----
 

@@ -388,6 +388,11 @@ function handleMessage(msg: ServerMessage): void {
       scene.setTheme(msg.theme, msg.mapId);
       chat.system(msg.pvp ? `Entered ${msg.name} — PvP enabled!` : `Entered ${msg.name}.`);
       break;
+    case MsgType.RefineResult:
+      refine.showResult(msg.itemName, msg.success, msg.level);
+      if (msg.success) sfx.levelUp();
+      else sfx.hit();
+      break;
     case MsgType.DamageEvent:
       onDamage(msg);
       break;

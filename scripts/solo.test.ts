@@ -6,8 +6,10 @@ import {
   DamageKind,
   Element,
   elementMultiplier,
+  getItem,
   JobId,
   MsgType,
+  refineMaterial,
   resolveAttack,
   StatusType,
   LEVEL_CAP,
@@ -185,10 +187,40 @@ async function main(): Promise<void> {
   smith.addItem("novice_knife", 1);
   smith.equip("novice_knife");
   const baseAtk2 = smith.derived.atk;
-  smith.zeny = 10000;
-  check(smith.refineEquipped("weapon" as never), "refine: upgrade equipped weapon");
+  smith.zeny = 100000;
+  check(smith.refineEquipped("weapon" as never) === null, "refine: blocked without ore");
+  smith.addItem("oridecon", 5);
+  const okWeapon = smith.refineEquipped("weapon" as never, () => 0); // safe → always succeeds
+  check(!!okWeapon && okWeapon.success && okWeapon.level === 1, "refine: safe refine succeeds (+1)");
   check(smith.derived.atk > baseAtk2, "refine: ATK increased after refine");
-  check(smith.zeny < 10000, "refine: Zeny spent on refine");
+  check(smith.zeny < 100000, "refine: Zeny spent on refine");
+  check((smith.toSelfState().inventory.find((i) => i.id === "oridecon")?.qty ?? 0) === 4, "refine: one ore consumed");
+  check(refineMaterial(getItem("novice_knife")!) === "oridecon", "refine: weapons use Oridecon");
+
+  // accessory refine now grants stats (previously a no-op for bonusStats-only gear)
+  const jeweler = new Player(967, 1, "Jeweler", JobId.Novice, 0, 0);
+  jeweler.zeny = 100000;
+  jeweler.addItem("ring_of_power", 1);
+  jeweler.equip("ring_of_power");
+  jeweler.addItem("elunium", 3);
+  const hpBeforeRing = jeweler.derived.maxHp;
+  const okRing = jeweler.refineEquipped("accessory" as never, () => 0);
+  check(!!okRing && okRing.success, "refine: accessory can be refined");
+  check(jeweler.derived.maxHp > hpBeforeRing, "refine: accessory refine grants Max HP (bug fix)");
+  check(refineMaterial(getItem("ring_of_power")!) === "elunium", "refine: accessories use Elunium");
+
+  // above the safe line, refines can fail (ore + zeny consumed, level unchanged)
+  const gambler = new Player(966, 1, "Gambler", JobId.Swordsman, 0, 0);
+  gambler.zeny = 1_000_000;
+  gambler.addItem("novice_knife", 1);
+  gambler.equip("novice_knife");
+  gambler.addItem("oridecon", 20);
+  for (let i = 0; i < 4; i++) gambler.refineEquipped("weapon" as never, () => 0); // to +4 (safe)
+  check((gambler.toSelfState().refine.find((r) => r.id === "novice_knife")?.level ?? 0) === 4, "refine: reached +4 safely");
+  const oreBeforeFail = gambler.inventory["oridecon"];
+  const failAttempt = gambler.refineEquipped("weapon" as never, () => 0.99); // +4→+5 forced fail
+  check(!!failAttempt && !failAttempt.success && failAttempt.level === 4, "refine: risky refine can fail, level unchanged");
+  check(gambler.inventory["oridecon"] === oreBeforeFail - 1, "refine: failed attempt still consumes an ore");
 
   // ---- deterministic card sockets ----
   const carder = new Player(983, 1, "Carder", JobId.Swordsman, 0, 0);

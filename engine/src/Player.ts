@@ -21,7 +21,9 @@ import {
   MAX_ENCHANT_LINES,
   MAX_REFINE,
   refineBonus,
+  refineChance,
   refineCost,
+  refineMaterial,
   rollEnchantLine,
   SKILL_MAX_LEVEL,
   SKILLS_BY_JOB,
@@ -278,17 +280,31 @@ export class Player {
 
   // ---- refinement ----
 
-  refineEquipped(slot: EquipSlot): boolean {
+  // Attempt one refine on the item in `slot`. Consumes Zeny + one ore; succeeds
+  // by chance above the safe line (no break — forgiving). Returns the outcome
+  // (or null if the attempt could not even be made).
+  refineEquipped(
+    slot: EquipSlot,
+    rng: () => number = Math.random,
+  ): { success: boolean; level: number; broke: boolean; itemName: string } | null {
     const itemId = this.equipped[slot];
-    if (!itemId || !getItem(itemId)) return false;
+    const item = itemId ? getItem(itemId) : undefined;
+    if (!itemId || !item) return null;
     const level = this.refineByItem[itemId] ?? 0;
-    if (level >= MAX_REFINE) return false;
+    if (level >= MAX_REFINE) return null;
     const cost = refineCost(level);
-    if (this.zeny < cost) return false;
+    if (this.zeny < cost) return null;
+    const ore = refineMaterial(item);
+    if ((this.inventory[ore] ?? 0) < 1) return null;
+    // pay the cost + consume one ore regardless of outcome
     this.zeny -= cost;
-    this.refineByItem[itemId] = level + 1;
-    this.recompute();
-    return true;
+    this.removeItem(ore, 1);
+    const success = rng() < refineChance(level);
+    if (success) {
+      this.refineByItem[itemId] = level + 1;
+      this.recompute();
+    }
+    return { success, level: this.refineByItem[itemId] ?? 0, broke: false, itemName: item.name };
   }
 
   // ---- enchantment ----

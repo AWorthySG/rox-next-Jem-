@@ -54,7 +54,10 @@ copyrighted assets.
 - **Character building**: spend stat points earned on level-up into STR/AGI/VIT/INT/DEX/LUK
   from the HUD; level up individual skills (window `K`) with skill points to scale their power;
   unlock passive **Aesir runes** (window `R`) along five paths (Might/Guard/Mystic/Swift/Fortune)
-  with rune points; visit the Blacksmith to refine equipped gear (+1…+10) with Zeny.
+  with rune points; visit the Blacksmith to refine equipped gear (+1…+10) with Zeny and
+  **refine ores** (Oridecon for weapons/headgear, Elunium for armor/accessories) — every slot
+  gains stats, refines are guaranteed to +4 then carry a success chance, and ores drop from
+  monsters (reliably from bosses).
 - **Gear enchantment**: at the Blacksmith, roll up to **three "Overall Rating" stat lines**
   onto each equipped piece (STR/AGI/VIT/INT/DEX/LUK, ATK/MATK/DEF, Max HP/SP, CRIT); **lock**
   the lines you like and re-roll the rest, classic ROX-style, for a Zeny fee.

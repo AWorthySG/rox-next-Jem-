@@ -1717,6 +1717,45 @@ body {
 .refine-btn.dim {
   opacity: 0.45;
 }
+.rr-meta {
+  font-size: 10.5px;
+  opacity: 0.85;
+  margin-top: 2px;
+}
+.rr-meta .rr-risk {
+  color: #ff8a6a;
+  font-weight: 700;
+}
+.refine-toast {
+  position: absolute;
+  left: 50%;
+  bottom: 14px;
+  transform: translateX(-50%);
+  padding: 8px 16px;
+  border-radius: 9px;
+  font-weight: 800;
+  font-size: 13px;
+  white-space: nowrap;
+  opacity: 0;
+  pointer-events: none;
+}
+.refine-toast.ok {
+  color: #1a1430;
+  background: linear-gradient(180deg, #ffe9a0, #f4c94a);
+}
+.refine-toast.fail {
+  color: #fff;
+  background: linear-gradient(180deg, #c0504a, #7a2c2c);
+}
+.refine-toast.show {
+  animation: refine-toast 1.6s ease-out;
+}
+@keyframes refine-toast {
+  0% { opacity: 0; transform: translate(-50%, 8px); }
+  15% { opacity: 1; transform: translate(-50%, 0); }
+  80% { opacity: 1; }
+  100% { opacity: 0; }
+}
 
 /* ---- enchant ("Overall Rating") lines ---- */
 .ench-block {
