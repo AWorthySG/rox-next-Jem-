@@ -4,6 +4,7 @@ import { EffectComposer } from "three/addons/postprocessing/EffectComposer.js";
 import { RenderPass } from "three/addons/postprocessing/RenderPass.js";
 import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js";
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
+import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { SMAAPass } from "three/addons/postprocessing/SMAAPass.js";
 import { MAP_SIZE, type MapTheme } from "@rox/shared";
 import { makeGroundTexture, makeGroundRoughness, makeSunSprite, makeCloud } from "../procedural/textures.js";
@@ -133,6 +134,8 @@ export class SceneManager {
     );
     this.composer.addPass(this.bloom);
     this.composer.addPass(new OutputPass());
+    // Cinematic grade: gentle saturation + contrast lift and a soft vignette.
+    this.composer.addPass(new ShaderPass(GRADE_SHADER));
     const smaa = new SMAAPass(window.innerWidth, window.innerHeight);
     this.composer.addPass(smaa);
 
@@ -190,6 +193,40 @@ export class SceneManager {
     this.labelRenderer.render(this.scene, camera);
   }
 }
+
+// Final colour grade: saturation, contrast and a soft vignette for depth.
+const GRADE_SHADER = {
+  uniforms: {
+    tDiffuse: { value: null as THREE.Texture | null },
+    saturation: { value: 1.14 },
+    contrast: { value: 1.06 },
+    vignette: { value: 0.42 },
+  },
+  vertexShader: /* glsl */ `
+    varying vec2 vUv;
+    void main() { vUv = uv; gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0); }
+  `,
+  fragmentShader: /* glsl */ `
+    uniform sampler2D tDiffuse;
+    uniform float saturation;
+    uniform float contrast;
+    uniform float vignette;
+    varying vec2 vUv;
+    void main() {
+      vec4 c = texture2D(tDiffuse, vUv);
+      // contrast around mid-grey
+      c.rgb = (c.rgb - 0.5) * contrast + 0.5;
+      // saturation toward luminance
+      float l = dot(c.rgb, vec3(0.2126, 0.7152, 0.0722));
+      c.rgb = mix(vec3(l), c.rgb, saturation);
+      // vignette
+      vec2 d = vUv - 0.5;
+      float v = 1.0 - dot(d, d) * vignette * 2.4;
+      c.rgb *= clamp(v, 0.0, 1.0);
+      gl_FragColor = c;
+    }
+  `,
+};
 
 const SKY_VERT = /* glsl */ `
   varying vec3 vWorldPosition;

@@ -125,6 +125,36 @@ body {
   opacity: 0.92;
 }
 
+/* ---- full-screen feedback overlays ---- */
+.screen-fx {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  opacity: 0;
+  z-index: 40;
+}
+.screen-damage {
+  box-shadow: inset 0 0 180px 40px rgba(200, 20, 20, 0.85);
+}
+.screen-levelup {
+  background: radial-gradient(circle at 50% 60%, rgba(255, 220, 120, 0.55), rgba(255, 200, 80, 0) 60%);
+}
+.screen-damage.flash {
+  animation: fx-damage 0.5s ease-out;
+}
+.screen-levelup.flash {
+  animation: fx-levelup 1s ease-out;
+}
+@keyframes fx-damage {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
+@keyframes fx-levelup {
+  0% { opacity: 0; }
+  20% { opacity: 1; }
+  100% { opacity: 0; }
+}
+
 /* ---- Login overlay ---- */
 .overlay {
   position: fixed;

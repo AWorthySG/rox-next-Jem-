@@ -22,6 +22,8 @@ export class MonsterView extends EntityView {
     this.poring.group.scale.setScalar(appearance.scale);
     this.poring.group.traverse((o) => (o.userData.entityId = entity.id));
     this.group.add(this.poring.group);
+    const bodyMat = (this.poring.body as THREE.Mesh).material as THREE.MeshToonMaterial | undefined;
+    if (bodyMat?.emissive) this.baseEmissive.copy(bodyMat.emissive);
 
     if (appearance.boss) {
       const crown = new THREE.Mesh(
@@ -35,6 +37,13 @@ export class MonsterView extends EntityView {
   }
 
   private aura: THREE.Mesh | null = null;
+  private hitT = 0;
+  private baseEmissive = new THREE.Color(0, 0, 0);
+
+  // Flash + scale-punch when struck.
+  hit(): void {
+    this.hitT = 1;
+  }
 
   get pickables(): THREE.Object3D {
     return this.poring.group;
@@ -64,5 +73,19 @@ export class MonsterView extends EntityView {
     const bobAmp = this.poring.squash ? 0.18 : 0.1;
     this.poring.group.position.y = this.moving ? Math.abs(Math.sin(this.phase)) * bobAmp * this.scale : 0;
     if (this.aura) this.aura.rotation.z += dt * 3;
+
+    // hit reaction: quick white flash + scale punch
+    const body = this.poring.body as THREE.Mesh;
+    const mat = body.material as THREE.MeshToonMaterial | undefined;
+    if (this.hitT > 0) {
+      this.hitT = Math.max(0, this.hitT - dt * 6);
+      const punch = 1 + this.hitT * 0.18;
+      this.poring.group.scale.setScalar(this.scale * punch);
+      const f = this.hitT * 0.9;
+      if (mat && mat.emissive) mat.emissive.setRGB(this.baseEmissive.r + f, this.baseEmissive.g + f, this.baseEmissive.b + f);
+    } else if (this.poring.group.scale.x !== this.scale) {
+      this.poring.group.scale.setScalar(this.scale);
+      if (mat && mat.emissive) mat.emissive.copy(this.baseEmissive);
+    }
   }
 }

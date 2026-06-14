@@ -13,6 +13,8 @@ export class PlayerView extends EntityView {
   private mount: THREE.Mesh | null = null;
   private bodyBaseY = 0;
   private headgearId: string | null = null;
+  private swingT = 0; // attack-swing animation timer (1→0)
+  private flinchT = 0; // hit-reaction timer (1→0)
 
   isSelf = false;
   // server-authoritative position (used for self correction / remote idle)
@@ -75,6 +77,16 @@ export class PlayerView extends EntityView {
 
   clearMoveTarget(): void {
     this.predTarget = null;
+  }
+
+  // Trigger a quick attack swing of the weapon arm.
+  swing(): void {
+    this.swingT = 1;
+  }
+
+  // Trigger a brief hit-reaction recoil.
+  flinch(): void {
+    this.flinchT = 1;
   }
 
   // Swap the worn hat live (e.g. when the local player equips/unequips headgear).
@@ -142,11 +154,31 @@ export class PlayerView extends EntityView {
       this.char.rightLeg.rotation.x = swing;
       this.char.group.position.y = this.bodyBaseY + Math.abs(Math.sin(this.walkPhase)) * 0.06;
     } else {
-      // ease limbs back to rest
+      // idle: gentle breathing + ease limbs to rest
+      this.walkPhase += dt * 2;
       for (const limb of [this.char.leftArm, this.char.rightArm, this.char.leftLeg, this.char.rightLeg]) {
         limb.rotation.x *= 0.8;
       }
-      this.char.group.position.y += (this.bodyBaseY - this.char.group.position.y) * 0.2;
+      const breathe = Math.sin(this.walkPhase) * 0.015;
+      this.char.group.position.y += (this.bodyBaseY + breathe - this.char.group.position.y) * 0.2;
+    }
+
+    // attack swing: overhead chop of the weapon arm (overrides walk on that arm)
+    if (this.swingT > 0) {
+      this.swingT = Math.max(0, this.swingT - dt * 5);
+      const t = this.swingT;
+      this.char.rightArm.rotation.x = -Math.sin(t * Math.PI) * 2.2 - (1 - t) * 0.2;
+      this.char.group.rotation.z = Math.sin(t * Math.PI) * 0.06;
+    } else {
+      this.char.group.rotation.z *= 0.7;
+    }
+
+    // hit reaction: brief backward lean + jitter
+    if (this.flinchT > 0) {
+      this.flinchT = Math.max(0, this.flinchT - dt * 4);
+      this.char.group.rotation.x = -this.flinchT * 0.25;
+    } else if (this.char.group.rotation.x !== 0) {
+      this.char.group.rotation.x *= 0.7;
     }
   }
 }

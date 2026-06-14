@@ -31,6 +31,7 @@ import { AchievementsPanel } from "./ui/AchievementsPanel.js";
 import { SkillPopup } from "./ui/SkillPopup.js";
 import { TargetFrame } from "./ui/TargetFrame.js";
 import { SkillVfx } from "./ui/SkillVfx.js";
+import { ScreenFx } from "./ui/ScreenFx.js";
 import { Sfx } from "./ui/Sfx.js";
 import { AutoBattle } from "./ui/AutoBattle.js";
 import { MiniMap } from "./ui/MiniMap.js";
@@ -54,6 +55,7 @@ const sfx = new Sfx();
 const clickMarker = new ClickMarker(scene.scene);
 const novaTelegraph = new NovaTelegraph(scene.scene);
 const skillVfx = new SkillVfx(scene.scene);
+const screenFx = new ScreenFx();
 
 // Help panel toggle (button + key H).
 const helpPanel = document.getElementById("help-panel")!;
@@ -391,6 +393,8 @@ function handleMessage(msg: ServerMessage): void {
       if (msg.id === selfId) {
         chat.system(`You reached level ${msg.newLevel}!`);
         sfx.levelUp();
+        screenFx.levelUp();
+        cameraRig.shake(0.12);
       }
       break;
     case MsgType.ChatBroadcast:
@@ -421,6 +425,16 @@ function onDamage(msg: Extract<ServerMessage, { t: MsgType.DamageEvent }>): void
     if (msg.skillId && msg.skillId !== "burn") {
       const el = getSkill(msg.skillId)?.element ?? Element.Neutral;
       skillVfx.impact(pos, ELEMENT_COLOR[el], msg.crit ? 1.4 : 1);
+    }
+    // Game-feel: attack swing on the attacker, hit reaction on the target.
+    if (msg.skillId !== "burn") gameState.onAttack(msg.sourceId);
+    gameState.onHurt(msg.targetId);
+    // Camera shake + screen flash feedback.
+    if (msg.targetId === selfId) {
+      cameraRig.shake(0.3);
+      screenFx.damage();
+    } else if (msg.sourceId === selfId && msg.crit) {
+      cameraRig.shake(0.16);
     }
   }
 }

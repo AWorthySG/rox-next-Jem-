@@ -148,6 +148,19 @@ export class GameState {
     return v ? { hp: v.hp, maxHp: v.maxHp } : null;
   }
 
+  // Play an attack swing on the attacker (if it's a player avatar).
+  onAttack(sourceId: number): void {
+    const v = this.views.get(sourceId);
+    if (v instanceof PlayerView) v.swing();
+  }
+
+  // Play a hit reaction on whatever got struck.
+  onHurt(targetId: number): void {
+    const v = this.views.get(targetId);
+    if (v instanceof MonsterView) v.hit();
+    else if (v instanceof PlayerView) v.flinch();
+  }
+
   getPickables(): THREE.Object3D[] {
     const out: THREE.Object3D[] = [];
     for (const v of this.views.values()) {
