@@ -50,6 +50,7 @@ const ARCH: Record<string, MonsterArch> = {
   increase_soil: "golem", mao_guai: "demon", zhu_po_long: "dragon", chung_e: "humanoid", evil_snake_lord: "dragon",
   bloody_knight: "humanoid", wanderer: "undead", owl_baron: "bird", dark_illusion: "ghost", corrupt_monk: "demon",
   ronin: "humanoid", shrine_spirit: "ghost", stone_lion: "golem", jade_warlord: "humanoid", spirit_empress: "ghost",
+  miming: "plant", pom_spider: "bug", luciola_vespa: "bug", bangungot: "ghost", bungisngis: "humanoid",
 };
 
 function hex(s: string): number {
@@ -224,6 +225,12 @@ const DEFS: Record<string, AppearanceDef> = {
   stone_lion: { inner: "#c8b088", outer: "#5a4830", scale: 1.45 },
   jade_warlord: { inner: "#a0d0a0", outer: "#2a5a34", scale: 2.8, boss: true },
   spirit_empress: { inner: "#f0d8e8", outer: "#8a4a7a", scale: 2.8, boss: true },
+  // Bifrost
+  miming: { inner: "#d0e0a0", outer: "#5a7a40", scale: 1.2 },
+  pom_spider: { inner: "#c0b0d0", outer: "#4a3a5a", scale: 1.2 },
+  luciola_vespa: { inner: "#f0e060", outer: "#7a6010", scale: 1.1 },
+  bangungot: { inner: "#b0a0d0", outer: "#3a2a5a", scale: 2.8, boss: true },
+  bungisngis: { inner: "#d0c090", outer: "#5a4828", scale: 3.0, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

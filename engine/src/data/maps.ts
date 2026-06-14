@@ -456,6 +456,24 @@ export const MAPS: Record<string, GameMap> = {
     npcs: [
       { name: "Rachel Exit", role: "portal", x: 0, z: 26, dest: { toMap: "einbroch", toX: 0, toZ: -44 } },
       { name: "Tower Portal", role: "portal", x: 0, z: -52, dest: { toMap: "tower", toX: 0, toZ: 20 } },
+      { name: "Bifrost Portal", role: "portal", x: 18, z: 14, dest: { toMap: "bifrost", toX: 0, toZ: 18 } },
+    ],
+  },
+  bifrost: {
+    id: "bifrost",
+    name: "Bifrost",
+    theme: { ground: 0x4a6a7a, fog: 0xc0a0d0, sky: 0xd8c0e8 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "bf-miming", templateId: "miming", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "bf-spider", templateId: "pom_spider", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "bf-vespa", templateId: "luciola_vespa", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "bf-bangungot", templateId: "bangungot", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "bf-bungisngis", templateId: "bungisngis", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Bifrost Exit", role: "portal", x: 0, z: 24, dest: { toMap: "rachel", toX: 18, toZ: 16 } },
     ],
   },
   tower: {

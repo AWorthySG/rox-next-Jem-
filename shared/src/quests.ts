@@ -138,6 +138,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 108,
     reward: { exp: 200000, zeny: 110000, items: [{ id: "bloody_sword", qty: 1 }] },
   },
+  bridge_of_dreams: {
+    id: "bridge_of_dreams",
+    name: "Bridge of Dreams",
+    desc: "Bungisngis blocks the Bifrost bridge with laughter and fists. Cross it.",
+    targetTemplate: "bungisngis",
+    targetName: "Bungisngis",
+    count: 1,
+    requiredLevel: 102,
+    reward: { exp: 180000, zeny: 100000, items: [{ id: "fairy_bow", qty: 1 }] },
+  },
   the_jade_warlord: {
     id: "the_jade_warlord",
     name: "The Jade Warlord",

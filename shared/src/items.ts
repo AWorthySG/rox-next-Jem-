@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Bifrost gear ----
+  fairy_bow: {
+    id: "fairy_bow", name: "Fairy Bow", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "Strung with moonlight. ATK +80, DEX +6.", atk: 80, bonusStats: { dex: 6 }, sellPrice: 4600,
+  },
+  spider_circlet: {
+    id: "spider_circlet", name: "Spider Circlet", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "Woven of silver silk. MATK +10, INT +5, Max SP +50.", matk: 10, maxSp: 50, bonusStats: { int: 5 }, sellPrice: 4200,
+  },
+  bifrost_garb: {
+    id: "bifrost_garb", name: "Bifrost Garb", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Shimmering rainbow weave. DEF +30, Max HP +320, AGI +5.", def: 30, maxHp: 320, bonusStats: { agi: 5 }, sellPrice: 4600,
+  },
+
   // ---- Gonryun Shrine gear ----
   tachi: {
     id: "tachi", name: "Tachi", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -931,6 +945,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Bifrost
+  miming: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "bifrost_garb", chance: 0.025 }],
+  pom_spider: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "spider_circlet", chance: 0.025 }],
+  luciola_vespa: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "fairy_bow", chance: 0.025 }],
+  bangungot: HI([{ itemId: "fairy_bow", chance: 0.6 }, { itemId: "bifrost_garb", chance: 0.5 }, { itemId: "ghostring_card", chance: 0.06 }]),
+  bungisngis: HI([{ itemId: "fairy_bow", chance: 0.6 }, { itemId: "spider_circlet", chance: 0.5 }, { itemId: "bifrost_garb", chance: 0.4 }]),
   // Gonryun Shrine
   ronin: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "tachi", chance: 0.03 }],
   shrine_spirit: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "spirit_robe", chance: 0.03 }],
@@ -985,6 +1005,7 @@ const ORE_REGULARS = [
   "increase_soil", "mao_guai", "zhu_po_long",
   "bloody_knight", "wanderer", "owl_baron",
   "ronin", "shrine_spirit", "stone_lion",
+  "miming", "pom_spider", "luciola_vespa",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1003,7 +1024,7 @@ const ORE_BOSSES = [
   "stormy_knight", "garm", "lady_tanee", "leak", "gopinich", "baba_yaga", "gigantes", "ifrit",
   "phreeoni", "deviace", "orc_lord", "orc_hero", "abysmal_knight", "amdarais", "pharaoh", "osiris",
   "freezer", "turtle_general", "chung_e", "evil_snake_lord", "dark_illusion", "corrupt_monk",
-  "jade_warlord", "spirit_empress",
+  "jade_warlord", "spirit_empress", "bangungot", "bungisngis",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];
