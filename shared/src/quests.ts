@@ -138,6 +138,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 108,
     reward: { exp: 200000, zeny: 110000, items: [{ id: "bloody_sword", qty: 1 }] },
   },
+  queen_of_the_hive: {
+    id: "queen_of_the_hive",
+    name: "Queen of the Hive",
+    desc: "The Queen Scaraba breeds an endless swarm. Crush the hive's heart.",
+    targetTemplate: "queen_scaraba",
+    targetName: "Queen Scaraba",
+    count: 1,
+    requiredLevel: 118,
+    reward: { exp: 260000, zeny: 140000, items: [{ id: "chitin_blade", qty: 1 }] },
+  },
   golden_terror: {
     id: "golden_terror",
     name: "The Golden Terror",

@@ -439,6 +439,24 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Einbroch Exit", role: "portal", x: 0, z: 26, dest: { toMap: "juno", toX: 0, toZ: -44 } },
       { name: "Rachel Portal", role: "portal", x: 0, z: -52, dest: { toMap: "rachel", toX: 0, toZ: 20 } },
       { name: "Thor Volcano Portal", role: "portal", x: 18, z: 14, dest: { toMap: "thor", toX: 0, toZ: 18 } },
+      { name: "Scaraba Hole Portal", role: "portal", x: -18, z: 14, dest: { toMap: "scaraba", toX: 0, toZ: 18 } },
+    ],
+  },
+  scaraba: {
+    id: "scaraba",
+    name: "Scaraba Hole",
+    theme: { ground: 0x4a3a2a, fog: 0x1a120a, sky: 0x2c2014 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "sc-scaraba", templateId: "scaraba", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "sc-dolomedes", templateId: "dolomedes", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "sc-centipede", templateId: "centipede", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "sc-queen", templateId: "queen_scaraba", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "sc-kublin", templateId: "kublin", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Scaraba Exit", role: "portal", x: 0, z: 24, dest: { toMap: "einbroch", toX: -18, toZ: 16 } },
     ],
   },
   thor: {
