@@ -32,6 +32,34 @@ export const PETS: Record<string, PetDef> = {
     maxHp: 80,
     tint: 0x8a2030,
   },
+  marc_pet: {
+    id: "marc_pet",
+    name: "Marc",
+    bonusStats: { vit: 3, agi: 2 },
+    maxHp: 90,
+    tint: 0x4aa6ff,
+  },
+  garm_pet: {
+    id: "garm_pet",
+    name: "Garm Cub",
+    bonusStats: { vit: 5 },
+    maxHp: 220,
+    tint: 0xbfe0ec,
+  },
+  ifrit_pet: {
+    id: "ifrit_pet",
+    name: "Ifrit Spark",
+    bonusStats: { str: 6 },
+    atk: 14,
+    tint: 0xff6a3a,
+  },
+  nidhoggr_pet: {
+    id: "nidhoggr_pet",
+    name: "Shadow Hatchling",
+    bonusStats: { str: 3, agi: 3, vit: 3, int: 3, dex: 3, luk: 3 },
+    maxHp: 160,
+    tint: 0xb060ff,
+  },
 };
 
 export function getPet(id: string): PetDef | undefined {

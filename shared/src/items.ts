@@ -133,6 +133,10 @@ export const ITEMS: Record<string, ItemDef> = {
   lunatic_egg: { id: "lunatic_egg", name: "Lunatic Egg", type: ItemType.Consumable, desc: "Summons a Lunatic pet (AGI +3, DEX +2).", pet: "lunatic_pet", sellPrice: 150 },
   baphomet_egg: { id: "baphomet_egg", name: "Baphomet Egg", type: ItemType.Consumable, desc: "Summons Baphomet Jr. (STR +4, INT +4, Max HP +80).", pet: "baphomet_pet", sellPrice: 1200 },
   peco_whistle: { id: "peco_whistle", name: "Peco Peco Whistle", type: ItemType.Consumable, desc: "Summon/dismiss a Peco Peco mount (faster movement). Reusable — not consumed.", mount: true, price: 1500, sellPrice: 200 },
+  marc_egg: { id: "marc_egg", name: "Marc Egg", type: ItemType.Consumable, desc: "Summons a Marc pet (VIT +3, AGI +2, Max HP +90).", pet: "marc_pet", sellPrice: 300 },
+  garm_egg: { id: "garm_egg", name: "Garm Egg", type: ItemType.Consumable, desc: "Summons a Garm Cub (VIT +5, Max HP +220).", pet: "garm_pet", sellPrice: 1500 },
+  ifrit_egg: { id: "ifrit_egg", name: "Ifrit Egg", type: ItemType.Consumable, desc: "Summons an Ifrit Spark (STR +6, ATK +14).", pet: "ifrit_pet", sellPrice: 3000 },
+  nidhoggr_egg: { id: "nidhoggr_egg", name: "Shadow Egg", type: ItemType.Consumable, desc: "Summons a Shadow Hatchling (all stats +3, Max HP +160).", pet: "nidhoggr_pet", sellPrice: 6000 },
 
   // weapons
   novice_knife: {
@@ -753,7 +757,7 @@ Object.assign(DROP_TABLES, {
   ferus: [{ itemId: "red_potion", chance: 0.5 }, { itemId: "dragon_scale_mail", chance: 0.025 }],
   acidus: [{ itemId: "red_potion", chance: 0.5 }, { itemId: "abyssal_blade", chance: 0.025 }],
   detale: HI([{ itemId: "dragon_scale_mail", chance: 0.6 }, { itemId: "abyssal_blade", chance: 0.5 }, { itemId: "nidhoggr_eye", chance: 0.4 }]),
-  nidhoggr: HI([{ itemId: "dragon_scale_mail", chance: 0.7 }, { itemId: "abyssal_blade", chance: 0.6 }, { itemId: "nidhoggr_eye", chance: 0.5 }, { itemId: "nidhoggr_card", chance: 0.12 }]),
+  nidhoggr: HI([{ itemId: "dragon_scale_mail", chance: 0.7 }, { itemId: "abyssal_blade", chance: 0.6 }, { itemId: "nidhoggr_eye", chance: 0.5 }, { itemId: "nidhoggr_card", chance: 0.12 }, { itemId: "nidhoggr_egg", chance: 0.25 }]),
   // Geffen Tower
   marionette: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "wizard_hat", chance: 0.04 }],
   nightmare: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "geffen_robe", chance: 0.04 }],
@@ -777,7 +781,7 @@ Object.assign(DROP_TABLES, {
   myst_case: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "fur_coat", chance: 0.035 }],
   antonio: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "frost_blade", chance: 0.03 }],
   stormy_knight: HI([{ itemId: "frost_blade", chance: 0.6 }, { itemId: "fur_coat", chance: 0.5 }, { itemId: "santa_hat", chance: 0.3 }]),
-  garm: HI([{ itemId: "frost_blade", chance: 0.6 }, { itemId: "fur_coat", chance: 0.5 }, { itemId: "garm_card", chance: 0.08 }]),
+  garm: HI([{ itemId: "frost_blade", chance: 0.6 }, { itemId: "fur_coat", chance: 0.5 }, { itemId: "garm_card", chance: 0.08 }, { itemId: "garm_egg", chance: 0.2 }]),
   // Ayothaya
   kobold: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "jade_spear", chance: 0.03 }],
   elder_willow: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "temple_robe", chance: 0.035 }],
@@ -795,12 +799,12 @@ Object.assign(DROP_TABLES, {
   kasa: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "magma_axe", chance: 0.025 }],
   salamander: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "volcanic_plate", chance: 0.025 }],
   gigantes: HI([{ itemId: "volcanic_plate", chance: 0.6 }, { itemId: "magma_axe", chance: 0.5 }, { itemId: "gigantes_card", chance: 0.08 }]),
-  ifrit: HI([{ itemId: "magma_axe", chance: 0.6 }, { itemId: "ifrit_mask", chance: 0.55 }, { itemId: "volcanic_plate", chance: 0.5 }, { itemId: "ifrit_card", chance: 0.08 }]),
+  ifrit: HI([{ itemId: "magma_axe", chance: 0.6 }, { itemId: "ifrit_mask", chance: 0.55 }, { itemId: "volcanic_plate", chance: 0.5 }, { itemId: "ifrit_card", chance: 0.08 }, { itemId: "ifrit_egg", chance: 0.2 }]),
   // Byalan
   marc: [{ itemId: "apple", chance: 0.3 }, { itemId: "shell_helm", chance: 0.04 }],
   vadon: [{ itemId: "red_potion", chance: 0.2 }, { itemId: "diver_suit", chance: 0.04 }],
   kukre: [{ itemId: "red_potion", chance: 0.2 }, { itemId: "coral_blade", chance: 0.04 }],
-  phreeoni: HI([{ itemId: "coral_blade", chance: 0.6 }, { itemId: "diver_suit", chance: 0.5 }, { itemId: "phreeoni_card", chance: 0.1 }]),
+  phreeoni: HI([{ itemId: "coral_blade", chance: 0.6 }, { itemId: "diver_suit", chance: 0.5 }, { itemId: "phreeoni_card", chance: 0.1 }, { itemId: "marc_egg", chance: 0.2 }]),
   deviace: HI([{ itemId: "shell_helm", chance: 0.6 }, { itemId: "diver_suit", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
 });
 
