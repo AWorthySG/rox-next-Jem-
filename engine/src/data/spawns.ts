@@ -320,6 +320,12 @@ Object.assign(MONSTER_TEMPLATES, {
   salamander: mk("salamander", "Salamander", 98, 7200, 15800),
   gigantes: mk("gigantes", "Gigantes", 105, 60000, 92000, true),
   ifrit: mk("ifrit", "Ifrit", 110, 78000, 130000, true),
+  // ---- Byalan Sunken Cave ----
+  marc: mk("marc", "Marc", 18, 520, 320),
+  vadon: mk("vadon", "Vadon", 20, 600, 380),
+  kukre: mk("kukre", "Kukre", 22, 680, 440),
+  phreeoni: mk("phreeoni", "Phreeoni", 28, 5200, 8500, true),
+  deviace: mk("deviace", "Deviace", 32, 6200, 10000, true),
 });
 
 export interface SpawnZone {
@@ -495,6 +501,14 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "summon", intervalMs: 8500, templateId: "kasa", count: 2, max: 5 },
     { kind: "heal", intervalMs: 14000, pct: 0.04 },
   ],
+  phreeoni: [
+    { kind: "enrage", hpPct: 0.3, atkMult: 1.5 },
+    { kind: "summon", intervalMs: 9000, templateId: "marc", count: 2, max: 4 },
+  ],
+  deviace: [
+    { kind: "nova", intervalMs: 6000, radius: 9, powerMult: 1.4 },
+    { kind: "heal", intervalMs: 12000, pct: 0.05 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -588,6 +602,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   salamander: Element.Fire,
   gigantes: Element.Earth,
   ifrit: Element.Fire,
+  marc: Element.Water,
+  vadon: Element.Water,
+  kukre: Element.Earth,
+  phreeoni: Element.Water,
+  deviace: Element.Water,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

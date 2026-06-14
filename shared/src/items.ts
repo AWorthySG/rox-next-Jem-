@@ -357,6 +357,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Byalan Sunken Cave gear ----
+  coral_blade: {
+    id: "coral_blade", name: "Coral Blade", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A jagged coral sword. ATK +28, AGI +2.", atk: 28, bonusStats: { agi: 2 }, price: 900, sellPrice: 220,
+  },
+  shell_helm: {
+    id: "shell_helm", name: "Shell Helm", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A hardy shell. DEF +10, VIT +2, Max HP +60.", def: 10, maxHp: 60, bonusStats: { vit: 2 }, price: 700, sellPrice: 170,
+  },
+  diver_suit: {
+    id: "diver_suit", name: "Diver Suit", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Sleek and watertight. DEF +12, Max HP +90, AGI +2.", def: 12, maxHp: 90, bonusStats: { agi: 2 }, price: 800, sellPrice: 200,
+  },
+
   // ---- Thor Volcano gear ----
   magma_axe: {
     id: "magma_axe", name: "Magma Axe", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -776,6 +790,12 @@ Object.assign(DROP_TABLES, {
   salamander: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "volcanic_plate", chance: 0.025 }],
   gigantes: HI([{ itemId: "volcanic_plate", chance: 0.6 }, { itemId: "magma_axe", chance: 0.5 }, { itemId: "valkyrie_armor", chance: 0.3 }]),
   ifrit: HI([{ itemId: "magma_axe", chance: 0.6 }, { itemId: "ifrit_mask", chance: 0.55 }, { itemId: "volcanic_plate", chance: 0.5 }, { itemId: "doppelganger_card", chance: 0.06 }]),
+  // Byalan
+  marc: [{ itemId: "apple", chance: 0.3 }, { itemId: "shell_helm", chance: 0.04 }],
+  vadon: [{ itemId: "red_potion", chance: 0.2 }, { itemId: "diver_suit", chance: 0.04 }],
+  kukre: [{ itemId: "red_potion", chance: 0.2 }, { itemId: "coral_blade", chance: 0.04 }],
+  phreeoni: HI([{ itemId: "coral_blade", chance: 0.6 }, { itemId: "diver_suit", chance: 0.5 }, { itemId: "marc_card", chance: 0.08 }]),
+  deviace: HI([{ itemId: "shell_helm", chance: 0.6 }, { itemId: "diver_suit", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
 });
 
 // Sprinkle refine ores across the bestiary so refining has a farming loop:
@@ -792,6 +812,7 @@ const ORE_REGULARS = [
   "kobold", "elder_willow", "brilight",
   "les", "mavka", "uzhas",
   "magmaring", "kasa", "salamander",
+  "marc", "vadon", "kukre",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -808,6 +829,7 @@ const ORE_BOSSES = [
   "drake", "satan_morroc", "egnigem", "kathryne", "detale", "nidhoggr",
   "doppelganger", "dark_priest", "bacsojin", "fallen_bishop", "samurai_specter", "kapha",
   "stormy_knight", "garm", "lady_tanee", "leak", "gopinich", "baba_yaga", "gigantes", "ifrit",
+  "phreeoni", "deviace",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

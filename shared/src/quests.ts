@@ -128,6 +128,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 40,
     reward: { exp: 9000, zeny: 6000, items: [{ id: "mage_staff", qty: 1 }] },
   },
+  deep_dweller: {
+    id: "deep_dweller",
+    name: "The Deep Dweller",
+    desc: "Phreeoni lurks in the Byalan depths. Hunt the gluttonous beast.",
+    targetTemplate: "phreeoni",
+    targetName: "Phreeoni",
+    count: 1,
+    requiredLevel: 24,
+    reward: { exp: 6000, zeny: 4000, items: [{ id: "coral_blade", qty: 1 }] },
+  },
   lord_of_flame: {
     id: "lord_of_flame",
     name: "Lord of Flame",

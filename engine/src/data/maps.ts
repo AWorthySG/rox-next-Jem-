@@ -88,6 +88,24 @@ export const MAPS: Record<string, GameMap> = {
     npcs: [
       { name: "Exit Portal", role: "portal", x: 0, z: 26, dest: { toMap: "field", toX: 16, toZ: 2 } },
       { name: "Glast Heim Portal", role: "portal", x: 0, z: -50, dest: { toMap: "glast_heim", toX: 0, toZ: 20 } },
+      { name: "Byalan Portal", role: "portal", x: 16, z: 12, dest: { toMap: "byalan", toX: 0, toZ: 18 } },
+    ],
+  },
+  byalan: {
+    id: "byalan",
+    name: "Byalan Sunken Cave",
+    theme: { ground: 0x2a4a5a, fog: 0x0a2230, sky: 0x123848 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "by-marc", templateId: "marc", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "by-vadon", templateId: "vadon", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "by-kukre", templateId: "kukre", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "by-phreeoni", templateId: "phreeoni", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "by-deviace", templateId: "deviace", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Byalan Exit", role: "portal", x: 0, z: 24, dest: { toMap: "cave", toX: 16, toZ: 16 } },
     ],
   },
   glast_heim: {

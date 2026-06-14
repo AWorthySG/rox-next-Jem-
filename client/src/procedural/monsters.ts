@@ -41,6 +41,7 @@ const ARCH: Record<string, MonsterArch> = {
   kobold: "beast", elder_willow: "plant", brilight: "bug", lady_tanee: "plant", leak: "dragon",
   les: "beast", mavka: "plant", uzhas: "undead", gopinich: "demon", baba_yaga: "ghost",
   magmaring: "jelly", kasa: "demon", salamander: "dragon", gigantes: "golem", ifrit: "demon",
+  marc: "aquatic", vadon: "aquatic", kukre: "bug", phreeoni: "beast", deviace: "aquatic",
 };
 
 function hex(s: string): number {
@@ -161,6 +162,12 @@ const DEFS: Record<string, AppearanceDef> = {
   salamander: { inner: "#ff8040", outer: "#6a1804", scale: 1.5 },
   gigantes: { inner: "#d09060", outer: "#5a2810", scale: 3.1, boss: true },
   ifrit: { inner: "#ff7030", outer: "#5a0c04", scale: 3.4, boss: true },
+  // Byalan
+  marc: { inner: "#a0d0e0", outer: "#2a6a8a", scale: 1.0 },
+  vadon: { inner: "#e0a090", outer: "#8a3020", scale: 1.1 },
+  kukre: { inner: "#d0c080", outer: "#6a5a20", scale: 0.95 },
+  phreeoni: { inner: "#d0b080", outer: "#6a4a20", scale: 2.5, boss: true },
+  deviace: { inner: "#a0c0e0", outer: "#2a4a7a", scale: 2.6, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";
