@@ -464,6 +464,12 @@ Object.assign(MONSTER_TEMPLATES, {
   resort_peacock: mk("resort_peacock", "Resort Peacock", 119, 13600, 26600),
   sentosa_merlion: mk("sentosa_merlion", "Sentosa Merlion", 126, 90000, 160000, true),
   leviathan: mk("leviathan", "Leviathan", 128, 100000, 180000, true),
+  // ---- Kampong Glam (Singapore) ----
+  bugis_corsair: mk("bugis_corsair", "Bugis Corsair", 60, 3400, 7600),
+  djinn: mk("djinn", "Djinn", 62, 3600, 8200),
+  batik_serpent: mk("batik_serpent", "Batik Serpent", 64, 3800, 8800),
+  sultan_jinn: mk("sultan_jinn", "Sultan Jinn", 70, 17000, 30000, true),
+  naga_emas: mk("naga_emas", "Naga Emas", 72, 19000, 34000, true),
 });
 
 export interface SpawnZone {
@@ -837,6 +843,14 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "nova", intervalMs: 4800, radius: 13, powerMult: 1.8 },
     { kind: "summon", intervalMs: 8000, templateId: "giant_grouper", count: 3, max: 6 },
   ],
+  sultan_jinn: [
+    { kind: "summon", intervalMs: 8000, templateId: "djinn", count: 2, max: 5 },
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.6 },
+  ],
+  naga_emas: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.7 },
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -1050,6 +1064,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   resort_peacock: Element.Wind,
   sentosa_merlion: Element.Holy,
   leviathan: Element.Water,
+  bugis_corsair: Element.Wind,
+  djinn: Element.Fire,
+  batik_serpent: Element.Earth,
+  sultan_jinn: Element.Fire,
+  naga_emas: Element.Holy,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

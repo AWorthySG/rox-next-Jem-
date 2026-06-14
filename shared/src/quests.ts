@@ -138,6 +138,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 108,
     reward: { exp: 200000, zeny: 110000, items: [{ id: "bloody_sword", qty: 1 }] },
   },
+  the_sultans_jinn: {
+    id: "the_sultans_jinn",
+    name: "The Sultan's Jinn",
+    desc: "A Sultan Jinn binds Kampong Glam's quarter to its will. Break the pact.",
+    targetTemplate: "sultan_jinn",
+    targetName: "Sultan Jinn",
+    count: 1,
+    requiredLevel: 66,
+    reward: { exp: 30000, zeny: 18000, items: [{ id: "corsair_scimitar", qty: 1 }] },
+  },
   lord_of_the_tides: {
     id: "lord_of_the_tides",
     name: "Lord of the Tides",

@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Kampong Glam (Singapore) gear ----
+  corsair_scimitar: {
+    id: "corsair_scimitar", name: "Corsair Scimitar", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A Bugis sea-raider's blade. ATK +60, AGI +4.", atk: 60, bonusStats: { agi: 4 }, sellPrice: 2700,
+  },
+  songkok: {
+    id: "songkok", name: "Songkok", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A velvet heritage cap. DEF +16, INT +4, Max SP +30.", def: 16, maxSp: 30, bonusStats: { int: 4 }, sellPrice: 2300,
+  },
+  songket_robe: {
+    id: "songket_robe", name: "Songket Robe", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Gold-threaded ceremonial silk. DEF +22, Max SP +70, INT +4.", def: 22, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 2600,
+  },
+
   // ---- Sentosa (Singapore — capstone) gear ----
   trident_of_tides: {
     id: "trident_of_tides", name: "Trident of Tides", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1145,6 +1159,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Kampong Glam (Singapore)
+  bugis_corsair: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "corsair_scimitar", chance: 0.03 }],
+  djinn: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "songkok", chance: 0.03 }],
+  batik_serpent: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "songket_robe", chance: 0.03 }],
+  sultan_jinn: HI([{ itemId: "songkok", chance: 0.6 }, { itemId: "songket_robe", chance: 0.5 }, { itemId: "corsair_scimitar", chance: 0.4 }]),
+  naga_emas: HI([{ itemId: "corsair_scimitar", chance: 0.6 }, { itemId: "songket_robe", chance: 0.45 }, { itemId: "baphomet_card", chance: 0.05 }]),
   // Sentosa (Singapore — capstone)
   otter_alpha: [{ itemId: "white_potion", chance: 0.4 }, { itemId: "tide_plate", chance: 0.022 }],
   giant_grouper: [{ itemId: "white_potion", chance: 0.4 }, { itemId: "trident_of_tides", chance: 0.022 }],
@@ -1304,6 +1324,7 @@ const ORE_REGULARS = [
   "supertree_sprite", "firefly_swarm", "orchid_fae",
   "pontianak", "orang_minyak", "hantu_air",
   "otter_alpha", "giant_grouper", "resort_peacock",
+  "bugis_corsair", "djinn", "batik_serpent",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1328,7 +1349,7 @@ const ORE_BOSSES = [
   "war_machine", "overlord_core", "sea_serpent", "the_merlion",
   "king_macaque", "reticulated_python", "jiangshi_lord", "nian_beast",
   "supertree_guardian", "flower_dome_titan", "pontianak_queen", "penanggalan",
-  "sentosa_merlion", "leviathan",
+  "sentosa_merlion", "leviathan", "sultan_jinn", "naga_emas",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

@@ -102,6 +102,25 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Blacksmith", role: "refine", x: -10, z: 22, facing: Math.PI },
       { name: "Chinatown Exit", role: "portal", x: 0, z: 26, dest: { toMap: "bukit_timah", toX: 0, toZ: -44 } },
       { name: "Gardens Portal", role: "portal", x: 0, z: -50, dest: { toMap: "gardens_bay", toX: 0, toZ: 18 } },
+      { name: "Kampong Glam Portal", role: "portal", x: 18, z: 14, dest: { toMap: "kampong_glam", toX: 0, toZ: 18 } },
+    ],
+  },
+  kampong_glam: {
+    id: "kampong_glam",
+    name: "Kampong Glam",
+    theme: { ground: 0x6a5a44, fog: 0x9a6a40, sky: 0xc89860 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "kg-corsair", templateId: "bugis_corsair", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "kg-djinn", templateId: "djinn", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "kg-serpent", templateId: "batik_serpent", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "kg-sultan", templateId: "sultan_jinn", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "kg-naga", templateId: "naga_emas", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Kampong Glam Exit", role: "portal", x: 0, z: 24, dest: { toMap: "chinatown", toX: 18, toZ: 16 } },
     ],
   },
   gardens_bay: {

@@ -65,6 +65,7 @@ const ARCH: Record<string, MonsterArch> = {
   supertree_sprite: "plant", firefly_swarm: "bug", orchid_fae: "plant", supertree_guardian: "golem", flower_dome_titan: "golem",
   pontianak: "ghost", orang_minyak: "demon", hantu_air: "ghost", pontianak_queen: "ghost", penanggalan: "demon",
   otter_alpha: "beast", giant_grouper: "aquatic", resort_peacock: "bird", sentosa_merlion: "aquatic", leviathan: "dragon",
+  bugis_corsair: "humanoid", djinn: "demon", batik_serpent: "dragon", sultan_jinn: "demon", naga_emas: "dragon",
 };
 
 function hex(s: string): number {
@@ -329,6 +330,12 @@ const DEFS: Record<string, AppearanceDef> = {
   resort_peacock: { inner: "#40c0c0", outer: "#1a5a6a", scale: 1.3 },
   sentosa_merlion: { inner: "#f0e8b0", outer: "#a07830", scale: 3.3, boss: true },
   leviathan: { inner: "#60a0c0", outer: "#0a3a5a", scale: 3.4, boss: true },
+  // Kampong Glam (Singapore)
+  bugis_corsair: { inner: "#d0b080", outer: "#5a3a20", scale: 1.3 },
+  djinn: { inner: "#e0a060", outer: "#6a2810", scale: 1.35 },
+  batik_serpent: { inner: "#d0a060", outer: "#5a3818", scale: 1.4 },
+  sultan_jinn: { inner: "#f0b050", outer: "#6a2810", scale: 2.9, boss: true },
+  naga_emas: { inner: "#f0d860", outer: "#7a5810", scale: 3.0, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";
