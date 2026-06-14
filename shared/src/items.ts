@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Splendide gear ----
+  sapha_blade: {
+    id: "sapha_blade", name: "Sapha Blade", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A fae-forged sword. ATK +86, DEX +5.", atk: 86, bonusStats: { dex: 5 }, sellPrice: 5000,
+  },
+  laphine_circlet: {
+    id: "laphine_circlet", name: "Laphine Circlet", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A circlet of living light. MATK +14, INT +6, Max SP +50.", matk: 14, maxSp: 50, bonusStats: { int: 6 }, sellPrice: 4600,
+  },
+  splendide_robe: {
+    id: "splendide_robe", name: "Splendide Robe", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Woven of starlight. DEF +32, Max SP +90, INT +6.", def: 32, maxSp: 90, bonusStats: { int: 6 }, sellPrice: 5000,
+  },
+
   // ---- Dewata gear ----
   kris_dagger: {
     id: "kris_dagger", name: "Kris Dagger", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1015,6 +1029,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Splendide
+  tiyanak: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "splendide_robe", chance: 0.025 }],
+  hilsrion: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "laphine_circlet", chance: 0.025 }],
+  naga: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "sapha_blade", chance: 0.025 }],
+  gioia: HI([{ itemId: "laphine_circlet", chance: 0.6 }, { itemId: "splendide_robe", chance: 0.5 }, { itemId: "sapha_blade", chance: 0.4 }]),
+  kades: HI([{ itemId: "sapha_blade", chance: 0.6 }, { itemId: "splendide_robe", chance: 0.5 }, { itemId: "doppelganger_card", chance: 0.05 }]),
   // Dewata
   banaspaty: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "barong_mask", chance: 0.03 }],
   butoijo: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "batik_robe", chance: 0.03 }],
@@ -1111,6 +1131,7 @@ const ORE_REGULARS = [
   "scaraba", "dolomedes", "centipede",
   "snowier", "gazeti", "siroma",
   "banaspaty", "butoijo", "kaho",
+  "tiyanak", "hilsrion", "naga",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1131,7 +1152,7 @@ const ORE_BOSSES = [
   "freezer", "turtle_general", "chung_e", "evil_snake_lord", "dark_illusion", "corrupt_monk",
   "jade_warlord", "spirit_empress", "bangungot", "bungisngis", "jaguar_king", "anaconda",
   "gold_acidus", "tatacho", "queen_scaraba", "kublin", "frost_giant", "ice_queen",
-  "leyak", "rangda",
+  "leyak", "rangda", "gioia", "kades",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

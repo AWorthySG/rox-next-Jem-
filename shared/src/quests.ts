@@ -138,6 +138,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 108,
     reward: { exp: 200000, zeny: 110000, items: [{ id: "bloody_sword", qty: 1 }] },
   },
+  the_fae_lord: {
+    id: "the_fae_lord",
+    name: "The Fae Lord",
+    desc: "Kades commands the dark fae of Splendide. Break the lord's spell.",
+    targetTemplate: "kades",
+    targetName: "Kades",
+    count: 1,
+    requiredLevel: 108,
+    reward: { exp: 200000, zeny: 112000, items: [{ id: "sapha_blade", qty: 1 }] },
+  },
   the_witch_rangda: {
     id: "the_witch_rangda",
     name: "The Witch Rangda",

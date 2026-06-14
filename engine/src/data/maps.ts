@@ -530,6 +530,24 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Tower Portal", role: "portal", x: 0, z: -52, dest: { toMap: "tower", toX: 0, toZ: 20 } },
       { name: "Bifrost Portal", role: "portal", x: 18, z: 14, dest: { toMap: "bifrost", toX: 0, toZ: 18 } },
       { name: "Veins Portal", role: "portal", x: -18, z: 14, dest: { toMap: "veins", toX: 0, toZ: 18 } },
+      { name: "Splendide Portal", role: "portal", x: 0, z: -46, dest: { toMap: "splendide", toX: 0, toZ: 18 } },
+    ],
+  },
+  splendide: {
+    id: "splendide",
+    name: "Splendide",
+    theme: { ground: 0x4a7a5a, fog: 0xa0d0c0, sky: 0xc8e8d8 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "sp-tiyanak", templateId: "tiyanak", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "sp-hilsrion", templateId: "hilsrion", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "sp-naga", templateId: "naga", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "sp-gioia", templateId: "gioia", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "sp-kades", templateId: "kades", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Splendide Exit", role: "portal", x: 0, z: 24, dest: { toMap: "bifrost", toX: 0, toZ: -38 } },
     ],
   },
   veins: {
