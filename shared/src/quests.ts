@@ -128,6 +128,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 40,
     reward: { exp: 9000, zeny: 6000, items: [{ id: "mage_staff", qty: 1 }] },
   },
+  the_last_samurai: {
+    id: "the_last_samurai",
+    name: "The Last Samurai",
+    desc: "A vengeful Samurai Specter haunts Amatsu. Grant it peace by the blade.",
+    targetTemplate: "samurai_specter",
+    targetName: "Samurai Specter",
+    count: 1,
+    requiredLevel: 60,
+    reward: { exp: 45000, zeny: 26000, items: [{ id: "katana", qty: 1 }] },
+  },
   rest_in_peace: {
     id: "rest_in_peace",
     name: "Rest in Peace",

@@ -35,6 +35,7 @@ const ARCH: Record<string, MonsterArch> = {
   cecil: "bird", wickebine: "bug", ferus: "dragon", acidus: "dragon", detale: "dragon", boitata: "dragon",
   marionette: "ghost", nightmare: "beast", marduk: "bug", doppelganger: "demon", dark_priest: "ghost",
   loli_ruri: "ghost", quve: "ghost", gibbet: "undead", bacsojin: "ghost", fallen_bishop: "demon",
+  poison_spore: "plant", karakasa: "ghost", tengu: "demon", samurai_specter: "undead", kapha: "beast",
 };
 
 function hex(s: string): number {
@@ -125,6 +126,12 @@ const DEFS: Record<string, AppearanceDef> = {
   gibbet: { inner: "#d8d0b0", outer: "#5a4a30", scale: 1.4 },
   bacsojin: { inner: "#eaf0f4", outer: "#7a8a96", scale: 2.8, boss: true },
   fallen_bishop: { inner: "#d0b0d0", outer: "#2a1830", scale: 3, boss: true },
+  // Amatsu
+  poison_spore: { inner: "#b0d088", outer: "#4a6a28", scale: 1.1 },
+  karakasa: { inner: "#e0d0c0", outer: "#8a3030", scale: 1.3 },
+  tengu: { inner: "#e09090", outer: "#7a2424", scale: 1.45 },
+  samurai_specter: { inner: "#c0c8d0", outer: "#2a3038", scale: 2.6, boss: true },
+  kapha: { inner: "#9ad0c8", outer: "#2a5a54", scale: 2.7, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

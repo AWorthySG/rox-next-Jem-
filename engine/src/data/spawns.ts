@@ -290,6 +290,12 @@ Object.assign(MONSTER_TEMPLATES, {
   gibbet: mk("gibbet", "Gibbet", 92, 7800, 13500),
   bacsojin: mk("bacsojin", "White Lady Bacsojin", 95, 48000, 70000, true),
   fallen_bishop: mk("fallen_bishop", "Fallen Bishop", 98, 56000, 84000, true),
+  // ---- Amatsu (eastern lands) ----
+  poison_spore: mk("poison_spore", "Poison Spore", 55, 2800, 6500),
+  karakasa: mk("karakasa", "Karakasa", 58, 3100, 7200),
+  tengu: mk("tengu", "Tengu", 62, 3600, 8500),
+  samurai_specter: mk("samurai_specter", "Samurai Specter", 66, 22000, 38000, true),
+  kapha: mk("kapha", "Kapha", 70, 26000, 46000, true),
 });
 
 export interface SpawnZone {
@@ -422,6 +428,14 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "summon", intervalMs: 8500, templateId: "gibbet", count: 2, max: 5 },
     { kind: "nova", intervalMs: 6000, radius: 10, powerMult: 1.6 },
   ],
+  samurai_specter: [
+    { kind: "enrage", hpPct: 0.3, atkMult: 1.6 },
+    { kind: "summon", intervalMs: 8000, templateId: "karakasa", count: 2, max: 4 },
+  ],
+  kapha: [
+    { kind: "nova", intervalMs: 6000, radius: 10, powerMult: 1.5 },
+    { kind: "heal", intervalMs: 11000, pct: 0.06 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -490,6 +504,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   gibbet: Element.Shadow,
   bacsojin: Element.Wind,
   fallen_bishop: Element.Shadow,
+  poison_spore: Element.Earth,
+  karakasa: Element.Wind,
+  tengu: Element.Wind,
+  samurai_specter: Element.Shadow,
+  kapha: Element.Water,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

@@ -139,6 +139,25 @@ export const MAPS: Record<string, GameMap> = {
     npcs: [
       { name: "Comodo Exit", role: "portal", x: 0, z: 26, dest: { toMap: "aldebaran", toX: 0, toZ: -44 } },
       { name: "Umbala Portal", role: "portal", x: 0, z: -42, dest: { toMap: "umbala", toX: 0, toZ: 20 } },
+      { name: "Amatsu Portal", role: "portal", x: 18, z: 14, dest: { toMap: "amatsu", toX: 0, toZ: 18 } },
+    ],
+  },
+  amatsu: {
+    id: "amatsu",
+    name: "Amatsu",
+    theme: { ground: 0x4a7a4e, fog: 0xc8d8c0, sky: 0xdce8d4 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "am-spore", templateId: "poison_spore", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "am-karakasa", templateId: "karakasa", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "am-tengu", templateId: "tengu", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "am-samurai", templateId: "samurai_specter", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "am-kapha", templateId: "kapha", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Amatsu Exit", role: "portal", x: 0, z: 24, dest: { toMap: "comodo", toX: 18, toZ: 16 } },
     ],
   },
   umbala: {

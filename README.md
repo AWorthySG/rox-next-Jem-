@@ -89,9 +89,9 @@ copyrighted assets.
   Rachel → Endless Tower → Thanatos Tower → Morocc Desert → Bio Laboratory → Abyss Lake**, plus
   the **PvP Arena**. Each map is themed, networked independently, and guarded by **two MVP
   bosses**.
-  the **PvP Arena** and side-branches **Geffen Tower** (mid-level mage tournament) and
-  **Niflheim** (the realm of the dead).
-- **55+ monsters & 30+ MVP bosses** across the world, from Porings to Nidhoggr's Shadow (Lv130).
+  the **PvP Arena** and side-branches **Geffen Tower** (mage tournament), **Amatsu** (eastern
+  lands) and **Niflheim** (the realm of the dead).
+- **60+ monsters & 35+ MVP bosses** across the world, from Porings to Nidhoggr's Shadow (Lv130).
 - **Boss fight mechanics**: bosses use distinct, server-driven abilities — **enrage** (harder
   hits below a HP threshold, with a red aura), **telegraphed AoE nova** (a growing warning ring
   you can step out of before it lands), **summon adds** (temporary minions), and **self-heal** —

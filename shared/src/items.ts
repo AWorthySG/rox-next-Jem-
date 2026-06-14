@@ -357,6 +357,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Amatsu (eastern lands) gear ----
+  katana: {
+    id: "katana", name: "Katana", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A folded-steel blade. ATK +50, AGI +4, DEX +2.", atk: 50, bonusStats: { agi: 4, dex: 2 }, sellPrice: 2400,
+  },
+  kabuto: {
+    id: "kabuto", name: "Kabuto", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A samurai's helm. DEF +16, VIT +4, Max HP +100.", def: 16, maxHp: 100, bonusStats: { vit: 4 }, sellPrice: 2200,
+  },
+  kimono: {
+    id: "kimono", name: "Silk Kimono", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Light eastern silk. DEF +18, Max HP +140, AGI +3.", def: 18, maxHp: 140, bonusStats: { agi: 3 }, sellPrice: 2400,
+  },
+
   // ---- Niflheim (realm of the dead) gear ----
   necro_staff: {
     id: "necro_staff", name: "Necromancer Staff", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -676,6 +690,12 @@ Object.assign(DROP_TABLES, {
   gibbet: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "necro_staff", chance: 0.03 }],
   bacsojin: HI([{ itemId: "necro_staff", chance: 0.6 }, { itemId: "grim_cloak", chance: 0.5 }, { itemId: "ghostring_card", chance: 0.08 }]),
   fallen_bishop: HI([{ itemId: "skull_cap", chance: 0.6 }, { itemId: "grim_cloak", chance: 0.5 }, { itemId: "immortal_heart", chance: 0.3 }]),
+  // Amatsu
+  poison_spore: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "kabuto", chance: 0.035 }],
+  karakasa: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "kimono", chance: 0.035 }],
+  tengu: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "katana", chance: 0.03 }],
+  samurai_specter: HI([{ itemId: "katana", chance: 0.6 }, { itemId: "kabuto", chance: 0.5 }, { itemId: "skeleton_card", chance: 0.06 }]),
+  kapha: HI([{ itemId: "kimono", chance: 0.6 }, { itemId: "katana", chance: 0.45 }, { itemId: "tidal_shoes", chance: 0.3 }]),
 });
 
 // Sprinkle refine ores across the bestiary so refining has a farming loop:
@@ -687,6 +707,7 @@ const ORE_REGULARS = [
   "anubis", "pasana", "cecil", "wickebine", "ferus", "acidus",
   "marionette", "nightmare", "marduk",
   "loli_ruri", "quve", "gibbet",
+  "poison_spore", "karakasa", "tengu",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -701,7 +722,7 @@ const ORE_BOSSES = [
   "vesper", "boitata", "tendrilion", "ktullanux", "beelzebub", "thanatos_phantom",
   "memory_of_thanatos", "eddga", "moonlight", "mistress", "angeling",
   "drake", "satan_morroc", "egnigem", "kathryne", "detale", "nidhoggr",
-  "doppelganger", "dark_priest", "bacsojin", "fallen_bishop",
+  "doppelganger", "dark_priest", "bacsojin", "fallen_bishop", "samurai_specter", "kapha",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];
