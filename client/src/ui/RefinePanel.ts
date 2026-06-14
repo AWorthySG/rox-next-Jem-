@@ -17,9 +17,10 @@ export interface RefineHandlers {
   onToggleLock(slot: EquipSlot, index: number): void;
 }
 
-const SLOTS: EquipSlot[] = [EquipSlot.Weapon, EquipSlot.Armor, EquipSlot.Accessory];
+const SLOTS: EquipSlot[] = [EquipSlot.Weapon, EquipSlot.Headgear, EquipSlot.Armor, EquipSlot.Accessory];
 const SLOT_LABEL: Record<EquipSlot, string> = {
   [EquipSlot.Weapon]: "Weapon",
+  [EquipSlot.Headgear]: "Headgear",
   [EquipSlot.Armor]: "Armor",
   [EquipSlot.Accessory]: "Accessory",
 };

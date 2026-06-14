@@ -267,7 +267,12 @@ export function sanitizeName(raw: string): string {
 }
 
 function isEquipSlot(s: string): s is EquipSlot {
-  return s === EquipSlot.Weapon || s === EquipSlot.Armor || s === EquipSlot.Accessory;
+  return (
+    s === EquipSlot.Weapon ||
+    s === EquipSlot.Headgear ||
+    s === EquipSlot.Armor ||
+    s === EquipSlot.Accessory
+  );
 }
 
 function clampMap(v: number): number {

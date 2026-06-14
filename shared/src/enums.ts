@@ -92,6 +92,7 @@ export enum DamageKind {
 
 export enum ItemType {
   Weapon = "weapon",
+  Headgear = "headgear",
   Armor = "armor",
   Accessory = "accessory",
   Consumable = "consumable",
@@ -100,6 +101,7 @@ export enum ItemType {
 
 export enum EquipSlot {
   Weapon = "weapon",
+  Headgear = "headgear",
   Armor = "armor",
   Accessory = "accessory",
 }

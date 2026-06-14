@@ -190,6 +190,20 @@ async function main(): Promise<void> {
   carder.unequip("weapon" as never);
   check((carder.toSelfState().inventory.find((i) => i.id === "skeleton_card")?.qty ?? 0) === 1, "cards: unequipping returns the card");
 
+  // ---- deterministic headgear slot ----
+  const hatter = new Player(975, 1, "Hatter", JobId.Swordsman, 0, 0);
+  const hpNoHat = hatter.derived.maxHp;
+  hatter.addItem("poring_hat", 1);
+  check(hatter.equip("poring_hat"), "headgear: equip a hat into the head slot");
+  check(hatter.derived.maxHp > hpNoHat, "headgear: hat raises Max HP");
+  check(hatter.toSelfState().equipped.some((e) => e.slot === "headgear"), "headgear: surfaced in self state");
+  hatter.addItem("willow_card", 1);
+  const spNoCard = hatter.derived.maxSp;
+  check(hatter.socketCard("willow_card"), "headgear: socket a headgear card");
+  check(hatter.derived.maxSp > spNoCard, "headgear: socketed card raises Max SP");
+  check(hatter.unequip("headgear" as never), "headgear: unequip the hat");
+  check((hatter.toSelfState().inventory.find((i) => i.id === "willow_card")?.qty ?? 0) === 1, "headgear: unequip returns the card");
+
   // ---- deterministic gear enchantment ----
   const ench = new Player(977, 1, "Enchanter", JobId.Swordsman, 0, 0);
   ench.addItem("novice_knife", 1);
