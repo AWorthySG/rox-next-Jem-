@@ -263,6 +263,21 @@ Object.assign(MONSTER_TEMPLATES, {
   aliza: mk("aliza", "Aliza", 106, 10500, 20000),
   thanatos_phantom: mk("thanatos_phantom", "Thanatos Phantom", 122, 95000, 160000, true),
   memory_of_thanatos: mk("memory_of_thanatos", "Memory of Thanatos", 128, 140000, 260000, true),
+  // ---- Morocc desert ----
+  anubis: mk("anubis", "Anubis", 116, 11000, 21000),
+  pasana: mk("pasana", "Pasana", 118, 12000, 23000),
+  drake: mk("drake", "Drake", 120, 100000, 180000, true),
+  satan_morroc: mk("satan_morroc", "Satan Morroc", 125, 150000, 260000, true),
+  // ---- Bio Lab ----
+  cecil: mk("cecil", "Cecil Damon", 122, 13000, 26000),
+  wickebine: mk("wickebine", "Wickebine", 124, 14000, 28000),
+  egnigem: mk("egnigem", "Egnigem Cenia", 124, 120000, 210000, true),
+  kathryne: mk("kathryne", "Kathryne Keyron", 127, 135000, 240000, true),
+  // ---- Abyss Lake ----
+  ferus: mk("ferus", "Ferus", 126, 15000, 31000),
+  acidus: mk("acidus", "Acidus", 128, 16000, 34000),
+  detale: mk("detale", "Detardeurus", 128, 160000, 280000, true),
+  nidhoggr: mk("nidhoggr", "Nidhoggr's Shadow", 130, 200000, 350000, true),
 });
 
 export interface SpawnZone {
@@ -350,6 +365,34 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "summon", intervalMs: 8000, templateId: "aliot", count: 3, max: 6 },
     { kind: "heal", intervalMs: 14000, pct: 0.05 },
   ],
+  drake: [
+    { kind: "summon", intervalMs: 9000, templateId: "pasana", count: 2, max: 4 },
+    { kind: "nova", intervalMs: 6500, radius: 10, powerMult: 1.5 },
+  ],
+  satan_morroc: [
+    { kind: "enrage", hpPct: 0.5, atkMult: 1.9 },
+    { kind: "nova", intervalMs: 5000, radius: 12, powerMult: 1.8 },
+    { kind: "summon", intervalMs: 9000, templateId: "anubis", count: 3, max: 6 },
+    { kind: "heal", intervalMs: 15000, pct: 0.04 },
+  ],
+  egnigem: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.6 },
+    { kind: "summon", intervalMs: 8000, templateId: "wickebine", count: 2, max: 5 },
+  ],
+  kathryne: [
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.8 },
+    { kind: "heal", intervalMs: 11000, pct: 0.06 },
+  ],
+  detale: [
+    { kind: "enrage", hpPct: 0.4, atkMult: 1.7 },
+    { kind: "nova", intervalMs: 5000, radius: 12, powerMult: 1.8 },
+  ],
+  nidhoggr: [
+    { kind: "enrage", hpPct: 0.5, atkMult: 2.0 },
+    { kind: "nova", intervalMs: 4500, radius: 13, powerMult: 1.9 },
+    { kind: "summon", intervalMs: 8000, templateId: "ferus", count: 3, max: 6 },
+    { kind: "heal", intervalMs: 13000, pct: 0.05 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -396,6 +439,18 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   mistress: Element.Wind,
   vanberk: Element.Fire,
   hodremlin: Element.Earth,
+  anubis: Element.Shadow,
+  pasana: Element.Fire,
+  drake: Element.Water,
+  satan_morroc: Element.Shadow,
+  cecil: Element.Wind,
+  wickebine: Element.Shadow,
+  egnigem: Element.Earth,
+  kathryne: Element.Shadow,
+  ferus: Element.Fire,
+  acidus: Element.Wind,
+  detale: Element.Fire,
+  nidhoggr: Element.Shadow,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

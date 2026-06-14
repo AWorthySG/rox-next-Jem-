@@ -30,6 +30,9 @@ const ARCH: Record<string, MonsterArch> = {
   baphomet: "demon", dark_lord: "demon", beelzebub: "demon", gloom: "demon", thanatos_phantom: "demon", memory_of_thanatos: "demon",
   hill_wind: "bird", owl_duke: "bird", vesper: "bird", valkyrie_randgris: "bird", kiel: "bird",
   moonlight: "ghost", mistress: "ghost", punk: "ghost", aliot: "ghost", aliza: "ghost",
+  anubis: "undead", pasana: "undead", drake: "undead", egnigem: "undead",
+  satan_morroc: "demon", nidhoggr: "demon", kathryne: "ghost",
+  cecil: "bird", wickebine: "bug", ferus: "beast", acidus: "beast", detale: "beast",
 };
 
 function hex(s: string): number {
@@ -93,6 +96,21 @@ const DEFS: Record<string, AppearanceDef> = {
   aliza: { inner: "#d0a0c0", outer: "#6a3a5a", scale: 1.3 },
   thanatos_phantom: { inner: "#d04060", outer: "#2a0810", scale: 3, boss: true },
   memory_of_thanatos: { inner: "#ff4060", outer: "#1a0008", scale: 3.4, boss: true },
+  // Morocc
+  anubis: { inner: "#e0c060", outer: "#3a2c10", scale: 1.4 },
+  pasana: { inner: "#e8d8a0", outer: "#8a6a30", scale: 1.35 },
+  drake: { inner: "#9ab0c0", outer: "#1a3040", scale: 2.9, boss: true },
+  satan_morroc: { inner: "#d04030", outer: "#2a0808", scale: 3.4, boss: true },
+  // Bio Lab
+  cecil: { inner: "#d0c0a0", outer: "#5a4a30", scale: 1.3 },
+  wickebine: { inner: "#c0a0d0", outer: "#4a2a5a", scale: 1.25 },
+  egnigem: { inner: "#c0c8d0", outer: "#3a4450", scale: 2.8, boss: true },
+  kathryne: { inner: "#e0c0f0", outer: "#4a2a6a", scale: 2.9, boss: true },
+  // Abyss
+  ferus: { inner: "#e07050", outer: "#5a1808", scale: 1.5 },
+  acidus: { inner: "#80c0d0", outer: "#1a4a5a", scale: 1.5 },
+  detale: { inner: "#f08040", outer: "#3a1004", scale: 3.4, boss: true },
+  nidhoggr: { inner: "#9a4fb0", outer: "#100818", scale: 3.6, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

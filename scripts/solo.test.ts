@@ -130,6 +130,15 @@ async function main(): Promise<void> {
     check(bosses >= 2, `world: ${m.id} has >= 2 bosses (${bosses})`);
   }
 
+  // ---- endgame content (Morocc / Bio Lab / Abyss) ----
+  for (const id of ["morocc", "bio_lab", "abyss"]) check(!!MAPS[id], `content: ${id} map exists`);
+  check(MAPS.thanatos.npcs.some((n) => n.dest?.toMap === "morocc"), "content: Thanatos links to Morocc");
+  check(MONSTER_TEMPLATES.nidhoggr?.level === 130, "content: Nidhoggr is the Lv130 capstone");
+  check((MONSTER_TEMPLATES.satan_morroc.mechanics?.length ?? 0) === 4, "content: Satan Morroc has all four mechanics");
+  for (const it of ["abyssal_blade", "dragon_scale_mail", "nidhoggr_eye", "desert_sabre", "oridecon", "elunium"]) {
+    check(!!getItem(it), `content: item ${it} exists`);
+  }
+
   // ---- boss mechanics ----
   const withMech = Object.values(MONSTER_TEMPLATES).filter((t) => t.boss && (t.mechanics?.length ?? 0) > 0).length;
   check(withMech >= 12, `boss mechanics: ${withMech} bosses have mechanics`);

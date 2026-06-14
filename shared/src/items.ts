@@ -343,6 +343,36 @@ export const ITEMS: Record<string, ItemDef> = {
     sellPrice: 12000,
   },
 
+  // ---- Morocc / Bio Lab / Abyss endgame gear ----
+  desert_sabre: {
+    id: "desert_sabre", name: "Desert Sabre", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A curved scimitar. ATK +72, STR +4, DEX +3.", atk: 72, bonusStats: { str: 4, dex: 3 }, sellPrice: 5500,
+  },
+  morrigane_helm: {
+    id: "morrigane_helm", name: "Morrigane's Helm", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "Helm of the war witch. DEF +20, LUK +8, ATK +10.", def: 20, atk: 10, bonusStats: { luk: 8 }, sellPrice: 5500,
+  },
+  bio_coat: {
+    id: "bio_coat", name: "Bio Lab Coat", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "An experimental coat. DEF +30, Max HP +320, INT +6.", def: 30, maxHp: 320, bonusStats: { int: 6 }, sellPrice: 5800,
+  },
+  mad_bunny: {
+    id: "mad_bunny", name: "Mad Bunny", type: ItemType.Accessory, slot: EquipSlot.Accessory,
+    desc: "A twitchy charm. AGI +8, ATK +15.", atk: 15, bonusStats: { agi: 8 }, sellPrice: 6000,
+  },
+  abyssal_blade: {
+    id: "abyssal_blade", name: "Abyssal Greatsword", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "Forged in the deep. ATK +105, STR +8, DEX +5.", atk: 105, bonusStats: { str: 8, dex: 5 }, sellPrice: 9500,
+  },
+  dragon_scale_mail: {
+    id: "dragon_scale_mail", name: "Dragon Scale Mail", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Scales of a true dragon. DEF +44, Max HP +560, VIT +6.", def: 44, maxHp: 560, bonusStats: { vit: 6 }, sellPrice: 11000,
+  },
+  nidhoggr_eye: {
+    id: "nidhoggr_eye", name: "Nidhoggr's Eye", type: ItemType.Accessory, slot: EquipSlot.Accessory,
+    desc: "An eye of the world-serpent. INT +10, DEX +10, Max SP +120.", maxSp: 120, bonusStats: { int: 10, dex: 10 }, sellPrice: 13000,
+  },
+
   // ---- headgear ----
   feather_beret: {
     id: "feather_beret",
@@ -409,6 +439,8 @@ export const ITEMS: Record<string, ItemDef> = {
   ghostring_card: { id: "ghostring_card", name: "Ghostring Card", type: ItemType.Card, cardSlot: EquipSlot.Armor, desc: "Armor card. Max HP +400, VIT +6.", maxHp: 400, bonusStats: { vit: 6 }, sellPrice: 6000 },
   thanatos_card: { id: "thanatos_card", name: "Thanatos Card", type: ItemType.Card, cardSlot: EquipSlot.Weapon, desc: "Weapon card. ATK +30, MATK +30, STR +5, INT +5.", atk: 30, matk: 30, bonusStats: { str: 5, int: 5 }, sellPrice: 12000 },
   willow_card: { id: "willow_card", name: "Willow Card", type: ItemType.Card, cardSlot: EquipSlot.Headgear, desc: "Headgear card. Max SP +60, INT +3.", maxSp: 60, bonusStats: { int: 3 }, sellPrice: 700 },
+  drake_card: { id: "drake_card", name: "Drake Card", type: ItemType.Card, cardSlot: EquipSlot.Weapon, desc: "Weapon card. ATK +25, STR +3.", atk: 25, bonusStats: { str: 3 }, sellPrice: 4500 },
+  nidhoggr_card: { id: "nidhoggr_card", name: "Nidhoggr Shadow Card", type: ItemType.Card, cardSlot: EquipSlot.Armor, desc: "Armor card. Max HP +550, all stats +3.", maxHp: 550, bonusStats: { str: 3, agi: 3, vit: 3, int: 3, dex: 3, luk: 3 }, sellPrice: 14000 },
   stainer_card: { id: "stainer_card", name: "Stainer Card", type: ItemType.Card, cardSlot: EquipSlot.Headgear, desc: "Headgear card. AGI +5, FLEE via DEF +4.", def: 4, bonusStats: { agi: 5 }, sellPrice: 1500 },
 };
 
@@ -589,6 +621,21 @@ Object.assign(DROP_TABLES, {
   aliza: [{ itemId: "red_potion", chance: 0.5 }, { itemId: "immortal_heart", chance: 0.02 }],
   thanatos_phantom: HI([{ itemId: "thanatos_sword", chance: 0.5 }, { itemId: "immortal_heart", chance: 0.5 }]),
   memory_of_thanatos: HI([{ itemId: "fallen_angel_wing", chance: 0.7 }, { itemId: "thanatos_sword", chance: 0.6 }, { itemId: "thanatos_card", chance: 0.12 }]),
+  // Morocc desert
+  anubis: [{ itemId: "red_potion", chance: 0.5 }, { itemId: "morrigane_helm", chance: 0.03 }],
+  pasana: [{ itemId: "red_potion", chance: 0.5 }, { itemId: "desert_sabre", chance: 0.03 }],
+  drake: HI([{ itemId: "desert_sabre", chance: 0.6 }, { itemId: "morrigane_helm", chance: 0.5 }, { itemId: "drake_card", chance: 0.08 }]),
+  satan_morroc: HI([{ itemId: "desert_sabre", chance: 0.6 }, { itemId: "abyssal_blade", chance: 0.4 }, { itemId: "immortal_heart", chance: 0.5 }, { itemId: "drake_card", chance: 0.1 }]),
+  // Bio Lab
+  cecil: [{ itemId: "red_potion", chance: 0.5 }, { itemId: "bio_coat", chance: 0.03 }],
+  wickebine: [{ itemId: "red_potion", chance: 0.5 }, { itemId: "mad_bunny", chance: 0.03 }],
+  egnigem: HI([{ itemId: "bio_coat", chance: 0.6 }, { itemId: "mad_bunny", chance: 0.5 }, { itemId: "valkyrie_armor", chance: 0.4 }]),
+  kathryne: HI([{ itemId: "bio_coat", chance: 0.6 }, { itemId: "nidhoggr_eye", chance: 0.4 }, { itemId: "ghostring_card", chance: 0.08 }]),
+  // Abyss Lake
+  ferus: [{ itemId: "red_potion", chance: 0.5 }, { itemId: "dragon_scale_mail", chance: 0.025 }],
+  acidus: [{ itemId: "red_potion", chance: 0.5 }, { itemId: "abyssal_blade", chance: 0.025 }],
+  detale: HI([{ itemId: "dragon_scale_mail", chance: 0.6 }, { itemId: "abyssal_blade", chance: 0.5 }, { itemId: "nidhoggr_eye", chance: 0.4 }]),
+  nidhoggr: HI([{ itemId: "dragon_scale_mail", chance: 0.7 }, { itemId: "abyssal_blade", chance: 0.6 }, { itemId: "nidhoggr_eye", chance: 0.5 }, { itemId: "nidhoggr_card", chance: 0.12 }]),
 });
 
 // Sprinkle refine ores across the bestiary so refining has a farming loop:
@@ -597,6 +644,7 @@ const ORE_REGULARS = [
   "skeleton", "zombie", "clock", "punk", "sandman", "anolian", "dryad", "stem_worm",
   "wraith", "gargoyle", "sleeper", "hill_wind", "metaling", "venatu", "vanberk",
   "hodremlin", "aliot", "aliza", "coco", "spore",
+  "anubis", "pasana", "cecil", "wickebine", "ferus", "acidus",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -610,6 +658,7 @@ const ORE_BOSSES = [
   "amon_ra", "owl_duke", "kraken", "tao_gunka", "gloom", "valkyrie_randgris", "kiel",
   "vesper", "boitata", "tendrilion", "ktullanux", "beelzebub", "thanatos_phantom",
   "memory_of_thanatos", "eddga", "moonlight", "mistress", "angeling",
+  "drake", "satan_morroc", "egnigem", "kathryne", "detale", "nidhoggr",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];
