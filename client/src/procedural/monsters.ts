@@ -71,6 +71,7 @@ const ARCH: Record<string, MonsterArch> = {
   wild_boar: "beast", kampong_rooster: "bird", mangrove_crab: "aquatic", boar_king: "beast", mangrove_naga: "dragon",
   hell_judge: "undead", ox_head: "humanoid", horse_face: "humanoid", yama_king: "demon", tiger_spirit: "beast",
   beach_crab: "aquatic", seagull: "bird", sand_flea: "bug", giant_stingray: "aquatic", tidal_kraken: "aquatic",
+  spice_sprite: "plant", war_ghost: "ghost", bunker_sentry: "golem", colonial_wraith: "ghost", hill_sentinel: "golem",
 };
 
 function hex(s: string): number {
@@ -371,6 +372,12 @@ const DEFS: Record<string, AppearanceDef> = {
   sand_flea: { inner: "#d0c090", outer: "#6a5a30", scale: 0.85 },
   giant_stingray: { inner: "#90b0c0", outer: "#2a4a5a", scale: 2.8, boss: true },
   tidal_kraken: { inner: "#70b0c0", outer: "#1a4a5a", scale: 3.0, boss: true },
+  // Fort Canning (Singapore)
+  spice_sprite: { inner: "#c0e090", outer: "#5a7a30", scale: 1.1 },
+  war_ghost: { inner: "#c0c8d0", outer: "#4a525c", scale: 1.3 },
+  bunker_sentry: { inner: "#9aa090", outer: "#3a4030", scale: 1.4 },
+  colonial_wraith: { inner: "#d0d0d8", outer: "#5a5a6a", scale: 2.7, boss: true },
+  hill_sentinel: { inner: "#a0a890", outer: "#3a4230", scale: 3.0, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

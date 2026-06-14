@@ -500,6 +500,12 @@ Object.assign(MONSTER_TEMPLATES, {
   sand_flea: mk("sand_flea", "Sand Flea", 54, 3000, 6400),
   giant_stingray: mk("giant_stingray", "Giant Stingray", 60, 12000, 21000, true),
   tidal_kraken: mk("tidal_kraken", "Tidal Kraken", 62, 13500, 24000, true),
+  // ---- Fort Canning (Singapore) ----
+  spice_sprite: mk("spice_sprite", "Spice Sprite", 65, 3600, 8000),
+  war_ghost: mk("war_ghost", "War Ghost", 67, 3800, 8600),
+  bunker_sentry: mk("bunker_sentry", "Bunker Sentry", 69, 4000, 9200),
+  colonial_wraith: mk("colonial_wraith", "Colonial Wraith", 75, 22000, 38000, true),
+  hill_sentinel: mk("hill_sentinel", "Hill Sentinel", 77, 25000, 43000, true),
 });
 
 export interface SpawnZone {
@@ -924,6 +930,14 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
     { kind: "heal", intervalMs: 11000, pct: 0.06 },
   ],
+  colonial_wraith: [
+    { kind: "nova", intervalMs: 5500, radius: 10, powerMult: 1.6 },
+    { kind: "summon", intervalMs: 8500, templateId: "war_ghost", count: 2, max: 5 },
+  ],
+  hill_sentinel: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.6 },
+    { kind: "nova", intervalMs: 6000, radius: 11, powerMult: 1.6 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -1167,6 +1181,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   sand_flea: Element.Earth,
   giant_stingray: Element.Wind,
   tidal_kraken: Element.Water,
+  spice_sprite: Element.Earth,
+  war_ghost: Element.Shadow,
+  bunker_sentry: Element.Earth,
+  colonial_wraith: Element.Shadow,
+  hill_sentinel: Element.Earth,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

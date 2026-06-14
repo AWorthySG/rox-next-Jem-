@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Fort Canning (Singapore) gear ----
+  canning_saber: {
+    id: "canning_saber", name: "Canning Saber", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A colonial officer's saber. ATK +64, STR +4.", atk: 64, bonusStats: { str: 4 }, sellPrice: 1500,
+  },
+  pith_helmet: {
+    id: "pith_helmet", name: "Pith Helmet", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A sun-helmet of the tropics. DEF +18, DEX +3, Max HP +100.", def: 18, maxHp: 100, bonusStats: { dex: 3 }, sellPrice: 1300,
+  },
+  officer_coat: {
+    id: "officer_coat", name: "Officer's Coat", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "A decorated dress coat. DEF +22, Max HP +200, VIT +4.", def: 22, maxHp: 200, bonusStats: { vit: 4 }, sellPrice: 1500,
+  },
+
   // ---- East Coast Park (Singapore) gear ----
   beach_trident: {
     id: "beach_trident", name: "Beach Trident", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1229,6 +1243,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Fort Canning (Singapore)
+  spice_sprite: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "officer_coat", chance: 0.03 }],
+  war_ghost: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pith_helmet", chance: 0.03 }],
+  bunker_sentry: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "canning_saber", chance: 0.03 }],
+  colonial_wraith: HI([{ itemId: "canning_saber", chance: 0.6 }, { itemId: "officer_coat", chance: 0.5 }, { itemId: "pith_helmet", chance: 0.4 }]),
+  hill_sentinel: HI([{ itemId: "officer_coat", chance: 0.6 }, { itemId: "canning_saber", chance: 0.45 }, { itemId: "skeleton_card", chance: 0.05 }]),
   // East Coast Park (Singapore)
   beach_crab: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "wetsuit", chance: 0.035 }],
   seagull: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "sun_visor", chance: 0.035 }],
@@ -1430,6 +1450,7 @@ const ORE_REGULARS = [
   "wild_boar", "kampong_rooster", "mangrove_crab",
   "hell_judge", "ox_head", "horse_face",
   "beach_crab", "seagull", "sand_flea",
+  "spice_sprite", "war_ghost", "bunker_sentry",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1456,7 +1477,7 @@ const ORE_BOSSES = [
   "supertree_guardian", "flower_dome_titan", "pontianak_queen", "penanggalan",
   "sentosa_merlion", "leviathan", "sultan_jinn", "naga_emas",
   "skyline_colossus", "spectra_dragon", "t_rex", "mecha_dino", "boar_king", "mangrove_naga",
-  "yama_king", "tiger_spirit", "giant_stingray", "tidal_kraken",
+  "yama_king", "tiger_spirit", "giant_stingray", "tidal_kraken", "colonial_wraith", "hill_sentinel",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

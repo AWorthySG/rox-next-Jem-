@@ -148,6 +148,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 96,
     reward: { exp: 170000, zeny: 95000, items: [{ id: "soul_reaper", qty: 1 }] },
   },
+  ghost_of_the_hill: {
+    id: "ghost_of_the_hill",
+    name: "Ghost of the Hill",
+    desc: "A Colonial Wraith haunts Fort Canning's old bunkers. Give the officer peace.",
+    targetTemplate: "colonial_wraith",
+    targetName: "Colonial Wraith",
+    count: 1,
+    requiredLevel: 71,
+    reward: { exp: 40000, zeny: 24000, items: [{ id: "canning_saber", qty: 1 }] },
+  },
   terror_of_the_tide: {
     id: "terror_of_the_tide",
     name: "Terror of the Tide",

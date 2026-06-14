@@ -158,6 +158,25 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Chinatown Exit", role: "portal", x: 0, z: 26, dest: { toMap: "bukit_timah", toX: 0, toZ: -44 } },
       { name: "Gardens Portal", role: "portal", x: 0, z: -50, dest: { toMap: "gardens_bay", toX: 0, toZ: 18 } },
       { name: "Kampong Glam Portal", role: "portal", x: 18, z: 14, dest: { toMap: "kampong_glam", toX: 0, toZ: 18 } },
+      { name: "Fort Canning Portal", role: "portal", x: -18, z: 14, dest: { toMap: "fort_canning", toX: 0, toZ: 18 } },
+    ],
+  },
+  fort_canning: {
+    id: "fort_canning",
+    name: "Fort Canning",
+    theme: { ground: 0x4a6a3a, fog: 0x7a8a5a, sky: 0xa0b878 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "fc-spice", templateId: "spice_sprite", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "fc-ghost", templateId: "war_ghost", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "fc-bunker", templateId: "bunker_sentry", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "fc-wraith", templateId: "colonial_wraith", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "fc-sentinel", templateId: "hill_sentinel", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Fort Canning Exit", role: "portal", x: 0, z: 24, dest: { toMap: "chinatown", toX: -18, toZ: 16 } },
     ],
   },
   kampong_glam: {

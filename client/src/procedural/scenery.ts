@@ -94,6 +94,7 @@ const THEMES: Record<string, Partial<Theme>> = {
   pulau_ubin: { trunk: 0x5a4228, foliage: [0x2f7a3a, 0x4faa4a], rock: 0x5a6a44, tree: "jungle", trees: 84, rocks: 30, tufts: 140, tuft: 0x3f8f3f },
   haw_par: { trunk: 0x4a2a2a, foliage: [0x6a2a2a], rock: 0x5a3a3a, tree: "dead", trees: 40, rocks: 50, tufts: 60, tuft: 0xa03030 },
   east_coast: { trunk: 0x9a7b4a, foliage: [0x4fb04a, 0x6cc35f], rock: 0xcaba8a, tree: "palm", trees: 44, rocks: 24, tufts: 70, tuft: 0x4f9a5f },
+  fort_canning: { trunk: 0x5a4a30, foliage: [0x4a8a3a, 0x6fae54], rock: 0x6a7a5a, tree: "leafy", trees: 76, rocks: 34, tufts: 120, tuft: 0x4a9a3a },
   arena: { trees: 0, rocks: 10, tufts: 30 },
 };
 
