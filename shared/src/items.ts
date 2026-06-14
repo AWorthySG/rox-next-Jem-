@@ -380,6 +380,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "Sea-tempered coastal armor. DEF +28, Max HP +280, VIT +5.", def: 28, maxHp: 280, bonusStats: { vit: 5 }, sellPrice: 4400,
   },
 
+  // ---- MacRitchie Reservoir (Singapore) gear ----
+  treetop_bow: {
+    id: "treetop_bow", name: "Treetop Bow", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "Carved from a rainforest canopy branch. ATK +90, DEX +6.", atk: 90, bonusStats: { dex: 6 }, sellPrice: 5000,
+  },
+  reservoir_robe: {
+    id: "reservoir_robe", name: "Reservoir Robe", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Woven mist of the central catchment. DEF +30, Max SP +60, INT +6.", def: 30, maxSp: 60, bonusStats: { int: 6 }, sellPrice: 5000,
+  },
+  monitor_scale_charm: {
+    id: "monitor_scale_charm", name: "Monitor Scale Charm", type: ItemType.Accessory, slot: EquipSlot.Accessory,
+    desc: "Strung from water-monitor scutes. Max HP +320, VIT +6, DEF +6.", def: 6, maxHp: 320, bonusStats: { vit: 6 }, sellPrice: 5000,
+  },
+
   // ---- Mount Faber (Singapore) gear ----
   summit_lance: {
     id: "summit_lance", name: "Summit Lance", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1277,6 +1291,12 @@ Object.assign(DROP_TABLES, {
   jewel_drone: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "vortex_blade", chance: 0.03 }],
   changi_revenant: HI([{ itemId: "vortex_blade", chance: 0.6 }, { itemId: "changi_plate", chance: 0.5 }, { itemId: "jewel_visor", chance: 0.4 }]),
   vortex_guardian: HI([{ itemId: "changi_plate", chance: 0.6 }, { itemId: "vortex_blade", chance: 0.45 }, { itemId: "marc_card", chance: 0.05 }]),
+  // MacRitchie Reservoir (Singapore)
+  water_monitor: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "monitor_scale_charm", chance: 0.03 }],
+  treetop_colugo: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "treetop_bow", chance: 0.03 }],
+  swamp_leech: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "reservoir_robe", chance: 0.03 }],
+  treetop_warden: HI([{ itemId: "treetop_bow", chance: 0.6 }, { itemId: "reservoir_robe", chance: 0.5 }, { itemId: "monitor_scale_charm", chance: 0.4 }]),
+  reservoir_naga: HI([{ itemId: "reservoir_robe", chance: 0.6 }, { itemId: "treetop_bow", chance: 0.45 }, { itemId: "marc_card", chance: 0.05 }]),
   // Mount Faber (Singapore)
   cable_wraith: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "alpine_plate", chance: 0.03 }],
   peak_eagle: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "aviator_cap", chance: 0.03 }],
@@ -1493,6 +1513,7 @@ const ORE_REGULARS = [
   "spice_sprite", "war_ghost", "bunker_sentry",
   "cable_wraith", "peak_eagle", "stone_golem",
   "pow_spirit", "beach_ghoul", "jewel_drone",
+  "water_monitor", "treetop_colugo", "swamp_leech",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1521,6 +1542,7 @@ const ORE_BOSSES = [
   "skyline_colossus", "spectra_dragon", "t_rex", "mecha_dino", "boar_king", "mangrove_naga",
   "yama_king", "tiger_spirit", "giant_stingray", "tidal_kraken", "colonial_wraith", "hill_sentinel",
   "faber_titan", "wind_djinn", "changi_revenant", "vortex_guardian",
+  "treetop_warden", "reservoir_naga",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

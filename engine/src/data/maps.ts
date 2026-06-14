@@ -102,6 +102,24 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Changi Exit", role: "portal", x: 0, z: 24, dest: { toMap: "east_coast", toX: 0, toZ: -44 } },
     ],
   },
+  macritchie: {
+    id: "macritchie",
+    name: "MacRitchie Reservoir",
+    theme: { ground: 0x2a5a3a, fog: 0x6aa56a, sky: 0x9ac888 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "mr-monitor", templateId: "water_monitor", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "mr-colugo", templateId: "treetop_colugo", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "mr-leech", templateId: "swamp_leech", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "mr-warden", templateId: "treetop_warden", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "mr-naga", templateId: "reservoir_naga", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "MacRitchie Exit", role: "portal", x: 0, z: 24, dest: { toMap: "bukit_timah", toX: -18, toZ: 10 } },
+    ],
+  },
   pulau_ubin: {
     id: "pulau_ubin",
     name: "Pulau Ubin",
@@ -137,6 +155,7 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Bukit Timah Exit", role: "portal", x: 0, z: 24, dest: { toMap: "merlion_bay", toX: 0, toZ: -44 } },
       { name: "Chinatown Portal", role: "portal", x: 0, z: -50, dest: { toMap: "chinatown", toX: 0, toZ: 18 } },
       { name: "Jurong Portal", role: "portal", x: 18, z: 14, dest: { toMap: "jurong", toX: 0, toZ: 18 } },
+      { name: "MacRitchie Portal", role: "portal", x: -18, z: 14, dest: { toMap: "macritchie", toX: 0, toZ: 18 } },
     ],
   },
   jurong: {

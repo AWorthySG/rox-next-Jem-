@@ -294,6 +294,7 @@ const WATER_MAPS: Record<string, [number, number]> = {
   sentosa: [0x7fe0e8, 0x1a7090],
   east_coast: [0x7fd8e0, 0x1a6884],
   changi: [0x7fdce4, 0x1a6a88],
+  macritchie: [0x4a9a6a, 0x14483a],
 };
 
 const SKY_VERT = /* glsl */ `

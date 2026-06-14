@@ -608,6 +608,26 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 92,
     reward: { exp: 112000, zeny: 64000, items: [{ id: "jewel_visor", qty: 1 }] },
   },
+  warden_of_the_canopy: {
+    id: "warden_of_the_canopy",
+    name: "Warden of the Canopy",
+    desc: "The Treetop Warden has rooted across MacRitchie's boardwalk. Free the trail.",
+    targetTemplate: "treetop_warden",
+    targetName: "Treetop Warden",
+    count: 1,
+    requiredLevel: 104,
+    reward: { exp: 160000, zeny: 90000, items: [{ id: "treetop_bow", qty: 1 }] },
+  },
+  serpent_of_the_reservoir: {
+    id: "serpent_of_the_reservoir",
+    name: "Serpent of the Reservoir",
+    desc: "A Reservoir Naga lurks beneath the central catchment. Drain its menace.",
+    targetTemplate: "reservoir_naga",
+    targetName: "Reservoir Naga",
+    count: 1,
+    requiredLevel: 106,
+    reward: { exp: 180000, zeny: 102000, items: [{ id: "reservoir_robe", qty: 1 }] },
+  },
 
   // ---- repeatable daily bounties (turn in and re-accept for steady income) ----
   bounty_porings: {

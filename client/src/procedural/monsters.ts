@@ -74,6 +74,7 @@ const ARCH: Record<string, MonsterArch> = {
   spice_sprite: "plant", war_ghost: "ghost", bunker_sentry: "golem", colonial_wraith: "ghost", hill_sentinel: "golem",
   cable_wraith: "ghost", peak_eagle: "bird", stone_golem: "golem", faber_titan: "golem", wind_djinn: "demon",
   pow_spirit: "ghost", beach_ghoul: "undead", jewel_drone: "golem", changi_revenant: "ghost", vortex_guardian: "golem",
+  water_monitor: "beast", treetop_colugo: "bird", swamp_leech: "bug", treetop_warden: "plant", reservoir_naga: "dragon",
 };
 
 function hex(s: string): number {
@@ -392,6 +393,11 @@ const DEFS: Record<string, AppearanceDef> = {
   jewel_drone: { inner: "#b0d8e0", outer: "#3a6a7a", scale: 1.2 },
   changi_revenant: { inner: "#d0d8e0", outer: "#4a5a6a", scale: 2.8, boss: true },
   vortex_guardian: { inner: "#80c0d0", outer: "#1a5a6a", scale: 3.1, boss: true },
+  water_monitor: { inner: "#6a7a4a", outer: "#2a3a1a", scale: 1.5 },
+  treetop_colugo: { inner: "#9a8a6a", outer: "#3a2e1a", scale: 1.3 },
+  swamp_leech: { inner: "#7a4a5a", outer: "#2a1020", scale: 1.3 },
+  treetop_warden: { inner: "#4faa5a", outer: "#1a4a24", scale: 3.0, boss: true },
+  reservoir_naga: { inner: "#3fb08a", outer: "#0a4a3a", scale: 3.1, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

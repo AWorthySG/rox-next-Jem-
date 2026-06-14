@@ -518,6 +518,12 @@ Object.assign(MONSTER_TEMPLATES, {
   jewel_drone: mk("jewel_drone", "Jewel Drone", 84, 5800, 12400),
   changi_revenant: mk("changi_revenant", "Changi Revenant", 90, 38000, 60000, true),
   vortex_guardian: mk("vortex_guardian", "Vortex Guardian", 92, 42000, 68000, true),
+  // ---- MacRitchie Reservoir (Singapore) ----
+  water_monitor: mk("water_monitor", "Water Monitor", 94, 6400, 13600),
+  treetop_colugo: mk("treetop_colugo", "Treetop Colugo", 96, 6700, 14200),
+  swamp_leech: mk("swamp_leech", "Swamp Leech", 98, 7000, 14800),
+  treetop_warden: mk("treetop_warden", "Treetop Warden", 104, 52000, 82000, true),
+  reservoir_naga: mk("reservoir_naga", "Reservoir Naga", 106, 58000, 92000, true),
 });
 
 export interface SpawnZone {
@@ -967,6 +973,14 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "nova", intervalMs: 5500, radius: 12, powerMult: 1.7 },
     { kind: "heal", intervalMs: 11000, pct: 0.06 },
   ],
+  treetop_warden: [
+    { kind: "summon", intervalMs: 8000, templateId: "treetop_colugo", count: 2, max: 5 },
+    { kind: "heal", intervalMs: 10000, pct: 0.07 },
+  ],
+  reservoir_naga: [
+    { kind: "enrage", hpPct: 0.3, atkMult: 1.8 },
+    { kind: "nova", intervalMs: 5000, radius: 12, powerMult: 1.8 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -1225,6 +1239,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   jewel_drone: Element.Wind,
   changi_revenant: Element.Shadow,
   vortex_guardian: Element.Water,
+  water_monitor: Element.Earth,
+  treetop_colugo: Element.Wind,
+  swamp_leech: Element.Water,
+  treetop_warden: Element.Earth,
+  reservoir_naga: Element.Water,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;
