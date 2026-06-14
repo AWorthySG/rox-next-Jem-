@@ -177,6 +177,25 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
       { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
       { name: "Amatsu Exit", role: "portal", x: 0, z: 24, dest: { toMap: "comodo", toX: 18, toZ: 16 } },
+      { name: "Ayothaya Portal", role: "portal", x: 0, z: -46, dest: { toMap: "ayothaya", toX: 0, toZ: 18 } },
+    ],
+  },
+  ayothaya: {
+    id: "ayothaya",
+    name: "Ayothaya Temple",
+    theme: { ground: 0x5a7a3a, fog: 0x9ab070, sky: 0xc0d49a },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "ay-kobold", templateId: "kobold", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "ay-willow", templateId: "elder_willow", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "ay-brilight", templateId: "brilight", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "ay-tanee", templateId: "lady_tanee", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "ay-leak", templateId: "leak", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Ayothaya Exit", role: "portal", x: 0, z: 24, dest: { toMap: "amatsu", toX: 0, toZ: -38 } },
     ],
   },
   umbala: {

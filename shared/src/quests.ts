@@ -128,6 +128,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 40,
     reward: { exp: 9000, zeny: 6000, items: [{ id: "mage_staff", qty: 1 }] },
   },
+  temple_guardian: {
+    id: "temple_guardian",
+    name: "Temple Guardian",
+    desc: "Leak, the serpent, defiles Ayothaya's temple. Drive it from the ruins.",
+    targetTemplate: "leak",
+    targetName: "Leak",
+    count: 1,
+    requiredLevel: 78,
+    reward: { exp: 70000, zeny: 40000, items: [{ id: "jade_spear", qty: 1 }] },
+  },
   winter_warden: {
     id: "winter_warden",
     name: "Winter Warden",
