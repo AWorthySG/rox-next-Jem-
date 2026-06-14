@@ -648,6 +648,26 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 120,
     reward: { exp: 260000, zeny: 146000, items: [{ id: "garland_robe", qty: 1 }] },
   },
+  the_ion_colossus: {
+    id: "the_ion_colossus",
+    name: "The ION Colossus",
+    desc: "Orchard Road's grandest mall has woken as a chrome colossus. Bring it down.",
+    targetTemplate: "ion_colossus",
+    targetName: "ION Colossus",
+    count: 1,
+    requiredLevel: 132,
+    reward: { exp: 320000, zeny: 180000, items: [{ id: "neon_edge", qty: 1 }] },
+  },
+  specter_of_orchard: {
+    id: "specter_of_orchard",
+    name: "Specter of Orchard",
+    desc: "A neon Specter haunts the shuttered boutiques after dark. Disperse it.",
+    targetTemplate: "orchard_specter",
+    targetName: "Orchard Specter",
+    count: 1,
+    requiredLevel: 134,
+    reward: { exp: 360000, zeny: 200000, items: [{ id: "chrome_carapace", qty: 1 }] },
+  },
 
   // ---- repeatable daily bounties (turn in and re-accept for steady income) ----
   bounty_porings: {

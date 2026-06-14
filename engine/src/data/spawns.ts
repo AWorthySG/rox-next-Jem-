@@ -530,6 +530,12 @@ Object.assign(MONSTER_TEMPLATES, {
   saree_serpent: mk("saree_serpent", "Saree Serpent", 112, 8800, 17600),
   kali_avatar: mk("kali_avatar", "Kali Avatar", 118, 72000, 116000, true),
   gopuram_guardian: mk("gopuram_guardian", "Gopuram Guardian", 120, 80000, 130000, true),
+  // ---- Orchard Road (Singapore) ----
+  mall_mannequin: mk("mall_mannequin", "Mall Mannequin", 122, 9200, 18400),
+  neon_phantom: mk("neon_phantom", "Neon Phantom", 124, 9600, 19200),
+  holo_serpent: mk("holo_serpent", "Holo Serpent", 126, 10000, 20000),
+  ion_colossus: mk("ion_colossus", "ION Colossus", 132, 92000, 150000, true),
+  orchard_specter: mk("orchard_specter", "Orchard Specter", 134, 100000, 165000, true),
 });
 
 export interface SpawnZone {
@@ -995,6 +1001,15 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "nova", intervalMs: 5000, radius: 13, powerMult: 1.9 },
     { kind: "heal", intervalMs: 10000, pct: 0.07 },
   ],
+  ion_colossus: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 2.0 },
+    { kind: "nova", intervalMs: 4800, radius: 13, powerMult: 2.0 },
+  ],
+  orchard_specter: [
+    { kind: "summon", intervalMs: 7500, templateId: "neon_phantom", count: 2, max: 6 },
+    { kind: "nova", intervalMs: 5200, radius: 13, powerMult: 1.9 },
+    { kind: "heal", intervalMs: 11000, pct: 0.06 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -1263,6 +1278,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   saree_serpent: Element.Wind,
   kali_avatar: Element.Shadow,
   gopuram_guardian: Element.Earth,
+  mall_mannequin: Element.Neutral,
+  neon_phantom: Element.Wind,
+  holo_serpent: Element.Wind,
+  ion_colossus: Element.Holy,
+  orchard_specter: Element.Shadow,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

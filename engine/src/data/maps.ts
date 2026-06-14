@@ -308,6 +308,25 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
       { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
       { name: "Marina Bay Exit", role: "portal", x: 0, z: 24, dest: { toMap: "gardens_bay", toX: 18, toZ: 16 } },
+      { name: "Orchard Road Portal", role: "portal", x: 0, z: -50, dest: { toMap: "orchard_road", toX: 0, toZ: 18 } },
+    ],
+  },
+  orchard_road: {
+    id: "orchard_road",
+    name: "Orchard Road",
+    theme: { ground: 0x2a2a3a, fog: 0x4a3a6a, sky: 0x6a4a8a },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "or-mannequin", templateId: "mall_mannequin", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "or-phantom", templateId: "neon_phantom", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "or-serpent", templateId: "holo_serpent", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "or-ion", templateId: "ion_colossus", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "or-specter", templateId: "orchard_specter", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Orchard Exit", role: "portal", x: 0, z: 24, dest: { toMap: "marina_bay", toX: 0, toZ: -44 } },
     ],
   },
   pulau_hantu: {
