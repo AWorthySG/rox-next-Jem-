@@ -128,6 +128,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 40,
     reward: { exp: 9000, zeny: 6000, items: [{ id: "mage_staff", qty: 1 }] },
   },
+  winter_warden: {
+    id: "winter_warden",
+    name: "Winter Warden",
+    desc: "Garm, the frost wolf, prowls the Lutie snowfield. Bring it down.",
+    targetTemplate: "garm",
+    targetName: "Garm",
+    count: 1,
+    requiredLevel: 50,
+    reward: { exp: 24000, zeny: 15000, items: [{ id: "frost_blade", qty: 1 }] },
+  },
   the_last_samurai: {
     id: "the_last_samurai",
     name: "The Last Samurai",

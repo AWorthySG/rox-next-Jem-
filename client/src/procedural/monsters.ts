@@ -36,6 +36,7 @@ const ARCH: Record<string, MonsterArch> = {
   marionette: "ghost", nightmare: "beast", marduk: "bug", doppelganger: "demon", dark_priest: "ghost",
   loli_ruri: "ghost", quve: "ghost", gibbet: "undead", bacsojin: "ghost", fallen_bishop: "demon",
   poison_spore: "plant", karakasa: "ghost", tengu: "demon", samurai_specter: "undead", kapha: "beast",
+  cookie: "jelly", myst_case: "rock", antonio: "beast", stormy_knight: "undead", garm: "beast",
 };
 
 function hex(s: string): number {
@@ -132,6 +133,12 @@ const DEFS: Record<string, AppearanceDef> = {
   tengu: { inner: "#e09090", outer: "#7a2424", scale: 1.45 },
   samurai_specter: { inner: "#c0c8d0", outer: "#2a3038", scale: 2.6, boss: true },
   kapha: { inner: "#9ad0c8", outer: "#2a5a54", scale: 2.7, boss: true },
+  // Lutie
+  cookie: { inner: "#f0e0c0", outer: "#b08a50", scale: 0.95 },
+  myst_case: { inner: "#e0b0b0", outer: "#8a3030", scale: 1.2 },
+  antonio: { inner: "#f0c0c0", outer: "#a83030", scale: 1.2 },
+  stormy_knight: { inner: "#cfe0f0", outer: "#3a5a8a", scale: 2.6, boss: true },
+  garm: { inner: "#e0f0f8", outer: "#5a8ab0", scale: 2.9, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

@@ -357,6 +357,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Lutie Snowfield gear ----
+  frost_blade: {
+    id: "frost_blade", name: "Frost Blade", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A blade of eternal winter. ATK +44, AGI +3, DEX +2.", atk: 44, bonusStats: { agi: 3, dex: 2 }, sellPrice: 1900,
+  },
+  santa_hat: {
+    id: "santa_hat", name: "Santa Hat", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "Ho ho ho! Max HP +90, LUK +5.", maxHp: 90, bonusStats: { luk: 5 }, sellPrice: 1600,
+  },
+  fur_coat: {
+    id: "fur_coat", name: "Fur Coat", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Warm against the cold. DEF +16, Max HP +160, VIT +3.", def: 16, maxHp: 160, bonusStats: { vit: 3 }, sellPrice: 1800,
+  },
+
   // ---- Amatsu (eastern lands) gear ----
   katana: {
     id: "katana", name: "Katana", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -696,6 +710,12 @@ Object.assign(DROP_TABLES, {
   tengu: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "katana", chance: 0.03 }],
   samurai_specter: HI([{ itemId: "katana", chance: 0.6 }, { itemId: "kabuto", chance: 0.5 }, { itemId: "skeleton_card", chance: 0.06 }]),
   kapha: HI([{ itemId: "kimono", chance: 0.6 }, { itemId: "katana", chance: 0.45 }, { itemId: "tidal_shoes", chance: 0.3 }]),
+  // Lutie
+  cookie: [{ itemId: "apple", chance: 0.3 }, { itemId: "santa_hat", chance: 0.03 }],
+  myst_case: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "fur_coat", chance: 0.035 }],
+  antonio: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "frost_blade", chance: 0.03 }],
+  stormy_knight: HI([{ itemId: "frost_blade", chance: 0.6 }, { itemId: "fur_coat", chance: 0.5 }, { itemId: "santa_hat", chance: 0.3 }]),
+  garm: HI([{ itemId: "frost_blade", chance: 0.6 }, { itemId: "fur_coat", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
 });
 
 // Sprinkle refine ores across the bestiary so refining has a farming loop:
@@ -708,6 +728,7 @@ const ORE_REGULARS = [
   "marionette", "nightmare", "marduk",
   "loli_ruri", "quve", "gibbet",
   "poison_spore", "karakasa", "tengu",
+  "cookie", "myst_case", "antonio",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -723,6 +744,7 @@ const ORE_BOSSES = [
   "memory_of_thanatos", "eddga", "moonlight", "mistress", "angeling",
   "drake", "satan_morroc", "egnigem", "kathryne", "detale", "nidhoggr",
   "doppelganger", "dark_priest", "bacsojin", "fallen_bishop", "samurai_specter", "kapha",
+  "stormy_knight", "garm",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

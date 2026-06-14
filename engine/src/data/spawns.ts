@@ -296,6 +296,12 @@ Object.assign(MONSTER_TEMPLATES, {
   tengu: mk("tengu", "Tengu", 62, 3600, 8500),
   samurai_specter: mk("samurai_specter", "Samurai Specter", 66, 22000, 38000, true),
   kapha: mk("kapha", "Kapha", 70, 26000, 46000, true),
+  // ---- Lutie Snowfield ----
+  cookie: mk("cookie", "Christmas Cookie", 42, 2000, 4200),
+  myst_case: mk("myst_case", "Myst Case", 45, 2300, 5000),
+  antonio: mk("antonio", "Antonio", 40, 1800, 3800),
+  stormy_knight: mk("stormy_knight", "Stormy Knight", 50, 9500, 16000, true),
+  garm: mk("garm", "Garm", 55, 12000, 21000, true),
 });
 
 export interface SpawnZone {
@@ -436,6 +442,14 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "nova", intervalMs: 6000, radius: 10, powerMult: 1.5 },
     { kind: "heal", intervalMs: 11000, pct: 0.06 },
   ],
+  stormy_knight: [
+    { kind: "nova", intervalMs: 5500, radius: 10, powerMult: 1.6 },
+    { kind: "enrage", hpPct: 0.3, atkMult: 1.5 },
+  ],
+  garm: [
+    { kind: "summon", intervalMs: 8000, templateId: "antonio", count: 2, max: 4 },
+    { kind: "nova", intervalMs: 6000, radius: 11, powerMult: 1.6 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -509,6 +523,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   tengu: Element.Wind,
   samurai_specter: Element.Shadow,
   kapha: Element.Water,
+  cookie: Element.Water,
+  myst_case: Element.Earth,
+  antonio: Element.Fire,
+  stormy_knight: Element.Water,
+  garm: Element.Water,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

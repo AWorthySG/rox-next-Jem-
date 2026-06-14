@@ -122,6 +122,25 @@ export const MAPS: Record<string, GameMap> = {
     npcs: [
       { name: "Aldebaran Exit", role: "portal", x: 0, z: 26, dest: { toMap: "glast_heim", toX: 0, toZ: -44 } },
       { name: "Comodo Portal", role: "portal", x: 0, z: -50, dest: { toMap: "comodo", toX: 0, toZ: 20 } },
+      { name: "Lutie Portal", role: "portal", x: 18, z: 14, dest: { toMap: "lutie", toX: 0, toZ: 18 } },
+    ],
+  },
+  lutie: {
+    id: "lutie",
+    name: "Lutie Snowfield",
+    theme: { ground: 0xe8eef6, fog: 0xdfeaf6, sky: 0xeaf2fb },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "lt-cookie", templateId: "cookie", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "lt-myst", templateId: "myst_case", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "lt-antonio", templateId: "antonio", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "lt-stormy", templateId: "stormy_knight", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "lt-garm", templateId: "garm", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Lutie Exit", role: "portal", x: 0, z: 24, dest: { toMap: "aldebaran", toX: 18, toZ: 16 } },
     ],
   },
   comodo: {
