@@ -214,6 +214,24 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
       { name: "Pulau Hantu Exit", role: "portal", x: 0, z: 24, dest: { toMap: "gardens_bay", toX: 0, toZ: -44 } },
       { name: "Sentosa Portal", role: "portal", x: 0, z: -50, dest: { toMap: "sentosa", toX: 0, toZ: 18 } },
+      { name: "Haw Par Villa Portal", role: "portal", x: 18, z: 14, dest: { toMap: "haw_par", toX: 0, toZ: 18 } },
+    ],
+  },
+  haw_par: {
+    id: "haw_par",
+    name: "Haw Par Villa",
+    theme: { ground: 0x4a2a2a, fog: 0x2a0a0a, sky: 0x3a1414 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "hp-judge", templateId: "hell_judge", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "hp-ox", templateId: "ox_head", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "hp-horse", templateId: "horse_face", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "hp-yama", templateId: "yama_king", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "hp-tiger", templateId: "tiger_spirit", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Haw Par Villa Exit", role: "portal", x: 0, z: 24, dest: { toMap: "pulau_hantu", toX: 18, toZ: 16 } },
     ],
   },
   sentosa: {

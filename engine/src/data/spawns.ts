@@ -488,6 +488,12 @@ Object.assign(MONSTER_TEMPLATES, {
   mangrove_crab: mk("mangrove_crab", "Mangrove Crab", 39, 1650, 1900),
   boar_king: mk("boar_king", "Boar King", 46, 7000, 12000, true),
   mangrove_naga: mk("mangrove_naga", "Mangrove Naga", 48, 8000, 14000, true),
+  // ---- Haw Par Villa (Singapore — Ten Courts of Hell) ----
+  hell_judge: mk("hell_judge", "Hell Judge", 90, 6800, 14600),
+  ox_head: mk("ox_head", "Ox-Head", 92, 7200, 15400),
+  horse_face: mk("horse_face", "Horse-Face", 94, 7600, 16200),
+  yama_king: mk("yama_king", "Yama, King of Hell", 100, 50000, 80000, true),
+  tiger_spirit: mk("tiger_spirit", "Tiger Spirit", 102, 56000, 90000, true),
 });
 
 export interface SpawnZone {
@@ -894,6 +900,15 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "nova", intervalMs: 5500, radius: 10, powerMult: 1.5 },
     { kind: "heal", intervalMs: 11000, pct: 0.06 },
   ],
+  yama_king: [
+    { kind: "enrage", hpPct: 0.4, atkMult: 1.7 },
+    { kind: "summon", intervalMs: 8000, templateId: "hell_judge", count: 2, max: 5 },
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
+  ],
+  tiger_spirit: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.8 },
+    { kind: "nova", intervalMs: 5500, radius: 10, powerMult: 1.6 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -1127,6 +1142,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   mangrove_crab: Element.Water,
   boar_king: Element.Earth,
   mangrove_naga: Element.Water,
+  hell_judge: Element.Shadow,
+  ox_head: Element.Earth,
+  horse_face: Element.Fire,
+  yama_king: Element.Shadow,
+  tiger_spirit: Element.Fire,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

@@ -69,6 +69,7 @@ const ARCH: Record<string, MonsterArch> = {
   chrome_sentry: "golem", neon_wisp: "ghost", drone_swarm: "bug", skyline_colossus: "golem", spectra_dragon: "dragon",
   lab_slime: "jelly", raptor: "beast", pterodactyl: "bird", t_rex: "dragon", mecha_dino: "golem",
   wild_boar: "beast", kampong_rooster: "bird", mangrove_crab: "aquatic", boar_king: "beast", mangrove_naga: "dragon",
+  hell_judge: "undead", ox_head: "humanoid", horse_face: "humanoid", yama_king: "demon", tiger_spirit: "beast",
 };
 
 function hex(s: string): number {
@@ -357,6 +358,12 @@ const DEFS: Record<string, AppearanceDef> = {
   mangrove_crab: { inner: "#c08060", outer: "#5a2818", scale: 1.1 },
   boar_king: { inner: "#c0a080", outer: "#5a3a20", scale: 2.8, boss: true },
   mangrove_naga: { inner: "#80b890", outer: "#1a5a3a", scale: 2.9, boss: true },
+  // Haw Par Villa (Singapore — Ten Courts of Hell)
+  hell_judge: { inner: "#c0b0a0", outer: "#4a3a2a", scale: 1.4 },
+  ox_head: { inner: "#90c0a0", outer: "#2a5a3a", scale: 1.5 },
+  horse_face: { inner: "#e0b0a0", outer: "#5a2818", scale: 1.5 },
+  yama_king: { inner: "#e06060", outer: "#3a0a0a", scale: 3.2, boss: true },
+  tiger_spirit: { inner: "#f0a040", outer: "#6a2810", scale: 3.0, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

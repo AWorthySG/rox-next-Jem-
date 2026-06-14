@@ -138,6 +138,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 108,
     reward: { exp: 200000, zeny: 110000, items: [{ id: "bloody_sword", qty: 1 }] },
   },
+  ten_courts_of_hell: {
+    id: "ten_courts_of_hell",
+    name: "The Ten Courts of Hell",
+    desc: "Yama, King of Hell, holds court at Haw Par Villa. Pass his final judgment.",
+    targetTemplate: "yama_king",
+    targetName: "Yama, King of Hell",
+    count: 1,
+    requiredLevel: 96,
+    reward: { exp: 170000, zeny: 95000, items: [{ id: "soul_reaper", qty: 1 }] },
+  },
   the_boar_king: {
     id: "the_boar_king",
     name: "The Boar King",

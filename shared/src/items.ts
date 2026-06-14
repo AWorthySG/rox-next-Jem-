@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Haw Par Villa (Singapore — Ten Courts of Hell) gear ----
+  soul_reaper: {
+    id: "soul_reaper", name: "Soul Reaper", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A scythe of the underworld. ATK +88, STR +6.", atk: 88, bonusStats: { str: 6 }, sellPrice: 4800,
+  },
+  judge_cap: {
+    id: "judge_cap", name: "Hell Judge Cap", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "Cap of an underworld magistrate. MATK +12, INT +6, Max SP +50.", matk: 12, maxSp: 50, bonusStats: { int: 6 }, sellPrice: 4400,
+  },
+  hell_robe: {
+    id: "hell_robe", name: "Hell Court Robe", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Vestments of the Ten Courts. DEF +32, Max HP +360, VIT +5.", def: 32, maxHp: 360, bonusStats: { vit: 5 }, sellPrice: 4800,
+  },
+
   // ---- Pulau Ubin (Singapore) gear ----
   ubin_machete: {
     id: "ubin_machete", name: "Ubin Machete", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1201,6 +1215,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Haw Par Villa (Singapore — Ten Courts of Hell)
+  hell_judge: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "hell_robe", chance: 0.025 }],
+  ox_head: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "judge_cap", chance: 0.025 }],
+  horse_face: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "soul_reaper", chance: 0.025 }],
+  yama_king: HI([{ itemId: "soul_reaper", chance: 0.6 }, { itemId: "hell_robe", chance: 0.5 }, { itemId: "judge_cap", chance: 0.4 }]),
+  tiger_spirit: HI([{ itemId: "soul_reaper", chance: 0.6 }, { itemId: "hell_robe", chance: 0.5 }, { itemId: "baphomet_card", chance: 0.05 }]),
   // Pulau Ubin (Singapore)
   wild_boar: [{ itemId: "apple", chance: 0.3 }, { itemId: "fisher_vest", chance: 0.04 }],
   kampong_rooster: [{ itemId: "apple", chance: 0.3 }, { itemId: "straw_hat", chance: 0.04 }],
@@ -1388,6 +1408,7 @@ const ORE_REGULARS = [
   "chrome_sentry", "neon_wisp", "drone_swarm",
   "lab_slime", "raptor", "pterodactyl",
   "wild_boar", "kampong_rooster", "mangrove_crab",
+  "hell_judge", "ox_head", "horse_face",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1414,6 +1435,7 @@ const ORE_BOSSES = [
   "supertree_guardian", "flower_dome_titan", "pontianak_queen", "penanggalan",
   "sentosa_merlion", "leviathan", "sultan_jinn", "naga_emas",
   "skyline_colossus", "spectra_dragon", "t_rex", "mecha_dino", "boar_king", "mangrove_naga",
+  "yama_king", "tiger_spirit",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];
