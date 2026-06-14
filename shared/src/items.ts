@@ -116,6 +116,9 @@ export const ITEMS: Record<string, ItemDef> = {
   apple: { id: "apple", name: "Apple", type: ItemType.Consumable, desc: "Restores 60 HP.", healHp: 60, price: 15, sellPrice: 4 },
   red_potion: { id: "red_potion", name: "Red Potion", type: ItemType.Consumable, desc: "Restores 150 HP.", healHp: 150, price: 50, sellPrice: 12 },
   blue_potion: { id: "blue_potion", name: "Blue Potion", type: ItemType.Consumable, desc: "Restores 80 SP.", healSp: 80, price: 60, sellPrice: 15 },
+  yellow_potion: { id: "yellow_potion", name: "Yellow Potion", type: ItemType.Consumable, desc: "Restores 350 HP.", healHp: 350, price: 140, sellPrice: 34 },
+  white_potion: { id: "white_potion", name: "White Potion", type: ItemType.Consumable, desc: "Restores 700 HP.", healHp: 700, price: 320, sellPrice: 78 },
+  purple_potion: { id: "purple_potion", name: "Purple Potion", type: ItemType.Consumable, desc: "Restores 220 SP.", healSp: 220, price: 280, sellPrice: 66 },
 
   // food / cooking (eat for a timed stat buff; 5 min unless noted)
   fried_egg: { id: "fried_egg", name: "Fried Egg", type: ItemType.Consumable, desc: "Eat: VIT +5, Max HP +80 for 5 min.", food: { durationMs: 300000, bonusStats: { vit: 5 }, maxHp: 80 }, price: 120, sellPrice: 20 },
@@ -123,6 +126,8 @@ export const ITEMS: Record<string, ItemDef> = {
   spicy_skewer: { id: "spicy_skewer", name: "Spicy Skewer", type: ItemType.Consumable, desc: "Eat: STR +5, ATK +15 for 5 min.", food: { durationMs: 300000, bonusStats: { str: 5 }, atk: 15 }, price: 160, sellPrice: 28 },
   steamed_tuna: { id: "steamed_tuna", name: "Steamed Tuna", type: ItemType.Consumable, desc: "Eat: AGI +5, CRIT +6 for 5 min.", food: { durationMs: 300000, bonusStats: { agi: 5 }, crit: 6 }, price: 160, sellPrice: 28 },
   royal_feast: { id: "royal_feast", name: "Royal Feast", type: ItemType.Consumable, desc: "Eat: all stats +4, ATK/MATK +12 for 10 min.", food: { durationMs: 600000, bonusStats: { str: 4, agi: 4, vit: 4, int: 4, dex: 4, luk: 4 }, atk: 12, matk: 12 }, sellPrice: 200 },
+  meat_stew: { id: "meat_stew", name: "Meat Stew", type: ItemType.Consumable, desc: "Eat: VIT +6, Max HP +160 for 8 min.", food: { durationMs: 480000, bonusStats: { vit: 6 }, maxHp: 160 }, price: 260, sellPrice: 48 },
+  dragon_brew: { id: "dragon_brew", name: "Dragon Brew", type: ItemType.Consumable, desc: "Eat: STR +6, ATK +20, CRIT +5 for 8 min.", food: { durationMs: 480000, bonusStats: { str: 6 }, atk: 20, crit: 5 }, sellPrice: 90 },
 
   // refine ores (materials consumed per refine attempt)
   oridecon: { id: "oridecon", name: "Oridecon", type: ItemType.Material, desc: "Refine ore for weapons & headgear.", price: 1200, sellPrice: 300 },
@@ -598,7 +603,11 @@ export const ITEMS: Record<string, ItemDef> = {
 export const SHOP_STOCK: string[] = [
   "apple",
   "red_potion",
+  "yellow_potion",
+  "white_potion",
   "blue_potion",
+  "purple_potion",
+  "meat_stew",
   "fried_egg",
   "honey_pancake",
   "spicy_skewer",
