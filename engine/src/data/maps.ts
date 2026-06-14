@@ -239,6 +239,8 @@ export const MAPS: Record<string, GameMap> = {
     ],
     npcs: [
       { name: "Healer", role: "healer", x: 8, z: 24, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 24, facing: Math.PI },
+      { name: "Blacksmith", role: "refine", x: 0, z: 27, facing: Math.PI },
       { name: "Morocc Exit", role: "portal", x: 0, z: 26, dest: { toMap: "thanatos", toX: 0, toZ: -44 } },
       { name: "Bio Lab Portal", role: "portal", x: 0, z: -52, dest: { toMap: "bio_lab", toX: 0, toZ: 20 } },
     ],
@@ -274,6 +276,8 @@ export const MAPS: Record<string, GameMap> = {
     ],
     npcs: [
       { name: "Healer", role: "healer", x: 8, z: 24, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 24, facing: Math.PI },
+      { name: "Blacksmith", role: "refine", x: 0, z: 27, facing: Math.PI },
       { name: "Abyss Exit", role: "portal", x: 0, z: 26, dest: { toMap: "bio_lab", toX: 0, toZ: -44 } },
     ],
   },
