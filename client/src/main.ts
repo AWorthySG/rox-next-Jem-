@@ -82,6 +82,8 @@ const skillBar = new SkillBar((skillId) => {
   if (targetId == null) return;
   skillPopup.show(def.name);
   sfx.cast();
+  const selfPos = gameState.self?.group.position;
+  if (selfPos) skillVfx.castRing(selfPos, ELEMENT_COLOR[def.element ?? Element.Neutral]);
   transport?.send({ t: MsgType.SkillIntent, skillId, targetId });
 });
 

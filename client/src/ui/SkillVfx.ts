@@ -65,6 +65,21 @@ export class SkillVfx {
     this.particles.push({ sprite: flash, vx: 0, vy: 0, vz: 0, born: performance.now(), life: 180, size: 1.6 * scale });
   }
 
+  // A cast telegraph at the caster's feet: a converging ring + a rising twin
+  // ring, element-coloured, that reads as a brief wind-up.
+  castRing(pos: THREE.Vector3, color: number): void {
+    const outer = new THREE.Mesh(
+      new THREE.RingGeometry(0.85, 1.0, 40),
+      new THREE.MeshBasicMaterial({ color, transparent: true, opacity: 0.9, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending }),
+    );
+    outer.rotation.x = -Math.PI / 2;
+    outer.position.set(pos.x, pos.y + 0.08, pos.z);
+    outer.scale.setScalar(2.6);
+    this.scene.add(outer);
+    // animate as a converging ring (reuse the rings list with a shrink flag)
+    this.rings.push({ mesh: outer, born: performance.now(), life: 480, maxR: -2.2 });
+  }
+
   private ring(pos: THREE.Vector3, color: number, maxR: number): void {
     const mesh = new THREE.Mesh(
       new THREE.RingGeometry(0.2, 0.34, 28),
@@ -105,7 +120,8 @@ export class SkillVfx {
         this.rings.splice(i, 1);
         continue;
       }
-      const s = 0.3 + t * r.maxR;
+      // maxR >= 0 expands from a point; maxR < 0 is a converging cast ring.
+      const s = r.maxR >= 0 ? 0.3 + t * r.maxR : -r.maxR * (1 - t) + 0.4;
       r.mesh.scale.setScalar(s);
       (r.mesh.material as THREE.MeshBasicMaterial).opacity = 0.9 * (1 - t);
     }
