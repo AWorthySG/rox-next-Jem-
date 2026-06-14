@@ -362,6 +362,12 @@ Object.assign(MONSTER_TEMPLATES, {
   zhu_po_long: mk("zhu_po_long", "Zhu Po Long", 74, 4600, 10000),
   chung_e: mk("chung_e", "Chung E", 82, 30000, 50000, true),
   evil_snake_lord: mk("evil_snake_lord", "Evil Snake Lord", 84, 34000, 58000, true),
+  // ---- Glast Heim Abyss ----
+  bloody_knight: mk("bloody_knight", "Bloody Knight", 102, 9500, 17500),
+  wanderer: mk("wanderer", "Wanderer", 104, 10200, 19000),
+  owl_baron: mk("owl_baron", "Owl Baron", 106, 10900, 20500),
+  dark_illusion: mk("dark_illusion", "Dark Illusion", 112, 70000, 115000, true),
+  corrupt_monk: mk("corrupt_monk", "Corrupt Monk", 114, 76000, 126000, true),
 });
 
 export interface SpawnZone {
@@ -586,6 +592,16 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "enrage", hpPct: 0.35, atkMult: 1.7 },
     { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
   ],
+  dark_illusion: [
+    { kind: "enrage", hpPct: 0.4, atkMult: 1.7 },
+    { kind: "nova", intervalMs: 5000, radius: 11, powerMult: 1.7 },
+    { kind: "summon", intervalMs: 8500, templateId: "wanderer", count: 2, max: 5 },
+  ],
+  corrupt_monk: [
+    { kind: "nova", intervalMs: 5500, radius: 11, powerMult: 1.7 },
+    { kind: "heal", intervalMs: 10000, pct: 0.06 },
+    { kind: "enrage", hpPct: 0.3, atkMult: 1.6 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -714,6 +730,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   zhu_po_long: Element.Wind,
   chung_e: Element.Fire,
   evil_snake_lord: Element.Water,
+  bloody_knight: Element.Fire,
+  wanderer: Element.Shadow,
+  owl_baron: Element.Wind,
+  dark_illusion: Element.Shadow,
+  corrupt_monk: Element.Holy,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

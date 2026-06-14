@@ -128,6 +128,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 40,
     reward: { exp: 9000, zeny: 6000, items: [{ id: "mage_staff", qty: 1 }] },
   },
+  the_dark_illusion: {
+    id: "the_dark_illusion",
+    name: "The Dark Illusion",
+    desc: "A Dark Illusion warps the Glast Heim Abyss. Dispel the phantom.",
+    targetTemplate: "dark_illusion",
+    targetName: "Dark Illusion",
+    count: 1,
+    requiredLevel: 108,
+    reward: { exp: 200000, zeny: 110000, items: [{ id: "bloody_sword", qty: 1 }] },
+  },
   serpent_lord: {
     id: "serpent_lord",
     name: "The Serpent Lord",

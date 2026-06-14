@@ -48,6 +48,7 @@ const ARCH: Record<string, MonsterArch> = {
   pupa: "bug", roda_frog: "beast", thief_bug: "bug", creamy: "bird", willow: "plant",
   solid_skull: "undead", assaulter: "beast", permeter: "golem", freezer: "aquatic", turtle_general: "golem",
   increase_soil: "golem", mao_guai: "demon", zhu_po_long: "dragon", chung_e: "humanoid", evil_snake_lord: "dragon",
+  bloody_knight: "humanoid", wanderer: "undead", owl_baron: "bird", dark_illusion: "ghost", corrupt_monk: "demon",
 };
 
 function hex(s: string): number {
@@ -210,6 +211,12 @@ const DEFS: Record<string, AppearanceDef> = {
   zhu_po_long: { inner: "#e0c060", outer: "#7a5418", scale: 1.5 },
   chung_e: { inner: "#f0c0d0", outer: "#a83050", scale: 2.7, boss: true },
   evil_snake_lord: { inner: "#80c890", outer: "#1a5a34", scale: 3.1, boss: true },
+  // Glast Heim Abyss
+  bloody_knight: { inner: "#d06060", outer: "#5a1818", scale: 1.45 },
+  wanderer: { inner: "#a0a0b0", outer: "#2a2a38", scale: 1.4 },
+  owl_baron: { inner: "#c0b090", outer: "#4a3c28", scale: 1.4 },
+  dark_illusion: { inner: "#a070c0", outer: "#1a0a2a", scale: 2.9, boss: true },
+  corrupt_monk: { inner: "#d0b0c0", outer: "#2a1828", scale: 3.0, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

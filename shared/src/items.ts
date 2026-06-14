@@ -366,6 +366,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Glast Heim Abyss gear ----
+  bloody_sword: {
+    id: "bloody_sword", name: "Bloody Sword", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A blade slick with old blood. ATK +84, STR +6.", atk: 84, bonusStats: { str: 6 }, sellPrice: 5000,
+  },
+  baron_circlet: {
+    id: "baron_circlet", name: "Baron's Circlet", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A noble's dark circlet. MATK +12, INT +6, Max SP +50.", matk: 12, maxSp: 50, bonusStats: { int: 6 }, sellPrice: 4800,
+  },
+  abyss_plate: {
+    id: "abyss_plate", name: "Abyss Plate", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Plate from the deep crypts. DEF +34, Max HP +380, VIT +6.", def: 34, maxHp: 380, bonusStats: { vit: 6 }, sellPrice: 5200,
+  },
+
   // ---- Louyang gear ----
   serpent_spear: {
     id: "serpent_spear", name: "Serpent Spear", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -903,6 +917,12 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Glast Heim Abyss
+  bloody_knight: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "bloody_sword", chance: 0.025 }],
+  wanderer: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "abyss_plate", chance: 0.025 }],
+  owl_baron: [{ itemId: "red_potion", chance: 0.45 }, { itemId: "baron_circlet", chance: 0.025 }],
+  dark_illusion: HI([{ itemId: "bloody_sword", chance: 0.6 }, { itemId: "abyss_plate", chance: 0.5 }, { itemId: "doppelganger_card", chance: 0.06 }]),
+  corrupt_monk: HI([{ itemId: "baron_circlet", chance: 0.6 }, { itemId: "abyss_plate", chance: 0.5 }, { itemId: "ghostring_card", chance: 0.06 }]),
   // Louyang
   increase_soil: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "silk_robe", chance: 0.03 }],
   mao_guai: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "jade_crown", chance: 0.03 }],
@@ -943,6 +963,7 @@ const ORE_REGULARS = [
   "mummy", "matyr", "minorous",
   "solid_skull", "assaulter", "permeter",
   "increase_soil", "mao_guai", "zhu_po_long",
+  "bloody_knight", "wanderer", "owl_baron",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -960,7 +981,7 @@ const ORE_BOSSES = [
   "doppelganger", "dark_priest", "bacsojin", "fallen_bishop", "samurai_specter", "kapha",
   "stormy_knight", "garm", "lady_tanee", "leak", "gopinich", "baba_yaga", "gigantes", "ifrit",
   "phreeoni", "deviace", "orc_lord", "orc_hero", "abysmal_knight", "amdarais", "pharaoh", "osiris",
-  "freezer", "turtle_general", "chung_e", "evil_snake_lord",
+  "freezer", "turtle_general", "chung_e", "evil_snake_lord", "dark_illusion", "corrupt_monk",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

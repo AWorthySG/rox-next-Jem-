@@ -454,6 +454,24 @@ export const MAPS: Record<string, GameMap> = {
     npcs: [
       { name: "Tower Exit", role: "portal", x: 0, z: 26, dest: { toMap: "rachel", toX: 0, toZ: -44 } },
       { name: "Thanatos Portal", role: "portal", x: 0, z: -52, dest: { toMap: "thanatos", toX: 0, toZ: 20 } },
+      { name: "Abyss Crypt Portal", role: "portal", x: 18, z: 14, dest: { toMap: "gh_abyss", toX: 0, toZ: 18 } },
+    ],
+  },
+  gh_abyss: {
+    id: "gh_abyss",
+    name: "Glast Heim Abyss",
+    theme: { ground: 0x2a2a36, fog: 0x080810, sky: 0x16161f },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "ga-knight", templateId: "bloody_knight", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "ga-wanderer", templateId: "wanderer", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "ga-owl", templateId: "owl_baron", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "ga-illusion", templateId: "dark_illusion", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "ga-monk", templateId: "corrupt_monk", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Abyss Exit", role: "portal", x: 0, z: 24, dest: { toMap: "tower", toX: 18, toZ: 16 } },
     ],
   },
   thanatos: {
