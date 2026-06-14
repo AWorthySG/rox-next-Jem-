@@ -327,6 +327,7 @@ export interface DamageEventMsg {
   kind: DamageKind;
   skillId?: string; // present when the hit came from a skill (drives VFX)
   heal?: boolean; // amount restored HP rather than dealt damage
+  elementMult?: number; // elemental effectiveness (>1 super-effective, <1 resisted)
 }
 
 export interface LevelUpMsg {

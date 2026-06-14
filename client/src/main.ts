@@ -405,7 +405,9 @@ function onDamage(msg: Extract<ServerMessage, { t: MsgType.DamageEvent }>): void
     damageNumbers.spawn(pos, "Miss", "miss");
   } else {
     const variant = msg.targetId === selfId ? "taken" : msg.crit ? "crit" : "";
-    damageNumbers.spawn(pos, String(msg.amount), variant);
+    const mult = msg.elementMult ?? 1;
+    const suffix = mult > 1 ? " ▲" : mult < 1 ? " ▼" : "";
+    damageNumbers.spawn(pos, `${msg.amount}${suffix}`, variant, mult);
     if (msg.sourceId === selfId) (msg.crit ? sfx.crit() : sfx.hit());
   }
 }

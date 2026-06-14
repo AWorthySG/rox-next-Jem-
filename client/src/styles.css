@@ -114,6 +114,16 @@ body {
 .dmg.heal {
   color: #7CFC7C;
 }
+.dmg.super {
+  color: #aef9b0;
+  font-size: 22px;
+  text-shadow: 0 0 8px #2fbf4a, 0 2px 4px #000;
+}
+.dmg.resist {
+  color: #9fb4c8;
+  font-size: 15px;
+  opacity: 0.92;
+}
 
 /* ---- Login overlay ---- */
 .overlay {

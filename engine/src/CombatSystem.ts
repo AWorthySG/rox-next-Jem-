@@ -277,6 +277,7 @@ export class CombatSystem {
       miss: result.miss,
       kind: result.kind,
       skillId: def.id,
+      elementMult: result.elementMult,
     });
     if (result.miss) return;
     target.hp -= result.amount;
@@ -345,6 +346,7 @@ export class CombatSystem {
       crit: result.crit,
       miss: result.miss,
       kind: result.kind,
+      elementMult: result.elementMult,
     });
     if (result.miss) return;
 

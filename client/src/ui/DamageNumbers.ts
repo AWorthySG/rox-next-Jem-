@@ -15,9 +15,15 @@ export class DamageNumbers {
 
   constructor(private scene: THREE.Scene) {}
 
-  spawn(pos: THREE.Vector3, text: string, variant: "" | "crit" | "miss" | "taken" | "heal"): void {
+  spawn(
+    pos: THREE.Vector3,
+    text: string,
+    variant: "" | "crit" | "miss" | "taken" | "heal",
+    elementMult = 1,
+  ): void {
     const el = document.createElement("div");
-    el.className = `dmg ${variant}`.trim();
+    const elem = elementMult > 1 ? " super" : elementMult < 1 ? " resist" : "";
+    el.className = `dmg ${variant}${elem}`.trim();
     el.textContent = text;
     const obj = new CSS2DObject(el);
     const baseY = pos.y + 2;
