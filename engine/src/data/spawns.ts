@@ -332,6 +332,12 @@ Object.assign(MONSTER_TEMPLATES, {
   orc_zombie: mk("orc_zombie", "Orc Zombie", 36, 1900, 1400),
   orc_lord: mk("orc_lord", "Orc Lord", 42, 6000, 9000, true),
   orc_hero: mk("orc_hero", "Orc Hero", 45, 7000, 11000, true),
+  // ---- Glast Heim Churchyard ----
+  raydric: mk("raydric", "Raydric", 38, 2200, 3400),
+  khalitzburg: mk("khalitzburg", "Khalitzburg", 42, 2600, 4100),
+  evil_druid: mk("evil_druid", "Evil Druid", 40, 2400, 3700),
+  abysmal_knight: mk("abysmal_knight", "Abysmal Knight", 48, 8000, 13000, true),
+  amdarais: mk("amdarais", "Amdarais", 50, 9000, 15000, true),
 });
 
 export interface SpawnZone {
@@ -523,6 +529,14 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "enrage", hpPct: 0.4, atkMult: 1.7 },
     { kind: "nova", intervalMs: 5500, radius: 10, powerMult: 1.6 },
   ],
+  abysmal_knight: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.6 },
+    { kind: "summon", intervalMs: 8500, templateId: "khalitzburg", count: 2, max: 4 },
+  ],
+  amdarais: [
+    { kind: "nova", intervalMs: 5500, radius: 10, powerMult: 1.7 },
+    { kind: "heal", intervalMs: 11000, pct: 0.06 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -626,6 +640,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   orc_zombie: Element.Shadow,
   orc_lord: Element.Earth,
   orc_hero: Element.Fire,
+  raydric: Element.Shadow,
+  khalitzburg: Element.Holy,
+  evil_druid: Element.Earth,
+  abysmal_knight: Element.Shadow,
+  amdarais: Element.Shadow,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

@@ -92,8 +92,8 @@ copyrighted assets.
   the **PvP Arena** and side-branches **Geffen Tower** (mage tournament), **Lutie Snowfield**,
   **Amatsu** & **Ayothaya** (eastern lands), **Moscovia** (northern forest), **Thor Volcano**
   (a fiery dungeon) and **Niflheim** (the realm of the dead).
-  …plus **Byalan Sunken Cave** (an early underwater dungeon off the Poring Cave).
-- **85+ monsters & 40+ MVP bosses** across the world, from Porings to Nidhoggr's Shadow (Lv130).
+  …plus **Byalan Sunken Cave**, **Orc Village** and **Glast Heim Churchyard** (early/mid dungeons).
+- **100+ monsters & 50+ MVP bosses** across the world, from Porings to Nidhoggr's Shadow (Lv130).
 - **Boss fight mechanics**: bosses use distinct, server-driven abilities — **enrage** (harder
   hits below a HP threshold, with a red aura), **telegraphed AoE nova** (a growing warning ring
   you can step out of before it lands), **summon adds** (temporary minions), and **self-heal** —

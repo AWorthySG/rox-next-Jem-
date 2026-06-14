@@ -143,6 +143,24 @@ export const MAPS: Record<string, GameMap> = {
     npcs: [
       { name: "Glast Heim Exit", role: "portal", x: 0, z: 26, dest: { toMap: "cave", toX: 0, toZ: -44 } },
       { name: "Aldebaran Portal", role: "portal", x: 0, z: -50, dest: { toMap: "aldebaran", toX: 0, toZ: 20 } },
+      { name: "Churchyard Portal", role: "portal", x: 18, z: 14, dest: { toMap: "gh_church", toX: 0, toZ: 18 } },
+    ],
+  },
+  gh_church: {
+    id: "gh_church",
+    name: "Glast Heim Churchyard",
+    theme: { ground: 0x40404a, fog: 0x101018, sky: 0x1e2230 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "gc-raydric", templateId: "raydric", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "gc-khalitz", templateId: "khalitzburg", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "gc-druid", templateId: "evil_druid", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "gc-abysmal", templateId: "abysmal_knight", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "gc-amdarais", templateId: "amdarais", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Churchyard Exit", role: "portal", x: 0, z: 24, dest: { toMap: "glast_heim", toX: 18, toZ: 16 } },
     ],
   },
   aldebaran: {

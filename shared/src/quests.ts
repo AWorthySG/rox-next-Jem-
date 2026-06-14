@@ -128,6 +128,16 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 40,
     reward: { exp: 9000, zeny: 6000, items: [{ id: "mage_staff", qty: 1 }] },
   },
+  the_abysmal_knight: {
+    id: "the_abysmal_knight",
+    name: "The Abysmal Knight",
+    desc: "An Abysmal Knight commands the Churchyard dead. Lay the crusader to rest.",
+    targetTemplate: "abysmal_knight",
+    targetName: "Abysmal Knight",
+    count: 1,
+    requiredLevel: 44,
+    reward: { exp: 14000, zeny: 9000, items: [{ id: "knight_sword", qty: 1 }] },
+  },
   orc_hero_hunt: {
     id: "orc_hero_hunt",
     name: "Slay the Orc Hero",

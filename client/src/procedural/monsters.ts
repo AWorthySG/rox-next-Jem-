@@ -43,6 +43,7 @@ const ARCH: Record<string, MonsterArch> = {
   magmaring: "jelly", kasa: "demon", salamander: "dragon", gigantes: "golem", ifrit: "demon",
   marc: "aquatic", vadon: "aquatic", kukre: "bug", phreeoni: "beast", deviace: "aquatic",
   orc_warrior: "humanoid", orc_archer: "humanoid", orc_zombie: "undead", orc_lord: "humanoid", orc_hero: "humanoid",
+  raydric: "undead", khalitzburg: "humanoid", evil_druid: "plant", abysmal_knight: "humanoid", amdarais: "demon",
 };
 
 function hex(s: string): number {
@@ -175,6 +176,12 @@ const DEFS: Record<string, AppearanceDef> = {
   orc_zombie: { inner: "#90a070", outer: "#3a4a28", scale: 1.4 },
   orc_lord: { inner: "#a0b060", outer: "#3a4a18", scale: 2.7, boss: true },
   orc_hero: { inner: "#c08050", outer: "#5a2810", scale: 2.8, boss: true },
+  // Glast Heim Churchyard
+  raydric: { inner: "#a0a0b0", outer: "#2a2a3a", scale: 1.35 },
+  khalitzburg: { inner: "#c0c8d8", outer: "#3a4a6a", scale: 1.4 },
+  evil_druid: { inner: "#a0c090", outer: "#3a5a30", scale: 1.35 },
+  abysmal_knight: { inner: "#b0b0c0", outer: "#2a2a44", scale: 2.7, boss: true },
+  amdarais: { inner: "#c04060", outer: "#2a0810", scale: 2.9, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";
