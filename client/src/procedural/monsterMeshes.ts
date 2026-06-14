@@ -64,6 +64,8 @@ export function buildMonsterMesh(app: MonsterAppearance): MonsterMesh {
       return golem(app);
     case "aquatic":
       return aquatic(app);
+    case "humanoid":
+      return humanoid(app);
     default: {
       const p = buildPoring(app.texture);
       return { group: p.group, body: p.body, squash: true };
@@ -277,6 +279,50 @@ function bird(app: MonsterAppearance): MonsterMesh {
   g.add(blob(1.3));
   shade(g);
   return { group: g, body, squash: false };
+}
+
+function humanoid(app: MonsterAppearance): MonsterMesh {
+  const g = new THREE.Group();
+  const skin = app.main;
+  // broad brutish torso
+  const torso = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.85, 0.46), toon(skin));
+  torso.position.y = 1.05;
+  g.add(torso);
+  const belt = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.18, 0.5), toon(app.accent));
+  belt.position.y = 0.66;
+  g.add(belt);
+  // head with tusks
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 14, 12), toon(skin));
+  head.position.y = 1.62;
+  head.scale.set(1, 0.95, 1);
+  g.add(head);
+  for (const s of [-1, 1]) {
+    const tusk = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.16, 5), toon(0xece0d0));
+    tusk.position.set(s * 0.1, 1.5, 0.24);
+    g.add(tusk);
+  }
+  eyes(g, 1.66, 0.26, 0.1, 0.045, 0xffd24a);
+  // left arm (shield-ish fist), right arm raised with a club
+  const lArm = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.7, 0.2), toon(skin));
+  lArm.position.set(-0.5, 1.0, 0.05);
+  g.add(lArm);
+  const rArm = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.7, 0.2), toon(skin));
+  rArm.position.set(0.5, 1.15, 0.05);
+  rArm.rotation.z = 0.5;
+  g.add(rArm);
+  const club = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.13, 0.7, 7), toon(0x6b4a2b));
+  club.position.set(0.78, 1.5, 0.05);
+  club.rotation.z = 0.3;
+  g.add(club);
+  // legs
+  for (const s of [-1, 1]) {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.62, 0.26), toon(app.accent));
+    leg.position.set(s * 0.18, 0.31, 0);
+    g.add(leg);
+  }
+  g.add(blob(1.3));
+  shade(g);
+  return { group: g, body: torso, squash: false };
 }
 
 function aquatic(app: MonsterAppearance): MonsterMesh {

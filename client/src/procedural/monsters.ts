@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { makePoringTexture } from "./textures.js";
 
-export type MonsterArch = "jelly" | "bug" | "beast" | "undead" | "plant" | "rock" | "demon" | "bird" | "ghost" | "dragon" | "golem" | "aquatic";
+export type MonsterArch = "jelly" | "bug" | "beast" | "undead" | "plant" | "rock" | "demon" | "bird" | "ghost" | "dragon" | "golem" | "aquatic" | "humanoid";
 
 export interface MonsterAppearance {
   arch: MonsterArch;
@@ -38,11 +38,11 @@ const ARCH: Record<string, MonsterArch> = {
   loli_ruri: "ghost", quve: "ghost", gibbet: "undead", bacsojin: "ghost", fallen_bishop: "demon",
   poison_spore: "plant", karakasa: "ghost", tengu: "demon", samurai_specter: "undead", kapha: "aquatic",
   cookie: "jelly", myst_case: "rock", antonio: "beast", stormy_knight: "undead", garm: "beast",
-  kobold: "beast", elder_willow: "plant", brilight: "bug", lady_tanee: "plant", leak: "dragon",
+  kobold: "humanoid", elder_willow: "plant", brilight: "bug", lady_tanee: "plant", leak: "dragon",
   les: "beast", mavka: "plant", uzhas: "undead", gopinich: "demon", baba_yaga: "ghost",
   magmaring: "jelly", kasa: "demon", salamander: "dragon", gigantes: "golem", ifrit: "demon",
   marc: "aquatic", vadon: "aquatic", kukre: "bug", phreeoni: "beast", deviace: "aquatic",
-  orc_warrior: "beast", orc_archer: "beast", orc_zombie: "undead", orc_lord: "beast", orc_hero: "beast",
+  orc_warrior: "humanoid", orc_archer: "humanoid", orc_zombie: "undead", orc_lord: "humanoid", orc_hero: "humanoid",
 };
 
 function hex(s: string): number {
