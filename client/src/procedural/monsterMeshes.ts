@@ -58,6 +58,14 @@ export function buildMonsterMesh(app: MonsterAppearance): MonsterMesh {
       return bird(app);
     case "ghost":
       return ghost(app);
+    case "dragon":
+      return dragon(app);
+    case "golem":
+      return golem(app);
+    case "aquatic":
+      return aquatic(app);
+    case "humanoid":
+      return humanoid(app);
     default: {
       const p = buildPoring(app.texture);
       return { group: p.group, body: p.body, squash: true };
@@ -269,6 +277,193 @@ function bird(app: MonsterAppearance): MonsterMesh {
   tail.rotation.x = Math.PI / 2.2;
   g.add(tail);
   g.add(blob(1.3));
+  shade(g);
+  return { group: g, body, squash: false };
+}
+
+function humanoid(app: MonsterAppearance): MonsterMesh {
+  const g = new THREE.Group();
+  const skin = app.main;
+  // broad brutish torso
+  const torso = new THREE.Mesh(new THREE.BoxGeometry(0.7, 0.85, 0.46), toon(skin));
+  torso.position.y = 1.05;
+  g.add(torso);
+  const belt = new THREE.Mesh(new THREE.BoxGeometry(0.74, 0.18, 0.5), toon(app.accent));
+  belt.position.y = 0.66;
+  g.add(belt);
+  // head with tusks
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 14, 12), toon(skin));
+  head.position.y = 1.62;
+  head.scale.set(1, 0.95, 1);
+  g.add(head);
+  for (const s of [-1, 1]) {
+    const tusk = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.16, 5), toon(0xece0d0));
+    tusk.position.set(s * 0.1, 1.5, 0.24);
+    g.add(tusk);
+  }
+  eyes(g, 1.66, 0.26, 0.1, 0.045, 0xffd24a);
+  // left arm (shield-ish fist), right arm raised with a club
+  const lArm = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.7, 0.2), toon(skin));
+  lArm.position.set(-0.5, 1.0, 0.05);
+  g.add(lArm);
+  const rArm = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.7, 0.2), toon(skin));
+  rArm.position.set(0.5, 1.15, 0.05);
+  rArm.rotation.z = 0.5;
+  g.add(rArm);
+  const club = new THREE.Mesh(new THREE.CylinderGeometry(0.07, 0.13, 0.7, 7), toon(0x6b4a2b));
+  club.position.set(0.78, 1.5, 0.05);
+  club.rotation.z = 0.3;
+  g.add(club);
+  // legs
+  for (const s of [-1, 1]) {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.24, 0.62, 0.26), toon(app.accent));
+    leg.position.set(s * 0.18, 0.31, 0);
+    g.add(leg);
+  }
+  g.add(blob(1.3));
+  shade(g);
+  return { group: g, body: torso, squash: false };
+}
+
+function aquatic(app: MonsterAppearance): MonsterMesh {
+  const g = new THREE.Group();
+  // bulbous mantle/head
+  const body = new THREE.Mesh(new THREE.SphereGeometry(0.55, 16, 14), toon(app.main, { transparent: true, opacity: 0.95 }));
+  body.scale.set(1, 1.2, 1);
+  body.position.y = 1.0;
+  g.add(body);
+  // a crest fin
+  const fin = new THREE.Mesh(
+    new THREE.ConeGeometry(0.3, 0.5, 4),
+    new THREE.MeshToonMaterial({ color: app.accent, gradientMap: makeToonGradient(), side: THREE.DoubleSide }),
+  );
+  fin.position.set(0, 1.6, -0.1);
+  fin.scale.set(0.4, 1, 1);
+  g.add(fin);
+  eyes(g, 1.05, 0.45, 0.18, 0.08, 0xffffff);
+  // dangling tentacles
+  for (let i = 0; i < 6; i++) {
+    const a = (i / 6) * Math.PI * 2;
+    const tent = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.85, 6), toon(app.accent));
+    tent.position.set(Math.sin(a) * 0.34, 0.45, Math.cos(a) * 0.34);
+    tent.rotation.x = Math.PI;
+    tent.rotation.z = Math.sin(a) * 0.3;
+    g.add(tent);
+  }
+  // side fins
+  for (const s of [-1, 1]) {
+    const sf = new THREE.Mesh(
+      new THREE.CircleGeometry(0.32, 8, 0, Math.PI),
+      new THREE.MeshToonMaterial({ color: app.accent, gradientMap: makeToonGradient(), side: THREE.DoubleSide }),
+    );
+    sf.position.set(s * 0.5, 1.05, 0);
+    sf.rotation.set(Math.PI / 2, 0, s * 0.5);
+    g.add(sf);
+  }
+  const halo = new THREE.Mesh(
+    new THREE.CircleGeometry(0.6, 18),
+    new THREE.MeshBasicMaterial({ color: app.main, transparent: true, opacity: 0.16, depthWrite: false }),
+  );
+  halo.rotation.x = -Math.PI / 2;
+  halo.position.y = 0.03;
+  g.add(halo);
+  shade(g);
+  return { group: g, body, squash: false };
+}
+
+function golem(app: MonsterAppearance): MonsterMesh {
+  const g = new THREE.Group();
+  const stone = () => new THREE.MeshToonMaterial({ color: app.main, gradientMap: makeToonGradient(), flatShading: true });
+  const torso = new THREE.Mesh(new THREE.BoxGeometry(0.85, 1.0, 0.6), stone());
+  torso.position.y = 1.15;
+  g.add(torso);
+  // glowing power core in the chest
+  const core = new THREE.Mesh(new THREE.OctahedronGeometry(0.16), glow(app.accent));
+  core.position.set(0, 1.2, 0.32);
+  g.add(core);
+  const head = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.42, 0.45), stone());
+  head.position.y = 1.85;
+  g.add(head);
+  eyes(g, 1.88, 0.24, 0.12, 0.05, app.accent);
+  // chunky shoulders + arms
+  for (const s of [-1, 1]) {
+    const shoulder = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.34, 0.34), stone());
+    shoulder.position.set(s * 0.62, 1.45, 0);
+    g.add(shoulder);
+    const arm = new THREE.Mesh(new THREE.BoxGeometry(0.3, 0.8, 0.3), stone());
+    arm.position.set(s * 0.66, 0.95, 0.05);
+    g.add(arm);
+    const fist = new THREE.Mesh(new THREE.BoxGeometry(0.38, 0.36, 0.38), stone());
+    fist.position.set(s * 0.66, 0.5, 0.07);
+    g.add(fist);
+  }
+  // stumpy legs
+  for (const s of [-1, 1]) {
+    const leg = new THREE.Mesh(new THREE.BoxGeometry(0.34, 0.6, 0.36), stone());
+    leg.position.set(s * 0.22, 0.32, 0);
+    g.add(leg);
+  }
+  // a couple of floating rock chunks for menace
+  for (let i = 0; i < 3; i++) {
+    const chunk = new THREE.Mesh(new THREE.IcosahedronGeometry(0.12 + Math.random() * 0.08, 0), stone());
+    const a = (i / 3) * Math.PI * 2;
+    chunk.position.set(Math.sin(a) * 0.9, 1.0 + Math.cos(a) * 0.4, Math.cos(a) * 0.5);
+    g.add(chunk);
+  }
+  g.add(blob(1.7));
+  shade(g);
+  return { group: g, body: torso, squash: false };
+}
+
+function dragon(app: MonsterAppearance): MonsterMesh {
+  const g = new THREE.Group();
+  // low, long serpentine body
+  const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.42, 1.1, 8, 14), toon(app.main));
+  body.rotation.z = Math.PI / 2;
+  body.position.set(0, 0.7, -0.1);
+  g.add(body);
+  // raised neck + head
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.34, 0.8, 10), toon(app.main));
+  neck.position.set(0, 1.1, 0.55);
+  neck.rotation.x = 0.7;
+  g.add(neck);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.34, 14, 12), toon(app.main));
+  head.position.set(0, 1.45, 0.85);
+  head.scale.set(1, 0.9, 1.25);
+  g.add(head);
+  const snout = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.36, 8), toon(app.accent));
+  snout.position.set(0, 1.4, 1.2);
+  snout.rotation.x = Math.PI / 2;
+  g.add(snout);
+  for (const s of [-1, 1]) {
+    const horn = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.32, 6), toon(0xece0d0));
+    horn.position.set(s * 0.16, 1.68, 0.74);
+    horn.rotation.z = s * 0.4;
+    horn.rotation.x = -0.3;
+    g.add(horn);
+  }
+  eyes(g, 1.5, 1.04, 0.14, 0.055, 0xffd24a);
+  // large bat wings
+  for (const s of [-1, 1]) {
+    const wing = new THREE.Mesh(
+      new THREE.CircleGeometry(0.95, 3),
+      new THREE.MeshToonMaterial({ color: app.accent, gradientMap: makeToonGradient(), side: THREE.DoubleSide }),
+    );
+    wing.position.set(s * 0.55, 1.05, -0.15);
+    wing.rotation.set(0.2, s * -0.7, s * 0.5);
+    g.add(wing);
+  }
+  // four stubby legs + a tail
+  for (const sx of [-0.32, 0.32]) for (const sz of [-0.3, 0.45]) {
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.13, 0.45, 6), toon(app.accent));
+    leg.position.set(sx, 0.22, sz);
+    g.add(leg);
+  }
+  const tail = new THREE.Mesh(new THREE.ConeGeometry(0.26, 1.2, 8), toon(app.main));
+  tail.position.set(0, 0.6, -1.0);
+  tail.rotation.x = -Math.PI / 2.3;
+  g.add(tail);
+  g.add(blob(1.7));
   shade(g);
   return { group: g, body, squash: false };
 }

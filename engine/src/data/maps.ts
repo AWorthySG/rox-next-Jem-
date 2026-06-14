@@ -26,6 +26,8 @@ export const MAPS: Record<string, GameMap> = {
       { id: "drops-dunes", templateId: "drops", cx: 34, cz: -8, radius: 12, count: 5 },
       { id: "lunatic-meadow", templateId: "lunatic", cx: -30, cz: -26, radius: 12, count: 5 },
       { id: "chonchon-field", templateId: "chonchon", cx: 14, cz: 18, radius: 10, count: 5 },
+      { id: "pupa-field", templateId: "pupa", cx: -14, cz: 16, radius: 9, count: 5 },
+      { id: "roda-field", templateId: "roda_frog", cx: 22, cz: -22, radius: 10, count: 5 },
       { id: "boss-arena", templateId: "poring_king", cx: 0, cz: -48, radius: 4, count: 1 },
       { id: "boss-angeling", templateId: "angeling", cx: 44, cz: -44, radius: 4, count: 1 },
     ],
@@ -68,10 +70,32 @@ export const MAPS: Record<string, GameMap> = {
       { id: "payon-spore-s", templateId: "spore", cx: 8, cz: -26, radius: 12, count: 6 },
       { id: "payon-wolf", templateId: "wolf", cx: 26, cz: -6, radius: 13, count: 6 },
       { id: "payon-coco", templateId: "coco", cx: -6, cz: -40, radius: 10, count: 5 },
+      { id: "payon-willow", templateId: "willow", cx: 14, cz: -18, radius: 10, count: 5 },
+      { id: "payon-thiefbug", templateId: "thief_bug", cx: -18, cz: 16, radius: 10, count: 5 },
       { id: "payon-eddga", templateId: "eddga", cx: 30, cz: -34, radius: 4, count: 1 },
       { id: "payon-moonlight", templateId: "moonlight", cx: -34, cz: -34, radius: 4, count: 1 },
     ],
-    npcs: [{ name: "Payon Exit", role: "portal", x: 0, z: 24, dest: { toMap: "field", toX: 0, toZ: 8 } }],
+    npcs: [
+      { name: "Payon Exit", role: "portal", x: 0, z: 24, dest: { toMap: "field", toX: 0, toZ: 8 } },
+      { name: "Orc Village Portal", role: "portal", x: 18, z: 18, dest: { toMap: "orc_dungeon", toX: 0, toZ: 18 } },
+    ],
+  },
+  orc_dungeon: {
+    id: "orc_dungeon",
+    name: "Orc Village",
+    theme: { ground: 0x6a5236, fog: 0x3a2c1c, sky: 0x5a4630 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "or-warrior", templateId: "orc_warrior", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "or-archer", templateId: "orc_archer", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "or-zombie", templateId: "orc_zombie", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "or-lord", templateId: "orc_lord", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "or-hero", templateId: "orc_hero", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Orc Village Exit", role: "portal", x: 0, z: 24, dest: { toMap: "payon", toX: 18, toZ: 18 } },
+    ],
   },
   cave: {
     id: "cave",
@@ -82,12 +106,31 @@ export const MAPS: Record<string, GameMap> = {
       { id: "cave-drops", templateId: "drops", cx: -18, cz: 0, radius: 12, count: 7 },
       { id: "cave-lunatic", templateId: "lunatic", cx: 20, cz: -4, radius: 13, count: 8 },
       { id: "cave-lunatic-2", templateId: "lunatic", cx: -6, cz: -30, radius: 12, count: 6 },
+      { id: "cave-creamy", templateId: "creamy", cx: 12, cz: 14, radius: 9, count: 5 },
       { id: "cave-king", templateId: "poring_king", cx: 0, cz: -44, radius: 4, count: 1 },
       { id: "cave-mistress", templateId: "mistress", cx: -34, cz: -40, radius: 4, count: 1 },
     ],
     npcs: [
       { name: "Exit Portal", role: "portal", x: 0, z: 26, dest: { toMap: "field", toX: 16, toZ: 2 } },
       { name: "Glast Heim Portal", role: "portal", x: 0, z: -50, dest: { toMap: "glast_heim", toX: 0, toZ: 20 } },
+      { name: "Byalan Portal", role: "portal", x: 16, z: 12, dest: { toMap: "byalan", toX: 0, toZ: 18 } },
+    ],
+  },
+  byalan: {
+    id: "byalan",
+    name: "Byalan Sunken Cave",
+    theme: { ground: 0x2a4a5a, fog: 0x0a2230, sky: 0x123848 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "by-marc", templateId: "marc", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "by-vadon", templateId: "vadon", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "by-kukre", templateId: "kukre", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "by-phreeoni", templateId: "phreeoni", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "by-deviace", templateId: "deviace", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Byalan Exit", role: "portal", x: 0, z: 24, dest: { toMap: "cave", toX: 16, toZ: 16 } },
     ],
   },
   glast_heim: {
@@ -105,6 +148,24 @@ export const MAPS: Record<string, GameMap> = {
     npcs: [
       { name: "Glast Heim Exit", role: "portal", x: 0, z: 26, dest: { toMap: "cave", toX: 0, toZ: -44 } },
       { name: "Aldebaran Portal", role: "portal", x: 0, z: -50, dest: { toMap: "aldebaran", toX: 0, toZ: 20 } },
+      { name: "Churchyard Portal", role: "portal", x: 18, z: 14, dest: { toMap: "gh_church", toX: 0, toZ: 18 } },
+    ],
+  },
+  gh_church: {
+    id: "gh_church",
+    name: "Glast Heim Churchyard",
+    theme: { ground: 0x40404a, fog: 0x101018, sky: 0x1e2230 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "gc-raydric", templateId: "raydric", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "gc-khalitz", templateId: "khalitzburg", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "gc-druid", templateId: "evil_druid", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "gc-abysmal", templateId: "abysmal_knight", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "gc-amdarais", templateId: "amdarais", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Churchyard Exit", role: "portal", x: 0, z: 24, dest: { toMap: "glast_heim", toX: 18, toZ: 16 } },
     ],
   },
   aldebaran: {
@@ -122,6 +183,43 @@ export const MAPS: Record<string, GameMap> = {
     npcs: [
       { name: "Aldebaran Exit", role: "portal", x: 0, z: 26, dest: { toMap: "glast_heim", toX: 0, toZ: -44 } },
       { name: "Comodo Portal", role: "portal", x: 0, z: -50, dest: { toMap: "comodo", toX: 0, toZ: 20 } },
+      { name: "Lutie Portal", role: "portal", x: 18, z: 14, dest: { toMap: "lutie", toX: 0, toZ: 18 } },
+      { name: "Pyramid Portal", role: "portal", x: -18, z: 14, dest: { toMap: "pyramid", toX: 0, toZ: 18 } },
+    ],
+  },
+  pyramid: {
+    id: "pyramid",
+    name: "Pyramid of the Sphinx",
+    theme: { ground: 0xcaa863, fog: 0x6a5430, sky: 0xd8b86a },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "py-mummy", templateId: "mummy", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "py-matyr", templateId: "matyr", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "py-minorous", templateId: "minorous", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "py-pharaoh", templateId: "pharaoh", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "py-osiris", templateId: "osiris", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Pyramid Exit", role: "portal", x: 0, z: 24, dest: { toMap: "aldebaran", toX: -18, toZ: 16 } },
+    ],
+  },
+  lutie: {
+    id: "lutie",
+    name: "Lutie Snowfield",
+    theme: { ground: 0xe8eef6, fog: 0xdfeaf6, sky: 0xeaf2fb },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "lt-cookie", templateId: "cookie", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "lt-myst", templateId: "myst_case", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "lt-antonio", templateId: "antonio", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "lt-stormy", templateId: "stormy_knight", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "lt-garm", templateId: "garm", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Lutie Exit", role: "portal", x: 0, z: 24, dest: { toMap: "aldebaran", toX: 18, toZ: 16 } },
     ],
   },
   comodo: {
@@ -139,6 +237,100 @@ export const MAPS: Record<string, GameMap> = {
     npcs: [
       { name: "Comodo Exit", role: "portal", x: 0, z: 26, dest: { toMap: "aldebaran", toX: 0, toZ: -44 } },
       { name: "Umbala Portal", role: "portal", x: 0, z: -42, dest: { toMap: "umbala", toX: 0, toZ: 20 } },
+      { name: "Amatsu Portal", role: "portal", x: 18, z: 14, dest: { toMap: "amatsu", toX: 0, toZ: 18 } },
+      { name: "Turtle Island Portal", role: "portal", x: -18, z: 14, dest: { toMap: "turtle", toX: 0, toZ: 18 } },
+    ],
+  },
+  turtle: {
+    id: "turtle",
+    name: "Turtle Island",
+    theme: { ground: 0x3a6a4a, fog: 0x7faec0, sky: 0xa8d8e4 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "tu-skull", templateId: "solid_skull", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "tu-assaulter", templateId: "assaulter", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "tu-permeter", templateId: "permeter", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "tu-freezer", templateId: "freezer", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "tu-general", templateId: "turtle_general", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Turtle Island Exit", role: "portal", x: 0, z: 24, dest: { toMap: "comodo", toX: -18, toZ: 16 } },
+    ],
+  },
+  amatsu: {
+    id: "amatsu",
+    name: "Amatsu",
+    theme: { ground: 0x4a7a4e, fog: 0xc8d8c0, sky: 0xdce8d4 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "am-spore", templateId: "poison_spore", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "am-karakasa", templateId: "karakasa", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "am-tengu", templateId: "tengu", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "am-samurai", templateId: "samurai_specter", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "am-kapha", templateId: "kapha", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Amatsu Exit", role: "portal", x: 0, z: 24, dest: { toMap: "comodo", toX: 18, toZ: 16 } },
+      { name: "Ayothaya Portal", role: "portal", x: 0, z: -46, dest: { toMap: "ayothaya", toX: 0, toZ: 18 } },
+    ],
+  },
+  ayothaya: {
+    id: "ayothaya",
+    name: "Ayothaya Temple",
+    theme: { ground: 0x5a7a3a, fog: 0x9ab070, sky: 0xc0d49a },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "ay-kobold", templateId: "kobold", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "ay-willow", templateId: "elder_willow", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "ay-brilight", templateId: "brilight", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "ay-tanee", templateId: "lady_tanee", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "ay-leak", templateId: "leak", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Ayothaya Exit", role: "portal", x: 0, z: 24, dest: { toMap: "amatsu", toX: 0, toZ: -38 } },
+      { name: "Louyang Portal", role: "portal", x: 0, z: -46, dest: { toMap: "louyang", toX: 0, toZ: 18 } },
+    ],
+  },
+  louyang: {
+    id: "louyang",
+    name: "Louyang",
+    theme: { ground: 0x5a6a3a, fog: 0xb09a70, sky: 0xd4c49a },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "ly-soil", templateId: "increase_soil", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "ly-mao", templateId: "mao_guai", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "ly-zhu", templateId: "zhu_po_long", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "ly-chung", templateId: "chung_e", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "ly-snake", templateId: "evil_snake_lord", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Louyang Exit", role: "portal", x: 0, z: 24, dest: { toMap: "ayothaya", toX: 0, toZ: -38 } },
+      { name: "Gonryun Portal", role: "portal", x: 0, z: -46, dest: { toMap: "gonryun", toX: 0, toZ: 18 } },
+    ],
+  },
+  gonryun: {
+    id: "gonryun",
+    name: "Gonryun Shrine",
+    theme: { ground: 0x4a6a44, fog: 0x9a7a6a, sky: 0xc8b49a },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "go-ronin", templateId: "ronin", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "go-spirit", templateId: "shrine_spirit", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "go-lion", templateId: "stone_lion", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "go-warlord", templateId: "jade_warlord", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "go-empress", templateId: "spirit_empress", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Gonryun Exit", role: "portal", x: 0, z: 24, dest: { toMap: "louyang", toX: 0, toZ: -38 } },
     ],
   },
   umbala: {
@@ -156,6 +348,43 @@ export const MAPS: Record<string, GameMap> = {
     npcs: [
       { name: "Umbala Exit", role: "portal", x: 0, z: 26, dest: { toMap: "comodo", toX: 0, toZ: -38 } },
       { name: "Juno Portal", role: "portal", x: 0, z: -50, dest: { toMap: "juno", toX: 0, toZ: 20 } },
+      { name: "Moscovia Portal", role: "portal", x: 18, z: 14, dest: { toMap: "moscovia", toX: 0, toZ: 18 } },
+      { name: "Brasilis Portal", role: "portal", x: -18, z: 14, dest: { toMap: "brasilis", toX: 0, toZ: 18 } },
+    ],
+  },
+  brasilis: {
+    id: "brasilis",
+    name: "Brasilis",
+    theme: { ground: 0x3a6a3a, fog: 0x6aa05a, sky: 0x9ad08a },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "br-piranha", templateId: "piranha", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "br-curupira", templateId: "curupira", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "br-iara", templateId: "iara", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "br-jaguar", templateId: "jaguar_king", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "br-anaconda", templateId: "anaconda", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Brasilis Exit", role: "portal", x: 0, z: 24, dest: { toMap: "umbala", toX: -18, toZ: 16 } },
+    ],
+  },
+  moscovia: {
+    id: "moscovia",
+    name: "Moscovia Forest",
+    theme: { ground: 0x3a5a34, fog: 0x6a8a5a, sky: 0x9ab884 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "mv-les", templateId: "les", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "mv-mavka", templateId: "mavka", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "mv-uzhas", templateId: "uzhas", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "mv-gopinich", templateId: "gopinich", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "mv-baba", templateId: "baba_yaga", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Moscovia Exit", role: "portal", x: 0, z: 24, dest: { toMap: "umbala", toX: 18, toZ: 16 } },
     ],
   },
   juno: {
@@ -173,6 +402,25 @@ export const MAPS: Record<string, GameMap> = {
     npcs: [
       { name: "Juno Exit", role: "portal", x: 0, z: 26, dest: { toMap: "umbala", toX: 0, toZ: -44 } },
       { name: "Einbroch Portal", role: "portal", x: 0, z: -52, dest: { toMap: "einbroch", toX: 0, toZ: 20 } },
+      { name: "Niflheim Portal", role: "portal", x: 18, z: 14, dest: { toMap: "niflheim", toX: 0, toZ: 18 } },
+    ],
+  },
+  niflheim: {
+    id: "niflheim",
+    name: "Niflheim",
+    theme: { ground: 0x3a4048, fog: 0x10141a, sky: 0x1e242c },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "nf-loli", templateId: "loli_ruri", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "nf-quve", templateId: "quve", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "nf-gibbet", templateId: "gibbet", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "nf-bacsojin", templateId: "bacsojin", cx: 34, cz: -42, radius: 4, count: 1 },
+      { id: "nf-bishop", templateId: "fallen_bishop", cx: -34, cz: -42, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Niflheim Exit", role: "portal", x: 0, z: 24, dest: { toMap: "juno", toX: 18, toZ: 16 } },
     ],
   },
   einbroch: {
@@ -190,6 +438,25 @@ export const MAPS: Record<string, GameMap> = {
     npcs: [
       { name: "Einbroch Exit", role: "portal", x: 0, z: 26, dest: { toMap: "juno", toX: 0, toZ: -44 } },
       { name: "Rachel Portal", role: "portal", x: 0, z: -52, dest: { toMap: "rachel", toX: 0, toZ: 20 } },
+      { name: "Thor Volcano Portal", role: "portal", x: 18, z: 14, dest: { toMap: "thor", toX: 0, toZ: 18 } },
+    ],
+  },
+  thor: {
+    id: "thor",
+    name: "Thor Volcano",
+    theme: { ground: 0x4a2418, fog: 0x2a0c06, sky: 0x4a1808 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "tv-magmaring", templateId: "magmaring", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "tv-kasa", templateId: "kasa", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "tv-salamander", templateId: "salamander", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "tv-gigantes", templateId: "gigantes", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "tv-ifrit", templateId: "ifrit", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Thor Exit", role: "portal", x: 0, z: 24, dest: { toMap: "einbroch", toX: 18, toZ: 16 } },
     ],
   },
   rachel: {
@@ -207,6 +474,42 @@ export const MAPS: Record<string, GameMap> = {
     npcs: [
       { name: "Rachel Exit", role: "portal", x: 0, z: 26, dest: { toMap: "einbroch", toX: 0, toZ: -44 } },
       { name: "Tower Portal", role: "portal", x: 0, z: -52, dest: { toMap: "tower", toX: 0, toZ: 20 } },
+      { name: "Bifrost Portal", role: "portal", x: 18, z: 14, dest: { toMap: "bifrost", toX: 0, toZ: 18 } },
+      { name: "Veins Portal", role: "portal", x: -18, z: 14, dest: { toMap: "veins", toX: 0, toZ: 18 } },
+    ],
+  },
+  veins: {
+    id: "veins",
+    name: "Veins Canyon",
+    theme: { ground: 0xc09060, fog: 0x8a6840, sky: 0xd8b070 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "ve-dustiness", templateId: "dustiness", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "ve-hode", templateId: "hode", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "ve-galapago", templateId: "galapago", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "ve-acidus", templateId: "gold_acidus", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "ve-tatacho", templateId: "tatacho", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Veins Exit", role: "portal", x: 0, z: 24, dest: { toMap: "rachel", toX: -18, toZ: 16 } },
+    ],
+  },
+  bifrost: {
+    id: "bifrost",
+    name: "Bifrost",
+    theme: { ground: 0x4a6a7a, fog: 0xc0a0d0, sky: 0xd8c0e8 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "bf-miming", templateId: "miming", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "bf-spider", templateId: "pom_spider", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "bf-vespa", templateId: "luciola_vespa", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "bf-bangungot", templateId: "bangungot", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "bf-bungisngis", templateId: "bungisngis", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Bifrost Exit", role: "portal", x: 0, z: 24, dest: { toMap: "rachel", toX: 18, toZ: 16 } },
     ],
   },
   tower: {
@@ -224,6 +527,24 @@ export const MAPS: Record<string, GameMap> = {
     npcs: [
       { name: "Tower Exit", role: "portal", x: 0, z: 26, dest: { toMap: "rachel", toX: 0, toZ: -44 } },
       { name: "Thanatos Portal", role: "portal", x: 0, z: -52, dest: { toMap: "thanatos", toX: 0, toZ: 20 } },
+      { name: "Abyss Crypt Portal", role: "portal", x: 18, z: 14, dest: { toMap: "gh_abyss", toX: 0, toZ: 18 } },
+    ],
+  },
+  gh_abyss: {
+    id: "gh_abyss",
+    name: "Glast Heim Abyss",
+    theme: { ground: 0x2a2a36, fog: 0x080810, sky: 0x16161f },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "ga-knight", templateId: "bloody_knight", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "ga-wanderer", templateId: "wanderer", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "ga-owl", templateId: "owl_baron", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "ga-illusion", templateId: "dark_illusion", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "ga-monk", templateId: "corrupt_monk", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Abyss Exit", role: "portal", x: 0, z: 24, dest: { toMap: "tower", toX: 18, toZ: 16 } },
     ],
   },
   thanatos: {

@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { makePoringTexture } from "./textures.js";
 
-export type MonsterArch = "jelly" | "bug" | "beast" | "undead" | "plant" | "rock" | "demon" | "bird" | "ghost";
+export type MonsterArch = "jelly" | "bug" | "beast" | "undead" | "plant" | "rock" | "demon" | "bird" | "ghost" | "dragon" | "golem" | "aquatic" | "humanoid";
 
 export interface MonsterAppearance {
   arch: MonsterArch;
@@ -23,17 +23,36 @@ interface AppearanceDef {
 const ARCH: Record<string, MonsterArch> = {
   poring: "jelly", drops: "jelly", lunatic: "jelly", angeling: "jelly",
   fabre: "bug", chonchon: "bug", stem_worm: "bug", metaling: "bug", venatu: "bug", sleeper: "bug",
-  wolf: "beast", coco: "beast", eddga: "beast", kraken: "beast", boitata: "beast", tao_gunka: "beast",
+  wolf: "beast", coco: "beast", eddga: "beast", kraken: "aquatic", boitata: "beast", tao_gunka: "beast",
   zombie: "undead", skeleton: "undead", wraith: "undead", gargoyle: "undead", vanberk: "undead", hodremlin: "undead", amon_ra: "undead",
   spore: "plant", dryad: "plant", tendrilion: "plant",
-  hardrock_mammoth: "rock", clock: "rock", clock_tower_manager: "rock", sandman: "rock", anolian: "rock",
+  hardrock_mammoth: "golem", clock: "rock", clock_tower_manager: "golem", sandman: "rock", anolian: "aquatic",
+  tao_gunka: "golem", ktullanux: "golem",
   baphomet: "demon", dark_lord: "demon", beelzebub: "demon", gloom: "demon", thanatos_phantom: "demon", memory_of_thanatos: "demon",
   hill_wind: "bird", owl_duke: "bird", vesper: "bird", valkyrie_randgris: "bird", kiel: "bird",
   moonlight: "ghost", mistress: "ghost", punk: "ghost", aliot: "ghost", aliza: "ghost",
   anubis: "undead", pasana: "undead", drake: "undead", egnigem: "undead",
   satan_morroc: "demon", nidhoggr: "demon", kathryne: "ghost",
-  cecil: "bird", wickebine: "bug", ferus: "beast", acidus: "beast", detale: "beast",
+  cecil: "bird", wickebine: "bug", ferus: "dragon", acidus: "dragon", detale: "dragon", boitata: "dragon",
   marionette: "ghost", nightmare: "beast", marduk: "bug", doppelganger: "demon", dark_priest: "ghost",
+  loli_ruri: "ghost", quve: "ghost", gibbet: "undead", bacsojin: "ghost", fallen_bishop: "demon",
+  poison_spore: "plant", karakasa: "ghost", tengu: "demon", samurai_specter: "undead", kapha: "aquatic",
+  cookie: "jelly", myst_case: "rock", antonio: "beast", stormy_knight: "undead", garm: "beast",
+  kobold: "humanoid", elder_willow: "plant", brilight: "bug", lady_tanee: "plant", leak: "dragon",
+  les: "beast", mavka: "plant", uzhas: "undead", gopinich: "demon", baba_yaga: "ghost",
+  magmaring: "jelly", kasa: "demon", salamander: "dragon", gigantes: "golem", ifrit: "demon",
+  marc: "aquatic", vadon: "aquatic", kukre: "bug", phreeoni: "beast", deviace: "aquatic",
+  orc_warrior: "humanoid", orc_archer: "humanoid", orc_zombie: "undead", orc_lord: "humanoid", orc_hero: "humanoid",
+  raydric: "undead", khalitzburg: "humanoid", evil_druid: "plant", abysmal_knight: "humanoid", amdarais: "demon",
+  mummy: "undead", matyr: "beast", minorous: "humanoid", pharaoh: "demon", osiris: "undead",
+  pupa: "bug", roda_frog: "beast", thief_bug: "bug", creamy: "bird", willow: "plant",
+  solid_skull: "undead", assaulter: "beast", permeter: "golem", freezer: "aquatic", turtle_general: "golem",
+  increase_soil: "golem", mao_guai: "demon", zhu_po_long: "dragon", chung_e: "humanoid", evil_snake_lord: "dragon",
+  bloody_knight: "humanoid", wanderer: "undead", owl_baron: "bird", dark_illusion: "ghost", corrupt_monk: "demon",
+  ronin: "humanoid", shrine_spirit: "ghost", stone_lion: "golem", jade_warlord: "humanoid", spirit_empress: "ghost",
+  miming: "plant", pom_spider: "bug", luciola_vespa: "bug", bangungot: "ghost", bungisngis: "humanoid",
+  piranha: "aquatic", curupira: "plant", iara: "ghost", jaguar_king: "beast", anaconda: "dragon",
+  dustiness: "bug", hode: "beast", galapago: "beast", gold_acidus: "dragon", tatacho: "beast",
 };
 
 function hex(s: string): number {
@@ -118,6 +137,114 @@ const DEFS: Record<string, AppearanceDef> = {
   marduk: { inner: "#d0c060", outer: "#6a5a10", scale: 1.25 },
   doppelganger: { inner: "#9a9ad0", outer: "#1a1430", scale: 2.6, boss: true },
   dark_priest: { inner: "#d0b0e0", outer: "#3a2050", scale: 2.6, boss: true },
+  // Niflheim
+  loli_ruri: { inner: "#cfe0e8", outer: "#5a6a78", scale: 1.2 },
+  quve: { inner: "#c0d0d8", outer: "#48565e", scale: 1.25 },
+  gibbet: { inner: "#d8d0b0", outer: "#5a4a30", scale: 1.4 },
+  bacsojin: { inner: "#eaf0f4", outer: "#7a8a96", scale: 2.8, boss: true },
+  fallen_bishop: { inner: "#d0b0d0", outer: "#2a1830", scale: 3, boss: true },
+  // Amatsu
+  poison_spore: { inner: "#b0d088", outer: "#4a6a28", scale: 1.1 },
+  karakasa: { inner: "#e0d0c0", outer: "#8a3030", scale: 1.3 },
+  tengu: { inner: "#e09090", outer: "#7a2424", scale: 1.45 },
+  samurai_specter: { inner: "#c0c8d0", outer: "#2a3038", scale: 2.6, boss: true },
+  kapha: { inner: "#9ad0c8", outer: "#2a5a54", scale: 2.7, boss: true },
+  // Lutie
+  cookie: { inner: "#f0e0c0", outer: "#b08a50", scale: 0.95 },
+  myst_case: { inner: "#e0b0b0", outer: "#8a3030", scale: 1.2 },
+  antonio: { inner: "#f0c0c0", outer: "#a83030", scale: 1.2 },
+  stormy_knight: { inner: "#cfe0f0", outer: "#3a5a8a", scale: 2.6, boss: true },
+  garm: { inner: "#e0f0f8", outer: "#5a8ab0", scale: 2.9, boss: true },
+  // Ayothaya
+  kobold: { inner: "#e0a060", outer: "#7a3a18", scale: 1.2 },
+  elder_willow: { inner: "#b0d080", outer: "#3a6a28", scale: 1.4 },
+  brilight: { inner: "#d0e060", outer: "#5a7a20", scale: 1.0 },
+  lady_tanee: { inner: "#a8d088", outer: "#3a6a2c", scale: 2.9, boss: true },
+  leak: { inner: "#80c0a0", outer: "#1a5a44", scale: 3, boss: true },
+  // Moscovia
+  les: { inner: "#c0a070", outer: "#6a4a28", scale: 1.3 },
+  mavka: { inner: "#c0e090", outer: "#4a7a30", scale: 1.25 },
+  uzhas: { inner: "#a0b0c0", outer: "#3a4450", scale: 1.4 },
+  gopinich: { inner: "#e08050", outer: "#5a2010", scale: 2.9, boss: true },
+  baba_yaga: { inner: "#c0b0a0", outer: "#4a3a28", scale: 2.7, boss: true },
+  // Thor Volcano
+  magmaring: { inner: "#ffb060", outer: "#a83010", scale: 1.0 },
+  kasa: { inner: "#ff9050", outer: "#7a2008", scale: 1.3 },
+  salamander: { inner: "#ff8040", outer: "#6a1804", scale: 1.5 },
+  gigantes: { inner: "#d09060", outer: "#5a2810", scale: 3.1, boss: true },
+  ifrit: { inner: "#ff7030", outer: "#5a0c04", scale: 3.4, boss: true },
+  // Byalan
+  marc: { inner: "#a0d0e0", outer: "#2a6a8a", scale: 1.0 },
+  vadon: { inner: "#e0a090", outer: "#8a3020", scale: 1.1 },
+  kukre: { inner: "#d0c080", outer: "#6a5a20", scale: 0.95 },
+  phreeoni: { inner: "#d0b080", outer: "#6a4a20", scale: 2.5, boss: true },
+  deviace: { inner: "#a0c0e0", outer: "#2a4a7a", scale: 2.6, boss: true },
+  // Orc Village
+  orc_warrior: { inner: "#a0c070", outer: "#4a5a28", scale: 1.35 },
+  orc_archer: { inner: "#b0c080", outer: "#5a6a30", scale: 1.3 },
+  orc_zombie: { inner: "#90a070", outer: "#3a4a28", scale: 1.4 },
+  orc_lord: { inner: "#a0b060", outer: "#3a4a18", scale: 2.7, boss: true },
+  orc_hero: { inner: "#c08050", outer: "#5a2810", scale: 2.8, boss: true },
+  // Glast Heim Churchyard
+  raydric: { inner: "#a0a0b0", outer: "#2a2a3a", scale: 1.35 },
+  khalitzburg: { inner: "#c0c8d8", outer: "#3a4a6a", scale: 1.4 },
+  evil_druid: { inner: "#a0c090", outer: "#3a5a30", scale: 1.35 },
+  abysmal_knight: { inner: "#b0b0c0", outer: "#2a2a44", scale: 2.7, boss: true },
+  amdarais: { inner: "#c04060", outer: "#2a0810", scale: 2.9, boss: true },
+  // Pyramid
+  mummy: { inner: "#e0d8b0", outer: "#8a7440", scale: 1.35 },
+  matyr: { inner: "#c0a070", outer: "#5a3a18", scale: 1.2 },
+  minorous: { inner: "#c08060", outer: "#5a2818", scale: 1.5 },
+  pharaoh: { inner: "#e0c060", outer: "#5a4010", scale: 2.8, boss: true },
+  osiris: { inner: "#e0d090", outer: "#6a5418", scale: 2.9, boss: true },
+  // extra early regulars
+  pupa: { inner: "#f0d8a0", outer: "#b08840", scale: 0.8 },
+  roda_frog: { inner: "#a8d088", outer: "#3a7a3a", scale: 0.95 },
+  thief_bug: { inner: "#b0b0c0", outer: "#3a3a4a", scale: 0.85 },
+  creamy: { inner: "#ffd8e0", outer: "#e08aa8", scale: 0.9 },
+  willow: { inner: "#c0e090", outer: "#5a7a30", scale: 1.0 },
+  // Turtle Island
+  solid_skull: { inner: "#dcdce4", outer: "#5a5a6a", scale: 1.3 },
+  assaulter: { inner: "#c0a070", outer: "#5a3a18", scale: 1.35 },
+  permeter: { inner: "#90b0a0", outer: "#3a5a4a", scale: 1.4 },
+  freezer: { inner: "#a0d0e0", outer: "#2a6a8a", scale: 2.7, boss: true },
+  turtle_general: { inner: "#8ac090", outer: "#2a5a34", scale: 3.0, boss: true },
+  // Louyang
+  increase_soil: { inner: "#c0a878", outer: "#5a4424", scale: 1.35 },
+  mao_guai: { inner: "#d0a0c0", outer: "#5a2a4a", scale: 1.3 },
+  zhu_po_long: { inner: "#e0c060", outer: "#7a5418", scale: 1.5 },
+  chung_e: { inner: "#f0c0d0", outer: "#a83050", scale: 2.7, boss: true },
+  evil_snake_lord: { inner: "#80c890", outer: "#1a5a34", scale: 3.1, boss: true },
+  // Glast Heim Abyss
+  bloody_knight: { inner: "#d06060", outer: "#5a1818", scale: 1.45 },
+  wanderer: { inner: "#a0a0b0", outer: "#2a2a38", scale: 1.4 },
+  owl_baron: { inner: "#c0b090", outer: "#4a3c28", scale: 1.4 },
+  dark_illusion: { inner: "#a070c0", outer: "#1a0a2a", scale: 2.9, boss: true },
+  corrupt_monk: { inner: "#d0b0c0", outer: "#2a1828", scale: 3.0, boss: true },
+  // Gonryun Shrine
+  ronin: { inner: "#d0c0a0", outer: "#5a4a30", scale: 1.35 },
+  shrine_spirit: { inner: "#cfe0e8", outer: "#5a7a8a", scale: 1.25 },
+  stone_lion: { inner: "#c8b088", outer: "#5a4830", scale: 1.45 },
+  jade_warlord: { inner: "#a0d0a0", outer: "#2a5a34", scale: 2.8, boss: true },
+  spirit_empress: { inner: "#f0d8e8", outer: "#8a4a7a", scale: 2.8, boss: true },
+  // Bifrost
+  miming: { inner: "#d0e0a0", outer: "#5a7a40", scale: 1.2 },
+  pom_spider: { inner: "#c0b0d0", outer: "#4a3a5a", scale: 1.2 },
+  luciola_vespa: { inner: "#f0e060", outer: "#7a6010", scale: 1.1 },
+  bangungot: { inner: "#b0a0d0", outer: "#3a2a5a", scale: 2.8, boss: true },
+  bungisngis: { inner: "#d0c090", outer: "#5a4828", scale: 3.0, boss: true },
+  // Brasilis
+  piranha: { inner: "#d0a060", outer: "#6a3018", scale: 1.0 },
+  curupira: { inner: "#c0e080", outer: "#4a7a28", scale: 1.2 },
+  iara: { inner: "#a0d0e0", outer: "#2a6a8a", scale: 1.3 },
+  jaguar_king: { inner: "#e0c060", outer: "#6a4818", scale: 2.7, boss: true },
+  anaconda: { inner: "#90c070", outer: "#2a5a28", scale: 3.0, boss: true },
+  // Veins Canyon
+  dustiness: { inner: "#e0d0a0", outer: "#8a7040", scale: 1.0 },
+  hode: { inner: "#d0b080", outer: "#6a4a28", scale: 1.2 },
+  galapago: { inner: "#c8a878", outer: "#5a4424", scale: 1.3 },
+  gold_acidus: { inner: "#f0d060", outer: "#7a5a10", scale: 2.8, boss: true },
+  tatacho: { inner: "#a0c0d0", outer: "#3a5a6a", scale: 3.0, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";
