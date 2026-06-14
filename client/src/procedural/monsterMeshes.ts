@@ -58,6 +58,8 @@ export function buildMonsterMesh(app: MonsterAppearance): MonsterMesh {
       return bird(app);
     case "ghost":
       return ghost(app);
+    case "dragon":
+      return dragon(app);
     default: {
       const p = buildPoring(app.texture);
       return { group: p.group, body: p.body, squash: true };
@@ -269,6 +271,59 @@ function bird(app: MonsterAppearance): MonsterMesh {
   tail.rotation.x = Math.PI / 2.2;
   g.add(tail);
   g.add(blob(1.3));
+  shade(g);
+  return { group: g, body, squash: false };
+}
+
+function dragon(app: MonsterAppearance): MonsterMesh {
+  const g = new THREE.Group();
+  // low, long serpentine body
+  const body = new THREE.Mesh(new THREE.CapsuleGeometry(0.42, 1.1, 8, 14), toon(app.main));
+  body.rotation.z = Math.PI / 2;
+  body.position.set(0, 0.7, -0.1);
+  g.add(body);
+  // raised neck + head
+  const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.26, 0.34, 0.8, 10), toon(app.main));
+  neck.position.set(0, 1.1, 0.55);
+  neck.rotation.x = 0.7;
+  g.add(neck);
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.34, 14, 12), toon(app.main));
+  head.position.set(0, 1.45, 0.85);
+  head.scale.set(1, 0.9, 1.25);
+  g.add(head);
+  const snout = new THREE.Mesh(new THREE.ConeGeometry(0.16, 0.36, 8), toon(app.accent));
+  snout.position.set(0, 1.4, 1.2);
+  snout.rotation.x = Math.PI / 2;
+  g.add(snout);
+  for (const s of [-1, 1]) {
+    const horn = new THREE.Mesh(new THREE.ConeGeometry(0.06, 0.32, 6), toon(0xece0d0));
+    horn.position.set(s * 0.16, 1.68, 0.74);
+    horn.rotation.z = s * 0.4;
+    horn.rotation.x = -0.3;
+    g.add(horn);
+  }
+  eyes(g, 1.5, 1.04, 0.14, 0.055, 0xffd24a);
+  // large bat wings
+  for (const s of [-1, 1]) {
+    const wing = new THREE.Mesh(
+      new THREE.CircleGeometry(0.95, 3),
+      new THREE.MeshToonMaterial({ color: app.accent, gradientMap: makeToonGradient(), side: THREE.DoubleSide }),
+    );
+    wing.position.set(s * 0.55, 1.05, -0.15);
+    wing.rotation.set(0.2, s * -0.7, s * 0.5);
+    g.add(wing);
+  }
+  // four stubby legs + a tail
+  for (const sx of [-0.32, 0.32]) for (const sz of [-0.3, 0.45]) {
+    const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.13, 0.45, 6), toon(app.accent));
+    leg.position.set(sx, 0.22, sz);
+    g.add(leg);
+  }
+  const tail = new THREE.Mesh(new THREE.ConeGeometry(0.26, 1.2, 8), toon(app.main));
+  tail.position.set(0, 0.6, -1.0);
+  tail.rotation.x = -Math.PI / 2.3;
+  g.add(tail);
+  g.add(blob(1.7));
   shade(g);
   return { group: g, body, squash: false };
 }

@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import { makePoringTexture } from "./textures.js";
 
-export type MonsterArch = "jelly" | "bug" | "beast" | "undead" | "plant" | "rock" | "demon" | "bird" | "ghost";
+export type MonsterArch = "jelly" | "bug" | "beast" | "undead" | "plant" | "rock" | "demon" | "bird" | "ghost" | "dragon";
 
 export interface MonsterAppearance {
   arch: MonsterArch;
@@ -32,7 +32,7 @@ const ARCH: Record<string, MonsterArch> = {
   moonlight: "ghost", mistress: "ghost", punk: "ghost", aliot: "ghost", aliza: "ghost",
   anubis: "undead", pasana: "undead", drake: "undead", egnigem: "undead",
   satan_morroc: "demon", nidhoggr: "demon", kathryne: "ghost",
-  cecil: "bird", wickebine: "bug", ferus: "beast", acidus: "beast", detale: "beast",
+  cecil: "bird", wickebine: "bug", ferus: "dragon", acidus: "dragon", detale: "dragon", boitata: "dragon",
   marionette: "ghost", nightmare: "beast", marduk: "bug", doppelganger: "demon", dark_priest: "ghost",
   loli_ruri: "ghost", quve: "ghost", gibbet: "undead", bacsojin: "ghost", fallen_bishop: "demon",
 };
