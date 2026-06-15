@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { Element, ELEMENT_COLOR, JobId, MsgType, getSkill, isNight, WEATHER_ICON, WEATHER_LABEL, Weather, type ServerMessage } from "@rox/shared";
+import { Element, ELEMENT_COLOR, JobId, MsgType, getSkill, isNight, PLAYER_ATTACK_RANGE, WEATHER_ICON, WEATHER_LABEL, Weather, type ServerMessage } from "@rox/shared";
 import { SceneManager } from "./engine/SceneManager.js";
 import { CameraRig } from "./engine/CameraRig.js";
 import { InputController } from "./engine/InputController.js";
@@ -78,9 +78,11 @@ window.addEventListener("keydown", (e) => {
   }
 });
 let currentTargetId: number | null = null;
+let approachTargetId: number | null = null; // monster we're predicting an approach toward
 let pvpMap = false;
 function attackMonster(id: number): void {
   currentTargetId = id;
+  approachTargetId = id;
   transport?.send({ t: MsgType.AttackIntent, targetId: id });
   gameState.self?.clearMoveTarget();
 }
@@ -260,6 +262,7 @@ const input = new InputController(
   () => gameState.getPickables(),
   {
     onMoveTo: (x, z) => {
+      approachTargetId = null; // a manual move cancels chasing a target
       transport?.send({ t: MsgType.MoveIntent, x, z });
       gameState.self?.setMoveTarget(x, z);
       clickMarker.ping(x, z);
@@ -347,6 +350,7 @@ function handleMessage(msg: ServerMessage): void {
       break;
     case MsgType.Despawn: {
       if (msg.id === currentTargetId) currentTargetId = null;
+      if (msg.id === approachTargetId) approachTargetId = null;
       // gold loot sparkle as the monster falls
       const death = gameState.monsterDeathInfo(msg.id);
       if (death) skillVfx.impact(death.pos, 0xffd24a, death.boss ? 2.4 : 1.1);
@@ -411,6 +415,7 @@ function handleMessage(msg: ServerMessage): void {
     }
     case MsgType.MapChange:
       currentTargetId = null;
+      approachTargetId = null;
       pvpMap = msg.pvp;
       gameState.clearExceptSelf();
       gameState.self?.teleport(msg.x, msg.z);
@@ -535,6 +540,23 @@ const followPos = new THREE.Vector3();
 new Loop((dt) => {
   input.update();
   autoBattle.update(dt);
+  // Predict the approach toward an attack target so click-to-attack feels as
+  // responsive as click-to-move (manual moves clear approachTargetId).
+  if (approachTargetId != null) {
+    const tp = gameState.worldPosOf(approachTargetId);
+    const sp = gameState.self?.group.position;
+    if (!tp || !sp) {
+      approachTargetId = null;
+    } else {
+      const dx = tp.x - sp.x;
+      const dz = tp.z - sp.z;
+      const d = Math.hypot(dx, dz);
+      if (d > PLAYER_ATTACK_RANGE) {
+        const r = PLAYER_ATTACK_RANGE * 0.9; // stop just inside range, where the server will
+        gameState.self?.setMoveTarget(tp.x - (dx / d) * r, tp.z - (dz / d) * r);
+      }
+    }
+  }
   gameState.update(dt);
   clickMarker.update(dt);
   novaTelegraph.update();
