@@ -316,7 +316,6 @@ const input = new InputController(
     },
   },
 );
-void input;
 
 const autoBattle = new AutoBattle(gameState, skillBar, () => currentTargetId, attackMonster);
 
@@ -534,6 +533,7 @@ function setStatus(text: string, cls: "ok" | "err" | ""): void {
 // ---- render loop ----
 const followPos = new THREE.Vector3();
 new Loop((dt) => {
+  input.update();
   autoBattle.update(dt);
   gameState.update(dt);
   clickMarker.update(dt);
