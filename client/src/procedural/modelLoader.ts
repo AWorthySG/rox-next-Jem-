@@ -44,7 +44,20 @@ let loader: GLTFLoader | null = null;
 async function getLoader(): Promise<GLTFLoader> {
   if (!loader) {
     const { GLTFLoader } = await getAddons();
-    loader = new GLTFLoader();
+    const gl = new GLTFLoader();
+    // Real mid-poly exports are usually compressed. meshopt is a self-contained
+    // module; Draco fetches its decoder from /draco/ (copied in by the build).
+    try {
+      const { MeshoptDecoder } = await import("three/addons/libs/meshopt_decoder.module.js");
+      gl.setMeshoptDecoder(MeshoptDecoder);
+    } catch { /* uncompressed + Draco models still load */ }
+    try {
+      const { DRACOLoader } = await import("three/addons/loaders/DRACOLoader.js");
+      const draco = new DRACOLoader();
+      draco.setDecoderPath("draco/");
+      gl.setDRACOLoader(draco);
+    } catch { /* non-Draco models still load */ }
+    loader = gl;
   }
   return loader;
 }
