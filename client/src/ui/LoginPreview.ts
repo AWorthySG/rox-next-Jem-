@@ -1,6 +1,6 @@
 import * as THREE from "three";
-import { isMagicJob, JobId } from "@rox/shared";
-import { applyHeadgear, buildCharacter, type CharacterMesh } from "../procedural/characterMesh.js";
+import { isMagicJob, jobFamilyOf, JobId } from "@rox/shared";
+import { applyHeadgear, buildCharacter, type CharacterMesh, type WeaponStyle } from "../procedural/characterMesh.js";
 
 // Per-job outfit hue + a flashy starter hat so the login preview reads distinct.
 const JOB_LOOK: Record<string, { hue: number; hat: string }> = {
@@ -70,7 +70,9 @@ export class LoginPreview {
       });
     }
     const look = JOB_LOOK[job] ?? JOB_LOOK.novice;
-    this.char = buildCharacter(look.hue, isMagicJob(job));
+    const fam = jobFamilyOf(job);
+    const weapon: WeaponStyle = fam === "mage" ? "staff" : fam === "archer" ? "bow" : fam === "acolyte" ? "mace" : "blade";
+    this.char = buildCharacter(look.hue, isMagicJob(job), weapon);
     applyHeadgear(this.char, look.hat);
     this.holder.add(this.char.group);
   }
