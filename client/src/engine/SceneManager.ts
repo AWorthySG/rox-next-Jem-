@@ -7,7 +7,7 @@ import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { SMAAPass } from "three/addons/postprocessing/SMAAPass.js";
 import { MAP_SIZE, DAY_LENGTH_MS, daylight, Weather, type MapTheme } from "@rox/shared";
-import { makeGroundTexture, makeGroundRoughness, makeSunSprite, makeCloud, makeSpark, makeCloudShadow } from "../procedural/textures.js";
+import { makeGroundTexture, makeGroundRoughness, makeSunSprite, makeCloud, makeSpark, makeCloudShadow, makeButterfly } from "../procedural/textures.js";
 import { buildScenery, type Scenery } from "../procedural/scenery.js";
 import { buildWater, type Water } from "../procedural/water.js";
 import { windTime } from "../procedural/wind.js";
@@ -35,6 +35,7 @@ export class SceneManager {
   private clouds: THREE.Sprite[] = [];
   private motes!: THREE.Points;
   private moteBox = 34;
+  private butterflies: { sprite: THREE.Sprite; vx: number; vz: number; phase: number; flap: number; baseY: number; size: number }[] = [];
   private clock = new THREE.Clock();
 
   // ---- day/night + weather ----
@@ -256,6 +257,28 @@ export class SceneManager {
     this.motes.frustumCulled = false;
     this.scene.add(this.motes);
 
+    // ---- ambient butterflies (drift near the camera by day, fade out at night) ----
+    const flyTex = makeButterfly();
+    const flyTints = [0xfff0a0, 0xffc0d8, 0xbfe0ff, 0xffd8a0, 0xd8c0ff];
+    for (let i = 0; i < 8; i++) {
+      const sprite = new THREE.Sprite(
+        new THREE.SpriteMaterial({ map: flyTex, color: flyTints[i % flyTints.length], transparent: true, depthWrite: false, opacity: 0, fog: false }),
+      );
+      const size = 0.5 + Math.random() * 0.3;
+      sprite.position.set((Math.random() - 0.5) * 30, 1.2 + Math.random() * 2.2, (Math.random() - 0.5) * 30);
+      sprite.frustumCulled = false;
+      this.scene.add(sprite);
+      this.butterflies.push({
+        sprite,
+        vx: (Math.random() - 0.5) * 2,
+        vz: (Math.random() - 0.5) * 2,
+        phase: Math.random() * Math.PI * 2,
+        flap: 12 + Math.random() * 8,
+        baseY: 1.2 + Math.random() * 2.2,
+        size,
+      });
+    }
+
     window.addEventListener("resize", () => this.onResize());
   }
 
@@ -458,6 +481,29 @@ export class SceneManager {
       csMap.offset.x += dt * 0.01;
       csMap.offset.y += dt * 0.004;
     }
+    // ambient butterflies: lazy steering near the camera + a wing flap, day-only
+    const day = daylight(this.envTime);
+    for (const b of this.butterflies) {
+      b.phase += dt * b.flap;
+      b.vx += (Math.random() - 0.5) * dt * 2.4;
+      b.vz += (Math.random() - 0.5) * dt * 2.4;
+      const sp = Math.hypot(b.vx, b.vz);
+      if (sp > 2.4) { b.vx *= 2.4 / sp; b.vz *= 2.4 / sp; }
+      const p = b.sprite.position;
+      p.x += b.vx * dt;
+      p.z += b.vz * dt;
+      const dx = p.x - camera.position.x;
+      const dz = p.z - camera.position.z;
+      const d = Math.hypot(dx, dz);
+      if (d > 24) { b.vx -= (dx / d) * dt * 4; b.vz -= (dz / d) * dt * 4; } // steer back
+      p.y = b.baseY + Math.sin(b.phase * 0.5) * 0.5;
+      const flap = 0.5 + 0.5 * Math.abs(Math.sin(b.phase)); // wing beat = squash on X
+      b.sprite.scale.set(b.size * flap, b.size, 1);
+      const mat = b.sprite.material as THREE.SpriteMaterial;
+      mat.opacity = day * 0.85;
+      b.sprite.visible = day > 0.1;
+    }
+
     if (this.water) this.water.material.uniforms.time.value += dt;
     windTime.value += dt;
     this.grade.uniforms.time.value += dt;
