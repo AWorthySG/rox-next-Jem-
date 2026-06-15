@@ -1,43 +1,19 @@
 import * as THREE from "three";
 import { Element, ELEMENT_COLOR, type EntityFull } from "@rox/shared";
 import { buildMonsterMesh, type MonsterMesh } from "../procedural/monsterMeshes.js";
-import { loadMonsterModel } from "../procedural/modelLoader.js";
-import { resolveModelFile } from "../procedural/modelManifest.js";
 import type { MonsterAppearance } from "../procedural/monsters.js";
 import { EntityView } from "./EntityView.js";
+import { ModelRig } from "./ModelRig.js";
 
-// Collect every toon material under an object so hit/death flashes can drive
-// them all (a single primitive body, or all surfaces of a loaded model).
-function collectToonMats(root: THREE.Object3D, out: THREE.MeshToonMaterial[]): void {
-  root.traverse((o) => {
-    if (!(o instanceof THREE.Mesh)) return;
-    const mats = Array.isArray(o.material) ? o.material : [o.material];
-    for (const m of mats) if (m instanceof THREE.MeshToonMaterial) out.push(m);
-  });
-}
-
-type ClipKind = "idle" | "walk" | "attack" | "hit" | "death";
-const CLIP_PATTERNS: Record<ClipKind, RegExp> = {
-  idle: /idle|breath/i,
-  walk: /walk|run|move/i,
-  attack: /attack|cast|skill|shoot|bite|swing/i,
-  hit: /hit|hurt|damage|flinch|stagger/i,
-  death: /death|die|dead|faint|defeat/i,
-};
-
-// Map a model's embedded clips onto the events we drive, by name keyword.
-function resolveClips(clips: THREE.AnimationClip[]): Partial<Record<ClipKind, THREE.AnimationClip>> {
-  const out: Partial<Record<ClipKind, THREE.AnimationClip>> = {};
-  for (const kind of Object.keys(CLIP_PATTERNS) as ClipKind[]) {
-    out[kind] = clips.find((c) => CLIP_PATTERNS[kind].test(c.name));
-  }
-  return out;
-}
+const BLACK = new THREE.Color(0, 0, 0);
 
 // A monster view: a per-family low-poly mesh with an idle bob (jelly archetypes
-// also squash). Bosses are larger and wear a golden crown.
+// also squash), or a mid-poly model if one exists for the template. Bosses are
+// larger and wear a golden crown.
 export class MonsterView extends EntityView {
   private poring: MonsterMesh;
+  private visual: THREE.Object3D; // current visual root (procedural group or model)
+  private rig: ModelRig;
   private phase = Math.random() * Math.PI * 2;
   private readonly scale: number;
   readonly boss: boolean;
@@ -52,12 +28,14 @@ export class MonsterView extends EntityView {
     this.poring.group.scale.setScalar(appearance.scale);
     this.poring.group.traverse((o) => (o.userData.entityId = entity.id));
     this.group.add(this.poring.group);
+    this.visual = this.poring.group;
     const bodyMat = (this.poring.body as THREE.Mesh).material as THREE.MeshToonMaterial | undefined;
     if (bodyMat?.emissive) this.baseEmissive.copy(bodyMat.emissive);
-    if (bodyMat) this.flashMats.push(bodyMat);
+    if (bodyMat) this.procMats.push(bodyMat);
 
     // Mid-poly model: an explicit override or the models/<id>.glb convention.
     // Loads async and swaps in over the primitive placeholder; absent = no-op.
+    this.rig = new ModelRig(this.group, entity.id);
     void this.resolveModel(appearance);
 
     if (appearance.boss) {
@@ -89,112 +67,40 @@ export class MonsterView extends EntityView {
   private baseEmissive = new THREE.Color(0, 0, 0);
   private deathT = -1; // -1 = alive; 0..1 = dying
   private deathMats: THREE.Material[] = [];
-  private flashMats: THREE.MeshToonMaterial[] = []; // toon mats driven by hit-flash
-  private mixer: THREE.AnimationMixer | null = null; // skeletal animation (loaded models)
-  private clips: Partial<Record<ClipKind, THREE.AnimationClip>> = {};
-  private idleAction: THREE.AnimationAction | null = null;
-  private walkAction: THREE.AnimationAction | null = null;
-  private oneShot: THREE.AnimationAction | null = null;
-  private current: THREE.AnimationAction | null = null; // dominant action (idle/walk/one-shot)
+  private procMats: THREE.MeshToonMaterial[] = []; // procedural toon mats for hit-flash
   private deathClip = false; // model supplied a death clip → skip the procedural pop/spin
-  private modelBacked = false; // true once a shared-geometry .glb has been swapped in
   private disposed = false;
 
-  // Pick this template's model (explicit field or <id>.glb convention) and load
-  // it if one exists; otherwise the procedural mesh stays.
+  // The toon materials currently driven by hit/death flashes (model or primitive).
+  private get flashMats(): THREE.MeshToonMaterial[] {
+    return this.modelBacked ? this.rig.flashMats : this.procMats;
+  }
+
+  // Pick this template's model (explicit field or <id>.glb convention) and swap
+  // it in if one exists; otherwise the procedural mesh stays.
   private async resolveModel(app: MonsterAppearance): Promise<void> {
-    const file = await resolveModelFile(app.id, app.model);
-    if (file && !this.disposed && !this.dying) await this.loadModel(file);
-  }
-
-  // Replace the procedural placeholder with a loaded mid-poly model. Keeps the
-  // primitive mesh on any failure, so a missing/bad asset is non-fatal.
-  private async loadModel(file: string): Promise<void> {
-    let loaded;
-    try {
-      loaded = await loadMonsterModel(file);
-    } catch (e) {
-      console.warn(`[model] ${file} failed to load; keeping procedural mesh`, e);
-      return;
-    }
     if (this.disposed || this.dying) return;
-
-    this.group.remove(this.poring.group);
-    this.poring.group.traverse((o) => {
-      if (o instanceof THREE.Mesh) o.geometry.dispose?.();
+    const swapped = await this.rig.tryLoad(app.id, app.model, app.scale, () => {
+      this.group.remove(this.poring.group);
+      this.poring.group.traverse((o) => {
+        if (o instanceof THREE.Mesh) o.geometry.dispose?.();
+      });
     });
-
-    loaded.scene.traverse((o) => (o.userData.entityId = this.id));
-    loaded.scene.scale.setScalar(this.scale);
-    this.poring = { group: loaded.scene, body: loaded.scene, squash: false };
-    this.group.add(loaded.scene);
-    this.modelBacked = true;
-
-    // Loaded toon materials start with no emissive, so the flash baseline is black.
-    this.baseEmissive.setRGB(0, 0, 0);
-    this.flashMats = [];
-    collectToonMats(loaded.scene, this.flashMats);
-
-    if (loaded.animations.length) {
-      this.mixer = new THREE.AnimationMixer(loaded.scene);
-      this.clips = resolveClips(loaded.animations);
-      const idle = this.clips.idle ?? this.clips.walk ?? loaded.animations[0];
-      if (idle) (this.idleAction = this.mixer.clipAction(idle)).play();
-      if (this.clips.walk && this.clips.walk !== idle) {
-        this.walkAction = this.mixer.clipAction(this.clips.walk);
-        this.walkAction.setEffectiveWeight(0).play();
-      }
-      this.current = this.idleAction;
-      // one-shots (attack/hit/death) fade back to the locomotion loop when done
-      this.mixer.addEventListener("finished", () => this.returnToLoco());
+    if (swapped && this.rig.group) {
+      this.visual = this.rig.group;
+      this.modelBacked = true;
     }
-  }
-
-  // Crossfade the dominant action to `next` (idle/walk/one-shot).
-  private crossfadeTo(next: THREE.AnimationAction, dur: number): void {
-    if (this.current === next) return;
-    next.reset().setEffectiveWeight(1).fadeIn(dur).play();
-    this.current?.fadeOut(dur);
-    this.current = next;
-  }
-
-  // Keep the base loop in sync with movement (idle ↔ walk) when no one-shot is
-  // playing. Called each full-detail frame.
-  private updateLocomotion(): void {
-    if (this.oneShot || !this.idleAction) return;
-    const want = this.moving && this.walkAction ? this.walkAction : this.idleAction;
-    this.crossfadeTo(want, 0.18);
-  }
-
-  // Play a non-looping clip (if the model has one) over the base loop. Returns
-  // false when there's no such clip, so callers can use a procedural fallback.
-  private playOneShot(kind: ClipKind): boolean {
-    const clip = this.mixer && this.clips[kind];
-    if (!clip || !this.mixer) return false;
-    const action = this.mixer.clipAction(clip);
-    action.setLoop(THREE.LoopOnce, 1);
-    action.clampWhenFinished = kind === "death";
-    this.crossfadeTo(action, 0.08);
-    this.oneShot = action;
-    return true;
-  }
-
-  private returnToLoco(): void {
-    this.oneShot = null;
-    if (this.dying || !this.idleAction) return; // death clamps on its last frame
-    this.current = null; // force updateLocomotion to crossfade back in
-    this.updateLocomotion();
   }
 
   // Flash + scale-punch when struck (always), plus a hit clip if the model has one.
   hit(): void {
     this.hitT = 1;
-    this.playOneShot("hit");
+    this.rig.playOneShot("hit");
   }
 
   // Attack tell: play the model's attack clip, else a procedural forward lunge.
   lunge(): void {
-    if (!this.playOneShot("attack")) this.lungeT = 1;
+    if (!this.rig.playOneShot("attack")) this.lungeT = 1;
   }
 
   get dying(): boolean {
@@ -206,7 +112,7 @@ export class MonsterView extends EntityView {
   beginDeath(): void {
     if (this.dying) return;
     this.deathT = 0;
-    this.deathClip = this.playOneShot("death");
+    this.deathClip = this.rig.playOneShot("death");
     this.nameplateEl.style.display = "none";
     this.label.element.style.display = "none";
     // Collect every material on the view (body, feet, crown, aura…) so the whole
@@ -224,26 +130,27 @@ export class MonsterView extends EntityView {
 
   // Advance the death animation; returns true when finished (ready to dispose).
   updateDeath(dt: number): boolean {
-    if (this.mixer) this.mixer.update(dt); // keep a death clip playing
+    this.rig.step(dt); // keep a death clip playing
     this.deathT = Math.min(1, this.deathT + dt * 2.4);
     const p = this.deathT;
     if (!this.deathClip) {
       // procedural fallback: a quick pop-up + shrink + spin
       const pop = Math.sin(Math.min(p / 0.35, 1) * Math.PI * 0.5);
       const s = this.scale * (1 + 0.35 * pop) * (1 - p * 0.85);
-      this.poring.group.scale.setScalar(Math.max(0.001, s));
-      this.poring.group.position.y = p * 0.8;
-      this.poring.group.rotation.y += dt * 6;
+      this.visual.scale.setScalar(Math.max(0.001, s));
+      this.visual.position.y = p * 0.8;
+      this.visual.rotation.y += dt * 6;
     }
     const op = 1 - p;
     for (const m of this.deathMats) (m as THREE.Material & { opacity: number }).opacity = op;
+    const base = this.modelBacked ? BLACK : this.baseEmissive;
     const flash = 1 - Math.min(p / 0.3, 1);
-    for (const m of this.flashMats) m.emissive.setRGB(this.baseEmissive.r + flash, this.baseEmissive.g + flash, this.baseEmissive.b + flash);
+    for (const m of this.flashMats) m.emissive.setRGB(base.r + flash, base.g + flash, base.b + flash);
     return p >= 1;
   }
 
   get pickables(): THREE.Object3D {
-    return this.poring.group;
+    return this.visual;
   }
 
   setEnraged(enraged: boolean): void {
@@ -262,24 +169,22 @@ export class MonsterView extends EntityView {
   }
 
   protected override animate(dt: number): void {
-    if (this.mixer) {
-      this.updateLocomotion();
-      this.mixer.update(dt);
-    }
-    this.phase += dt * (this.moving ? 9 : 3);
-    if (this.poring.squash) {
-      const squash = 0.82 + Math.sin(this.phase) * (this.moving ? 0.14 : 0.06);
-      this.poring.body.scale.set(1, squash, 1);
-    }
-    // Procedural bob — only when the model isn't animating itself (no mixer);
-    // an animated model's idle/walk clip provides its own motion.
-    if (!this.mixer) {
+    if (this.modelBacked) {
+      this.rig.setMoving(this.moving);
+      this.rig.update(dt);
+    } else {
+      this.phase += dt * (this.moving ? 9 : 3);
+      if (this.poring.squash) {
+        const squash = 0.82 + Math.sin(this.phase) * (this.moving ? 0.14 : 0.06);
+        this.poring.body.scale.set(1, squash, 1);
+      }
       const bobAmp = this.poring.squash ? 0.18 : 0.1;
       // bob while walking; a gentle idle breath when standing so nothing is statue-still
-      this.poring.group.position.y = this.moving
+      this.visual.position.y = this.moving
         ? Math.abs(Math.sin(this.phase)) * bobAmp * this.scale
         : Math.sin(this.phase) * 0.03 * this.scale;
     }
+
     if (this.aura) this.aura.rotation.z += dt * 3;
     if (this.bossAura) {
       const t = Math.sin(this.phase * 0.9) * 0.5 + 0.5;
@@ -287,40 +192,33 @@ export class MonsterView extends EntityView {
       this.bossAura.scale.setScalar(this.scale * (1 + t * 0.06));
     }
 
-    // attack lunge: a brief forward hop along the monster's facing
+    // attack lunge: a brief forward hop along the monster's facing (procedural
+    // fallback when the model has no attack clip)
     if (this.lungeT > 0) {
       this.lungeT = Math.max(0, this.lungeT - dt * 5);
-      this.poring.group.position.z = Math.sin((1 - this.lungeT) * Math.PI) * 0.45 * this.scale;
-    } else if (this.poring.group.position.z !== 0) {
-      this.poring.group.position.z = 0;
+      this.visual.position.z = Math.sin((1 - this.lungeT) * Math.PI) * 0.45 * this.scale;
+    } else if (this.visual.position.z !== 0) {
+      this.visual.position.z = 0;
     }
 
     // hit reaction: quick white flash + scale punch
     if (this.hitT > 0) {
       this.hitT = Math.max(0, this.hitT - dt * 6);
       const punch = 1 + this.hitT * 0.18;
-      this.poring.group.scale.setScalar(this.scale * punch);
+      this.visual.scale.setScalar(this.scale * punch);
+      const base = this.modelBacked ? BLACK : this.baseEmissive;
       const f = this.hitT * 0.9;
-      for (const m of this.flashMats) m.emissive.setRGB(this.baseEmissive.r + f, this.baseEmissive.g + f, this.baseEmissive.b + f);
-    } else if (this.poring.group.scale.x !== this.scale) {
-      this.poring.group.scale.setScalar(this.scale);
-      for (const m of this.flashMats) m.emissive.copy(this.baseEmissive);
+      for (const m of this.flashMats) m.emissive.setRGB(base.r + f, base.g + f, base.b + f);
+    } else if (this.visual.scale.x !== this.scale) {
+      this.visual.scale.setScalar(this.scale);
+      const base = this.modelBacked ? BLACK : this.baseEmissive;
+      for (const m of this.flashMats) m.emissive.copy(base);
     }
   }
 
   override dispose(scene: THREE.Scene): void {
     this.disposed = true;
-    if (this.mixer) {
-      this.mixer.stopAllAction();
-      this.mixer = null;
-    }
-    if (this.modelBacked) {
-      // Loaded-model geometry is shared across instances via the loader cache —
-      // detach only, never dispose, or sibling spawns lose their mesh.
-      if (this.label.element.parentElement) this.label.element.parentElement.removeChild(this.label.element);
-      scene.remove(this.group);
-      return;
-    }
+    this.rig.dispose();
     super.dispose(scene);
   }
 }

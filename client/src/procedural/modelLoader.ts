@@ -134,7 +134,7 @@ export function processModel(model: THREE.Object3D, opts: LoadOptions & { gradie
 
 // Load (or reuse) a model and return a ready-to-add, independently animatable
 // instance. Throws if the asset is missing/unparseable so callers can fall back.
-export async function loadMonsterModel(file: string, opts: LoadOptions = {}): Promise<LoadedModel> {
+export async function loadModel(file: string, opts: LoadOptions = {}): Promise<LoadedModel> {
   const [src, { clone: cloneSkeleton }] = await Promise.all([loadSource(MODEL_BASE + file), getAddons()]);
   const model = cloneSkeleton(src.scene);
   const gradientMap = opts.toon !== false ? makeToonGradient() : null;
