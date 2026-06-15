@@ -239,6 +239,35 @@ export function makeBlobShadow(): THREE.Texture {
   return blobCache;
 }
 
+// A large, tileable soft cloud-shadow alpha map for dappled sunlight on the
+// ground. Blobs are drawn with wrap-around copies so the texture tiles cleanly.
+let cloudShadowCache: THREE.Texture | null = null;
+export function makeCloudShadow(): THREE.Texture {
+  if (cloudShadowCache) return cloudShadowCache;
+  const N = 256;
+  const { c, ctx } = canvas(N);
+  const offsets = [
+    [0, 0], [N, 0], [-N, 0], [0, N], [0, -N], [N, N], [-N, -N], [N, -N], [-N, N],
+  ];
+  for (let i = 0; i < 14; i++) {
+    const x = Math.random() * N;
+    const y = Math.random() * N;
+    const r = 38 + Math.random() * 64;
+    for (const [ox, oy] of offsets) {
+      const g = ctx.createRadialGradient(x + ox, y + oy, 0, x + ox, y + oy, r);
+      g.addColorStop(0, "rgba(0,0,0,0.5)");
+      g.addColorStop(1, "rgba(0,0,0,0)");
+      ctx.fillStyle = g;
+      ctx.beginPath();
+      ctx.arc(x + ox, y + oy, r, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
+  cloudShadowCache = new THREE.CanvasTexture(c);
+  cloudShadowCache.wrapS = cloudShadowCache.wrapT = THREE.RepeatWrapping;
+  return cloudShadowCache;
+}
+
 // Soft radial sun glow sprite (additive). Bloom turns it into a warm halo.
 export function makeSunSprite(): THREE.Texture {
   const N = 256;

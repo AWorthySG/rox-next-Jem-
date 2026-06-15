@@ -7,7 +7,7 @@ import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { SMAAPass } from "three/addons/postprocessing/SMAAPass.js";
 import { MAP_SIZE, DAY_LENGTH_MS, daylight, Weather, type MapTheme } from "@rox/shared";
-import { makeGroundTexture, makeGroundRoughness, makeSunSprite, makeCloud, makeSpark } from "../procedural/textures.js";
+import { makeGroundTexture, makeGroundRoughness, makeSunSprite, makeCloud, makeSpark, makeCloudShadow } from "../procedural/textures.js";
 import { buildScenery, type Scenery } from "../procedural/scenery.js";
 import { buildWater, type Water } from "../procedural/water.js";
 
@@ -24,6 +24,7 @@ export class SceneManager {
   private sunSprite: THREE.Sprite;
   private stars!: THREE.Points;
   private moon!: THREE.Sprite;
+  private cloudShadow!: THREE.Mesh;
   private hemi: THREE.HemisphereLight;
   private composer: EffectComposer;
   private bloom: UnrealBloomPass;
@@ -179,6 +180,18 @@ export class SceneManager {
     ring.position.y = 0.02;
     this.scene.add(ring);
 
+    // ---- drifting cloud shadows: dappled sunlight that scrolls over the ground ----
+    const csTex = makeCloudShadow();
+    csTex.repeat.set(2.5, 2.5);
+    this.cloudShadow = new THREE.Mesh(
+      new THREE.PlaneGeometry(MAP_SIZE * 1.04, MAP_SIZE * 1.04),
+      new THREE.MeshBasicMaterial({ map: csTex, color: 0x000000, transparent: true, depthWrite: false, opacity: 0.16 }),
+    );
+    this.cloudShadow.rotation.x = -Math.PI / 2;
+    this.cloudShadow.position.y = 0.06;
+    this.cloudShadow.renderOrder = 1; // over the ground, before entities
+    this.scene.add(this.cloudShadow);
+
     // ---- post-processing ----
     this.composer = new EffectComposer(this.renderer);
     this.composer.addPass(new RenderPass(this.scene, undefined as unknown as THREE.Camera));
@@ -319,6 +332,11 @@ export class SceneManager {
     sprite.opacity = Math.max(0, d * overcast);
     this.sunSprite.visible = d > 0.05 && overcast > 0.6;
 
+    // dappled cloud shadows only make sense in daylight; dim them under overcast
+    const cs = this.cloudShadow.material as THREE.MeshBasicMaterial;
+    cs.opacity = d * 0.18 * overcast;
+    this.cloudShadow.visible = cs.opacity > 0.01;
+
     // night sky: stars + moon fade in as the sun sets (and dim under overcast)
     const night = (1 - d) * overcast;
     (this.stars.material as THREE.PointsMaterial).opacity = night * 0.9;
@@ -419,6 +437,12 @@ export class SceneManager {
       pp.needsUpdate = true;
     }
 
+    // slowly drift the cloud shadows across the ground
+    const csMap = (this.cloudShadow.material as THREE.MeshBasicMaterial).map;
+    if (csMap) {
+      csMap.offset.x += dt * 0.01;
+      csMap.offset.y += dt * 0.004;
+    }
     if (this.water) this.water.material.uniforms.time.value += dt;
     this.grade.uniforms.time.value += dt;
     (this.composer.passes[0] as RenderPass).camera = camera;
