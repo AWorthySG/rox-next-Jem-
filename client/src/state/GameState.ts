@@ -158,10 +158,12 @@ export class GameState {
     return v ? { hp: v.hp, maxHp: v.maxHp } : null;
   }
 
-  // Play an attack swing on the attacker (if it's a player avatar).
+  // Play an attack animation on the attacker: a weapon swing for players, a
+  // forward lunge for monsters (so their hits read clearly).
   onAttack(sourceId: number): void {
     const v = this.views.get(sourceId);
     if (v instanceof PlayerView) v.swing();
+    else if (v instanceof MonsterView) v.lunge();
   }
 
   // Play a hit reaction on whatever got struck.

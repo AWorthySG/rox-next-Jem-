@@ -173,13 +173,15 @@ export class PlayerView extends EntityView {
       this.char.rightLeg.rotation.x = swing;
       this.char.group.position.y = this.bodyBaseY + Math.abs(Math.sin(this.walkPhase)) * 0.06;
     } else {
-      // idle: gentle breathing + ease limbs to rest
+      // idle: gentle breathing + ease limbs to rest (framerate-independent decay
+      // — Math.pow(k, dt*60) reproduces the old per-frame "*= k" feel at any fps)
       this.walkPhase += dt * 2;
+      const settle = Math.pow(0.8, dt * 60);
       for (const limb of [this.char.leftArm, this.char.rightArm, this.char.leftLeg, this.char.rightLeg]) {
-        limb.rotation.x *= 0.8;
+        limb.rotation.x *= settle;
       }
       const breathe = Math.sin(this.walkPhase) * 0.015;
-      this.char.group.position.y += (this.bodyBaseY + breathe - this.char.group.position.y) * 0.2;
+      this.char.group.position.y += (this.bodyBaseY + breathe - this.char.group.position.y) * (1 - Math.pow(0.8, dt * 60));
     }
 
     // attack swing: overhead chop of the weapon arm (overrides walk on that arm)
@@ -189,7 +191,7 @@ export class PlayerView extends EntityView {
       this.char.rightArm.rotation.x = -Math.sin(t * Math.PI) * 2.2 - (1 - t) * 0.2;
       this.char.group.rotation.z = Math.sin(t * Math.PI) * 0.06;
     } else {
-      this.char.group.rotation.z *= 0.7;
+      this.char.group.rotation.z *= Math.pow(0.7, dt * 60);
     }
 
     // hit reaction: brief backward lean + jitter
@@ -197,7 +199,7 @@ export class PlayerView extends EntityView {
       this.flinchT = Math.max(0, this.flinchT - dt * 4);
       this.char.group.rotation.x = -this.flinchT * 0.25;
     } else if (this.char.group.rotation.x !== 0) {
-      this.char.group.rotation.x *= 0.7;
+      this.char.group.rotation.x *= Math.pow(0.7, dt * 60);
     }
   }
 }
