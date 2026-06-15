@@ -77,6 +77,14 @@
         <div class="bar tf-hp"><i id="tf-fill"></i></div>
       </div>
 
+      <div class="worldboss-bar hidden" id="worldboss-bar">
+        <div class="wb-title" id="wb-title">—</div>
+        <div class="bar wb-hp"><i id="wb-fill"></i></div>
+        <div class="wb-sub" id="wb-sub"></div>
+      </div>
+
+      <div class="sky-badge hidden" id="sky-badge"><span id="sky-text">—</span></div>
+
       <div class="skill-popup" id="skill-popup"></div>
 
       <div class="death-overlay hidden" id="death-overlay">
@@ -102,6 +110,7 @@
       </div>
 
       <button class="auto-btn" id="auto-btn">Auto ▶</button>
+      <button class="market-btn" id="exchange-btn">🏪 Market</button>
       <div class="skillbar" id="skillbar"></div>
 
       <div class="party hidden" id="party">
@@ -156,7 +165,7 @@
         <div class="refine-list" id="refine-list"></div>
       </div>
 
-      <div class="hud-help">Move: click ground · Attack: click monster · Shop/Quests: click ⬥ NPCs · Party: click a player · Keys 1–7 skills · I bag · K skills · R runes · B storage · G guild · V achievements · Enter chat</div>
+      <div class="hud-help">Move: click ground · Attack: click monster · Shop/Quests: click ⬥ NPCs · Party: click a player · Keys 1–7 skills · I bag · K skills · R runes · B storage · M market · G guild · V achievements · Enter chat</div>
 
       <div class="quests hidden" id="quests">
         <div class="inv-header">
@@ -175,6 +184,26 @@
         <div class="shop-cols">
           <div class="shop-col"><h4>Buy</h4><div class="shop-list" id="shop-buy-list"></div></div>
           <div class="shop-col"><h4>Sell</h4><div class="shop-list" id="shop-sell-list"></div></div>
+        </div>
+      </div>
+
+      <div class="exchange hidden" id="exchange">
+        <div class="inv-header">
+          <span>Exchange Centre</span>
+          <span class="inv-zeny">💰 <b id="exchange-zeny">0</b></span>
+          <button class="inv-close" id="exchange-close">✕</button>
+        </div>
+        <div class="exchange-body">
+          <div class="exchange-col">
+            <h4>Market</h4>
+            <div class="exchange-list" id="exchange-market"></div>
+          </div>
+          <div class="exchange-col">
+            <h4>Sell an Item</h4>
+            <div class="exchange-sell" id="exchange-sell-form"></div>
+            <h4>My Listings</h4>
+            <div class="exchange-list" id="exchange-mine"></div>
+          </div>
         </div>
       </div>
 

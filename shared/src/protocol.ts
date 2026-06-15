@@ -1,6 +1,7 @@
 import { DamageKind, JobId, MsgType } from "./enums.js";
 import type { EntityFull, EntitySnapshot, SelfState } from "./entities.js";
 import type { Stats } from "./stats.js";
+import type { Weather } from "./world.js";
 
 // ---- Client -> Server ----
 
@@ -166,6 +167,30 @@ export interface WarpMsg {
   mapId: string;
 }
 
+// ---- Exchange Centre (player marketplace) ----
+
+export interface ExchangeBrowseMsg {
+  t: MsgType.ExchangeBrowse;
+}
+
+export interface ExchangeListMsg {
+  t: MsgType.ExchangeList;
+  itemId: string;
+  qty: number;
+  unitPrice: number; // Zeny per unit
+}
+
+export interface ExchangeBuyMsg {
+  t: MsgType.ExchangeBuy;
+  listingId: number;
+  qty: number;
+}
+
+export interface ExchangeCancelMsg {
+  t: MsgType.ExchangeCancel;
+  listingId: number;
+}
+
 export interface MapTheme {
   ground: number; // hex tint applied to the ground
   fog: number; // hex fog / sky-dome color
@@ -248,6 +273,10 @@ export type ClientMessage =
   | EnterPortalMsg
   | NpcHealMsg
   | WarpMsg
+  | ExchangeBrowseMsg
+  | ExchangeListMsg
+  | ExchangeBuyMsg
+  | ExchangeCancelMsg
   | ChatMsg
   | PingMsg;
 
@@ -357,6 +386,42 @@ export interface ChatBroadcastMsg {
   text: string;
 }
 
+// A single live offer in the Exchange Centre.
+export interface ExchangeListing {
+  id: number;
+  sellerId: number;
+  sellerName: string;
+  itemId: string;
+  qty: number;
+  unitPrice: number;
+}
+
+// The current marketplace, pushed to clients whenever it changes (or on browse).
+export interface ExchangeUpdateMsg {
+  t: MsgType.ExchangeUpdate;
+  listings: ExchangeListing[];
+}
+
+// Global sky state — drives client visuals (sun/sky/fog/weather) and informs
+// players of the elemental synergy currently in effect.
+export interface WorldStateMsg {
+  t: MsgType.WorldState;
+  timeOfDay: number; // 0..1 (0 = midnight, 0.5 = noon)
+  weather: Weather;
+}
+
+// Live HP of an engaged world boss, broadcast to EVERY player (cross-map) so the
+// whole server can rally to the fight. `defeatedBy` is set on the final tick.
+export interface BossStatusMsg {
+  t: MsgType.BossStatus;
+  bossId: number;
+  name: string;
+  hp: number;
+  maxHp: number;
+  mapName: string;
+  defeatedBy?: string;
+}
+
 export interface PongMsg {
   t: MsgType.Pong;
   clientTime: number;
@@ -380,6 +445,9 @@ export type ServerMessage =
   | DamageEventMsg
   | LevelUpMsg
   | ChatBroadcastMsg
+  | WorldStateMsg
+  | BossStatusMsg
+  | ExchangeUpdateMsg
   | PongMsg;
 
 export function encode(msg: ClientMessage | ServerMessage): string {

@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { Element, ELEMENT_COLOR, JobId, MsgType, getSkill, type ServerMessage } from "@rox/shared";
+import { Element, ELEMENT_COLOR, JobId, MsgType, getSkill, isNight, WEATHER_ICON, WEATHER_LABEL, Weather, type ServerMessage } from "@rox/shared";
 import { SceneManager } from "./engine/SceneManager.js";
 import { CameraRig } from "./engine/CameraRig.js";
 import { InputController } from "./engine/InputController.js";
@@ -19,6 +19,7 @@ import { InventoryPanel } from "./ui/InventoryPanel.js";
 import { StoragePanel } from "./ui/StoragePanel.js";
 import { BestiaryPanel } from "./ui/BestiaryPanel.js";
 import { ShopPanel } from "./ui/ShopPanel.js";
+import { ExchangePanel } from "./ui/ExchangePanel.js";
 import { QuestPanel } from "./ui/QuestPanel.js";
 import { RefinePanel } from "./ui/RefinePanel.js";
 import { SkillsPanel } from "./ui/SkillsPanel.js";
@@ -30,6 +31,7 @@ import { WarpPanel } from "./ui/WarpPanel.js";
 import { AchievementsPanel } from "./ui/AchievementsPanel.js";
 import { SkillPopup } from "./ui/SkillPopup.js";
 import { TargetFrame } from "./ui/TargetFrame.js";
+import { WorldBossBar } from "./ui/WorldBossBar.js";
 import { SkillVfx } from "./ui/SkillVfx.js";
 import { ScreenFx } from "./ui/ScreenFx.js";
 import { LoginPreview } from "./ui/LoginPreview.js";
@@ -52,6 +54,7 @@ const petCompanion = new PetCompanion(scene.scene);
 // Skill bar: casts on the current target (or nearest monster); heals target self.
 const skillPopup = new SkillPopup();
 const targetFrame = new TargetFrame();
+const worldBossBar = new WorldBossBar();
 const sfx = new Sfx();
 const clickMarker = new ClickMarker(scene.scene);
 const novaTelegraph = new NovaTelegraph(scene.scene);
@@ -180,6 +183,14 @@ const storage = new StoragePanel({
   onRetrieve: (itemId, qty) => transport?.send({ t: MsgType.RetrieveItem, itemId, qty }),
 });
 
+const exchange = new ExchangePanel({
+  onBrowse: () => transport?.send({ t: MsgType.ExchangeBrowse }),
+  onList: (itemId, qty, unitPrice) => transport?.send({ t: MsgType.ExchangeList, itemId, qty, unitPrice }),
+  onBuy: (listingId, qty) => transport?.send({ t: MsgType.ExchangeBuy, listingId, qty }),
+  onCancel: (listingId) => transport?.send({ t: MsgType.ExchangeCancel, listingId }),
+});
+document.getElementById("exchange-btn")!.addEventListener("click", () => exchange.toggle());
+
 const bestiary = new BestiaryPanel(gameState);
 
 const quests = new QuestPanel({
@@ -262,6 +273,10 @@ const input = new InputController(
         refine.open();
         return;
       }
+      if (role === "exchange") {
+        exchange.open();
+        return;
+      }
       if (role === "portal") {
         // Walk to the portal and request travel (server checks proximity).
         const pos = gameState.worldPosOf(id);
@@ -306,6 +321,7 @@ function handleMessage(msg: ServerMessage): void {
       gameState.selfId = selfId;
       partyHud.setSelf(selfId);
       guildPanel.setSelf(selfId);
+      exchange.setSelfId(selfId);
       currentJob = msg.self.job;
       hud.setIdentity(msg.self.name, JOB_NAME[msg.self.job]);
       hud.update(msg.self);
@@ -348,6 +364,7 @@ function handleMessage(msg: ServerMessage): void {
       skillBar.setSp(msg.self.sp);
       inventory.sync(msg.self);
       storage.sync(msg.self);
+      exchange.sync(msg.self);
       bestiary.sync(msg.self);
       shop.sync(msg.self);
       quests.sync(msg.self);
@@ -416,10 +433,29 @@ function handleMessage(msg: ServerMessage): void {
       if (msg.fromId === 0) chat.system(msg.text);
       else chat.add(msg.name, msg.text, msg.fromId === selfId);
       break;
+    case MsgType.WorldState:
+      scene.setEnvironment(msg.timeOfDay, msg.weather);
+      updateSkyBadge(msg.timeOfDay, msg.weather);
+      break;
+    case MsgType.BossStatus:
+      worldBossBar.update(msg);
+      break;
+    case MsgType.ExchangeUpdate:
+      exchange.setListings(msg.listings);
+      break;
     case MsgType.Pong:
       hud.setLatency(Math.round(performance.now() - msg.clientTime));
       break;
   }
+}
+
+const skyBadge = document.getElementById("sky-badge");
+const skyText = document.getElementById("sky-text");
+function updateSkyBadge(timeOfDay: number, weather: Weather): void {
+  if (!skyBadge || !skyText) return;
+  const phase = isNight(timeOfDay) ? "🌙 Night" : "🌞 Day";
+  skyText.textContent = `${phase} · ${WEATHER_ICON[weather]} ${WEATHER_LABEL[weather]}`;
+  skyBadge.classList.remove("hidden");
 }
 
 function onDamage(msg: Extract<ServerMessage, { t: MsgType.DamageEvent }>): void {

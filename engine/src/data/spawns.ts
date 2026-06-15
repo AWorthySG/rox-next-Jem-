@@ -16,6 +16,7 @@ export interface MonsterTemplate {
   baseExp: number;
   respawnMs?: number; // overrides the default respawn delay (bosses respawn slowly)
   boss?: boolean;
+  worldBoss?: boolean; // shared-HP raid boss: global HP bar + contribution rewards
   mechanics?: BossMechanic[];
   element?: Element; // defensive element (defaults to Neutral)
 }
@@ -596,6 +597,47 @@ Object.assign(MONSTER_TEMPLATES, {
   surge_elemental: mk("surge_elemental", "Surge Elemental", 154, 13200, 26400),
   barrage_leviathan: mk("barrage_leviathan", "Barrage Leviathan", 158, 135000, 225000, true),
   tempest_dragon: mk("tempest_dragon", "Tempest Dragon", 160, 150000, 250000, true),
+  // ---- The Float @ Marina Bay (world-boss raid arena) ----
+  lion_city_colossus: {
+    id: "lion_city_colossus",
+    name: "Lion City Colossus",
+    level: 165,
+    stats: makeStats({ str: 240, agi: 90, vit: 220, int: 80, dex: 150, luk: 70 }),
+    baseHp: 620000,
+    baseExp: 620000,
+    boss: true,
+    worldBoss: true,
+    respawnMs: 600000,
+    element: Element.Earth,
+    mechanics: [
+      { kind: "enrage", hpPct: 0.4, atkMult: 1.8 },
+      { kind: "nova", intervalMs: 5200, radius: 14, powerMult: 1.9 },
+      { kind: "summon", intervalMs: 9000, templateId: "stone_golem", count: 2, max: 6 },
+    ],
+  },
+  tide_emperor: {
+    id: "tide_emperor",
+    name: "Tide Emperor",
+    level: 168,
+    stats: makeStats({ str: 250, agi: 110, vit: 210, int: 140, dex: 160, luk: 80 }),
+    baseHp: 720000,
+    baseExp: 720000,
+    boss: true,
+    worldBoss: true,
+    respawnMs: 600000,
+    element: Element.Water,
+    mechanics: [
+      { kind: "enrage", hpPct: 0.35, atkMult: 1.9 },
+      { kind: "nova", intervalMs: 4800, radius: 15, powerMult: 2.0 },
+      { kind: "heal", intervalMs: 12000, pct: 0.05 },
+    ],
+  },
+  // ---- Southern Ridges (Singapore) ----
+  ridge_drongo: mk("ridge_drongo", "Ridge Drongo", 58, 3400, 7000),
+  fern_sprite: mk("fern_sprite", "Fern Sprite", 60, 3600, 7400),
+  civet_cat: mk("civet_cat", "Civet Cat", 62, 3800, 7800),
+  henderson_sentinel: mk("henderson_sentinel", "Henderson Sentinel", 68, 19000, 31000, true),
+  canopy_warlord: mk("canopy_warlord", "Canopy Warlord", 70, 21000, 34000, true),
 });
 
 export interface SpawnZone {
@@ -1150,6 +1192,14 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "nova", intervalMs: 4600, radius: 14, powerMult: 2.1 },
     { kind: "heal", intervalMs: 11000, pct: 0.06 },
   ],
+  henderson_sentinel: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.6 },
+    { kind: "nova", intervalMs: 5600, radius: 11, powerMult: 1.6 },
+  ],
+  canopy_warlord: [
+    { kind: "summon", intervalMs: 8500, templateId: "civet_cat", count: 2, max: 5 },
+    { kind: "heal", intervalMs: 10000, pct: 0.06 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -1468,6 +1518,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   kite_wisp: Element.Wind,
   mangrove_monitor: Element.Earth,
   hedge_maze_golem: Element.Earth,
+  ridge_drongo: Element.Wind,
+  fern_sprite: Element.Earth,
+  civet_cat: Element.Shadow,
+  henderson_sentinel: Element.Earth,
+  canopy_warlord: Element.Wind,
   turbine_sentinel: Element.Wind,
   spillway_wraith: Element.Water,
   surge_elemental: Element.Water,

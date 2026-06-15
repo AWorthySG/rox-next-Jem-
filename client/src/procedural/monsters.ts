@@ -87,6 +87,8 @@ const ARCH: Record<string, MonsterArch> = {
   kelong_crab: "aquatic", lalang_sprite: "plant", waterway_egret: "bird", sand_quarry_golem: "golem", tilapia_titan: "aquatic",
   sandcastle_crab: "aquatic", park_squirrel: "beast", kite_wisp: "ghost", mangrove_monitor: "beast", hedge_maze_golem: "golem",
   turbine_sentinel: "golem", spillway_wraith: "ghost", surge_elemental: "aquatic", barrage_leviathan: "aquatic", tempest_dragon: "dragon",
+  lion_city_colossus: "golem", tide_emperor: "dragon",
+  ridge_drongo: "bird", fern_sprite: "plant", civet_cat: "beast", henderson_sentinel: "golem", canopy_warlord: "beast",
 };
 
 function hex(s: string): number {
@@ -470,6 +472,13 @@ const DEFS: Record<string, AppearanceDef> = {
   surge_elemental: { inner: "#60b0e0", outer: "#0a4a7a", scale: 1.5 },
   barrage_leviathan: { inner: "#3a90c0", outer: "#0a2a5a", scale: 3.4, boss: true },
   tempest_dragon: { inner: "#a0c0e0", outer: "#1a3a6a", scale: 3.4, boss: true },
+  lion_city_colossus: { inner: "#e0c060", outer: "#5a4010", scale: 4.6, boss: true },
+  tide_emperor: { inner: "#40c0d0", outer: "#0a3a5a", scale: 4.6, boss: true },
+  ridge_drongo: { inner: "#5a5a6a", outer: "#1a1a24", scale: 1.2 },
+  fern_sprite: { inner: "#7ac050", outer: "#2a5a1a", scale: 1.2 },
+  civet_cat: { inner: "#9a8060", outer: "#3a2a1a", scale: 1.3 },
+  henderson_sentinel: { inner: "#c0a878", outer: "#5a4a28", scale: 2.8, boss: true },
+  canopy_warlord: { inner: "#a08850", outer: "#3a2a14", scale: 2.9, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

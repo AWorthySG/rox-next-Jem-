@@ -92,21 +92,47 @@ export interface ItemDef {
   food?: FoodBuff; // eating grants a timed stat buff
   pet?: string; // summons this pet when used
   mount?: boolean; // toggles riding a mount when used
+  // progression tier (1 Worn … 6 Mythic). Optional: when set it pins the rarity
+  // tint and is shown as a label; otherwise rarity is derived from sell value.
+  tier?: number;
   // economy
   price?: number; // buy cost at the shop (omitted = not sold)
   sellPrice?: number; // Zeny gained when sold
 }
 
-export type ItemRarity = "common" | "uncommon" | "rare" | "epic" | "legendary";
+export type ItemRarity = "common" | "uncommon" | "rare" | "epic" | "legendary" | "mythic";
 
-// Rarity is derived from value so the catalogue stays terse; colours the UI.
+// Equipment progression tiers, low → high. Mythic gear drops only from world bosses.
+export const TIER_NAME: Record<number, string> = {
+  1: "Worn",
+  2: "Fine",
+  3: "Superior",
+  4: "Epic",
+  5: "Legendary",
+  6: "Mythic",
+};
+
+// tier 1..6 → rarity tint
+const TIER_RARITY: ItemRarity[] = ["common", "uncommon", "rare", "epic", "legendary", "mythic"];
+
+// Rarity colours the UI. An explicit `tier` pins it; otherwise it's derived from
+// sell value so the catalogue stays terse.
 export function rarityOf(item: ItemDef): ItemRarity {
+  if (item.tier && item.tier >= 1) return TIER_RARITY[Math.min(6, Math.max(1, Math.floor(item.tier))) - 1];
   const v = item.sellPrice ?? 0;
+  if (v >= 6000) return "mythic";
   if (v >= 2000) return "legendary";
   if (v >= 700) return "epic";
   if (v >= 150) return "rare";
   if (v >= 40) return "uncommon";
   return "common";
+}
+
+// Numeric tier (1..6) for an item, honouring an explicit `tier` then falling
+// back to the rarity ladder.
+export function tierOf(item: ItemDef): number {
+  if (item.tier && item.tier >= 1) return Math.min(6, Math.max(1, Math.floor(item.tier)));
+  return TIER_RARITY.indexOf(rarityOf(item)) + 1;
 }
 
 // A compact item catalogue. Both server and client read this; the client only
@@ -548,6 +574,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "A light family-park jersey. DEF +8, Max HP +70, VIT +2.", def: 8, maxHp: 70, bonusStats: { vit: 2 }, sellPrice: 700,
   },
 
+  // ---- Southern Ridges (Singapore) gear ----
+  canopy_bow: {
+    id: "canopy_bow", name: "Canopy Bow", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A longbow cut from ridge timber. ATK +58, DEX +5, AGI +3.", atk: 58, bonusStats: { dex: 5, agi: 3 }, sellPrice: 2900,
+  },
+  ridge_cloak: {
+    id: "ridge_cloak", name: "Ridge Cloak", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "A canopy-walker's cloak. DEF +23, Max HP +210, AGI +5.", def: 23, maxHp: 210, bonusStats: { agi: 5 }, sellPrice: 2900,
+  },
+  civet_charm: {
+    id: "civet_charm", name: "Civet Charm", type: ItemType.Accessory, slot: EquipSlot.Accessory,
+    desc: "A nocturnal civet talisman. LUK +5, DEX +4, Max SP +30.", maxSp: 30, bonusStats: { luk: 5, dex: 4 }, sellPrice: 2900,
+  },
+
   // ---- Marina Barrage (Singapore) gear ----
   tempest_glaive: {
     id: "tempest_glaive", name: "Tempest Glaive", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -560,6 +600,33 @@ export const ITEMS: Record<string, ItemDef> = {
   barrage_aegis: {
     id: "barrage_aegis", name: "Barrage Aegis", type: ItemType.Armor, slot: EquipSlot.Armor,
     desc: "Floodgate-forged plate. DEF +42, Max HP +440, VIT +9.", def: 42, maxHp: 440, bonusStats: { vit: 9 }, sellPrice: 7200,
+  },
+
+  // ---- Mythic tier (tier 6) — world-boss drops only ----
+  aegis_of_temasek: {
+    id: "aegis_of_temasek", name: "Aegis of Temasek", type: ItemType.Weapon, slot: EquipSlot.Weapon, tier: 6,
+    desc: "The Colossus's own blade, hewn from Temasek stone. ATK +150, STR +12, VIT +8.",
+    atk: 150, bonusStats: { str: 12, vit: 8 }, sellPrice: 9000,
+  },
+  tide_emperors_trident: {
+    id: "tide_emperors_trident", name: "Tide Emperor's Trident", type: ItemType.Weapon, slot: EquipSlot.Weapon, tier: 6,
+    desc: "A trident that commands the strait's tides. ATK +158, AGI +11, DEX +9.",
+    atk: 158, bonusStats: { agi: 11, dex: 9 }, sellPrice: 9000,
+  },
+  colossus_crown: {
+    id: "colossus_crown", name: "Colossus Crown", type: ItemType.Headgear, slot: EquipSlot.Headgear, tier: 6,
+    desc: "A crown blazing with raid-forged power. MATK +22, INT +12, DEX +8, Max SP +150.",
+    matk: 22, maxSp: 150, bonusStats: { int: 12, dex: 8 }, sellPrice: 9000,
+  },
+  mythic_warplate: {
+    id: "mythic_warplate", name: "Mythic Warplate", type: ItemType.Armor, slot: EquipSlot.Armor, tier: 6,
+    desc: "Plate tempered in a world boss's fall. DEF +54, Max HP +580, VIT +12.",
+    def: 54, maxHp: 580, bonusStats: { vit: 12 }, sellPrice: 9000,
+  },
+  heart_of_the_lion: {
+    id: "heart_of_the_lion", name: "Heart of the Lion", type: ItemType.Accessory, slot: EquipSlot.Accessory, tier: 6,
+    desc: "The Lion City's beating core. STR +8, VIT +8, LUK +6, Max HP +280.",
+    maxHp: 280, bonusStats: { str: 8, vit: 8, luk: 6 }, sellPrice: 9000,
   },
 
   // ---- Mount Faber (Singapore) gear ----
@@ -1531,12 +1598,21 @@ Object.assign(DROP_TABLES, {
   kite_wisp: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "kite_runner_cap", chance: 0.03 }],
   mangrove_monitor: HI([{ itemId: "park_jersey", chance: 0.6 }, { itemId: "kite_runner_cap", chance: 0.5 }, { itemId: "beachcomber_spade", chance: 0.4 }]),
   hedge_maze_golem: HI([{ itemId: "beachcomber_spade", chance: 0.6 }, { itemId: "park_jersey", chance: 0.45 }, { itemId: "poring_card", chance: 0.05 }]),
+  // Southern Ridges (Singapore)
+  ridge_drongo: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "canopy_bow", chance: 0.03 }],
+  fern_sprite: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "ridge_cloak", chance: 0.03 }],
+  civet_cat: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "civet_charm", chance: 0.03 }],
+  henderson_sentinel: HI([{ itemId: "ridge_cloak", chance: 0.6 }, { itemId: "civet_charm", chance: 0.5 }, { itemId: "canopy_bow", chance: 0.4 }]),
+  canopy_warlord: HI([{ itemId: "canopy_bow", chance: 0.6 }, { itemId: "ridge_cloak", chance: 0.45 }, { itemId: "poring_card", chance: 0.05 }]),
   // Marina Barrage (Singapore)
   turbine_sentinel: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "barrage_aegis", chance: 0.03 }],
   spillway_wraith: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "storm_diadem", chance: 0.03 }],
   surge_elemental: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "tempest_glaive", chance: 0.03 }],
   barrage_leviathan: HI([{ itemId: "tempest_glaive", chance: 0.6 }, { itemId: "barrage_aegis", chance: 0.5 }, { itemId: "storm_diadem", chance: 0.4 }]),
   tempest_dragon: HI([{ itemId: "barrage_aegis", chance: 0.6 }, { itemId: "tempest_glaive", chance: 0.45 }, { itemId: "marc_card", chance: 0.06 }]),
+  // The Float @ Marina Bay world bosses — mythic drops
+  lion_city_colossus: HI([{ itemId: "aegis_of_temasek", chance: 0.5 }, { itemId: "mythic_warplate", chance: 0.45 }, { itemId: "heart_of_the_lion", chance: 0.4 }, { itemId: "colossus_crown", chance: 0.3 }]),
+  tide_emperor: HI([{ itemId: "tide_emperors_trident", chance: 0.5 }, { itemId: "colossus_crown", chance: 0.45 }, { itemId: "heart_of_the_lion", chance: 0.4 }, { itemId: "mythic_warplate", chance: 0.3 }]),
   // Mount Faber (Singapore)
   cable_wraith: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "alpine_plate", chance: 0.03 }],
   peak_eagle: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "aviator_cap", chance: 0.03 }],
@@ -1766,6 +1842,7 @@ const ORE_REGULARS = [
   "kelong_crab", "lalang_sprite", "waterway_egret",
   "sandcastle_crab", "park_squirrel", "kite_wisp",
   "turbine_sentinel", "spillway_wraith", "surge_elemental",
+  "ridge_drongo", "fern_sprite", "civet_cat",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1807,6 +1884,8 @@ const ORE_BOSSES = [
   "sand_quarry_golem", "tilapia_titan",
   "mangrove_monitor", "hedge_maze_golem",
   "barrage_leviathan", "tempest_dragon",
+  "lion_city_colossus", "tide_emperor",
+  "henderson_sentinel", "canopy_warlord",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

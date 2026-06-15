@@ -412,6 +412,66 @@ body {
   transition: width 0.15s linear;
 }
 
+/* world-boss raid bar (server-wide) */
+.worldboss-bar {
+  position: absolute;
+  top: 104px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 420px;
+  max-width: 64vw;
+  padding: 7px 14px 9px;
+  background: linear-gradient(180deg, rgba(40, 8, 16, 0.92), rgba(20, 4, 10, 0.92));
+  border: 2px solid #ff5a7a;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 0 22px rgba(255, 90, 122, 0.5);
+  z-index: 6;
+}
+.wb-title {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #ffd0d8;
+  text-shadow: 0 0 10px rgba(255, 90, 122, 0.8);
+  margin-bottom: 5px;
+}
+.bar.wb-hp {
+  position: relative;
+  height: 16px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.bar.wb-hp > i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(180deg, #ff8aa0, #d11a3a);
+  transition: width 0.18s linear;
+}
+.wb-sub {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #e8b8c2;
+}
+
+/* day/night + weather badge */
+.sky-badge {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 12px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #dce8f6;
+  z-index: 5;
+}
+
 /* item icons */
 .iicon {
   display: inline-flex;
@@ -438,6 +498,7 @@ body {
 .rar-rare { --rar: #5aa9ff; }
 .rar-epic { --rar: #c07af0; }
 .rar-legendary { --rar: #ffba3a; }
+.rar-mythic { --rar: #ff5a7a; }
 .inv-cell[class*="rar-"] { border-color: var(--rar); }
 .inv-cell[class*="rar-"] .iname { color: var(--rar); }
 .equip-cell.filled[class*="rar-"] {
@@ -702,6 +763,23 @@ body {
   background: linear-gradient(180deg, #9be88f, #4cae3e);
   border-color: #4cae3e;
   box-shadow: 0 0 16px rgba(120, 230, 140, 0.5);
+}
+.market-btn {
+  position: absolute;
+  bottom: 24px;
+  right: 404px;
+  padding: 9px 16px;
+  font-weight: 700;
+  font-size: 13px;
+  color: #f3eede;
+  background: var(--panel);
+  border: 2px solid var(--gold);
+  border-radius: 10px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.market-btn:hover {
+  box-shadow: 0 0 14px rgba(255, 200, 110, 0.45);
 }
 
 /* ---- skill cluster (bottom-right, ROX mobile style) ---- */
@@ -999,6 +1077,104 @@ body {
   overflow: hidden;
   z-index: 30;
 }
+/* ---- Exchange Centre ---- */
+.exchange {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 660px;
+  max-width: 94vw;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--panel);
+  border: 2px solid var(--gold);
+  border-radius: 12px;
+  pointer-events: auto;
+  overflow: hidden;
+  z-index: 30;
+}
+.exchange-body {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  padding: 10px;
+  overflow: auto;
+}
+.exchange-col h4 {
+  margin: 4px 2px 6px;
+  font-size: 13px;
+  color: var(--gold);
+}
+.exchange-list {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  margin-bottom: 8px;
+}
+.ex-row {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 7px 9px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+}
+.ex-name { font-size: 13px; font-weight: 700; }
+.ex-meta { font-size: 11px; color: #b9c4d2; }
+.ex-controls { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
+.ex-num {
+  width: 64px;
+  padding: 3px 5px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 12px;
+}
+.ex-select {
+  width: 100%;
+  padding: 5px 6px;
+  margin-bottom: 6px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--panel-border);
+  border-radius: 6px;
+  color: #fff;
+  font-size: 12px;
+}
+.ex-field {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 12px;
+  color: #c8d2de;
+  margin-bottom: 6px;
+}
+.ex-btn {
+  padding: 4px 12px;
+  background: linear-gradient(180deg, #4a7ac0, #2f568f);
+  border: 1px solid #6f9fd8;
+  border-radius: 6px;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 700;
+  cursor: pointer;
+}
+.ex-btn.list { width: 100%; margin-top: 2px; }
+.ex-btn.cancel { background: linear-gradient(180deg, #c0584a, #8f352f); border-color: #d88f6f; }
+.ex-btn.dim { opacity: 0.5; }
+.ex-btn:hover { filter: brightness(1.1); }
+.exchange-sell {
+  padding: 8px 9px;
+  background: rgba(0, 0, 0, 0.28);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+
 .shop-cols {
   display: grid;
   grid-template-columns: 1fr 1fr;

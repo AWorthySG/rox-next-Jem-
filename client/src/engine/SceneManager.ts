@@ -6,7 +6,7 @@ import { UnrealBloomPass } from "three/addons/postprocessing/UnrealBloomPass.js"
 import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { SMAAPass } from "three/addons/postprocessing/SMAAPass.js";
-import { MAP_SIZE, type MapTheme } from "@rox/shared";
+import { MAP_SIZE, DAY_LENGTH_MS, daylight, Weather, type MapTheme } from "@rox/shared";
 import { makeGroundTexture, makeGroundRoughness, makeSunSprite, makeCloud, makeSpark } from "../procedural/textures.js";
 import { buildScenery, type Scenery } from "../procedural/scenery.js";
 import { buildWater, type Water } from "../procedural/water.js";
@@ -31,6 +31,16 @@ export class SceneManager {
   private motes!: THREE.Points;
   private moteBox = 34;
   private clock = new THREE.Clock();
+
+  // ---- day/night + weather ----
+  private themeSky = new THREE.Color(0x9fc6ec);
+  private themeFog = new THREE.Color(0xbfd8ef);
+  private themeGround = new THREE.Color(0xffffff);
+  private envTime = 0.4; // displayed time of day (0..1), eased toward the server's
+  private envTargetTime = 0.4;
+  private weather: Weather = Weather.Clear;
+  private precip: THREE.Points | null = null; // rain/snow particle layer
+  private precipBox = 80;
 
   constructor(root: HTMLElement) {
     this.renderer = new THREE.WebGLRenderer({ antialias: true, powerPreference: "high-performance" });
@@ -189,12 +199,12 @@ export class SceneManager {
 
   // Recolor the world for a different map (tint ground/sky, change fog, reseed props).
   setTheme(theme: MapTheme, mapId: string): void {
-    (this.ground.material as THREE.MeshStandardMaterial).color.setHex(theme.ground);
-    this.skyUniforms.topColor.value.setHex(theme.sky).multiplyScalar(0.8);
-    this.skyUniforms.midColor.value.setHex(theme.sky);
-    this.skyUniforms.bottomColor.value.setHex(theme.fog).lerp(new THREE.Color(0xffffff), 0.35);
-    (this.scene.fog as THREE.Fog).color.setHex(theme.fog);
-    (this.sunSprite.material as THREE.SpriteMaterial).color.setHex(theme.sky).lerp(new THREE.Color(0xffffff), 0.7);
+    // Store the map's daytime palette; applyEnvironment() blends it with the
+    // current time-of-day and weather.
+    this.themeGround.setHex(theme.ground);
+    this.themeSky.setHex(theme.sky);
+    this.themeFog.setHex(theme.fog);
+    this.applyEnvironment();
 
     if (this.scenery) {
       this.scene.remove(this.scenery.group);
@@ -214,6 +224,93 @@ export class SceneManager {
       this.water = buildWater(w[0], w[1]);
       this.scene.add(this.water.mesh);
     }
+  }
+
+  // Sync the global sky state from the server (time-of-day + weather).
+  setEnvironment(timeOfDay: number, weather: Weather): void {
+    this.envTargetTime = timeOfDay;
+    if (weather !== this.weather) {
+      this.weather = weather;
+      this.buildWeather();
+    }
+    this.applyEnvironment();
+  }
+
+  // Blend the map's daytime palette with the current sun position + weather:
+  // dims and blues the sky/fog/ground at night, dims further when overcast,
+  // and scales the sun/hemisphere lights to match.
+  private applyEnvironment(): void {
+    const d = daylight(this.envTime); // 0 at night → 1 at noon
+    const overcast =
+      this.weather === Weather.Storm ? 0.45 :
+      this.weather === Weather.Rain ? 0.7 :
+      this.weather === Weather.Snow ? 0.78 :
+      this.weather === Weather.Fog ? 0.62 : 1;
+    const bright = (0.22 + 0.78 * d) * overcast;
+
+    const nightSky = new THREE.Color(0x0b1a3a);
+    const nightFog = new THREE.Color(0x10182e);
+    const white = new THREE.Color(0xffffff);
+
+    this.skyUniforms.topColor.value.copy(this.themeSky).multiplyScalar(0.8).lerp(nightSky, 1 - d).multiplyScalar(overcast);
+    this.skyUniforms.midColor.value.copy(this.themeSky).lerp(nightSky, 1 - d).multiplyScalar(overcast);
+    this.skyUniforms.bottomColor.value.copy(this.themeFog).lerp(white, 0.35).lerp(nightFog, 1 - d).multiplyScalar(overcast);
+
+    const fog = this.scene.fog as THREE.Fog;
+    fog.color.copy(this.themeFog).lerp(nightFog, 1 - d).multiplyScalar(overcast);
+    const dense =
+      this.weather === Weather.Fog ? 0.34 :
+      this.weather === Weather.Storm ? 0.55 :
+      this.weather === Weather.Rain || this.weather === Weather.Snow ? 0.72 : 1;
+    fog.near = MAP_SIZE * 0.55 * dense;
+    fog.far = MAP_SIZE * 1.25 * dense;
+
+    (this.ground.material as THREE.MeshStandardMaterial).color.copy(this.themeGround).multiplyScalar(0.45 + 0.55 * bright);
+
+    this.sun.intensity = 0.25 + 2.0 * d * overcast;
+    this.hemi.intensity = 0.3 + 0.6 * bright;
+    const sprite = this.sunSprite.material as THREE.SpriteMaterial;
+    sprite.color.copy(this.themeSky).lerp(white, 0.7);
+    sprite.opacity = Math.max(0, d * overcast);
+    this.sunSprite.visible = d > 0.05 && overcast > 0.6;
+  }
+
+  // Rebuild the falling rain/snow particle layer for the current weather.
+  private buildWeather(): void {
+    if (this.precip) {
+      this.scene.remove(this.precip);
+      this.precip.geometry.dispose();
+      (this.precip.material as THREE.Material).dispose();
+      this.precip = null;
+    }
+    const w = this.weather;
+    if (w !== Weather.Rain && w !== Weather.Storm && w !== Weather.Snow) return;
+    const snow = w === Weather.Snow;
+    const count = snow ? 900 : 1500;
+    const positions = new Float32Array(count * 3);
+    for (let i = 0; i < count; i++) {
+      positions[i * 3] = (Math.random() - 0.5) * this.precipBox;
+      positions[i * 3 + 1] = Math.random() * 44;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * this.precipBox;
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute("position", new THREE.BufferAttribute(positions, 3));
+    this.precip = new THREE.Points(
+      geo,
+      new THREE.PointsMaterial({
+        map: makeSpark(),
+        color: snow ? 0xffffff : 0x9fc4ff,
+        size: snow ? 0.55 : 0.34,
+        transparent: true,
+        opacity: snow ? 0.85 : 0.6,
+        depthWrite: false,
+        sizeAttenuation: true,
+        fog: false,
+        blending: snow ? THREE.NormalBlending : THREE.AdditiveBlending,
+      }),
+    );
+    this.precip.frustumCulled = false;
+    this.scene.add(this.precip);
   }
 
   private onResize(): void {
@@ -245,6 +342,31 @@ export class SceneManager {
       pos.setX(i, x);
     }
     pos.needsUpdate = true;
+
+    // advance the local day clock at the server's rate, then ease toward the
+    // latest server time along the shortest path (handles midnight wrap).
+    this.envTime = (this.envTime + dt / (DAY_LENGTH_MS / 1000)) % 1;
+    let diff = this.envTargetTime - this.envTime;
+    if (diff > 0.5) diff -= 1;
+    else if (diff < -0.5) diff += 1;
+    this.envTime = (this.envTime + diff * Math.min(1, dt * 0.5) + 1) % 1;
+    this.applyEnvironment();
+
+    // falling rain / snow, kept centred on the camera
+    if (this.precip) {
+      this.precip.position.set(camera.position.x, 0, camera.position.z);
+      const snow = this.weather === Weather.Snow;
+      const speed = snow ? 6 : 40;
+      const pp = this.precip.geometry.getAttribute("position") as THREE.BufferAttribute;
+      for (let i = 0; i < pp.count; i++) {
+        let y = pp.getY(i) - dt * speed;
+        if (y < 0) y += 44;
+        pp.setY(i, y);
+        if (snow) pp.setX(i, pp.getX(i) + Math.sin((y + i) * 0.6) * dt * 1.4);
+      }
+      pp.needsUpdate = true;
+    }
+
     if (this.water) this.water.material.uniforms.time.value += dt;
     (this.composer.passes[0] as RenderPass).camera = camera;
     this.composer.render();
@@ -303,6 +425,7 @@ const WATER_MAPS: Record<string, [number, number]> = {
   punggol_waterway: [0x6fc8d0, 0x1a5a78],
   pasir_ris: [0x7fd8d0, 0x1e6470],
   marina_barrage: [0x6fb0d0, 0x143a5a],
+  the_float: [0x5a9ad0, 0x0a2a5a],
 };
 
 const SKY_VERT = /* glsl */ `

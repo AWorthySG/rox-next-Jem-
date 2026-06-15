@@ -4,6 +4,7 @@ import { MovementSystem } from "./MovementSystem.js";
 import { CombatSystem } from "./CombatSystem.js";
 import { MonsterAI } from "./MonsterAI.js";
 import { SnapshotSystem } from "./SnapshotSystem.js";
+import { TimeWeatherSystem } from "./TimeWeatherSystem.js";
 
 // Fixed-timestep authoritative simulation. Uses an accumulator so logic advances
 // in discrete TICK_MS steps regardless of timer jitter. Runs identically on the
@@ -13,6 +14,7 @@ export class GameLoop {
   private combat: CombatSystem;
   private ai: MonsterAI;
   private snapshots: SnapshotSystem;
+  private timeWeather: TimeWeatherSystem;
 
   private tick = 0;
   private accumulator = 0;
@@ -24,6 +26,7 @@ export class GameLoop {
     this.combat = new CombatSystem(world);
     this.ai = new MonsterAI(world, this.combat);
     this.snapshots = new SnapshotSystem(world);
+    this.timeWeather = new TimeWeatherSystem(world);
   }
 
   get combatSystem(): CombatSystem {
@@ -58,6 +61,7 @@ export class GameLoop {
     const dt = dtMs / 1000;
     this.tick++;
 
+    this.timeWeather.update(dtMs);
     this.movement.update(dt);
     this.ai.update(dt, dtMs);
     this.combat.update(dtMs);

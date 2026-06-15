@@ -342,6 +342,16 @@ export class Player {
     this.inventory[itemId] = (this.inventory[itemId] ?? 0) + qty;
   }
 
+  countItem(itemId: string): number {
+    return this.inventory[itemId] ?? 0;
+  }
+
+  // Public escrow helper: remove `qty` of an item from the bag (e.g. when listing
+  // it on the Exchange). Returns false if the player lacks the quantity.
+  takeItem(itemId: string, qty = 1): boolean {
+    return this.removeItem(itemId, qty);
+  }
+
   private removeItem(itemId: string, qty = 1): boolean {
     const have = this.inventory[itemId] ?? 0;
     if (have < qty) return false;
