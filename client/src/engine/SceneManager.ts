@@ -96,6 +96,10 @@ export class SceneManager {
       bottomColor: { value: new THREE.Color(0xeaf3fb) },
       offset: { value: 8 },
       exponent: { value: 0.7 },
+      // atmospheric sun scattering: a bright core + soft warm halo around the sun
+      sunDir: { value: new THREE.Vector3(46, 78, 34).normalize() },
+      sunColor: { value: new THREE.Color(0xfff0c8) },
+      sunGlow: { value: 1 },
     };
     this.sky = new THREE.Mesh(
       new THREE.SphereGeometry(MAP_SIZE * 1.4, 32, 20),
@@ -323,7 +327,17 @@ export class SceneManager {
     fog.near = MAP_SIZE * 0.55 * dense;
     fog.far = MAP_SIZE * 1.25 * dense;
 
-    (this.ground.material as THREE.MeshStandardMaterial).color.copy(this.themeGround).multiplyScalar(0.45 + 0.55 * bright);
+    // wet-ground sheen during rain/storm: lower roughness + a touch of metalness
+    // so the sun/sky catch a damp specular, and darken the albedo slightly.
+    const wet = this.weather === Weather.Storm ? 1 : this.weather === Weather.Rain ? 0.7 : 0;
+    const gm = this.ground.material as THREE.MeshStandardMaterial;
+    gm.roughness = 1 - 0.45 * wet;
+    gm.metalness = 0.2 * wet;
+    gm.color.copy(this.themeGround).multiplyScalar((0.45 + 0.55 * bright) * (1 - 0.12 * wet));
+
+    // sun halo follows daylight: bright by day, gone at night (the moon takes over)
+    this.skyUniforms.sunGlow.value = Math.max(0, d * overcast);
+    (this.skyUniforms.sunColor.value as THREE.Color).copy(ENV_SUN_WARM).lerp(white, 1 - overcast).multiplyScalar(overcast);
 
     this.sun.intensity = 0.25 + 2.0 * d * overcast;
     this.hemi.intensity = 0.3 + 0.6 * bright;
@@ -521,6 +535,7 @@ const WATER_MAPS: Record<string, [number, number]> = {
 const ENV_NIGHT_SKY = new THREE.Color(0x0b1a3a);
 const ENV_NIGHT_FOG = new THREE.Color(0x10182e);
 const ENV_WHITE = new THREE.Color(0xffffff);
+const ENV_SUN_WARM = new THREE.Color(0xfff0c8); // warm sun-halo tint
 
 const SKY_VERT = /* glsl */ `
   varying vec3 vWorldPosition;
@@ -537,12 +552,20 @@ const SKY_FRAG = /* glsl */ `
   uniform vec3 bottomColor;
   uniform float offset;
   uniform float exponent;
+  uniform vec3 sunDir;
+  uniform vec3 sunColor;
+  uniform float sunGlow;
   varying vec3 vWorldPosition;
   void main() {
+    vec3 dir = normalize(vWorldPosition);
     float h = normalize(vWorldPosition + vec3(0.0, offset, 0.0)).y;
     float t = max(pow(max(h, 0.0), exponent), 0.0);
     vec3 lower = mix(bottomColor, midColor, smoothstep(0.0, 0.35, h));
     vec3 col = mix(lower, topColor, t);
+    // sun scattering: a wide warm halo + a tighter bright core, fading at night
+    float sd = max(dot(dir, sunDir), 0.0);
+    float halo = pow(sd, 5.0) * 0.30 + pow(sd, 48.0) * 0.65;
+    col += sunColor * halo * sunGlow;
     gl_FragColor = vec4(col, 1.0);
   }
 `;
