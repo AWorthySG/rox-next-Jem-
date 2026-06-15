@@ -106,6 +106,8 @@ const THEMES: Record<string, Partial<Theme>> = {
   botanic_gardens: { trunk: 0x6a5a38, foliage: [0x4fc04a, 0x8ad060], rock: 0xb0c090, tree: "leafy", trees: 72, rocks: 22, tufts: 140, tuft: 0x6fc05f },
   labrador_park: { trunk: 0x5a4a38, foliage: [0x3a7a44, 0x5a9a54], rock: 0x7a7464, tree: "palm", trees: 48, rocks: 40, tufts: 70, tuft: 0x4a8a44 },
   coney_island: { trunk: 0x7a6a40, foliage: [0x5aa04a, 0x7ab85f], rock: 0xb0a878, tree: "palm", trees: 56, rocks: 26, tufts: 110, tuft: 0x5fa84f },
+  tiong_bahru: { trunk: 0x6a5a48, foliage: [0x5a8a4a, 0x7aaa5a], rock: 0xa09480, tree: "leafy", trees: 30, rocks: 30, tufts: 60, tuft: 0x6a9a4f },
+  punggol_waterway: { trunk: 0x5a5a38, foliage: [0x6aba5a, 0x9ad070], rock: 0x8a9a78, tree: "leafy", trees: 50, rocks: 22, tufts: 130, tuft: 0x7aba5f },
   arena: { trees: 0, rocks: 10, tufts: 30 },
 };
 

@@ -506,6 +506,34 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "A charm of sea-bleached driftwood. INT +4, DEX +4, Max SP +30.", maxSp: 30, bonusStats: { int: 4, dex: 4 }, sellPrice: 2800,
   },
 
+  // ---- Tiong Bahru (Singapore) gear ----
+  cleaver_blade: {
+    id: "cleaver_blade", name: "Cleaver Blade", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A wet-market butcher's cleaver. ATK +46, STR +3.", atk: 46, bonusStats: { str: 3 }, sellPrice: 2000,
+  },
+  songbird_cage_hat: {
+    id: "songbird_cage_hat", name: "Songbird Cage Hat", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A miniature bird-corner cage. DEX +3, AGI +2, Max SP +20.", maxSp: 20, bonusStats: { dex: 3, agi: 2 }, sellPrice: 2000,
+  },
+  art_deco_vest: {
+    id: "art_deco_vest", name: "Art Deco Vest", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "A heritage SIT-flat vest. DEF +16, Max HP +140, VIT +3.", def: 16, maxHp: 140, bonusStats: { vit: 3 }, sellPrice: 2000,
+  },
+
+  // ---- Punggol Waterway (Singapore) gear ----
+  kelong_harpoon: {
+    id: "kelong_harpoon", name: "Kelong Harpoon", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A fishing-platform harpoon. ATK +60, DEX +5.", atk: 60, bonusStats: { dex: 5 }, sellPrice: 3000,
+  },
+  waterway_mantle: {
+    id: "waterway_mantle", name: "Waterway Mantle", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "A breezy riverside mantle. DEF +24, Max HP +220, AGI +5.", def: 24, maxHp: 220, bonusStats: { agi: 5 }, sellPrice: 3000,
+  },
+  lalang_charm: {
+    id: "lalang_charm", name: "Lalang Charm", type: ItemType.Accessory, slot: EquipSlot.Accessory,
+    desc: "A woven tall-grass charm. INT +5, DEX +3, Max SP +40.", maxSp: 40, bonusStats: { int: 5, dex: 3 }, sellPrice: 3000,
+  },
+
   // ---- Mount Faber (Singapore) gear ----
   summit_lance: {
     id: "summit_lance", name: "Summit Lance", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1457,6 +1485,18 @@ Object.assign(DROP_TABLES, {
   mudflat_crane: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "casuarina_cloak", chance: 0.03 }],
   white_bull_king: HI([{ itemId: "bull_horn_mace", chance: 0.6 }, { itemId: "casuarina_cloak", chance: 0.5 }, { itemId: "driftwood_charm", chance: 0.4 }]),
   driftwood_treant: HI([{ itemId: "casuarina_cloak", chance: 0.6 }, { itemId: "driftwood_charm", chance: 0.45 }, { itemId: "poring_card", chance: 0.05 }]),
+  // Tiong Bahru (Singapore)
+  kopitiam_spirit: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "art_deco_vest", chance: 0.03 }],
+  songbird_swarm: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "songbird_cage_hat", chance: 0.03 }],
+  back_alley_rat: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "cleaver_blade", chance: 0.03 }],
+  art_deco_golem: HI([{ itemId: "art_deco_vest", chance: 0.6 }, { itemId: "songbird_cage_hat", chance: 0.5 }, { itemId: "cleaver_blade", chance: 0.4 }]),
+  market_wraith: HI([{ itemId: "cleaver_blade", chance: 0.6 }, { itemId: "art_deco_vest", chance: 0.45 }, { itemId: "poring_card", chance: 0.05 }]),
+  // Punggol Waterway (Singapore)
+  kelong_crab: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "waterway_mantle", chance: 0.03 }],
+  lalang_sprite: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "lalang_charm", chance: 0.03 }],
+  waterway_egret: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "kelong_harpoon", chance: 0.03 }],
+  sand_quarry_golem: HI([{ itemId: "waterway_mantle", chance: 0.6 }, { itemId: "lalang_charm", chance: 0.5 }, { itemId: "kelong_harpoon", chance: 0.4 }]),
+  tilapia_titan: HI([{ itemId: "kelong_harpoon", chance: 0.6 }, { itemId: "waterway_mantle", chance: 0.45 }, { itemId: "marc_card", chance: 0.05 }]),
   // Mount Faber (Singapore)
   cable_wraith: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "alpine_plate", chance: 0.03 }],
   peak_eagle: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "aviator_cap", chance: 0.03 }],
@@ -1682,6 +1722,8 @@ const ORE_REGULARS = [
   "garden_swan", "orchid_sprite", "koi_spirit",
   "battery_phantom", "reef_lobster", "cliff_bat",
   "coney_bull", "casuarina_sprite", "mudflat_crane",
+  "kopitiam_spirit", "songbird_swarm", "back_alley_rat",
+  "kelong_crab", "lalang_sprite", "waterway_egret",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1719,6 +1761,8 @@ const ORE_BOSSES = [
   "bandstand_golem", "swan_lake_naga",
   "coastal_gun_golem", "dragon_teeth_wraith",
   "white_bull_king", "driftwood_treant",
+  "art_deco_golem", "market_wraith",
+  "sand_quarry_golem", "tilapia_titan",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

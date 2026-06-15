@@ -292,6 +292,43 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
       { name: "Mount Faber Exit", role: "portal", x: 0, z: 24, dest: { toMap: "fort_canning", toX: 0, toZ: -44 } },
       { name: "Labrador Park Portal", role: "portal", x: 0, z: -50, dest: { toMap: "labrador_park", toX: 0, toZ: 18 } },
+      { name: "Tiong Bahru Portal", role: "portal", x: 18, z: 14, dest: { toMap: "tiong_bahru", toX: 0, toZ: 18 } },
+    ],
+  },
+  tiong_bahru: {
+    id: "tiong_bahru",
+    name: "Tiong Bahru",
+    theme: { ground: 0x7a6a5a, fog: 0xb09a78, sky: 0xd8c0a0 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "tb-spirit", templateId: "kopitiam_spirit", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "tb-songbird", templateId: "songbird_swarm", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "tb-rat", templateId: "back_alley_rat", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "tb-golem", templateId: "art_deco_golem", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "tb-wraith", templateId: "market_wraith", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Tiong Bahru Exit", role: "portal", x: 0, z: 24, dest: { toMap: "mount_faber", toX: 18, toZ: 10 } },
+    ],
+  },
+  punggol_waterway: {
+    id: "punggol_waterway",
+    name: "Punggol Waterway",
+    theme: { ground: 0x4a7a5a, fog: 0x7fc0c0, sky: 0xb0e0dc },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "pw-crab", templateId: "kelong_crab", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "pw-lalang", templateId: "lalang_sprite", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "pw-egret", templateId: "waterway_egret", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "pw-golem", templateId: "sand_quarry_golem", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "pw-tilapia", templateId: "tilapia_titan", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Punggol Waterway Exit", role: "portal", x: 0, z: 24, dest: { toMap: "coney_island", toX: 0, toZ: -44 } },
     ],
   },
   labrador_park: {
@@ -328,6 +365,7 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
       { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
       { name: "Coney Island Exit", role: "portal", x: 0, z: 24, dest: { toMap: "sungei_buloh", toX: 0, toZ: -44 } },
+      { name: "Punggol Waterway Portal", role: "portal", x: 0, z: -50, dest: { toMap: "punggol_waterway", toX: 0, toZ: 18 } },
     ],
   },
   kampong_glam: {

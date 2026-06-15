@@ -83,6 +83,8 @@ const ARCH: Record<string, MonsterArch> = {
   garden_swan: "bird", orchid_sprite: "plant", koi_spirit: "aquatic", bandstand_golem: "golem", swan_lake_naga: "dragon",
   battery_phantom: "ghost", reef_lobster: "aquatic", cliff_bat: "bird", coastal_gun_golem: "golem", dragon_teeth_wraith: "ghost",
   coney_bull: "beast", casuarina_sprite: "plant", mudflat_crane: "bird", white_bull_king: "beast", driftwood_treant: "plant",
+  kopitiam_spirit: "ghost", songbird_swarm: "bird", back_alley_rat: "beast", art_deco_golem: "golem", market_wraith: "ghost",
+  kelong_crab: "aquatic", lalang_sprite: "plant", waterway_egret: "bird", sand_quarry_golem: "golem", tilapia_titan: "aquatic",
 };
 
 function hex(s: string): number {
@@ -446,6 +448,16 @@ const DEFS: Record<string, AppearanceDef> = {
   mudflat_crane: { inner: "#e0e0d8", outer: "#7a7a5a", scale: 1.4 },
   white_bull_king: { inner: "#f0f0e8", outer: "#8a7a6a", scale: 3.0, boss: true },
   driftwood_treant: { inner: "#9a8a5a", outer: "#3a2a14", scale: 3.0, boss: true },
+  kopitiam_spirit: { inner: "#c0a070", outer: "#4a3010", scale: 1.3 },
+  songbird_swarm: { inner: "#e0c060", outer: "#7a5a10", scale: 1.2 },
+  back_alley_rat: { inner: "#7a6a5a", outer: "#2a1f14", scale: 1.3 },
+  art_deco_golem: { inner: "#d0c0a0", outer: "#5a4a30", scale: 2.7, boss: true },
+  market_wraith: { inner: "#a08090", outer: "#2a1a24", scale: 2.7, boss: true },
+  kelong_crab: { inner: "#d07050", outer: "#6a2a10", scale: 1.3 },
+  lalang_sprite: { inner: "#bcd070", outer: "#5a6a20", scale: 1.2 },
+  waterway_egret: { inner: "#f0f0e8", outer: "#8a8a6a", scale: 1.4 },
+  sand_quarry_golem: { inner: "#c0a878", outer: "#5a4424", scale: 2.9, boss: true },
+  tilapia_titan: { inner: "#7a9a6a", outer: "#2a3a1a", scale: 2.9, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

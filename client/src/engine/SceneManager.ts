@@ -300,6 +300,7 @@ const WATER_MAPS: Record<string, [number, number]> = {
   botanic_gardens: [0x6abada, 0x1e5a7a],
   labrador_park: [0x7fd0e0, 0x1a6080],
   coney_island: [0x7fd8d8, 0x1e6470],
+  punggol_waterway: [0x6fc8d0, 0x1a5a78],
 };
 
 const SKY_VERT = /* glsl */ `
