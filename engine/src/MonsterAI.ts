@@ -25,24 +25,46 @@ export class MonsterAI {
 
   update(dt: number, dtMs: number): void {
     const now = Date.now();
+
+    // Bucket players by map once; aggro only needs to consider same-map players,
+    // and maps with no players need no active AI at all (nobody to chase or see).
+    const playersByMap = new Map<string, Player[]>();
+    for (const p of this.world.players.values()) {
+      let arr = playersByMap.get(p.mapId);
+      if (!arr) playersByMap.set(p.mapId, (arr = []));
+      arr.push(p);
+    }
+
     for (const m of this.world.monsters.values()) {
       if (m.attackCooldown > 0) m.attackCooldown -= dtMs;
 
-      // Stunned monsters can't act (but dead ones still process respawn).
-      if (m.aiState !== MonsterAIState.Dead && m.isStunned(now)) continue;
+      // Dead monsters always process their respawn timer, even on empty maps, so
+      // the world is populated when a player arrives.
+      if (m.aiState === MonsterAIState.Dead) {
+        if (now >= m.respawnAt) {
+          if (m.temporary) this.world.monsters.delete(m.id); // summoned adds don't respawn
+          else this.respawn(m);
+        }
+        continue;
+      }
+
+      // No players on this map: skip wander/aggro work (it's invisible — snapshots
+      // skip player-less maps too). Drop any stale aggro so it resets cleanly.
+      const mapPlayers = playersByMap.get(m.mapId);
+      if (!mapPlayers) {
+        if (m.aiState === MonsterAIState.Aggro || m.aiState === MonsterAIState.Attack) this.giveUp(m);
+        continue;
+      }
+
+      // Stunned monsters can't act.
+      if (m.isStunned(now)) continue;
 
       switch (m.aiState) {
-        case MonsterAIState.Dead:
-          if (now >= m.respawnAt) {
-            if (m.temporary) this.world.monsters.delete(m.id); // summoned adds don't respawn
-            else this.respawn(m);
-          }
-          break;
         case MonsterAIState.Idle:
-          this.tickIdle(m, now);
+          this.tickIdle(m, now, mapPlayers);
           break;
         case MonsterAIState.Wander:
-          this.tickWander(m, dt);
+          this.tickWander(m, dt, mapPlayers);
           break;
         case MonsterAIState.Aggro:
           this.tickAggro(m, dt);
@@ -54,8 +76,8 @@ export class MonsterAI {
     }
   }
 
-  private tickIdle(m: Monster, now: number): void {
-    if (this.tryAcquireTarget(m)) return;
+  private tickIdle(m: Monster, now: number, mapPlayers: Player[]): void {
+    if (this.tryAcquireTarget(m, mapPlayers)) return;
     if (now >= m.pauseUntil) {
       const a = Math.random() * Math.PI * 2;
       const r = Math.random() * WANDER_RADIUS;
@@ -64,8 +86,8 @@ export class MonsterAI {
     }
   }
 
-  private tickWander(m: Monster, dt: number): void {
-    if (this.tryAcquireTarget(m)) return;
+  private tickWander(m: Monster, dt: number, mapPlayers: Player[]): void {
+    if (this.tryAcquireTarget(m, mapPlayers)) return;
     if (!m.wanderTarget) {
       m.aiState = MonsterAIState.Idle;
       return;
@@ -115,11 +137,10 @@ export class MonsterAI {
     }
   }
 
-  private tryAcquireTarget(m: Monster): boolean {
+  private tryAcquireTarget(m: Monster, mapPlayers: Player[]): boolean {
     let best: Player | null = null;
     let bestD = AGGRO_RANGE;
-    for (const p of this.world.players.values()) {
-      if (p.mapId !== m.mapId) continue;
+    for (const p of mapPlayers) {
       const d = dist2d(m.x, m.z, p.x, p.z);
       if (d < bestD) {
         bestD = d;
