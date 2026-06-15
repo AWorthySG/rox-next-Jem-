@@ -342,7 +342,7 @@ const DEFS: Record<string, AppearanceDef> = {
   firefly_swarm: { inner: "#ffe6a0", outer: "#b3860f", eye: "#ffd24a", scale: 0.9 },
   orchid_fae: { inner: "#d8b8e8", outer: "#6a4a86", eye: "#f0e0ff", scale: 1.1 },
   supertree_guardian: { inner: "#ff6a1a", outer: "#1a1814", eye: "#ffb030", scale: 3.2, boss: true },
-  flower_dome_titan: { inner: "#a0d0c0", outer: "#2a6a5a", scale: 3.1, boss: true },
+  flower_dome_titan: { inner: "#3ad0a0", outer: "#1a3a2a", eye: "#ffd060", scale: 3.1, boss: true },
   // Pulau Hantu (Singapore — Ghost Island)
   pontianak: { inner: "#e0e0e8", outer: "#6a6a7a", scale: 1.3 },
   orang_minyak: { inner: "#5a5a5a", outer: "#101010", scale: 1.35 },
@@ -408,7 +408,7 @@ const DEFS: Record<string, AppearanceDef> = {
   beach_ghoul: { inner: "#3a4452", outer: "#0c0e12", eye: "#cfe8ff", scale: 1.4 },
   jewel_drone: { inner: "#c8a860", outer: "#2a5a8a", eye: "#7ad0ff", scale: 1.2 },
   changi_revenant: { inner: "#d0d8e0", outer: "#4a5a6a", scale: 2.8, boss: true },
-  vortex_guardian: { inner: "#80c0d0", outer: "#1a5a6a", scale: 3.1, boss: true },
+  vortex_guardian: { inner: "#7ad0ff", outer: "#10141c", eye: "#eafaff", scale: 3.1, boss: true },
   water_monitor: { inner: "#6a7a4a", outer: "#2a3a1a", scale: 1.5 },
   treetop_colugo: { inner: "#9a8a6a", outer: "#3a2e1a", scale: 1.3 },
   swamp_leech: { inner: "#7a4a5a", outer: "#2a1020", scale: 1.3 },
