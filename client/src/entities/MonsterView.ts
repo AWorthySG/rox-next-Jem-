@@ -134,7 +134,10 @@ export class MonsterView extends EntityView {
       this.poring.body.scale.set(1, squash, 1);
     }
     const bobAmp = this.poring.squash ? 0.18 : 0.1;
-    this.poring.group.position.y = this.moving ? Math.abs(Math.sin(this.phase)) * bobAmp * this.scale : 0;
+    // bob while walking; a gentle idle breath when standing so nothing is statue-still
+    this.poring.group.position.y = this.moving
+      ? Math.abs(Math.sin(this.phase)) * bobAmp * this.scale
+      : Math.sin(this.phase) * 0.03 * this.scale;
     if (this.aura) this.aura.rotation.z += dt * 3;
     if (this.bossAura) {
       const t = Math.sin(this.phase * 0.9) * 0.5 + 0.5;
