@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { MAP_HALF } from "@rox/shared";
+import { applyWind } from "./wind.js";
 
 export interface Scenery {
   group: THREE.Group;
@@ -187,6 +188,7 @@ export function buildScenery(mapId: string): Scenery {
   // ---- grass tufts / flowers (instanced little cones) ----
   if (theme.tufts > 0) {
     const [tg, tm] = track(new THREE.ConeGeometry(0.16, 0.5, 5), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, flatShading: true }));
+    applyWind(tm, 0.08); // grass sways a touch more than canopies
     const tufts = new THREE.InstancedMesh(tg, tm, theme.tufts);
     const base = new THREE.Color(theme.tuft);
     const col = new THREE.Color();
@@ -266,6 +268,7 @@ function addTrees(
     emissive: theme.tree === "crystal" ? new THREE.Color(foliageColor).multiplyScalar(0.35) : 0x000000,
   });
   track(foliageGeo, foliageMat);
+  applyWind(foliageMat);
   const foliage = new THREE.InstancedMesh(foliageGeo, foliageMat, n);
   foliage.castShadow = true;
 
@@ -281,6 +284,7 @@ function addTrees(
       emissive: theme.tree === "crystal" ? new THREE.Color(foliageColor2).multiplyScalar(0.35) : 0x000000,
     }),
   );
+  applyWind(foliageMat2);
   const foliage2 = new THREE.InstancedMesh(foliageGeo, foliageMat2, n);
   foliage2.castShadow = true;
 

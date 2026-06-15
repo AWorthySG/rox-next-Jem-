@@ -10,6 +10,7 @@ import { MAP_SIZE, DAY_LENGTH_MS, daylight, Weather, type MapTheme } from "@rox/
 import { makeGroundTexture, makeGroundRoughness, makeSunSprite, makeCloud, makeSpark, makeCloudShadow } from "../procedural/textures.js";
 import { buildScenery, type Scenery } from "../procedural/scenery.js";
 import { buildWater, type Water } from "../procedural/water.js";
+import { windTime } from "../procedural/wind.js";
 
 // Owns the renderer, the CSS2D label layer, scene, lights, ground, sky dome and
 // the post-processing pipeline (bloom + SMAA), styled for a warm anime-MMO look.
@@ -458,6 +459,7 @@ export class SceneManager {
       csMap.offset.y += dt * 0.004;
     }
     if (this.water) this.water.material.uniforms.time.value += dt;
+    windTime.value += dt;
     this.grade.uniforms.time.value += dt;
     (this.composer.passes[0] as RenderPass).camera = camera;
     this.composer.render();
