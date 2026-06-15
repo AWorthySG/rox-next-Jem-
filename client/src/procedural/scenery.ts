@@ -186,15 +186,22 @@ export function buildScenery(mapId: string): Scenery {
 
   // ---- grass tufts / flowers (instanced little cones) ----
   if (theme.tufts > 0) {
-    const [tg, tm] = track(new THREE.ConeGeometry(0.16, 0.5, 5), new THREE.MeshStandardMaterial({ color: theme.tuft, roughness: 1, flatShading: true }));
+    const [tg, tm] = track(new THREE.ConeGeometry(0.16, 0.5, 5), new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 1, flatShading: true }));
     const tufts = new THREE.InstancedMesh(tg, tm, theme.tufts);
+    const base = new THREE.Color(theme.tuft);
+    const col = new THREE.Color();
     let i = 0;
     const m = new THREE.Matrix4();
     scatter(rng, theme.tufts, (x, z, s) => {
       m.compose(new THREE.Vector3(x, 0.22 * s, z), new THREE.Quaternion(), new THREE.Vector3(s, s, s));
-      tufts.setMatrixAt(i++, m);
+      tufts.setMatrixAt(i, m);
+      // per-tuft brightness/hue jitter so the grass field isn't a flat colour
+      col.copy(base).offsetHSL((rng() - 0.5) * 0.05, (rng() - 0.5) * 0.12, (rng() - 0.5) * 0.18);
+      tufts.setColorAt(i, col);
+      i++;
     });
     tufts.count = i;
+    if (tufts.instanceColor) tufts.instanceColor.needsUpdate = true;
     group.add(tufts);
   }
 
