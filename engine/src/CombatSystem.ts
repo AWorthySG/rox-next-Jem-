@@ -15,6 +15,8 @@ import {
   RESPAWN_MS,
   resolveAttack,
   rollDrops,
+  skillCooldownMs,
+  skillEffectDurationMs,
   skillPower,
   skillSpCost,
   SP_REGEN_PER_SEC,
@@ -216,7 +218,7 @@ export class CombatSystem {
     // Self-cast buff.
     if (def.buff) {
       p.sp -= cost;
-      p.skillCooldowns[def.id] = def.cooldownMs;
+      p.skillCooldowns[def.id] = skillCooldownMs(def, lvl);
       p.addBuff(def.buff.stat, def.buff.mult, def.buff.durationMs, Date.now());
       this.clearSkill(p);
       return true;
@@ -352,7 +354,7 @@ export class CombatSystem {
         def.effect.type === StatusType.Burn
           ? Math.max(1, Math.round(p.derived.matk * (def.effect.magnitude ?? 0.25)))
           : (def.effect.magnitude ?? 0);
-      target.addStatus(def.effect.type, def.effect.durationMs, p.id, Date.now(), mag);
+      target.addStatus(def.effect.type, skillEffectDurationMs(def.effect.durationMs, lvl), p.id, Date.now(), mag);
     }
   }
 

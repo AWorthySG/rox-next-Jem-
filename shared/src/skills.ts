@@ -485,6 +485,17 @@ export function skillSpCost(def: SkillDef, level: number): number {
   return Math.round(def.spCost * (1 + 0.1 * (Math.max(1, level) - 1)));
 }
 
+// Leveling a skill also trims its cooldown (down to a 30% reduction) so a maxed
+// skill chains noticeably faster.
+export function skillCooldownMs(def: SkillDef, level: number): number {
+  return Math.round(def.cooldownMs * Math.max(0.7, 1 - 0.05 * (Math.max(1, level) - 1)));
+}
+
+// …and lengthens any crowd-control / DoT it applies (slow, stun, burn).
+export function skillEffectDurationMs(baseMs: number, level: number): number {
+  return Math.round(baseMs * (1 + 0.12 * (Math.max(1, level) - 1)));
+}
+
 // A skill is usable by a job if it appears in that job's kit (covers inherited
 // 1st-job skills on 2nd jobs).
 export function jobHasSkill(job: JobId, skillId: string): boolean {
