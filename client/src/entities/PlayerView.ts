@@ -108,12 +108,13 @@ export class PlayerView extends EntityView {
     this.group.position.set(x, 0, z);
   }
 
-  override update(renderTime: number, dt: number): void {
+  override update(renderTime: number, dt: number, camPos?: THREE.Vector3): void {
     if (!this.isSelf) {
-      super.update(renderTime, dt);
+      super.update(renderTime, dt, camPos);
       return;
     }
-    // ---- local prediction for the controlled player ----
+    // ---- local prediction for the controlled player ---- (self is always near
+    // the camera, so it stays full-detail — no LOD gating)
     if (this.predTarget) {
       // Advance toward the click target at the authoritative speed. We trust the
       // prediction and let the server simply trail by ~latency — no constant pull

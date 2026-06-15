@@ -566,7 +566,7 @@ new Loop((dt) => {
       }
     }
   }
-  gameState.update(dt);
+  gameState.update(dt, cameraRig.camera.position);
   clickMarker.update(dt);
   novaTelegraph.update();
   damageNumbers.update();

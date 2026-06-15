@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { CSS2DObject } from "three/addons/renderers/CSS2DRenderer.js";
 import type { EntityFull } from "@rox/shared";
 import { Interpolator } from "./Interpolator.js";
+import { lodTier, labelVisible } from "./lod.js";
 
 // Base view for any networked entity: owns the 3D group, a nameplate + HP bar
 // label, and the interpolation buffer. Subclasses build the actual mesh.
@@ -77,7 +78,7 @@ export abstract class EntityView {
   }
 
   // Default update: drive position from the interpolation buffer.
-  update(renderTime: number, dt: number): void {
+  update(renderTime: number, dt: number, camPos?: THREE.Vector3): void {
     const s = this.interp.sample(renderTime);
     if (s) {
       this.detectMovement(s.x, s.z);
@@ -85,7 +86,23 @@ export abstract class EntityView {
       this.group.position.z = s.z;
       this.group.rotation.y = s.facing;
     }
-    this.animate(dt);
+    this.applyLod(dt, camPos);
+  }
+
+  // Visibility/animation level-of-detail by camera distance. Far entities stop
+  // rendering, mid-distance ones freeze their animation, and distant nameplates
+  // are hidden. With no camera (e.g. headless), everything stays full detail.
+  protected applyLod(dt: number, camPos?: THREE.Vector3): void {
+    if (!camPos) {
+      this.group.visible = true;
+      this.animate(dt);
+      return;
+    }
+    const distSq = camPos.distanceToSquared(this.group.position);
+    const tier = lodTier(distSq);
+    this.group.visible = tier !== "culled";
+    this.label.visible = labelVisible(distSq);
+    if (tier === "full") this.animate(dt);
   }
 
   protected detectMovement(x: number, z: number): void {

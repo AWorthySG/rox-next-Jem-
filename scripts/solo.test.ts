@@ -33,6 +33,7 @@ import {
 } from "@rox/shared";
 import { ExchangeSystem, MAPS, Monster, MONSTER_TEMPLATES, Player } from "@rox/engine";
 import { LocalServer } from "../client/src/net/LocalServer.js";
+import { lodTier, labelVisible } from "../client/src/entities/lod.js";
 
 const failures: string[] = [];
 function check(cond: boolean, label: string): void {
@@ -540,6 +541,12 @@ async function main(): Promise<void> {
   check(afterCastDelayMs(0) === 420, "acd: base after-cast delay at 0 AGI");
   check(afterCastDelayMs(60) < 420, "acd: AGI shortens the after-cast delay");
   check(afterCastDelayMs(999) === 120, "acd: after-cast delay floors at 120ms");
+
+  // ---- distance LOD tiers ----
+  check(lodTier(10 * 10) === "full", "lod: near entity is full detail");
+  check(lodTier(100 * 100) === "frozen", "lod: mid-distance entity freezes animation");
+  check(lodTier(200 * 200) === "culled", "lod: far entity is culled");
+  check(labelVisible(30 * 30) && !labelVisible(80 * 80), "lod: nameplate hidden past the label range");
 
   local.stop();
   if (failures.length) {
