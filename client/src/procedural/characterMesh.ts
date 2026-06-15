@@ -92,6 +92,38 @@ export function buildCharacter(
   const leftLeg = limb(group, legGeo, bootMat, -0.16, 0.7, accent);
   const rightLeg = limb(group, legGeo, bootMat, 0.16, 0.7, accent);
 
+  // class outfit flourish — deepens each archetype's silhouette
+  if (weapon === "staff") {
+    // mage robe: a long skirt over the legs
+    const robe = new THREE.Mesh(new THREE.ConeGeometry(0.5, 1.05, 12, 1, true), outfit);
+    robe.position.y = 0.78;
+    group.add(robe);
+  } else if (weapon === "bow") {
+    // archer quiver of arrows on the back
+    const quiver = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.5, 8), toon(0x6b4a2b));
+    quiver.position.set(-0.2, 1.42, -0.24);
+    quiver.rotation.x = -0.35;
+    group.add(quiver);
+    for (let i = -1; i <= 1; i++) {
+      const arrow = new THREE.Mesh(new THREE.ConeGeometry(0.03, 0.18, 5), toon(0xe8e2cc));
+      arrow.position.set(-0.2 + i * 0.05, 1.72, -0.28);
+      group.add(arrow);
+    }
+  } else if (weapon === "mace") {
+    // acolyte shoulder mantle
+    const mantle = new THREE.Mesh(new THREE.ConeGeometry(0.44, 0.42, 14, 1, true), toon(0xf2efe6));
+    mantle.position.y = 1.46;
+    group.add(mantle);
+  } else {
+    // swordsman pauldrons
+    for (const s of [-1, 1]) {
+      const pad = new THREE.Mesh(new THREE.SphereGeometry(0.17, 12, 10, 0, Math.PI * 2, 0, Math.PI / 1.8), accent);
+      pad.position.set(s * 0.4, 1.5, 0);
+      pad.scale.y = 0.7;
+      group.add(pad);
+    }
+  }
+
   // class weapon — a distinct silhouette per archetype
   if (weapon === "staff") {
     const staff = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.3, 8), toon(0x8a5a2b));
