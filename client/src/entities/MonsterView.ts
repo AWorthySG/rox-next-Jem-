@@ -93,7 +93,9 @@ export class MonsterView extends EntityView {
   private mixer: THREE.AnimationMixer | null = null; // skeletal animation (loaded models)
   private clips: Partial<Record<ClipKind, THREE.AnimationClip>> = {};
   private idleAction: THREE.AnimationAction | null = null;
+  private walkAction: THREE.AnimationAction | null = null;
   private oneShot: THREE.AnimationAction | null = null;
+  private current: THREE.AnimationAction | null = null; // dominant action (idle/walk/one-shot)
   private deathClip = false; // model supplied a death clip → skip the procedural pop/spin
   private modelBacked = false; // true once a shared-geometry .glb has been swapped in
   private disposed = false;
@@ -136,34 +138,52 @@ export class MonsterView extends EntityView {
     if (loaded.animations.length) {
       this.mixer = new THREE.AnimationMixer(loaded.scene);
       this.clips = resolveClips(loaded.animations);
-      const base = this.clips.idle ?? this.clips.walk ?? loaded.animations[0];
-      if (base) (this.idleAction = this.mixer.clipAction(base)).play();
-      // one-shots (attack/hit/death) fade back to idle when they finish
-      this.mixer.addEventListener("finished", () => this.returnToIdle());
+      const idle = this.clips.idle ?? this.clips.walk ?? loaded.animations[0];
+      if (idle) (this.idleAction = this.mixer.clipAction(idle)).play();
+      if (this.clips.walk && this.clips.walk !== idle) {
+        this.walkAction = this.mixer.clipAction(this.clips.walk);
+        this.walkAction.setEffectiveWeight(0).play();
+      }
+      this.current = this.idleAction;
+      // one-shots (attack/hit/death) fade back to the locomotion loop when done
+      this.mixer.addEventListener("finished", () => this.returnToLoco());
     }
   }
 
-  // Play a non-looping clip (if the model has one) over the idle loop. Returns
+  // Crossfade the dominant action to `next` (idle/walk/one-shot).
+  private crossfadeTo(next: THREE.AnimationAction, dur: number): void {
+    if (this.current === next) return;
+    next.reset().setEffectiveWeight(1).fadeIn(dur).play();
+    this.current?.fadeOut(dur);
+    this.current = next;
+  }
+
+  // Keep the base loop in sync with movement (idle ↔ walk) when no one-shot is
+  // playing. Called each full-detail frame.
+  private updateLocomotion(): void {
+    if (this.oneShot || !this.idleAction) return;
+    const want = this.moving && this.walkAction ? this.walkAction : this.idleAction;
+    this.crossfadeTo(want, 0.18);
+  }
+
+  // Play a non-looping clip (if the model has one) over the base loop. Returns
   // false when there's no such clip, so callers can use a procedural fallback.
   private playOneShot(kind: ClipKind): boolean {
     const clip = this.mixer && this.clips[kind];
     if (!clip || !this.mixer) return false;
     const action = this.mixer.clipAction(clip);
-    action.reset();
     action.setLoop(THREE.LoopOnce, 1);
     action.clampWhenFinished = kind === "death";
-    if (this.oneShot && this.oneShot !== action) this.oneShot.stop();
-    this.idleAction?.fadeOut(0.08);
-    action.fadeIn(0.08).play();
+    this.crossfadeTo(action, 0.08);
     this.oneShot = action;
     return true;
   }
 
-  private returnToIdle(): void {
-    if (this.dying || !this.idleAction) return; // death clamps on its last frame
-    this.oneShot?.fadeOut(0.15);
+  private returnToLoco(): void {
     this.oneShot = null;
-    this.idleAction.reset().fadeIn(0.15).play();
+    if (this.dying || !this.idleAction) return; // death clamps on its last frame
+    this.current = null; // force updateLocomotion to crossfade back in
+    this.updateLocomotion();
   }
 
   // Flash + scale-punch when struck (always), plus a hit clip if the model has one.
@@ -242,17 +262,24 @@ export class MonsterView extends EntityView {
   }
 
   protected override animate(dt: number): void {
-    if (this.mixer) this.mixer.update(dt);
+    if (this.mixer) {
+      this.updateLocomotion();
+      this.mixer.update(dt);
+    }
     this.phase += dt * (this.moving ? 9 : 3);
     if (this.poring.squash) {
       const squash = 0.82 + Math.sin(this.phase) * (this.moving ? 0.14 : 0.06);
       this.poring.body.scale.set(1, squash, 1);
     }
-    const bobAmp = this.poring.squash ? 0.18 : 0.1;
-    // bob while walking; a gentle idle breath when standing so nothing is statue-still
-    this.poring.group.position.y = this.moving
-      ? Math.abs(Math.sin(this.phase)) * bobAmp * this.scale
-      : Math.sin(this.phase) * 0.03 * this.scale;
+    // Procedural bob — only when the model isn't animating itself (no mixer);
+    // an animated model's idle/walk clip provides its own motion.
+    if (!this.mixer) {
+      const bobAmp = this.poring.squash ? 0.18 : 0.1;
+      // bob while walking; a gentle idle breath when standing so nothing is statue-still
+      this.poring.group.position.y = this.moving
+        ? Math.abs(Math.sin(this.phase)) * bobAmp * this.scale
+        : Math.sin(this.phase) * 0.03 * this.scale;
+    }
     if (this.aura) this.aura.rotation.z += dt * 3;
     if (this.bossAura) {
       const t = Math.sin(this.phase * 0.9) * 0.5 + 0.5;

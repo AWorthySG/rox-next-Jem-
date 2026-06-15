@@ -50,8 +50,9 @@ Anything in `client/public/` is served at the site root, so models load from
 | hit | `hit` / `hurt` / `damage` / `flinch` | white flash (always plays too) |
 | death | `death` / `die` / `dead` / `faint` | procedural pop + spin |
 
-One-shots crossfade over the idle loop and return to it; a death clip clamps on
-its last frame while the body fades out.
+The base loop crossfades between `idle` and `walk` automatically as the monster
+moves. One-shots (attack/hit/death) crossfade over the base loop and return to
+it; a death clip clamps on its last frame while the body fades out.
 
 ## Validate before committing
 
