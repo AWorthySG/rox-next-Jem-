@@ -17,6 +17,7 @@ export interface SkillDef {
   range: number;
   kind: DamageKind;
   power: number; // multiplier applied to ATK/MATK
+  castMs?: number; // base cast time before the skill fires (0/undefined = instant)
   aoeRadius?: number; // if set, also hits enemies within this radius of the target
   heal?: boolean; // restores the caster's HP instead of dealing damage
   buff?: { stat: "atk" | "matk"; mult: number; durationMs: number }; // self-buff
@@ -440,6 +441,34 @@ export const SKILLS_BY_JOB: Record<JobId, SkillDef[]> = {
   [JobId.Windhawk]: [SKILLS.double_strafe, SKILLS.arrow_shower, SKILLS.blitz_beat, SKILLS.sharp_shooting, SKILLS.falcon_assault, SKILLS.gale_storm],
   [JobId.Cardinal]: [SKILLS.heal, SKILLS.holy_light, SKILLS.magnus_exorcismus, SKILLS.blessing, SKILLS.judex, SKILLS.adoramus],
 };
+
+// Base cast times (ms) for the heavier magic nukes and ranged volleys. Melee
+// strikes, buffs and heals stay instant. Cast time is shortened by DEX (below).
+const CAST_TIMES: Record<string, number> = {
+  fire_bolt: 600,
+  thunder_storm: 900,
+  jupitel_thunder: 700,
+  meteor_storm: 1500,
+  storm_gust: 1400,
+  crimson_rock: 1600,
+  holy_light: 450,
+  magnus_exorcismus: 1300,
+  judex: 800,
+  adoramus: 1200,
+  sharp_shooting: 700,
+};
+for (const [id, ms] of Object.entries(CAST_TIMES)) {
+  if (SKILLS[id]) SKILLS[id].castMs = ms;
+}
+
+// DEX shortens cast time (classic RO feel): each point trims it, down to a 25%
+// floor. A DEX-stacked caster fires noticeably faster.
+export function effectiveCastMs(def: SkillDef, dex: number): number {
+  const base = def.castMs ?? 0;
+  if (base <= 0) return 0;
+  const factor = Math.max(0.25, 1 - dex / 120);
+  return Math.round(base * factor);
+}
 
 export function getSkill(id: string): SkillDef | undefined {
   return SKILLS[id];

@@ -180,6 +180,8 @@ export class World {
     player.attackTargetId = null;
     player.pendingSkillId = null;
     player.pendingSkillTargetId = null;
+    player.castingSkillId = null;
+    player.castTargetId = null;
     // Arrive on the new map.
     this.enterCurrentMap(player);
     this.broadcastToMap(dest.toMap, { t: MsgType.Spawn, entity: player.toFull() }, conn.id);

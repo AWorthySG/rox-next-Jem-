@@ -5,6 +5,7 @@
 import {
   DamageKind,
   Element,
+  effectiveCastMs,
   elementMultiplier,
   environmentMultiplier,
   daylight,
@@ -12,6 +13,7 @@ import {
   rollWeather,
   Weather,
   getItem,
+  getSkill,
   itemEquippableBy,
   JobId,
   MsgType,
@@ -516,6 +518,12 @@ async function main(): Promise<void> {
   check((wiz2.inventory["vanguard_greatsword"] ?? 0) === 1, "class: a blocked equip leaves the item in the bag");
   wiz2.addItem("archmage_rod", 1);
   check(wiz2.equip("archmage_rod"), "class: Mage equips the Archmage Rod");
+
+  // ---- skill cast times scale with DEX ----
+  check(effectiveCastMs(getSkill("fire_bolt")!, 0) === 600, "cast: fire bolt base cast time at 0 DEX");
+  check(effectiveCastMs(getSkill("bash")!, 0) === 0, "cast: melee skills are instant");
+  check(effectiveCastMs(getSkill("fire_bolt")!, 60) < 600, "cast: DEX shortens cast time");
+  check(effectiveCastMs(getSkill("fire_bolt")!, 600) === Math.round(600 * 0.25), "cast: cast time floors at 25%");
 
   local.stop();
   if (failures.length) {

@@ -52,6 +52,7 @@ export enum MsgType {
   Defeated = "defeated",
   RefineResult = "refineResult",
   BossTelegraph = "bossTelegraph",
+  SkillCast = "skillCast",
   DamageEvent = "damage",
   LevelUp = "levelUp",
   ChatBroadcast = "chatMsg",

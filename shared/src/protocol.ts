@@ -222,6 +222,15 @@ export interface RefineResultMsg {
   broke: boolean;
 }
 
+// A skill cast has begun (or was cancelled with durationMs 0). Drives the cast
+// bar and a wind-up tell; resolution is still server-authoritative.
+export interface SkillCastMsg {
+  t: MsgType.SkillCast;
+  casterId: number;
+  skillId: string;
+  durationMs: number; // 0 = cast cancelled
+}
+
 // A telegraphed AoE about to land — clients render a growing warning ring.
 export interface BossTelegraphMsg {
   t: MsgType.BossTelegraph;
@@ -442,6 +451,7 @@ export type ServerMessage =
   | DefeatedMsg
   | RefineResultMsg
   | BossTelegraphMsg
+  | SkillCastMsg
   | DamageEventMsg
   | LevelUpMsg
   | ChatBroadcastMsg
