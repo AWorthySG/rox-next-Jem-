@@ -248,9 +248,10 @@ export class SceneManager {
       this.weather === Weather.Fog ? 0.62 : 1;
     const bright = (0.22 + 0.78 * d) * overcast;
 
-    const nightSky = new THREE.Color(0x0b1a3a);
-    const nightFog = new THREE.Color(0x10182e);
-    const white = new THREE.Color(0xffffff);
+    // Reused scratch constants (no per-frame allocation — this runs every frame).
+    const nightSky = ENV_NIGHT_SKY;
+    const nightFog = ENV_NIGHT_FOG;
+    const white = ENV_WHITE;
 
     this.skyUniforms.topColor.value.copy(this.themeSky).multiplyScalar(0.8).lerp(nightSky, 1 - d).multiplyScalar(overcast);
     this.skyUniforms.midColor.value.copy(this.themeSky).lerp(nightSky, 1 - d).multiplyScalar(overcast);
@@ -427,6 +428,12 @@ const WATER_MAPS: Record<string, [number, number]> = {
   marina_barrage: [0x6fb0d0, 0x143a5a],
   the_float: [0x5a9ad0, 0x0a2a5a],
 };
+
+// Shared, read-only colour targets for day/night blending (never mutated, so a
+// single instance is reused every frame to avoid GC churn).
+const ENV_NIGHT_SKY = new THREE.Color(0x0b1a3a);
+const ENV_NIGHT_FOG = new THREE.Color(0x10182e);
+const ENV_WHITE = new THREE.Color(0xffffff);
 
 const SKY_VERT = /* glsl */ `
   varying vec3 vWorldPosition;
