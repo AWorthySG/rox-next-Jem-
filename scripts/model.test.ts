@@ -29,6 +29,7 @@ const gltf = await new Promise<{ scene: THREE.Group; animations: THREE.Animation
 console.log("model: glTF parse");
 check("scene parsed with meshes", (() => { let n = 0; gltf.scene.traverse((o) => { if (o instanceof THREE.Mesh) n++; }); return n > 0; })());
 check("idle animation clip present", gltf.animations.some((c) => c.name === "idle"));
+check("walk animation clip present", gltf.animations.some((c) => c.name === "walk"));
 
 console.log("model: clone + transform (real loader code)");
 const clone = cloneSkeleton(gltf.scene);

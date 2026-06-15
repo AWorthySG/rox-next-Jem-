@@ -64,7 +64,17 @@ const spin = new THREE.QuaternionKeyframeTrack(
   times,
   [q0.x, q0.y, q0.z, q0.w, q1.x, q1.y, q1.z, q1.w, q2.x, q2.y, q2.z, q2.w],
 );
-const clip = new THREE.AnimationClip("idle", 2, [bob, spin]);
+const idleClip = new THREE.AnimationClip("idle", 2, [bob, spin]);
+
+// "walk": a quicker, livelier bob + faster spin for when the monster moves.
+const wtimes = [0, 0.5, 1];
+const wbob = new THREE.VectorKeyframeTrack("core.position", wtimes, [0, 1.0, 0, 0, 1.28, 0, 0, 1.0, 0]);
+const wspin = new THREE.QuaternionKeyframeTrack(
+  "core.quaternion",
+  wtimes,
+  [q0.x, q0.y, q0.z, q0.w, q1.x, q1.y, q1.z, q1.w, q2.x, q2.y, q2.z, q2.w],
+);
+const walkClip = new THREE.AnimationClip("walk", 1, [wbob, wspin]);
 
 const outDir = fileURLToPath(new URL("../client/public/models/", import.meta.url));
 const outFile = outDir + "jewel_drone.glb";
@@ -81,5 +91,5 @@ new GLTFExporter().parse(
     console.error("export failed", err);
     process.exit(1);
   },
-  { binary: true, animations: [clip] },
+  { binary: true, animations: [idleClip, walkClip] },
 );
