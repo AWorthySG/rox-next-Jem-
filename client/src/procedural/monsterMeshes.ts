@@ -94,7 +94,7 @@ function bug(app: MonsterAppearance): MonsterMesh {
   const head = new THREE.Mesh(new THREE.SphereGeometry(0.3, 12, 12), toon(app.accent));
   head.position.set(0, 0.55, 0.5);
   g.add(head);
-  eyes(g, 0.62, 0.74, 0.12, 0.06, 0xffffff);
+  eyes(g, 0.62, 0.74, 0.12, 0.06, app.eye ?? 0xffffff);
   // wings
   for (const s of [-1, 1]) {
     const wing = new THREE.Mesh(
@@ -137,7 +137,7 @@ function beast(app: MonsterAppearance): MonsterMesh {
     ear.position.set(s * 0.16, 1.02, 0.55);
     g.add(ear);
   }
-  eyes(g, 0.86, 0.88, 0.13, 0.05, 0xffe080);
+  eyes(g, 0.86, 0.88, 0.13, 0.05, app.eye ?? 0xffe080);
   // legs + tail
   for (const sx of [-0.26, 0.26]) for (const sz of [-0.34, 0.34]) {
     const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.1, 0.08, 0.5, 6), toon(app.accent));
@@ -161,7 +161,7 @@ function undead(app: MonsterAppearance): MonsterMesh {
   const head = new THREE.Mesh(new THREE.SphereGeometry(0.27, 14, 14), toon(app.accent));
   head.position.y = 1.62;
   g.add(head);
-  eyes(g, 1.66, 0.24, 0.1, 0.05, 0xff3030);
+  eyes(g, 1.66, 0.24, 0.1, 0.05, app.eye ?? 0xff3030);
   for (const s of [-1, 1]) {
     const arm = new THREE.Mesh(new THREE.BoxGeometry(0.13, 0.6, 0.13), toon(app.main));
     arm.position.set(s * 0.36, 1.0, 0.1);
@@ -195,7 +195,7 @@ function plant(app: MonsterAppearance): MonsterMesh {
     spot.lookAt(spot.position.x * 2, 2, spot.position.z * 2);
     g.add(spot);
   }
-  eyes(g, 0.5, 0.3, 0.12, 0.05, 0x101018);
+  eyes(g, 0.5, 0.3, 0.12, 0.05, app.eye ?? 0x101018);
   g.add(blob(1.3));
   shade(g);
   return { group: g, body: cap, squash: false };
@@ -212,7 +212,7 @@ function rock(app: MonsterAppearance): MonsterMesh {
     r.position.set(Math.sin(a) * 0.5, 0.18, Math.cos(a) * 0.5);
     g.add(r);
   }
-  eyes(g, 0.66, 0.5, 0.16, 0.07, 0xffd24a);
+  eyes(g, 0.66, 0.5, 0.16, 0.07, app.eye ?? 0xffd24a);
   g.add(blob(1.5));
   shade(g);
   return { group: g, body, squash: false };
@@ -232,7 +232,7 @@ function demon(app: MonsterAppearance): MonsterMesh {
     horn.rotation.z = s * 0.5;
     g.add(horn);
   }
-  eyes(g, 1.9, 0.3, 0.13, 0.06, 0xff3020);
+  eyes(g, 1.9, 0.3, 0.13, 0.06, app.eye ?? 0xff3020);
   for (const s of [-1, 1]) {
     const arm = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.1, 0.9, 8), toon(app.main));
     arm.position.set(s * 0.55, 1.15, 0);
@@ -265,7 +265,7 @@ function bird(app: MonsterAppearance): MonsterMesh {
   beak.position.set(0, 1.18, 0.42);
   beak.rotation.x = Math.PI / 2;
   g.add(beak);
-  eyes(g, 1.26, 0.36, 0.12, 0.05, 0x101018);
+  eyes(g, 1.26, 0.36, 0.12, 0.05, app.eye ?? 0x101018);
   for (const s of [-1, 1]) {
     const wing = new THREE.Mesh(
       new THREE.CircleGeometry(0.6, 8, 0, Math.PI),
@@ -305,7 +305,7 @@ function humanoid(app: MonsterAppearance): MonsterMesh {
     tusk.position.set(s * 0.1, 1.5, 0.24);
     g.add(tusk);
   }
-  eyes(g, 1.66, 0.26, 0.1, 0.045, 0xffd24a);
+  eyes(g, 1.66, 0.26, 0.1, 0.045, app.eye ?? 0xffd24a);
   // left arm (shield-ish fist), right arm raised with a club
   const lArm = new THREE.Mesh(new THREE.BoxGeometry(0.2, 0.7, 0.2), toon(skin));
   lArm.position.set(-0.5, 1.0, 0.05);
@@ -344,7 +344,7 @@ function aquatic(app: MonsterAppearance): MonsterMesh {
   fin.position.set(0, 1.6, -0.1);
   fin.scale.set(0.4, 1, 1);
   g.add(fin);
-  eyes(g, 1.05, 0.45, 0.18, 0.08, 0xffffff);
+  eyes(g, 1.05, 0.45, 0.18, 0.08, app.eye ?? 0xffffff);
   // dangling tentacles
   for (let i = 0; i < 6; i++) {
     const a = (i / 6) * Math.PI * 2;
@@ -388,7 +388,7 @@ function golem(app: MonsterAppearance): MonsterMesh {
   const head = new THREE.Mesh(new THREE.BoxGeometry(0.45, 0.42, 0.45), stone());
   head.position.y = 1.85;
   g.add(head);
-  eyes(g, 1.88, 0.24, 0.12, 0.05, app.accent);
+  eyes(g, 1.88, 0.24, 0.12, 0.05, app.eye ?? app.accent);
   // chunky shoulders + arms
   for (const s of [-1, 1]) {
     const shoulder = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.34, 0.34), stone());
@@ -446,7 +446,7 @@ function dragon(app: MonsterAppearance): MonsterMesh {
     horn.rotation.x = -0.3;
     g.add(horn);
   }
-  eyes(g, 1.5, 1.04, 0.14, 0.055, 0xffd24a);
+  eyes(g, 1.5, 1.04, 0.14, 0.055, app.eye ?? 0xffd24a);
   // large bat wings
   for (const s of [-1, 1]) {
     const wing = new THREE.Mesh(
@@ -482,7 +482,7 @@ function ghost(app: MonsterAppearance): MonsterMesh {
   tail.position.y = 0.45;
   tail.rotation.x = Math.PI;
   g.add(tail);
-  eyes(g, 1.02, 0.42, 0.16, 0.07, 0x101018);
+  eyes(g, 1.02, 0.42, 0.16, 0.07, app.eye ?? 0x101018);
   // a faint floor glow instead of a hard shadow
   const halo = new THREE.Mesh(
     new THREE.CircleGeometry(0.6, 20),

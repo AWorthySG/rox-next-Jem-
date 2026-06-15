@@ -8,6 +8,7 @@ export interface MonsterAppearance {
   texture: THREE.Texture; // jelly face (also a fallback)
   main: number; // primary toon colour
   accent: number; // secondary toon colour
+  eye?: number; // glowing eye colour (overrides the archetype default)
   scale: number;
   boss?: boolean;
 }
@@ -15,6 +16,7 @@ export interface MonsterAppearance {
 interface AppearanceDef {
   inner: string;
   outer: string;
+  eye?: string; // glowing eye / bioluminescent accent, matched to concept art
   scale: number;
   boss?: boolean;
 }
@@ -324,21 +326,21 @@ const DEFS: Record<string, AppearanceDef> = {
   sea_serpent: { inner: "#70c0c0", outer: "#1a5a5a", scale: 2.7, boss: true },
   the_merlion: { inner: "#f0e0a0", outer: "#b08040", scale: 3.0, boss: true },
   // Bukit Timah (Singapore)
-  macaque: { inner: "#c0a880", outer: "#5a4428", scale: 1.0 },
-  pangolin: { inner: "#c0a070", outer: "#5a4020", scale: 1.1 },
-  hornbill: { inner: "#e0d040", outer: "#3a2a10", scale: 1.2 },
+  macaque: { inner: "#b9b6ac", outer: "#5a524a", eye: "#5fe0ff", scale: 1.0 },
+  pangolin: { inner: "#c89a50", outer: "#6a4a24", eye: "#ffcf6a", scale: 1.1 },
+  hornbill: { inner: "#7a4a2a", outer: "#2a1c14", eye: "#ff8a3a", scale: 1.2 },
   king_macaque: { inner: "#d0b888", outer: "#6a4a28", scale: 2.7, boss: true },
   reticulated_python: { inner: "#c0b060", outer: "#4a3a18", scale: 2.9, boss: true },
   // Chinatown (Singapore)
-  jiangshi: { inner: "#a0c0b0", outer: "#3a5a4a", scale: 1.3 },
-  street_cat: { inner: "#d0b090", outer: "#5a4030", scale: 0.9 },
-  lantern_wisp: { inner: "#ffd070", outer: "#c04020", scale: 1.1 },
+  jiangshi: { inner: "#9aa890", outer: "#1c1a18", eye: "#ff3030", scale: 1.3 },
+  street_cat: { inner: "#5a6a86", outer: "#1a2230", eye: "#aef0ff", scale: 0.9 },
+  lantern_wisp: { inner: "#ffd27a", outer: "#c0590f", eye: "#ffd24a", scale: 1.1 },
   jiangshi_lord: { inner: "#b0d0c0", outer: "#2a5a4a", scale: 2.7, boss: true },
   nian_beast: { inner: "#e0a040", outer: "#7a2820", scale: 2.9, boss: true },
   // Gardens by the Bay (Singapore)
-  supertree_sprite: { inner: "#b0e080", outer: "#3a7a28", scale: 1.2 },
-  firefly_swarm: { inner: "#f0e060", outer: "#7a6010", scale: 0.9 },
-  orchid_fae: { inner: "#f0a0d0", outer: "#8a3060", scale: 1.1 },
+  supertree_sprite: { inner: "#6a4f2e", outer: "#4faa64", eye: "#fff0a0", scale: 1.2 },
+  firefly_swarm: { inner: "#ffe6a0", outer: "#b3860f", eye: "#ffd24a", scale: 0.9 },
+  orchid_fae: { inner: "#d8b8e8", outer: "#6a4a86", eye: "#f0e0ff", scale: 1.1 },
   supertree_guardian: { inner: "#90c060", outer: "#2a5a20", scale: 3.2, boss: true },
   flower_dome_titan: { inner: "#a0d0c0", outer: "#2a6a5a", scale: 3.1, boss: true },
   // Pulau Hantu (Singapore — Ghost Island)
@@ -384,9 +386,9 @@ const DEFS: Record<string, AppearanceDef> = {
   yama_king: { inner: "#e06060", outer: "#3a0a0a", scale: 3.2, boss: true },
   tiger_spirit: { inner: "#f0a040", outer: "#6a2810", scale: 3.0, boss: true },
   // East Coast Park (Singapore)
-  beach_crab: { inner: "#e08060", outer: "#7a2818", scale: 1.0 },
-  seagull: { inner: "#f0f0f0", outer: "#9098a0", scale: 1.1 },
-  sand_flea: { inner: "#d0c090", outer: "#6a5a30", scale: 0.85 },
+  beach_crab: { inner: "#d98a3a", outer: "#1c2c4a", eye: "#ff7a3a", scale: 1.0 },
+  seagull: { inner: "#cdd6e6", outer: "#5a6478", eye: "#dff0ff", scale: 1.1 },
+  sand_flea: { inner: "#3a4a66", outer: "#14202e", eye: "#ff7a1a", scale: 0.85 },
   giant_stingray: { inner: "#90b0c0", outer: "#2a4a5a", scale: 2.8, boss: true },
   tidal_kraken: { inner: "#70b0c0", outer: "#1a4a5a", scale: 3.0, boss: true },
   // Fort Canning (Singapore)
@@ -422,9 +424,9 @@ const DEFS: Record<string, AppearanceDef> = {
   holo_serpent: { inner: "#40d0e0", outer: "#0a4a6a", scale: 1.5 },
   ion_colossus: { inner: "#80e0ff", outer: "#1a3a6a", scale: 3.3, boss: true },
   orchard_specter: { inner: "#a040c0", outer: "#1a0824", scale: 3.3, boss: true },
-  wetland_heron: { inner: "#e0e0d0", outer: "#7a7a5a", scale: 1.4 },
-  fiddler_crab: { inner: "#e08040", outer: "#7a3a10", scale: 1.2 },
-  marsh_terrapin: { inner: "#6a8a4a", outer: "#2a3a1a", scale: 1.4 },
+  wetland_heron: { inner: "#eef2f6", outer: "#aab4c2", eye: "#ffcf6a", scale: 1.4 },
+  fiddler_crab: { inner: "#e07a2a", outer: "#2a1c18", eye: "#ffcf6a", scale: 1.2 },
+  marsh_terrapin: { inner: "#8aa85a", outer: "#4a5a30", eye: "#ffd24a", scale: 1.4 },
   estuarine_titan: { inner: "#5a7a3a", outer: "#1a2a0a", scale: 2.9, boss: true },
   garuda_matriarch: { inner: "#d0a050", outer: "#5a3a10", scale: 3.0, boss: true },
   night_panther: { inner: "#3a3a4a", outer: "#0a0a14", scale: 1.6 },
@@ -453,10 +455,10 @@ const DEFS: Record<string, AppearanceDef> = {
   white_bull_king: { inner: "#f0f0e8", outer: "#8a7a6a", scale: 3.0, boss: true },
   driftwood_treant: { inner: "#9a8a5a", outer: "#3a2a14", scale: 3.0, boss: true },
   kopitiam_spirit: { inner: "#c0a070", outer: "#4a3010", scale: 1.3 },
-  songbird_swarm: { inner: "#e0c060", outer: "#7a5a10", scale: 1.2 },
-  back_alley_rat: { inner: "#7a6a5a", outer: "#2a1f14", scale: 1.3 },
+  songbird_swarm: { inner: "#f0f4ff", outer: "#9fb0d0", eye: "#cfe0ff", scale: 1.2 },
+  back_alley_rat: { inner: "#c8c4cf", outer: "#5a5466", eye: "#c08aff", scale: 1.3 },
   art_deco_golem: { inner: "#d0c0a0", outer: "#5a4a30", scale: 2.7, boss: true },
-  market_wraith: { inner: "#a08090", outer: "#2a1a24", scale: 2.7, boss: true },
+  market_wraith: { inner: "#2a2a30", outer: "#08080c", eye: "#eaf4ff", scale: 2.7, boss: true },
   kelong_crab: { inner: "#d07050", outer: "#6a2a10", scale: 1.3 },
   lalang_sprite: { inner: "#bcd070", outer: "#5a6a20", scale: 1.2 },
   waterway_egret: { inner: "#f0f0e8", outer: "#8a8a6a", scale: 1.4 },
@@ -493,6 +495,7 @@ export function buildMonsterAppearances(): Record<string, MonsterAppearance> {
       texture: makePoringTexture(d.inner, d.outer),
       main: hex(d.outer),
       accent: hex(d.inner),
+      eye: d.eye ? hex(d.eye) : undefined,
       scale: d.scale,
       boss: d.boss,
     };
