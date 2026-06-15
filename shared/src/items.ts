@@ -478,6 +478,34 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "A heritage gardener's tunic. DEF +12, Max HP +110, VIT +3.", def: 12, maxHp: 110, bonusStats: { vit: 3 }, sellPrice: 1200,
   },
 
+  // ---- Labrador Park (Singapore) gear ----
+  battery_carbine: {
+    id: "battery_carbine", name: "Battery Carbine", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A relic coastal-gun carbine. ATK +44, DEX +4.", atk: 44, bonusStats: { dex: 4 }, sellPrice: 2200,
+  },
+  fort_helm: {
+    id: "fort_helm", name: "Fort Helm", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A rusted battery gunner's helm. DEF +6, VIT +3, Max HP +60.", def: 6, maxHp: 60, bonusStats: { vit: 3 }, sellPrice: 2200,
+  },
+  bunker_coat: {
+    id: "bunker_coat", name: "Bunker Coat", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "A reinforced WWII bunker coat. DEF +18, Max HP +160, VIT +4.", def: 18, maxHp: 160, bonusStats: { vit: 4 }, sellPrice: 2200,
+  },
+
+  // ---- Coney Island (Singapore) gear ----
+  bull_horn_mace: {
+    id: "bull_horn_mace", name: "Bull Horn Mace", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "Forged from the white bull's horn. ATK +56, STR +4.", atk: 56, bonusStats: { str: 4 }, sellPrice: 2800,
+  },
+  casuarina_cloak: {
+    id: "casuarina_cloak", name: "Casuarina Cloak", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Woven from coastal she-oak needles. DEF +22, Max HP +200, AGI +4.", def: 22, maxHp: 200, bonusStats: { agi: 4 }, sellPrice: 2800,
+  },
+  driftwood_charm: {
+    id: "driftwood_charm", name: "Driftwood Charm", type: ItemType.Accessory, slot: EquipSlot.Accessory,
+    desc: "A charm of sea-bleached driftwood. INT +4, DEX +4, Max SP +30.", maxSp: 30, bonusStats: { int: 4, dex: 4 }, sellPrice: 2800,
+  },
+
   // ---- Mount Faber (Singapore) gear ----
   summit_lance: {
     id: "summit_lance", name: "Summit Lance", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1417,6 +1445,18 @@ Object.assign(DROP_TABLES, {
   koi_spirit: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "garden_tunic", chance: 0.03 }],
   bandstand_golem: HI([{ itemId: "garden_tunic", chance: 0.6 }, { itemId: "swan_feather_hat", chance: 0.5 }, { itemId: "orchid_wand", chance: 0.4 }]),
   swan_lake_naga: HI([{ itemId: "orchid_wand", chance: 0.6 }, { itemId: "garden_tunic", chance: 0.45 }, { itemId: "poring_card", chance: 0.05 }]),
+  // Labrador Park (Singapore)
+  battery_phantom: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "fort_helm", chance: 0.03 }],
+  reef_lobster: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "bunker_coat", chance: 0.03 }],
+  cliff_bat: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "battery_carbine", chance: 0.03 }],
+  coastal_gun_golem: HI([{ itemId: "bunker_coat", chance: 0.6 }, { itemId: "fort_helm", chance: 0.5 }, { itemId: "battery_carbine", chance: 0.4 }]),
+  dragon_teeth_wraith: HI([{ itemId: "battery_carbine", chance: 0.6 }, { itemId: "bunker_coat", chance: 0.45 }, { itemId: "poring_card", chance: 0.05 }]),
+  // Coney Island (Singapore)
+  coney_bull: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "bull_horn_mace", chance: 0.03 }],
+  casuarina_sprite: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "driftwood_charm", chance: 0.03 }],
+  mudflat_crane: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "casuarina_cloak", chance: 0.03 }],
+  white_bull_king: HI([{ itemId: "bull_horn_mace", chance: 0.6 }, { itemId: "casuarina_cloak", chance: 0.5 }, { itemId: "driftwood_charm", chance: 0.4 }]),
+  driftwood_treant: HI([{ itemId: "casuarina_cloak", chance: 0.6 }, { itemId: "driftwood_charm", chance: 0.45 }, { itemId: "poring_card", chance: 0.05 }]),
   // Mount Faber (Singapore)
   cable_wraith: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "alpine_plate", chance: 0.03 }],
   peak_eagle: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "aviator_cap", chance: 0.03 }],
@@ -1640,6 +1680,8 @@ const ORE_REGULARS = [
   "night_panther", "giant_flying_fox", "moonlit_moth",
   "temple_tortoise", "shrine_carp", "pilgrim_wisp",
   "garden_swan", "orchid_sprite", "koi_spirit",
+  "battery_phantom", "reef_lobster", "cliff_bat",
+  "coney_bull", "casuarina_sprite", "mudflat_crane",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1675,6 +1717,8 @@ const ORE_BOSSES = [
   "malayan_tiger_lord", "mandai_naga",
   "kusu_tortoise_god", "wishing_well_naga",
   "bandstand_golem", "swan_lake_naga",
+  "coastal_gun_golem", "dragon_teeth_wraith",
+  "white_bull_king", "driftwood_treant",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

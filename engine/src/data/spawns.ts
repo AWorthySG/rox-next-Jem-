@@ -560,6 +560,18 @@ Object.assign(MONSTER_TEMPLATES, {
   koi_spirit: mk("koi_spirit", "Koi Spirit", 26, 920, 1900),
   bandstand_golem: mk("bandstand_golem", "Bandstand Golem", 30, 5200, 9000, true),
   swan_lake_naga: mk("swan_lake_naga", "Swan Lake Naga", 32, 6000, 10500, true),
+  // ---- Labrador Park (Singapore) ----
+  battery_phantom: mk("battery_phantom", "Battery Phantom", 40, 1500, 3100),
+  reef_lobster: mk("reef_lobster", "Reef Lobster", 42, 1650, 3400),
+  cliff_bat: mk("cliff_bat", "Cliff Bat", 44, 1800, 3700),
+  coastal_gun_golem: mk("coastal_gun_golem", "Coastal Gun Golem", 50, 9000, 15000, true),
+  dragon_teeth_wraith: mk("dragon_teeth_wraith", "Dragon's Teeth Wraith", 52, 10000, 17000, true),
+  // ---- Coney Island (Singapore) ----
+  coney_bull: mk("coney_bull", "Coney Bull", 56, 3200, 6600),
+  casuarina_sprite: mk("casuarina_sprite", "Casuarina Sprite", 58, 3400, 7000),
+  mudflat_crane: mk("mudflat_crane", "Mudflat Crane", 60, 3600, 7400),
+  white_bull_king: mk("white_bull_king", "White Bull King", 66, 17000, 28000, true),
+  driftwood_treant: mk("driftwood_treant", "Driftwood Treant", 68, 19000, 31000, true),
 });
 
 export interface SpawnZone {
@@ -1066,6 +1078,22 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "nova", intervalMs: 6000, radius: 10, powerMult: 1.6 },
     { kind: "heal", intervalMs: 12000, pct: 0.05 },
   ],
+  coastal_gun_golem: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.7 },
+    { kind: "nova", intervalMs: 6000, radius: 11, powerMult: 1.6 },
+  ],
+  dragon_teeth_wraith: [
+    { kind: "summon", intervalMs: 8500, templateId: "battery_phantom", count: 2, max: 5 },
+    { kind: "heal", intervalMs: 11000, pct: 0.06 },
+  ],
+  white_bull_king: [
+    { kind: "enrage", hpPct: 0.4, atkMult: 1.7 },
+    { kind: "summon", intervalMs: 9000, templateId: "coney_bull", count: 2, max: 5 },
+  ],
+  driftwood_treant: [
+    { kind: "nova", intervalMs: 5800, radius: 11, powerMult: 1.6 },
+    { kind: "heal", intervalMs: 10000, pct: 0.07 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -1359,6 +1387,16 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   koi_spirit: Element.Water,
   bandstand_golem: Element.Earth,
   swan_lake_naga: Element.Water,
+  battery_phantom: Element.Shadow,
+  reef_lobster: Element.Water,
+  cliff_bat: Element.Wind,
+  coastal_gun_golem: Element.Earth,
+  dragon_teeth_wraith: Element.Shadow,
+  coney_bull: Element.Earth,
+  casuarina_sprite: Element.Wind,
+  mudflat_crane: Element.Wind,
+  white_bull_king: Element.Earth,
+  driftwood_treant: Element.Earth,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

@@ -173,6 +173,7 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
       { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
       { name: "Sungei Buloh Exit", role: "portal", x: 0, z: 24, dest: { toMap: "pulau_ubin", toX: 0, toZ: -44 } },
+      { name: "Coney Island Portal", role: "portal", x: 0, z: -50, dest: { toMap: "coney_island", toX: 0, toZ: 18 } },
     ],
   },
   bukit_timah: {
@@ -290,6 +291,43 @@ export const MAPS: Record<string, GameMap> = {
     npcs: [
       { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
       { name: "Mount Faber Exit", role: "portal", x: 0, z: 24, dest: { toMap: "fort_canning", toX: 0, toZ: -44 } },
+      { name: "Labrador Park Portal", role: "portal", x: 0, z: -50, dest: { toMap: "labrador_park", toX: 0, toZ: 18 } },
+    ],
+  },
+  labrador_park: {
+    id: "labrador_park",
+    name: "Labrador Park",
+    theme: { ground: 0x5a7a5a, fog: 0x7fb0c0, sky: 0xa8d0dc },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "lp-phantom", templateId: "battery_phantom", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "lp-lobster", templateId: "reef_lobster", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "lp-bat", templateId: "cliff_bat", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "lp-golem", templateId: "coastal_gun_golem", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "lp-wraith", templateId: "dragon_teeth_wraith", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Labrador Park Exit", role: "portal", x: 0, z: 24, dest: { toMap: "mount_faber", toX: 0, toZ: -44 } },
+    ],
+  },
+  coney_island: {
+    id: "coney_island",
+    name: "Coney Island",
+    theme: { ground: 0x6a8a4a, fog: 0x9ac0a0, sky: 0xc0e0c8 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "ci-bull", templateId: "coney_bull", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "ci-sprite", templateId: "casuarina_sprite", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "ci-crane", templateId: "mudflat_crane", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "ci-bullking", templateId: "white_bull_king", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "ci-treant", templateId: "driftwood_treant", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Coney Island Exit", role: "portal", x: 0, z: 24, dest: { toMap: "sungei_buloh", toX: 0, toZ: -44 } },
     ],
   },
   kampong_glam: {
