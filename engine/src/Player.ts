@@ -91,6 +91,7 @@ export class Player {
   castingSkillId: string | null = null;
   castTargetId: number | null = null;
   castEndAt = 0;
+  skillLockUntil = 0; // global after-cast delay: can't start a new skill until this time
   skillCooldowns: Record<string, number> = {}; // skillId -> ms remaining
   buffs: Array<{ stat: "atk" | "matk"; mult: number; expiresAt: number }> = [];
   foodBuffs: Array<{ id: string; expiresAt: number }> = []; // timed food/cooking buffs

@@ -12,6 +12,7 @@ import {
   isNight,
   rollWeather,
   Weather,
+  afterCastDelayMs,
   getItem,
   getSkill,
   skillCooldownMs,
@@ -534,6 +535,11 @@ async function main(): Promise<void> {
   check(skillCooldownMs(getSkill("bash")!, 99) >= Math.round(bashCd * 0.7), "skill-lvl: cooldown cut floors at 30%");
   check(skillEffectDurationMs(2000, 1) === 2000, "skill-lvl: CC duration base at level 1");
   check(skillEffectDurationMs(2000, 5) > 2000, "skill-lvl: higher level lengthens CC");
+
+  // ---- after-cast delay shortened by AGI ----
+  check(afterCastDelayMs(0) === 420, "acd: base after-cast delay at 0 AGI");
+  check(afterCastDelayMs(60) < 420, "acd: AGI shortens the after-cast delay");
+  check(afterCastDelayMs(999) === 120, "acd: after-cast delay floors at 120ms");
 
   local.stop();
   if (failures.length) {

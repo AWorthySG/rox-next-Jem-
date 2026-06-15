@@ -15,6 +15,7 @@ import {
   RESPAWN_MS,
   resolveAttack,
   rollDrops,
+  afterCastDelayMs,
   skillCooldownMs,
   skillEffectDurationMs,
   skillPower,
@@ -207,6 +208,8 @@ export class CombatSystem {
       this.clearSkill(p);
       return false;
     }
+    // Global after-cast delay: keep the skill queued and retry once it expires.
+    if (Date.now() < p.skillLockUntil) return false;
 
     // Self-cast heal.
     if (def.heal) {
@@ -218,6 +221,7 @@ export class CombatSystem {
     // Self-cast buff.
     if (def.buff) {
       p.sp -= cost;
+      p.skillLockUntil = Date.now() + afterCastDelayMs(p.stats.agi);
       p.skillCooldowns[def.id] = skillCooldownMs(def, lvl);
       p.addBuff(def.buff.stat, def.buff.mult, def.buff.durationMs, Date.now());
       this.clearSkill(p);
@@ -240,7 +244,8 @@ export class CombatSystem {
     p.moveTarget = null;
     p.facing = Math.atan2(target.x - p.x, target.z - p.z);
     p.sp -= cost;
-    p.skillCooldowns[def.id] = def.cooldownMs;
+    p.skillLockUntil = Date.now() + afterCastDelayMs(p.stats.agi);
+    p.skillCooldowns[def.id] = skillCooldownMs(def, lvl);
     this.clearSkill(p);
 
     // Skills with a cast time wind up first (DEX shortens it); instant ones fire now.
@@ -302,7 +307,8 @@ export class CombatSystem {
 
   private castHeal(p: Player, def: SkillDef, lvl: number, cost: number): void {
     p.sp -= cost;
-    p.skillCooldowns[def.id] = def.cooldownMs;
+    p.skillLockUntil = Date.now() + afterCastDelayMs(p.stats.agi);
+    p.skillCooldowns[def.id] = skillCooldownMs(def, lvl);
     const amount = Math.round((p.derived.maxHp * 0.3 + p.derived.matk) * (1 + 0.2 * (lvl - 1)));
     p.hp = Math.min(p.derived.maxHp, p.hp + amount);
     this.world.broadcastToMap(p.mapId, {
