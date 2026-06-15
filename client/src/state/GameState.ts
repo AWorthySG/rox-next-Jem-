@@ -131,6 +131,22 @@ export class GameState {
     return best;
   }
 
+  // Tab-targeting: pick the next-nearest living monster after `currentId`,
+  // wrapping around (or the nearest if nothing is targeted yet).
+  cycleTarget(currentId: number | null): number | null {
+    const self = this.self;
+    if (!self) return null;
+    const { x, z } = self.group.position;
+    const monsters = [...this.views.values()]
+      .filter((v): v is MonsterView => v instanceof MonsterView && !v.dying)
+      .map((v) => ({ id: v.id, d: Math.hypot(v.group.position.x - x, v.group.position.z - z) }))
+      .sort((a, b) => a.d - b.d);
+    if (monsters.length === 0) return null;
+    if (currentId == null) return monsters[0].id;
+    const idx = monsters.findIndex((m) => m.id === currentId);
+    return monsters[(idx + 1) % monsters.length].id;
+  }
+
   npcRoleOf(id: number): string | null {
     const v = this.views.get(id);
     return v instanceof NpcView ? v.role : null;

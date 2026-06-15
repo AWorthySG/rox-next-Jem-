@@ -70,6 +70,12 @@ window.addEventListener("keydown", (e) => {
   const a = document.activeElement;
   if (a && (a.tagName === "INPUT" || a.tagName === "TEXTAREA")) return;
   if (e.key === "h" || e.key === "H") toggleHelp();
+  else if (e.key === "Tab") {
+    // cycle to the next-nearest enemy and engage it
+    e.preventDefault();
+    const id = gameState.cycleTarget(currentTargetId);
+    if (id != null) attackMonster(id);
+  }
 });
 let currentTargetId: number | null = null;
 let pvpMap = false;
