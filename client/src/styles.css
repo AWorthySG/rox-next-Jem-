@@ -1496,6 +1496,16 @@ body {
 .inv-cell:hover {
   border-color: var(--gold);
 }
+.inv-cell.locked {
+  cursor: not-allowed;
+  opacity: 0.62;
+}
+.inv-cell.locked:hover {
+  border-color: #c0584a;
+}
+.inv-cell.locked .iact {
+  color: #e08a7a;
+}
 .inv-cell .iname {
   flex: 1;
   font-size: 13px;

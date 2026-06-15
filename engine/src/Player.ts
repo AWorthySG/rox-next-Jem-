@@ -7,6 +7,7 @@ import {
   ACHIEVEMENTS,
   type AchievementDef,
   getItem,
+  itemEquippableBy,
   getPet,
   getQuest,
   getRune,
@@ -390,6 +391,7 @@ export class Player {
     const item = getItem(itemId);
     if (!item || !item.slot) return false;
     if ((this.inventory[itemId] ?? 0) <= 0) return false;
+    if (!itemEquippableBy(item, this.job)) return false; // class-restricted gear
     this.removeItem(itemId, 1);
     const prev = this.equipped[item.slot];
     if (prev) this.addItem(prev, 1); // return previously-equipped item to bag
