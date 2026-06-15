@@ -69,9 +69,9 @@ function loadSource(url: string): Promise<{ scene: THREE.Object3D; animations: T
 
 // Swap a mesh's material(s) for a toon equivalent, preserving base colour, map,
 // and transparency. Skinning/morphs are driven by the mesh, so the toon material
-// works on rigged meshes unchanged.
-function toonify(root: THREE.Object3D): void {
-  const gradientMap = makeToonGradient();
+// works on rigged meshes unchanged. The gradient ramp is injected so this stays
+// canvas-free and testable headless.
+export function toonify(root: THREE.Object3D, gradientMap: THREE.Texture | null): void {
   root.traverse((o) => {
     if (!(o instanceof THREE.Mesh)) return;
     const convert = (src: THREE.Material): THREE.Material => {
@@ -94,7 +94,7 @@ function toonify(root: THREE.Object3D): void {
 // Fit the model to a target height and drop it so feet rest on y=0; centre x/z.
 // The result is wrapped in a Group whose own transform stays identity, so the
 // caller can scale/animate the wrapper exactly like a procedural mesh group.
-function normalize(model: THREE.Object3D, targetHeight: number): THREE.Group {
+export function normalize(model: THREE.Object3D, targetHeight: number): THREE.Group {
   const wrapper = new THREE.Group();
   wrapper.add(model);
   let box = new THREE.Box3().setFromObject(model);
@@ -108,15 +108,23 @@ function normalize(model: THREE.Object3D, targetHeight: number): THREE.Group {
   return wrapper;
 }
 
+// Toon-convert (optional), fit, centre, and shadow-flag a model. Pure + sync +
+// canvas-free (gradient is injected), so it's exercised directly by tests.
+export function processModel(model: THREE.Object3D, opts: LoadOptions & { gradientMap?: THREE.Texture | null } = {}): THREE.Group {
+  if (opts.toon !== false) toonify(model, opts.gradientMap ?? null);
+  const wrapper = normalize(model, opts.height ?? 1.4);
+  wrapper.traverse((o) => {
+    if (o instanceof THREE.Mesh) o.castShadow = true;
+  });
+  return wrapper;
+}
+
 // Load (or reuse) a model and return a ready-to-add, independently animatable
 // instance. Throws if the asset is missing/unparseable so callers can fall back.
 export async function loadMonsterModel(file: string, opts: LoadOptions = {}): Promise<LoadedModel> {
   const [src, { clone: cloneSkeleton }] = await Promise.all([loadSource(MODEL_BASE + file), getAddons()]);
   const model = cloneSkeleton(src.scene);
-  if (opts.toon !== false) toonify(model);
-  const wrapper = normalize(model, opts.height ?? 1.4);
-  wrapper.traverse((o) => {
-    if (o instanceof THREE.Mesh) o.castShadow = true;
-  });
-  return { scene: wrapper, animations: src.animations };
+  const gradientMap = opts.toon !== false ? makeToonGradient() : null;
+  const scene = processModel(model, { ...opts, gradientMap });
+  return { scene, animations: src.animations };
 }

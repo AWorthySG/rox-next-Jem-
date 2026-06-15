@@ -408,7 +408,7 @@ const DEFS: Record<string, AppearanceDef> = {
   // Changi (Singapore)
   pow_spirit: { inner: "#e8f4ff", outer: "#5a7a8a", eye: "#dff4ff", scale: 1.3 },
   beach_ghoul: { inner: "#3a4452", outer: "#0c0e12", eye: "#cfe8ff", scale: 1.4 },
-  jewel_drone: { inner: "#c8a860", outer: "#2a5a8a", eye: "#7ad0ff", scale: 1.2 },
+  jewel_drone: { inner: "#c8a860", outer: "#2a5a8a", eye: "#7ad0ff", scale: 1.2, model: "demo_crystal.glb" },
   changi_revenant: { inner: "#d0d8e0", outer: "#4a5a6a", scale: 2.8, boss: true },
   vortex_guardian: { inner: "#7ad0ff", outer: "#10141c", eye: "#eafaff", scale: 3.1, boss: true },
   water_monitor: { inner: "#6a7a4a", outer: "#2a3a1a", scale: 1.5 },

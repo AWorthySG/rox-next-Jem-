@@ -25,6 +25,14 @@ loads from `/models/poring.glb`.
   plays on a per-instance `AnimationMixer`. Skinned meshes are cloned with their
   own skeleton, so many copies animate independently while sharing geometry.
 
+## Demo asset
+
+`demo_crystal.glb` is a generated mid-poly crystal construct with an `idle`
+bob/spin clip, wired to the `jewel_drone` template as a live proof of the path.
+Regenerate it with `npm run gen:model`; `npm run test:model` parses it with the
+real `GLTFLoader` and runs the loader's clone → toon-convert → fit transforms
+(and steps an `AnimationMixer`) headless in CI.
+
 ## Budget guidance
 
 This targets **mid-poly** (a few thousand triangles per monster). Many of these

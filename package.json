@@ -18,6 +18,8 @@
     "start": "npm -w @rox/server run start",
     "test": "node scripts/smoke.mjs",
     "test:solo": "tsx scripts/solo.test.ts",
+    "test:model": "tsx scripts/model.test.ts",
+    "gen:model": "tsx scripts/gen-demo-model.ts",
     "bestiary": "tsx scripts/dump-bestiary.ts"
   },
   "devDependencies": {
