@@ -19,7 +19,7 @@ function check(cond, label) {
 
 function client(name, job) {
   const ws = new WebSocket(`ws://127.0.0.1:${PORT}`);
-  const st = { name, self: null, monsters: new Map(), seenPlayers: new Set(), counts: {}, lastSelf: null, lastChat: null, portals: {}, dmg: [], ws };
+  const st = { name, self: null, monsters: new Map(), seenPlayers: new Set(), counts: {}, lastSelf: null, lastChat: null, chats: [], portals: {}, dmg: [], ws };
   ws.on("open", () => ws.send(JSON.stringify({ t: "join", name, job })));
   ws.on("message", (raw) => {
     const m = JSON.parse(raw.toString());
@@ -40,7 +40,7 @@ function client(name, job) {
     if (m.t === "partyInviteRecv") st.invitePartyId = m.partyId;
     if (m.t === "partyUpdate") st.party = m.party;
     if (m.t === "guildUpdate") st.guild = m.guild;
-    if (m.t === "chatMsg") st.lastChat = `${m.name}: ${m.text}`;
+    if (m.t === "chatMsg") { st.lastChat = `${m.name}: ${m.text}`; st.chats.push(`${m.name}: ${m.text}`); }
   });
   return st;
 }
@@ -101,10 +101,11 @@ async function main() {
   const b = client("Bob", "mage");
   await wait(1200);
   a.ws.send(JSON.stringify({ t: "chat", text: "hello bob" }));
-  await wait(600);
+  await wait(900);
   check(a.seenPlayers.has(b.self), "client A sees client B");
   check(b.seenPlayers.has(a.self), "client B sees client A");
-  check(b.lastChat === "Alice: hello bob", "chat broadcasts between clients");
+  // order-independent: a later system broadcast must not mask the player chat
+  check(b.chats.includes("Alice: hello bob"), "chat broadcasts between clients");
 
   // Party: Alice invites Bob, Bob accepts; both should see a 2-member party.
   a.ws.send(JSON.stringify({ t: "partyInvite", targetId: b.self }));

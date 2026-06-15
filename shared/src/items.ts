@@ -366,6 +366,314 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "An enchanter's robe. DEF +16, Max HP +80, Max SP +70, INT +4.", def: 16, maxHp: 80, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 600,
   },
 
+  // ---- Changi (Singapore) gear ----
+  vortex_blade: {
+    id: "vortex_blade", name: "Vortex Blade", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A blade that swirls like the Jewel falls. ATK +80, AGI +5.", atk: 80, bonusStats: { agi: 5 }, sellPrice: 4400,
+  },
+  jewel_visor: {
+    id: "jewel_visor", name: "Jewel Visor", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A prismatic AR visor. MATK +10, INT +5, Max SP +40.", matk: 10, maxSp: 40, bonusStats: { int: 5 }, sellPrice: 4000,
+  },
+  changi_plate: {
+    id: "changi_plate", name: "Changi Plate", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Sea-tempered coastal armor. DEF +28, Max HP +280, VIT +5.", def: 28, maxHp: 280, bonusStats: { vit: 5 }, sellPrice: 4400,
+  },
+
+  // ---- MacRitchie Reservoir (Singapore) gear ----
+  treetop_bow: {
+    id: "treetop_bow", name: "Treetop Bow", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "Carved from a rainforest canopy branch. ATK +90, DEX +6.", atk: 90, bonusStats: { dex: 6 }, sellPrice: 5000,
+  },
+  reservoir_robe: {
+    id: "reservoir_robe", name: "Reservoir Robe", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Woven mist of the central catchment. DEF +30, Max SP +60, INT +6.", def: 30, maxSp: 60, bonusStats: { int: 6 }, sellPrice: 5000,
+  },
+  monitor_scale_charm: {
+    id: "monitor_scale_charm", name: "Monitor Scale Charm", type: ItemType.Accessory, slot: EquipSlot.Accessory,
+    desc: "Strung from water-monitor scutes. Max HP +320, VIT +6, DEF +6.", def: 6, maxHp: 320, bonusStats: { vit: 6 }, sellPrice: 5000,
+  },
+
+  // ---- Little India (Singapore) gear ----
+  trishula_blade: {
+    id: "trishula_blade", name: "Trishula Blade", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A trident-forked festival blade. ATK +100, STR +7.", atk: 100, bonusStats: { str: 7 }, sellPrice: 5600,
+  },
+  deepavali_crown: {
+    id: "deepavali_crown", name: "Deepavali Crown", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A crown of festival lamps. MATK +14, INT +7, Max SP +70.", matk: 14, maxSp: 70, bonusStats: { int: 7 }, sellPrice: 5600,
+  },
+  garland_robe: {
+    id: "garland_robe", name: "Garland Robe", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Marigold-woven festival robe. DEF +34, Max HP +360, VIT +7.", def: 34, maxHp: 360, bonusStats: { vit: 7 }, sellPrice: 5600,
+  },
+
+  // ---- Orchard Road (Singapore) gear ----
+  neon_edge: {
+    id: "neon_edge", name: "Neon Edge", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A laser-honed boutique blade. ATK +112, AGI +8, DEX +6.", atk: 112, bonusStats: { agi: 8, dex: 6 }, sellPrice: 6400,
+  },
+  holo_circlet: {
+    id: "holo_circlet", name: "Holo Circlet", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A holographic AR circlet. MATK +16, INT +8, Max SP +90.", matk: 16, maxSp: 90, bonusStats: { int: 8 }, sellPrice: 6400,
+  },
+  chrome_carapace: {
+    id: "chrome_carapace", name: "Chrome Carapace", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Mirror-plated mall armor. DEF +38, Max HP +400, VIT +8.", def: 38, maxHp: 400, bonusStats: { vit: 8 }, sellPrice: 6400,
+  },
+
+  // ---- Sungei Buloh Wetland Reserve (Singapore) gear ----
+  heron_glaive: {
+    id: "heron_glaive", name: "Heron Glaive", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A long beaked wetland glaive. ATK +52, DEX +4.", atk: 52, bonusStats: { dex: 4 }, sellPrice: 3000,
+  },
+  marsh_cloak: {
+    id: "marsh_cloak", name: "Marsh Cloak", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Reed-woven wetland cloak. DEF +20, Max HP +180, AGI +4.", def: 20, maxHp: 180, bonusStats: { agi: 4 }, sellPrice: 3000,
+  },
+  terrapin_shell_charm: {
+    id: "terrapin_shell_charm", name: "Terrapin Shell Charm", type: ItemType.Accessory, slot: EquipSlot.Accessory,
+    desc: "A polished terrapin scute. Max HP +200, VIT +4, DEF +4.", def: 4, maxHp: 200, bonusStats: { vit: 4 }, sellPrice: 3000,
+  },
+
+  // ---- Mandai Night Safari (Singapore) gear ----
+  panther_claw: {
+    id: "panther_claw", name: "Panther Claw", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "Twin claws of the night hunter. ATK +118, AGI +9, LUK +5.", atk: 118, bonusStats: { agi: 9, luk: 5 }, sellPrice: 6800,
+  },
+  nocturne_mask: {
+    id: "nocturne_mask", name: "Nocturne Mask", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A mask that sees in the dark. MATK +17, INT +8, DEX +6, Max SP +90.", matk: 17, maxSp: 90, bonusStats: { int: 8, dex: 6 }, sellPrice: 6800,
+  },
+  tiger_hide_armor: {
+    id: "tiger_hide_armor", name: "Tiger Hide Armor", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Striped hide of the tiger lord. DEF +40, Max HP +420, VIT +9.", def: 40, maxHp: 420, bonusStats: { vit: 9 }, sellPrice: 6800,
+  },
+
+  // ---- Kusu Island (Singapore) gear ----
+  pilgrim_staff: {
+    id: "pilgrim_staff", name: "Pilgrim Staff", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A blessed wishing-well staff. MATK +56, INT +5, Max SP +50.", matk: 56, maxSp: 50, bonusStats: { int: 5 }, sellPrice: 3400,
+  },
+  tortoise_shell_plate: {
+    id: "tortoise_shell_plate", name: "Tortoise Shell Plate", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Layered temple-tortoise shell. DEF +24, Max HP +220, VIT +5.", def: 24, maxHp: 220, bonusStats: { vit: 5 }, sellPrice: 3400,
+  },
+  fortune_amulet: {
+    id: "fortune_amulet", name: "Fortune Amulet", type: ItemType.Accessory, slot: EquipSlot.Accessory,
+    desc: "A Kusu shrine blessing charm. LUK +6, Max SP +40.", maxSp: 40, bonusStats: { luk: 6 }, sellPrice: 3400,
+  },
+
+  // ---- Botanic Gardens (Singapore) gear ----
+  orchid_wand: {
+    id: "orchid_wand", name: "Orchid Wand", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A wand budding with Vanda Miss Joaquim. MATK +20, INT +3.", matk: 20, bonusStats: { int: 3 }, sellPrice: 1200,
+  },
+  swan_feather_hat: {
+    id: "swan_feather_hat", name: "Swan Feather Hat", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "Plumed with garden swan down. AGI +3, DEX +3, Max SP +20.", maxSp: 20, bonusStats: { agi: 3, dex: 3 }, sellPrice: 1200,
+  },
+  garden_tunic: {
+    id: "garden_tunic", name: "Garden Tunic", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "A heritage gardener's tunic. DEF +12, Max HP +110, VIT +3.", def: 12, maxHp: 110, bonusStats: { vit: 3 }, sellPrice: 1200,
+  },
+
+  // ---- Labrador Park (Singapore) gear ----
+  battery_carbine: {
+    id: "battery_carbine", name: "Battery Carbine", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A relic coastal-gun carbine. ATK +44, DEX +4.", atk: 44, bonusStats: { dex: 4 }, sellPrice: 2200,
+  },
+  fort_helm: {
+    id: "fort_helm", name: "Fort Helm", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A rusted battery gunner's helm. DEF +6, VIT +3, Max HP +60.", def: 6, maxHp: 60, bonusStats: { vit: 3 }, sellPrice: 2200,
+  },
+  bunker_coat: {
+    id: "bunker_coat", name: "Bunker Coat", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "A reinforced WWII bunker coat. DEF +18, Max HP +160, VIT +4.", def: 18, maxHp: 160, bonusStats: { vit: 4 }, sellPrice: 2200,
+  },
+
+  // ---- Coney Island (Singapore) gear ----
+  bull_horn_mace: {
+    id: "bull_horn_mace", name: "Bull Horn Mace", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "Forged from the white bull's horn. ATK +56, STR +4.", atk: 56, bonusStats: { str: 4 }, sellPrice: 2800,
+  },
+  casuarina_cloak: {
+    id: "casuarina_cloak", name: "Casuarina Cloak", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Woven from coastal she-oak needles. DEF +22, Max HP +200, AGI +4.", def: 22, maxHp: 200, bonusStats: { agi: 4 }, sellPrice: 2800,
+  },
+  driftwood_charm: {
+    id: "driftwood_charm", name: "Driftwood Charm", type: ItemType.Accessory, slot: EquipSlot.Accessory,
+    desc: "A charm of sea-bleached driftwood. INT +4, DEX +4, Max SP +30.", maxSp: 30, bonusStats: { int: 4, dex: 4 }, sellPrice: 2800,
+  },
+
+  // ---- Tiong Bahru (Singapore) gear ----
+  cleaver_blade: {
+    id: "cleaver_blade", name: "Cleaver Blade", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A wet-market butcher's cleaver. ATK +46, STR +3.", atk: 46, bonusStats: { str: 3 }, sellPrice: 2000,
+  },
+  songbird_cage_hat: {
+    id: "songbird_cage_hat", name: "Songbird Cage Hat", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A miniature bird-corner cage. DEX +3, AGI +2, Max SP +20.", maxSp: 20, bonusStats: { dex: 3, agi: 2 }, sellPrice: 2000,
+  },
+  art_deco_vest: {
+    id: "art_deco_vest", name: "Art Deco Vest", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "A heritage SIT-flat vest. DEF +16, Max HP +140, VIT +3.", def: 16, maxHp: 140, bonusStats: { vit: 3 }, sellPrice: 2000,
+  },
+
+  // ---- Punggol Waterway (Singapore) gear ----
+  kelong_harpoon: {
+    id: "kelong_harpoon", name: "Kelong Harpoon", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A fishing-platform harpoon. ATK +60, DEX +5.", atk: 60, bonusStats: { dex: 5 }, sellPrice: 3000,
+  },
+  waterway_mantle: {
+    id: "waterway_mantle", name: "Waterway Mantle", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "A breezy riverside mantle. DEF +24, Max HP +220, AGI +5.", def: 24, maxHp: 220, bonusStats: { agi: 5 }, sellPrice: 3000,
+  },
+  lalang_charm: {
+    id: "lalang_charm", name: "Lalang Charm", type: ItemType.Accessory, slot: EquipSlot.Accessory,
+    desc: "A woven tall-grass charm. INT +5, DEX +3, Max SP +40.", maxSp: 40, bonusStats: { int: 5, dex: 3 }, sellPrice: 3000,
+  },
+
+  // ---- Pasir Ris Park (Singapore) gear ----
+  beachcomber_spade: {
+    id: "beachcomber_spade", name: "Beachcomber Spade", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A sturdy sandcastle spade. ATK +20, STR +2.", atk: 20, bonusStats: { str: 2 }, sellPrice: 700,
+  },
+  kite_runner_cap: {
+    id: "kite_runner_cap", name: "Kite Runner Cap", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A breezy seaside cap. AGI +2, DEX +2, Max SP +12.", maxSp: 12, bonusStats: { agi: 2, dex: 2 }, sellPrice: 700,
+  },
+  park_jersey: {
+    id: "park_jersey", name: "Park Jersey", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "A light family-park jersey. DEF +8, Max HP +70, VIT +2.", def: 8, maxHp: 70, bonusStats: { vit: 2 }, sellPrice: 700,
+  },
+
+  // ---- Marina Barrage (Singapore) gear ----
+  tempest_glaive: {
+    id: "tempest_glaive", name: "Tempest Glaive", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A storm-charged turbine glaive. ATK +124, AGI +9, DEX +7.", atk: 124, bonusStats: { agi: 9, dex: 7 }, sellPrice: 7200,
+  },
+  storm_diadem: {
+    id: "storm_diadem", name: "Storm Diadem", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A diadem crackling with surge energy. MATK +18, INT +9, DEX +7, Max SP +100.", matk: 18, maxSp: 100, bonusStats: { int: 9, dex: 7 }, sellPrice: 7200,
+  },
+  barrage_aegis: {
+    id: "barrage_aegis", name: "Barrage Aegis", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Floodgate-forged plate. DEF +42, Max HP +440, VIT +9.", def: 42, maxHp: 440, bonusStats: { vit: 9 }, sellPrice: 7200,
+  },
+
+  // ---- Mount Faber (Singapore) gear ----
+  summit_lance: {
+    id: "summit_lance", name: "Summit Lance", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A peak-climber's lance. ATK +66, DEX +4.", atk: 66, bonusStats: { dex: 4 }, sellPrice: 1700,
+  },
+  aviator_cap: {
+    id: "aviator_cap", name: "Aviator Cap", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A leather cable-car cap. MATK +8, DEX +4, Max SP +30.", matk: 8, maxSp: 30, bonusStats: { dex: 4 }, sellPrice: 1500,
+  },
+  alpine_plate: {
+    id: "alpine_plate", name: "Alpine Plate", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Wind-proof summit armor. DEF +24, Max HP +220, VIT +4.", def: 24, maxHp: 220, bonusStats: { vit: 4 }, sellPrice: 1700,
+  },
+
+  // ---- Fort Canning (Singapore) gear ----
+  canning_saber: {
+    id: "canning_saber", name: "Canning Saber", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A colonial officer's saber. ATK +64, STR +4.", atk: 64, bonusStats: { str: 4 }, sellPrice: 1500,
+  },
+  pith_helmet: {
+    id: "pith_helmet", name: "Pith Helmet", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A sun-helmet of the tropics. DEF +18, DEX +3, Max HP +100.", def: 18, maxHp: 100, bonusStats: { dex: 3 }, sellPrice: 1300,
+  },
+  officer_coat: {
+    id: "officer_coat", name: "Officer's Coat", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "A decorated dress coat. DEF +22, Max HP +200, VIT +4.", def: 22, maxHp: 200, bonusStats: { vit: 4 }, sellPrice: 1500,
+  },
+
+  // ---- East Coast Park (Singapore) gear ----
+  beach_trident: {
+    id: "beach_trident", name: "Beach Trident", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A surf-cast fishing trident. ATK +52, AGI +4.", atk: 52, bonusStats: { agi: 4 }, sellPrice: 1100,
+  },
+  sun_visor: {
+    id: "sun_visor", name: "Sun Visor", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A breezy beach visor. DEF +14, DEX +4, Max HP +80.", def: 14, maxHp: 80, bonusStats: { dex: 4 }, sellPrice: 950,
+  },
+  wetsuit: {
+    id: "wetsuit", name: "Wetsuit", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "A sleek diving wetsuit. DEF +16, Max HP +140, AGI +3.", def: 16, maxHp: 140, bonusStats: { agi: 3 }, sellPrice: 1100,
+  },
+
+  // ---- Haw Par Villa (Singapore — Ten Courts of Hell) gear ----
+  soul_reaper: {
+    id: "soul_reaper", name: "Soul Reaper", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A scythe of the underworld. ATK +88, STR +6.", atk: 88, bonusStats: { str: 6 }, sellPrice: 4800,
+  },
+  judge_cap: {
+    id: "judge_cap", name: "Hell Judge Cap", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "Cap of an underworld magistrate. MATK +12, INT +6, Max SP +50.", matk: 12, maxSp: 50, bonusStats: { int: 6 }, sellPrice: 4400,
+  },
+  hell_robe: {
+    id: "hell_robe", name: "Hell Court Robe", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Vestments of the Ten Courts. DEF +32, Max HP +360, VIT +5.", def: 32, maxHp: 360, bonusStats: { vit: 5 }, sellPrice: 4800,
+  },
+
+  // ---- Pulau Ubin (Singapore) gear ----
+  ubin_machete: {
+    id: "ubin_machete", name: "Ubin Machete", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A worn island parang. ATK +46, STR +3.", atk: 46, bonusStats: { str: 3 }, sellPrice: 950,
+  },
+  straw_hat: {
+    id: "straw_hat", name: "Straw Hat", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A woven farmer's hat. DEF +12, AGI +3, Max HP +70.", def: 12, maxHp: 70, bonusStats: { agi: 3 }, sellPrice: 850,
+  },
+  fisher_vest: {
+    id: "fisher_vest", name: "Fisher Vest", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "A rugged kampong vest. DEF +14, Max HP +120, AGI +3.", def: 14, maxHp: 120, bonusStats: { agi: 3 }, sellPrice: 950,
+  },
+
+  // ---- Jurong (Singapore) gear ----
+  fossil_blade: {
+    id: "fossil_blade", name: "Fossil Blade", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A blade of petrified bone. ATK +48, STR +4.", atk: 48, bonusStats: { str: 4 }, sellPrice: 1100,
+  },
+  goggle_helm: {
+    id: "goggle_helm", name: "Goggle Helm", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A field-researcher's goggles. DEF +14, DEX +4, Max HP +80.", def: 14, maxHp: 80, bonusStats: { dex: 4 }, sellPrice: 950,
+  },
+  lab_coat: {
+    id: "lab_coat", name: "Lab Coat", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "A reinforced science coat. DEF +16, Max SP +50, INT +4.", def: 16, maxSp: 50, bonusStats: { int: 4 }, sellPrice: 1100,
+  },
+
+  // ---- Marina Bay (Singapore) gear ----
+  laser_lance: {
+    id: "laser_lance", name: "Laser Lance", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A coherent-light polearm. ATK +90, DEX +6.", atk: 90, bonusStats: { dex: 6 }, sellPrice: 5200,
+  },
+  skyline_visor: {
+    id: "skyline_visor", name: "Skyline Visor", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "An augmented-reality visor. MATK +12, INT +6, Max SP +50.", matk: 12, maxSp: 50, bonusStats: { int: 6 }, sellPrice: 4800,
+  },
+  chrome_plate: {
+    id: "chrome_plate", name: "Chrome Plate", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Mirror-polished battle plate. DEF +34, Max HP +380, VIT +6.", def: 34, maxHp: 380, bonusStats: { vit: 6 }, sellPrice: 5200,
+  },
+
+  // ---- Kampong Glam (Singapore) gear ----
+  corsair_scimitar: {
+    id: "corsair_scimitar", name: "Corsair Scimitar", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A Bugis sea-raider's blade. ATK +60, AGI +4.", atk: 60, bonusStats: { agi: 4 }, sellPrice: 2700,
+  },
+  songkok: {
+    id: "songkok", name: "Songkok", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A velvet heritage cap. DEF +16, INT +4, Max SP +30.", def: 16, maxSp: 30, bonusStats: { int: 4 }, sellPrice: 2300,
+  },
+  songket_robe: {
+    id: "songket_robe", name: "Songket Robe", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Gold-threaded ceremonial silk. DEF +22, Max SP +70, INT +4.", def: 22, maxSp: 70, bonusStats: { int: 4 }, sellPrice: 2600,
+  },
+
   // ---- Sentosa (Singapore — capstone) gear ----
   trident_of_tides: {
     id: "trident_of_tides", name: "Trident of Tides", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1145,6 +1453,138 @@ Object.assign(DROP_TABLES, {
   minorous: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pharaoh_mask", chance: 0.03 }],
   pharaoh: HI([{ itemId: "ankh_staff", chance: 0.6 }, { itemId: "pharaoh_mask", chance: 0.5 }, { itemId: "mummy_wrap", chance: 0.4 }]),
   osiris: HI([{ itemId: "pharaoh_mask", chance: 0.6 }, { itemId: "mummy_wrap", chance: 0.5 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Changi (Singapore)
+  pow_spirit: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "changi_plate", chance: 0.03 }],
+  beach_ghoul: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "jewel_visor", chance: 0.03 }],
+  jewel_drone: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "vortex_blade", chance: 0.03 }],
+  changi_revenant: HI([{ itemId: "vortex_blade", chance: 0.6 }, { itemId: "changi_plate", chance: 0.5 }, { itemId: "jewel_visor", chance: 0.4 }]),
+  vortex_guardian: HI([{ itemId: "changi_plate", chance: 0.6 }, { itemId: "vortex_blade", chance: 0.45 }, { itemId: "marc_card", chance: 0.05 }]),
+  // MacRitchie Reservoir (Singapore)
+  water_monitor: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "monitor_scale_charm", chance: 0.03 }],
+  treetop_colugo: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "treetop_bow", chance: 0.03 }],
+  swamp_leech: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "reservoir_robe", chance: 0.03 }],
+  treetop_warden: HI([{ itemId: "treetop_bow", chance: 0.6 }, { itemId: "reservoir_robe", chance: 0.5 }, { itemId: "monitor_scale_charm", chance: 0.4 }]),
+  reservoir_naga: HI([{ itemId: "reservoir_robe", chance: 0.6 }, { itemId: "treetop_bow", chance: 0.45 }, { itemId: "marc_card", chance: 0.05 }]),
+  // Little India (Singapore)
+  festival_effigy: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "garland_robe", chance: 0.03 }],
+  deepavali_wisp: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "deepavali_crown", chance: 0.03 }],
+  saree_serpent: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "trishula_blade", chance: 0.03 }],
+  kali_avatar: HI([{ itemId: "trishula_blade", chance: 0.6 }, { itemId: "garland_robe", chance: 0.5 }, { itemId: "deepavali_crown", chance: 0.4 }]),
+  gopuram_guardian: HI([{ itemId: "garland_robe", chance: 0.6 }, { itemId: "trishula_blade", chance: 0.45 }, { itemId: "marc_card", chance: 0.05 }]),
+  // Orchard Road (Singapore)
+  mall_mannequin: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "chrome_carapace", chance: 0.03 }],
+  neon_phantom: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "holo_circlet", chance: 0.03 }],
+  holo_serpent: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "neon_edge", chance: 0.03 }],
+  ion_colossus: HI([{ itemId: "neon_edge", chance: 0.6 }, { itemId: "chrome_carapace", chance: 0.5 }, { itemId: "holo_circlet", chance: 0.4 }]),
+  orchard_specter: HI([{ itemId: "chrome_carapace", chance: 0.6 }, { itemId: "neon_edge", chance: 0.45 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Sungei Buloh Wetland Reserve (Singapore)
+  wetland_heron: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "heron_glaive", chance: 0.03 }],
+  fiddler_crab: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "terrapin_shell_charm", chance: 0.03 }],
+  marsh_terrapin: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "marsh_cloak", chance: 0.03 }],
+  estuarine_titan: HI([{ itemId: "marsh_cloak", chance: 0.6 }, { itemId: "terrapin_shell_charm", chance: 0.5 }, { itemId: "heron_glaive", chance: 0.4 }]),
+  garuda_matriarch: HI([{ itemId: "heron_glaive", chance: 0.6 }, { itemId: "marsh_cloak", chance: 0.45 }, { itemId: "marc_card", chance: 0.05 }]),
+  // Mandai Night Safari (Singapore)
+  night_panther: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "panther_claw", chance: 0.03 }],
+  giant_flying_fox: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "nocturne_mask", chance: 0.03 }],
+  moonlit_moth: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "tiger_hide_armor", chance: 0.03 }],
+  malayan_tiger_lord: HI([{ itemId: "panther_claw", chance: 0.6 }, { itemId: "tiger_hide_armor", chance: 0.5 }, { itemId: "nocturne_mask", chance: 0.4 }]),
+  mandai_naga: HI([{ itemId: "tiger_hide_armor", chance: 0.6 }, { itemId: "panther_claw", chance: 0.45 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Kusu Island (Singapore)
+  temple_tortoise: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "tortoise_shell_plate", chance: 0.03 }],
+  shrine_carp: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "fortune_amulet", chance: 0.03 }],
+  pilgrim_wisp: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "pilgrim_staff", chance: 0.03 }],
+  kusu_tortoise_god: HI([{ itemId: "tortoise_shell_plate", chance: 0.6 }, { itemId: "fortune_amulet", chance: 0.5 }, { itemId: "pilgrim_staff", chance: 0.4 }]),
+  wishing_well_naga: HI([{ itemId: "pilgrim_staff", chance: 0.6 }, { itemId: "fortune_amulet", chance: 0.45 }, { itemId: "marc_card", chance: 0.05 }]),
+  // Botanic Gardens (Singapore)
+  garden_swan: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "swan_feather_hat", chance: 0.03 }],
+  orchid_sprite: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "orchid_wand", chance: 0.03 }],
+  koi_spirit: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "garden_tunic", chance: 0.03 }],
+  bandstand_golem: HI([{ itemId: "garden_tunic", chance: 0.6 }, { itemId: "swan_feather_hat", chance: 0.5 }, { itemId: "orchid_wand", chance: 0.4 }]),
+  swan_lake_naga: HI([{ itemId: "orchid_wand", chance: 0.6 }, { itemId: "garden_tunic", chance: 0.45 }, { itemId: "poring_card", chance: 0.05 }]),
+  // Labrador Park (Singapore)
+  battery_phantom: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "fort_helm", chance: 0.03 }],
+  reef_lobster: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "bunker_coat", chance: 0.03 }],
+  cliff_bat: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "battery_carbine", chance: 0.03 }],
+  coastal_gun_golem: HI([{ itemId: "bunker_coat", chance: 0.6 }, { itemId: "fort_helm", chance: 0.5 }, { itemId: "battery_carbine", chance: 0.4 }]),
+  dragon_teeth_wraith: HI([{ itemId: "battery_carbine", chance: 0.6 }, { itemId: "bunker_coat", chance: 0.45 }, { itemId: "poring_card", chance: 0.05 }]),
+  // Coney Island (Singapore)
+  coney_bull: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "bull_horn_mace", chance: 0.03 }],
+  casuarina_sprite: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "driftwood_charm", chance: 0.03 }],
+  mudflat_crane: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "casuarina_cloak", chance: 0.03 }],
+  white_bull_king: HI([{ itemId: "bull_horn_mace", chance: 0.6 }, { itemId: "casuarina_cloak", chance: 0.5 }, { itemId: "driftwood_charm", chance: 0.4 }]),
+  driftwood_treant: HI([{ itemId: "casuarina_cloak", chance: 0.6 }, { itemId: "driftwood_charm", chance: 0.45 }, { itemId: "poring_card", chance: 0.05 }]),
+  // Tiong Bahru (Singapore)
+  kopitiam_spirit: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "art_deco_vest", chance: 0.03 }],
+  songbird_swarm: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "songbird_cage_hat", chance: 0.03 }],
+  back_alley_rat: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "cleaver_blade", chance: 0.03 }],
+  art_deco_golem: HI([{ itemId: "art_deco_vest", chance: 0.6 }, { itemId: "songbird_cage_hat", chance: 0.5 }, { itemId: "cleaver_blade", chance: 0.4 }]),
+  market_wraith: HI([{ itemId: "cleaver_blade", chance: 0.6 }, { itemId: "art_deco_vest", chance: 0.45 }, { itemId: "poring_card", chance: 0.05 }]),
+  // Punggol Waterway (Singapore)
+  kelong_crab: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "waterway_mantle", chance: 0.03 }],
+  lalang_sprite: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "lalang_charm", chance: 0.03 }],
+  waterway_egret: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "kelong_harpoon", chance: 0.03 }],
+  sand_quarry_golem: HI([{ itemId: "waterway_mantle", chance: 0.6 }, { itemId: "lalang_charm", chance: 0.5 }, { itemId: "kelong_harpoon", chance: 0.4 }]),
+  tilapia_titan: HI([{ itemId: "kelong_harpoon", chance: 0.6 }, { itemId: "waterway_mantle", chance: 0.45 }, { itemId: "marc_card", chance: 0.05 }]),
+  // Pasir Ris Park (Singapore)
+  sandcastle_crab: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "beachcomber_spade", chance: 0.03 }],
+  park_squirrel: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "park_jersey", chance: 0.03 }],
+  kite_wisp: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "kite_runner_cap", chance: 0.03 }],
+  mangrove_monitor: HI([{ itemId: "park_jersey", chance: 0.6 }, { itemId: "kite_runner_cap", chance: 0.5 }, { itemId: "beachcomber_spade", chance: 0.4 }]),
+  hedge_maze_golem: HI([{ itemId: "beachcomber_spade", chance: 0.6 }, { itemId: "park_jersey", chance: 0.45 }, { itemId: "poring_card", chance: 0.05 }]),
+  // Marina Barrage (Singapore)
+  turbine_sentinel: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "barrage_aegis", chance: 0.03 }],
+  spillway_wraith: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "storm_diadem", chance: 0.03 }],
+  surge_elemental: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "tempest_glaive", chance: 0.03 }],
+  barrage_leviathan: HI([{ itemId: "tempest_glaive", chance: 0.6 }, { itemId: "barrage_aegis", chance: 0.5 }, { itemId: "storm_diadem", chance: 0.4 }]),
+  tempest_dragon: HI([{ itemId: "barrage_aegis", chance: 0.6 }, { itemId: "tempest_glaive", chance: 0.45 }, { itemId: "marc_card", chance: 0.06 }]),
+  // Mount Faber (Singapore)
+  cable_wraith: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "alpine_plate", chance: 0.03 }],
+  peak_eagle: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "aviator_cap", chance: 0.03 }],
+  stone_golem: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "summit_lance", chance: 0.03 }],
+  faber_titan: HI([{ itemId: "summit_lance", chance: 0.6 }, { itemId: "alpine_plate", chance: 0.5 }, { itemId: "aviator_cap", chance: 0.4 }]),
+  wind_djinn: HI([{ itemId: "aviator_cap", chance: 0.6 }, { itemId: "alpine_plate", chance: 0.45 }, { itemId: "doppelganger_card", chance: 0.05 }]),
+  // Fort Canning (Singapore)
+  spice_sprite: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "officer_coat", chance: 0.03 }],
+  war_ghost: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "pith_helmet", chance: 0.03 }],
+  bunker_sentry: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "canning_saber", chance: 0.03 }],
+  colonial_wraith: HI([{ itemId: "canning_saber", chance: 0.6 }, { itemId: "officer_coat", chance: 0.5 }, { itemId: "pith_helmet", chance: 0.4 }]),
+  hill_sentinel: HI([{ itemId: "officer_coat", chance: 0.6 }, { itemId: "canning_saber", chance: 0.45 }, { itemId: "skeleton_card", chance: 0.05 }]),
+  // East Coast Park (Singapore)
+  beach_crab: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "wetsuit", chance: 0.035 }],
+  seagull: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "sun_visor", chance: 0.035 }],
+  sand_flea: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "beach_trident", chance: 0.03 }],
+  giant_stingray: HI([{ itemId: "beach_trident", chance: 0.6 }, { itemId: "wetsuit", chance: 0.5 }, { itemId: "sun_visor", chance: 0.4 }]),
+  tidal_kraken: HI([{ itemId: "wetsuit", chance: 0.6 }, { itemId: "beach_trident", chance: 0.45 }, { itemId: "marc_card", chance: 0.05 }]),
+  // Haw Par Villa (Singapore — Ten Courts of Hell)
+  hell_judge: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "hell_robe", chance: 0.025 }],
+  ox_head: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "judge_cap", chance: 0.025 }],
+  horse_face: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "soul_reaper", chance: 0.025 }],
+  yama_king: HI([{ itemId: "soul_reaper", chance: 0.6 }, { itemId: "hell_robe", chance: 0.5 }, { itemId: "judge_cap", chance: 0.4 }]),
+  tiger_spirit: HI([{ itemId: "soul_reaper", chance: 0.6 }, { itemId: "hell_robe", chance: 0.5 }, { itemId: "baphomet_card", chance: 0.05 }]),
+  // Pulau Ubin (Singapore)
+  wild_boar: [{ itemId: "apple", chance: 0.3 }, { itemId: "fisher_vest", chance: 0.04 }],
+  kampong_rooster: [{ itemId: "apple", chance: 0.3 }, { itemId: "straw_hat", chance: 0.04 }],
+  mangrove_crab: [{ itemId: "red_potion", chance: 0.25 }, { itemId: "ubin_machete", chance: 0.04 }],
+  boar_king: HI([{ itemId: "ubin_machete", chance: 0.6 }, { itemId: "fisher_vest", chance: 0.5 }, { itemId: "straw_hat", chance: 0.4 }]),
+  mangrove_naga: HI([{ itemId: "fisher_vest", chance: 0.6 }, { itemId: "ubin_machete", chance: 0.45 }, { itemId: "marc_card", chance: 0.05 }]),
+  // Jurong (Singapore)
+  lab_slime: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "lab_coat", chance: 0.035 }],
+  raptor: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "goggle_helm", chance: 0.035 }],
+  pterodactyl: [{ itemId: "red_potion", chance: 0.3 }, { itemId: "fossil_blade", chance: 0.03 }],
+  t_rex: HI([{ itemId: "fossil_blade", chance: 0.6 }, { itemId: "lab_coat", chance: 0.5 }, { itemId: "goggle_helm", chance: 0.4 }]),
+  mecha_dino: HI([{ itemId: "goggle_helm", chance: 0.6 }, { itemId: "fossil_blade", chance: 0.45 }, { itemId: "skeleton_card", chance: 0.05 }]),
+  // Marina Bay (Singapore)
+  chrome_sentry: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "chrome_plate", chance: 0.025 }],
+  neon_wisp: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "skyline_visor", chance: 0.025 }],
+  drone_swarm: [{ itemId: "yellow_potion", chance: 0.4 }, { itemId: "laser_lance", chance: 0.025 }],
+  skyline_colossus: HI([{ itemId: "laser_lance", chance: 0.6 }, { itemId: "chrome_plate", chance: 0.5 }, { itemId: "skyline_visor", chance: 0.4 }]),
+  spectra_dragon: HI([{ itemId: "laser_lance", chance: 0.6 }, { itemId: "chrome_plate", chance: 0.55 }, { itemId: "doppelganger_card", chance: 0.05 }]),
+  // Kampong Glam (Singapore)
+  bugis_corsair: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "corsair_scimitar", chance: 0.03 }],
+  djinn: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "songkok", chance: 0.03 }],
+  batik_serpent: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "songket_robe", chance: 0.03 }],
+  sultan_jinn: HI([{ itemId: "songkok", chance: 0.6 }, { itemId: "songket_robe", chance: 0.5 }, { itemId: "corsair_scimitar", chance: 0.4 }]),
+  naga_emas: HI([{ itemId: "corsair_scimitar", chance: 0.6 }, { itemId: "songket_robe", chance: 0.45 }, { itemId: "baphomet_card", chance: 0.05 }]),
   // Sentosa (Singapore — capstone)
   otter_alpha: [{ itemId: "white_potion", chance: 0.4 }, { itemId: "tide_plate", chance: 0.022 }],
   giant_grouper: [{ itemId: "white_potion", chance: 0.4 }, { itemId: "trident_of_tides", chance: 0.022 }],
@@ -1304,6 +1744,28 @@ const ORE_REGULARS = [
   "supertree_sprite", "firefly_swarm", "orchid_fae",
   "pontianak", "orang_minyak", "hantu_air",
   "otter_alpha", "giant_grouper", "resort_peacock",
+  "bugis_corsair", "djinn", "batik_serpent",
+  "chrome_sentry", "neon_wisp", "drone_swarm",
+  "lab_slime", "raptor", "pterodactyl",
+  "wild_boar", "kampong_rooster", "mangrove_crab",
+  "hell_judge", "ox_head", "horse_face",
+  "beach_crab", "seagull", "sand_flea",
+  "spice_sprite", "war_ghost", "bunker_sentry",
+  "cable_wraith", "peak_eagle", "stone_golem",
+  "pow_spirit", "beach_ghoul", "jewel_drone",
+  "water_monitor", "treetop_colugo", "swamp_leech",
+  "festival_effigy", "deepavali_wisp", "saree_serpent",
+  "mall_mannequin", "neon_phantom", "holo_serpent",
+  "wetland_heron", "fiddler_crab", "marsh_terrapin",
+  "night_panther", "giant_flying_fox", "moonlit_moth",
+  "temple_tortoise", "shrine_carp", "pilgrim_wisp",
+  "garden_swan", "orchid_sprite", "koi_spirit",
+  "battery_phantom", "reef_lobster", "cliff_bat",
+  "coney_bull", "casuarina_sprite", "mudflat_crane",
+  "kopitiam_spirit", "songbird_swarm", "back_alley_rat",
+  "kelong_crab", "lalang_sprite", "waterway_egret",
+  "sandcastle_crab", "park_squirrel", "kite_wisp",
+  "turbine_sentinel", "spillway_wraith", "surge_elemental",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1328,7 +1790,23 @@ const ORE_BOSSES = [
   "war_machine", "overlord_core", "sea_serpent", "the_merlion",
   "king_macaque", "reticulated_python", "jiangshi_lord", "nian_beast",
   "supertree_guardian", "flower_dome_titan", "pontianak_queen", "penanggalan",
-  "sentosa_merlion", "leviathan",
+  "sentosa_merlion", "leviathan", "sultan_jinn", "naga_emas",
+  "skyline_colossus", "spectra_dragon", "t_rex", "mecha_dino", "boar_king", "mangrove_naga",
+  "yama_king", "tiger_spirit", "giant_stingray", "tidal_kraken", "colonial_wraith", "hill_sentinel",
+  "faber_titan", "wind_djinn", "changi_revenant", "vortex_guardian",
+  "treetop_warden", "reservoir_naga",
+  "kali_avatar", "gopuram_guardian",
+  "ion_colossus", "orchard_specter",
+  "estuarine_titan", "garuda_matriarch",
+  "malayan_tiger_lord", "mandai_naga",
+  "kusu_tortoise_god", "wishing_well_naga",
+  "bandstand_golem", "swan_lake_naga",
+  "coastal_gun_golem", "dragon_teeth_wraith",
+  "white_bull_king", "driftwood_treant",
+  "art_deco_golem", "market_wraith",
+  "sand_quarry_golem", "tilapia_titan",
+  "mangrove_monitor", "hedge_maze_golem",
+  "barrage_leviathan", "tempest_dragon",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];
