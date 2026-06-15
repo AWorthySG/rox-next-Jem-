@@ -17,6 +17,8 @@ export class PlayerView extends EntityView {
   private swingT = 0; // attack-swing animation timer (1→0)
   private flinchT = 0; // hit-reaction timer (1→0)
   private rig: ModelRig;
+  private buffAura: THREE.Mesh | null = null;
+  private auraPhase = 0;
 
   isSelf = false;
   // server-authoritative position (used for self correction / remote idle)
@@ -101,6 +103,24 @@ export class PlayerView extends EntityView {
     if (!this.rig.playOneShot("hit")) this.flinchT = 1;
   }
 
+  // Show/hide a soft golden ground aura while the player has active buffs.
+  setBuffed(active: boolean): void {
+    if (active && !this.buffAura) {
+      this.buffAura = new THREE.Mesh(
+        new THREE.RingGeometry(0.55, 0.78, 36),
+        new THREE.MeshBasicMaterial({ color: 0xffe08a, transparent: true, opacity: 0.5, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending }),
+      );
+      this.buffAura.rotation.x = -Math.PI / 2;
+      this.buffAura.position.y = 0.05;
+      this.group.add(this.buffAura);
+    } else if (!active && this.buffAura) {
+      this.group.remove(this.buffAura);
+      (this.buffAura.material as THREE.Material).dispose();
+      this.buffAura.geometry.dispose();
+      this.buffAura = null;
+    }
+  }
+
   // Swap the worn hat live (e.g. when the local player equips/unequips headgear).
   setHeadgear(id: string | null): void {
     if (id === this.headgearId) return;
@@ -177,6 +197,13 @@ export class PlayerView extends EntityView {
   }
 
   protected override animate(dt: number): void {
+    if (this.buffAura) {
+      this.auraPhase += dt;
+      this.buffAura.rotation.z += dt * 1.5;
+      const t = Math.sin(this.auraPhase * 2.2) * 0.5 + 0.5;
+      (this.buffAura.material as THREE.MeshBasicMaterial).opacity = 0.35 + t * 0.28;
+      this.buffAura.scale.setScalar(1 + t * 0.08);
+    }
     if (this.modelBacked) {
       // the loaded model drives its own idle/walk + attack/hit clips
       this.rig.setMoving(this.moving);

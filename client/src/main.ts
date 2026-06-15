@@ -372,6 +372,7 @@ function handleMessage(msg: ServerMessage): void {
       }
       hud.update(msg.self);
       screenFx.setLowHp(msg.self.maxHp > 0 && msg.self.hp / msg.self.maxHp < 0.25);
+      gameState.self?.setBuffed((msg.self.buffs?.length ?? 0) > 0);
       skillBar.setSp(msg.self.sp);
       inventory.sync(msg.self);
       storage.sync(msg.self);
