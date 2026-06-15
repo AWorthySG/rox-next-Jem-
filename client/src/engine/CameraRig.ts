@@ -12,6 +12,9 @@ export class CameraRig {
   private dragging = false;
   private lastX = 0;
   private shakeAmt = 0;
+  // reused each frame to avoid per-frame allocation
+  private scratchTarget = new THREE.Vector3();
+  private scratchDesired = new THREE.Vector3();
 
   constructor(private dom: HTMLElement) {
     this.camera = new THREE.PerspectiveCamera(55, window.innerWidth / window.innerHeight, 0.1, 1000);
@@ -44,17 +47,20 @@ export class CameraRig {
     this.shakeAmt = Math.min(0.9, this.shakeAmt + amount);
   }
 
-  // Smoothly follow a world position.
+  // Smoothly follow a world position. Easing is framerate-independent so the
+  // camera feels identical at any refresh rate, and reuses scratch vectors.
   follow(pos: THREE.Vector3, dt: number): void {
-    this.target.lerp(new THREE.Vector3(pos.x, pos.y + 1, pos.z), Math.min(1, dt * 8));
+    const a = 1 - Math.exp(-8 * dt);
+    this.scratchTarget.set(pos.x, pos.y + 1, pos.z);
+    this.target.lerp(this.scratchTarget, a);
     const horiz = Math.cos(this.pitch) * this.distance;
     const height = Math.sin(this.pitch) * this.distance;
-    const desired = new THREE.Vector3(
+    this.scratchDesired.set(
       this.target.x + Math.sin(this.yaw) * horiz,
       this.target.y + height,
       this.target.z + Math.cos(this.yaw) * horiz,
     );
-    this.camera.position.lerp(desired, Math.min(1, dt * 8));
+    this.camera.position.lerp(this.scratchDesired, a);
     if (this.shakeAmt > 0.001) {
       this.camera.position.x += (Math.random() - 0.5) * this.shakeAmt;
       this.camera.position.y += (Math.random() - 0.5) * this.shakeAmt;
