@@ -14,6 +14,8 @@ import {
   Weather,
   getItem,
   getSkill,
+  skillCooldownMs,
+  skillEffectDurationMs,
   itemEquippableBy,
   JobId,
   MsgType,
@@ -524,6 +526,14 @@ async function main(): Promise<void> {
   check(effectiveCastMs(getSkill("bash")!, 0) === 0, "cast: melee skills are instant");
   check(effectiveCastMs(getSkill("fire_bolt")!, 60) < 600, "cast: DEX shortens cast time");
   check(effectiveCastMs(getSkill("fire_bolt")!, 600) === Math.round(600 * 0.25), "cast: cast time floors at 25%");
+
+  // ---- skill leveling deepens cooldown + crowd-control duration ----
+  const bashCd = getSkill("bash")!.cooldownMs;
+  check(skillCooldownMs(getSkill("bash")!, 1) === bashCd, "skill-lvl: cooldown unchanged at level 1");
+  check(skillCooldownMs(getSkill("bash")!, 5) < bashCd, "skill-lvl: higher level shortens cooldown");
+  check(skillCooldownMs(getSkill("bash")!, 99) >= Math.round(bashCd * 0.7), "skill-lvl: cooldown cut floors at 30%");
+  check(skillEffectDurationMs(2000, 1) === 2000, "skill-lvl: CC duration base at level 1");
+  check(skillEffectDurationMs(2000, 5) > 2000, "skill-lvl: higher level lengthens CC");
 
   local.stop();
   if (failures.length) {
