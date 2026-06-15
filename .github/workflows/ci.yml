@@ -30,3 +30,6 @@ jobs:
 
       - name: Model loader runtime test
         run: npm run test:model
+
+      - name: Validate dropped-in models
+        run: npm run check:models

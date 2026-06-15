@@ -16,6 +16,24 @@ function collectToonMats(root: THREE.Object3D, out: THREE.MeshToonMaterial[]): v
   });
 }
 
+type ClipKind = "idle" | "walk" | "attack" | "hit" | "death";
+const CLIP_PATTERNS: Record<ClipKind, RegExp> = {
+  idle: /idle|breath/i,
+  walk: /walk|run|move/i,
+  attack: /attack|cast|skill|shoot|bite|swing/i,
+  hit: /hit|hurt|damage|flinch|stagger/i,
+  death: /death|die|dead|faint|defeat/i,
+};
+
+// Map a model's embedded clips onto the events we drive, by name keyword.
+function resolveClips(clips: THREE.AnimationClip[]): Partial<Record<ClipKind, THREE.AnimationClip>> {
+  const out: Partial<Record<ClipKind, THREE.AnimationClip>> = {};
+  for (const kind of Object.keys(CLIP_PATTERNS) as ClipKind[]) {
+    out[kind] = clips.find((c) => CLIP_PATTERNS[kind].test(c.name));
+  }
+  return out;
+}
+
 // A monster view: a per-family low-poly mesh with an idle bob (jelly archetypes
 // also squash). Bosses are larger and wear a golden crown.
 export class MonsterView extends EntityView {
@@ -73,6 +91,10 @@ export class MonsterView extends EntityView {
   private deathMats: THREE.Material[] = [];
   private flashMats: THREE.MeshToonMaterial[] = []; // toon mats driven by hit-flash
   private mixer: THREE.AnimationMixer | null = null; // skeletal animation (loaded models)
+  private clips: Partial<Record<ClipKind, THREE.AnimationClip>> = {};
+  private idleAction: THREE.AnimationAction | null = null;
+  private oneShot: THREE.AnimationAction | null = null;
+  private deathClip = false; // model supplied a death clip → skip the procedural pop/spin
   private modelBacked = false; // true once a shared-geometry .glb has been swapped in
   private disposed = false;
 
@@ -113,29 +135,58 @@ export class MonsterView extends EntityView {
 
     if (loaded.animations.length) {
       this.mixer = new THREE.AnimationMixer(loaded.scene);
-      const clip = loaded.animations.find((c) => /idle|walk|run|move/i.test(c.name)) ?? loaded.animations[0];
-      this.mixer.clipAction(clip).play();
+      this.clips = resolveClips(loaded.animations);
+      const base = this.clips.idle ?? this.clips.walk ?? loaded.animations[0];
+      if (base) (this.idleAction = this.mixer.clipAction(base)).play();
+      // one-shots (attack/hit/death) fade back to idle when they finish
+      this.mixer.addEventListener("finished", () => this.returnToIdle());
     }
   }
 
-  // Flash + scale-punch when struck.
-  hit(): void {
-    this.hitT = 1;
+  // Play a non-looping clip (if the model has one) over the idle loop. Returns
+  // false when there's no such clip, so callers can use a procedural fallback.
+  private playOneShot(kind: ClipKind): boolean {
+    const clip = this.mixer && this.clips[kind];
+    if (!clip || !this.mixer) return false;
+    const action = this.mixer.clipAction(clip);
+    action.reset();
+    action.setLoop(THREE.LoopOnce, 1);
+    action.clampWhenFinished = kind === "death";
+    if (this.oneShot && this.oneShot !== action) this.oneShot.stop();
+    this.idleAction?.fadeOut(0.08);
+    action.fadeIn(0.08).play();
+    this.oneShot = action;
+    return true;
   }
 
-  // Quick forward lunge when the monster lands an attack (reads as a commit).
+  private returnToIdle(): void {
+    if (this.dying || !this.idleAction) return; // death clamps on its last frame
+    this.oneShot?.fadeOut(0.15);
+    this.oneShot = null;
+    this.idleAction.reset().fadeIn(0.15).play();
+  }
+
+  // Flash + scale-punch when struck (always), plus a hit clip if the model has one.
+  hit(): void {
+    this.hitT = 1;
+    this.playOneShot("hit");
+  }
+
+  // Attack tell: play the model's attack clip, else a procedural forward lunge.
   lunge(): void {
-    this.lungeT = 1;
+    if (!this.playOneShot("attack")) this.lungeT = 1;
   }
 
   get dying(): boolean {
     return this.deathT >= 0;
   }
 
-  // Begin the death animation: flash white, then pop + shrink + fade out.
+  // Begin the death animation: flash white, then pop + shrink + fade out — or
+  // play the model's death clip (if any) while it fades.
   beginDeath(): void {
     if (this.dying) return;
     this.deathT = 0;
+    this.deathClip = this.playOneShot("death");
     this.nameplateEl.style.display = "none";
     this.label.element.style.display = "none";
     // Collect every material on the view (body, feet, crown, aura…) so the whole
@@ -153,13 +204,17 @@ export class MonsterView extends EntityView {
 
   // Advance the death animation; returns true when finished (ready to dispose).
   updateDeath(dt: number): boolean {
+    if (this.mixer) this.mixer.update(dt); // keep a death clip playing
     this.deathT = Math.min(1, this.deathT + dt * 2.4);
     const p = this.deathT;
-    const pop = Math.sin(Math.min(p / 0.35, 1) * Math.PI * 0.5); // quick pop-up
-    const s = this.scale * (1 + 0.35 * pop) * (1 - p * 0.85);
-    this.poring.group.scale.setScalar(Math.max(0.001, s));
-    this.poring.group.position.y = p * 0.8;
-    this.poring.group.rotation.y += dt * 6;
+    if (!this.deathClip) {
+      // procedural fallback: a quick pop-up + shrink + spin
+      const pop = Math.sin(Math.min(p / 0.35, 1) * Math.PI * 0.5);
+      const s = this.scale * (1 + 0.35 * pop) * (1 - p * 0.85);
+      this.poring.group.scale.setScalar(Math.max(0.001, s));
+      this.poring.group.position.y = p * 0.8;
+      this.poring.group.rotation.y += dt * 6;
+    }
     const op = 1 - p;
     for (const m of this.deathMats) (m as THREE.Material & { opacity: number }).opacity = op;
     const flash = 1 - Math.min(p / 0.3, 1);
