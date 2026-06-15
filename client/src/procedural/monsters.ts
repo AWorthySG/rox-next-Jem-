@@ -11,6 +11,7 @@ export interface MonsterAppearance {
   eye?: number; // glowing eye colour (overrides the archetype default)
   scale: number;
   boss?: boolean;
+  model?: string; // optional mid-poly .glb (in public/models/); falls back to the procedural mesh
 }
 
 interface AppearanceDef {
@@ -19,6 +20,7 @@ interface AppearanceDef {
   eye?: string; // glowing eye / bioluminescent accent, matched to concept art
   scale: number;
   boss?: boolean;
+  model?: string; // optional mid-poly .glb (in public/models/); falls back to the procedural mesh
 }
 
 // Visual family per template — drives which low-poly mesh archetype is built.
@@ -498,6 +500,7 @@ export function buildMonsterAppearances(): Record<string, MonsterAppearance> {
       eye: d.eye ? hex(d.eye) : undefined,
       scale: d.scale,
       boss: d.boss,
+      model: d.model,
     };
   }
   return out;

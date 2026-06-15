@@ -1,8 +1,19 @@
 import * as THREE from "three";
 import { Element, ELEMENT_COLOR, type EntityFull } from "@rox/shared";
 import { buildMonsterMesh, type MonsterMesh } from "../procedural/monsterMeshes.js";
+import { loadMonsterModel } from "../procedural/modelLoader.js";
 import type { MonsterAppearance } from "../procedural/monsters.js";
 import { EntityView } from "./EntityView.js";
+
+// Collect every toon material under an object so hit/death flashes can drive
+// them all (a single primitive body, or all surfaces of a loaded model).
+function collectToonMats(root: THREE.Object3D, out: THREE.MeshToonMaterial[]): void {
+  root.traverse((o) => {
+    if (!(o instanceof THREE.Mesh)) return;
+    const mats = Array.isArray(o.material) ? o.material : [o.material];
+    for (const m of mats) if (m instanceof THREE.MeshToonMaterial) out.push(m);
+  });
+}
 
 // A monster view: a per-family low-poly mesh with an idle bob (jelly archetypes
 // also squash). Bosses are larger and wear a golden crown.
@@ -24,6 +35,10 @@ export class MonsterView extends EntityView {
     this.group.add(this.poring.group);
     const bodyMat = (this.poring.body as THREE.Mesh).material as THREE.MeshToonMaterial | undefined;
     if (bodyMat?.emissive) this.baseEmissive.copy(bodyMat.emissive);
+    if (bodyMat) this.flashMats.push(bodyMat);
+
+    // Opt-in mid-poly model: load async and swap in over the primitive placeholder.
+    if (appearance.model) void this.loadModel(appearance.model);
 
     if (appearance.boss) {
       const crown = new THREE.Mesh(
@@ -54,6 +69,45 @@ export class MonsterView extends EntityView {
   private baseEmissive = new THREE.Color(0, 0, 0);
   private deathT = -1; // -1 = alive; 0..1 = dying
   private deathMats: THREE.Material[] = [];
+  private flashMats: THREE.MeshToonMaterial[] = []; // toon mats driven by hit-flash
+  private mixer: THREE.AnimationMixer | null = null; // skeletal animation (loaded models)
+  private modelBacked = false; // true once a shared-geometry .glb has been swapped in
+  private disposed = false;
+
+  // Replace the procedural placeholder with a loaded mid-poly model. Keeps the
+  // primitive mesh on any failure, so a missing/bad asset is non-fatal.
+  private async loadModel(file: string): Promise<void> {
+    let loaded;
+    try {
+      loaded = await loadMonsterModel(file);
+    } catch (e) {
+      console.warn(`[model] ${file} failed to load; keeping procedural mesh`, e);
+      return;
+    }
+    if (this.disposed || this.dying) return;
+
+    this.group.remove(this.poring.group);
+    this.poring.group.traverse((o) => {
+      if (o instanceof THREE.Mesh) o.geometry.dispose?.();
+    });
+
+    loaded.scene.traverse((o) => (o.userData.entityId = this.id));
+    loaded.scene.scale.setScalar(this.scale);
+    this.poring = { group: loaded.scene, body: loaded.scene, squash: false };
+    this.group.add(loaded.scene);
+    this.modelBacked = true;
+
+    // Loaded toon materials start with no emissive, so the flash baseline is black.
+    this.baseEmissive.setRGB(0, 0, 0);
+    this.flashMats = [];
+    collectToonMats(loaded.scene, this.flashMats);
+
+    if (loaded.animations.length) {
+      this.mixer = new THREE.AnimationMixer(loaded.scene);
+      const clip = loaded.animations.find((c) => /idle|walk|run|move/i.test(c.name)) ?? loaded.animations[0];
+      this.mixer.clipAction(clip).play();
+    }
+  }
 
   // Flash + scale-punch when struck.
   hit(): void {
@@ -99,12 +153,8 @@ export class MonsterView extends EntityView {
     this.poring.group.rotation.y += dt * 6;
     const op = 1 - p;
     for (const m of this.deathMats) (m as THREE.Material & { opacity: number }).opacity = op;
-    const body = this.poring.body as THREE.Mesh;
-    const mat = body.material as THREE.MeshToonMaterial | undefined;
-    if (mat?.emissive) {
-      const flash = 1 - Math.min(p / 0.3, 1);
-      mat.emissive.setRGB(this.baseEmissive.r + flash, this.baseEmissive.g + flash, this.baseEmissive.b + flash);
-    }
+    const flash = 1 - Math.min(p / 0.3, 1);
+    for (const m of this.flashMats) m.emissive.setRGB(this.baseEmissive.r + flash, this.baseEmissive.g + flash, this.baseEmissive.b + flash);
     return p >= 1;
   }
 
@@ -128,6 +178,7 @@ export class MonsterView extends EntityView {
   }
 
   protected override animate(dt: number): void {
+    if (this.mixer) this.mixer.update(dt);
     this.phase += dt * (this.moving ? 9 : 3);
     if (this.poring.squash) {
       const squash = 0.82 + Math.sin(this.phase) * (this.moving ? 0.14 : 0.06);
@@ -154,17 +205,31 @@ export class MonsterView extends EntityView {
     }
 
     // hit reaction: quick white flash + scale punch
-    const body = this.poring.body as THREE.Mesh;
-    const mat = body.material as THREE.MeshToonMaterial | undefined;
     if (this.hitT > 0) {
       this.hitT = Math.max(0, this.hitT - dt * 6);
       const punch = 1 + this.hitT * 0.18;
       this.poring.group.scale.setScalar(this.scale * punch);
       const f = this.hitT * 0.9;
-      if (mat && mat.emissive) mat.emissive.setRGB(this.baseEmissive.r + f, this.baseEmissive.g + f, this.baseEmissive.b + f);
+      for (const m of this.flashMats) m.emissive.setRGB(this.baseEmissive.r + f, this.baseEmissive.g + f, this.baseEmissive.b + f);
     } else if (this.poring.group.scale.x !== this.scale) {
       this.poring.group.scale.setScalar(this.scale);
-      if (mat && mat.emissive) mat.emissive.copy(this.baseEmissive);
+      for (const m of this.flashMats) m.emissive.copy(this.baseEmissive);
     }
+  }
+
+  override dispose(scene: THREE.Scene): void {
+    this.disposed = true;
+    if (this.mixer) {
+      this.mixer.stopAllAction();
+      this.mixer = null;
+    }
+    if (this.modelBacked) {
+      // Loaded-model geometry is shared across instances via the loader cache —
+      // detach only, never dispose, or sibling spawns lose their mesh.
+      if (this.label.element.parentElement) this.label.element.parentElement.removeChild(this.label.element);
+      scene.remove(this.group);
+      return;
+    }
+    super.dispose(scene);
   }
 }
