@@ -1,9 +1,16 @@
-# Monster models (mid-poly drop-in)
+# Entity models (mid-poly drop-in)
 
-**Name a model after its template id and drop it here — that's the whole wiring.**
-A file named `<templateId>.glb` (e.g. `poring.glb`, `baphomet.glb`) is auto-loaded
-by that template; no code change required. Run `npm run checklist` for the full
-list of the 333 template filenames (also `docs/MODEL_CHECKLIST.md`).
+**Name a model after its entity and drop it here — that's the whole wiring.** The
+same loader/animation pipeline serves monsters, players, and NPCs:
+
+| Entity | Filename convention | Example |
+|--------|--------------------|---------|
+| Monster / boss | `<templateId>.glb` | `poring.glb`, `baphomet.glb` |
+| Player avatar | `char_<job>.glb` | `char_swordsman.glb`, `char_mage.glb` |
+| Town NPC | `npc_<role>.glb` | `npc_blacksmith.glb` |
+
+No code change required — the matching entity auto-loads it. Run `npm run checklist`
+for the full list of the 333 monster filenames (also `docs/MODEL_CHECKLIST.md`).
 
 How the auto-wiring works:
 

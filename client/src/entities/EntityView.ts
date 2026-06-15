@@ -22,6 +22,9 @@ export abstract class EntityView {
   protected prevX = 0;
   protected prevZ = 0;
   protected moving = false;
+  // True once a shared-geometry .glb model is swapped in; dispose then detaches
+  // only (never frees the cached geometry shared across instances).
+  protected modelBacked = false;
 
   constructor(entity: EntityFull, labelClass: string, labelHeight: number) {
     this.id = entity.id;
@@ -117,6 +120,8 @@ export abstract class EntityView {
   dispose(scene: THREE.Scene): void {
     if (this.label.element.parentElement) this.label.element.parentElement.removeChild(this.label.element);
     scene.remove(this.group);
+    // Model-backed views share cached geometry across instances — detach only.
+    if (this.modelBacked) return;
     this.group.traverse((o) => {
       const mesh = o as THREE.Mesh;
       if (mesh.geometry) mesh.geometry.dispose?.();

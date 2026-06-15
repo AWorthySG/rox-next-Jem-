@@ -3,6 +3,7 @@ import { isMagicJob, jobFamilyOf, MOUNT_SPEED_MULT, PLAYER_SPEED } from "@rox/sh
 import * as THREE from "three";
 import { applyHeadgear, buildCharacter, type CharacterMesh, type WeaponStyle } from "../procedural/characterMesh.js";
 import { EntityView } from "./EntityView.js";
+import { ModelRig } from "./ModelRig.js";
 
 // A player avatar. The local player ("self") is client-predicted; remote players
 // are interpolated from snapshots like any other entity.
@@ -15,6 +16,7 @@ export class PlayerView extends EntityView {
   private headgearId: string | null = null;
   private swingT = 0; // attack-swing animation timer (1→0)
   private flinchT = 0; // hit-reaction timer (1→0)
+  private rig: ModelRig;
 
   isSelf = false;
   // server-authoritative position (used for self correction / remote idle)
@@ -45,6 +47,14 @@ export class PlayerView extends EntityView {
     this.px = entity.x;
     this.pz = entity.z;
     this.pfacing = entity.facing;
+
+    // Optional mid-poly avatar by job: char_<job>.glb (e.g. char_swordsman.glb).
+    this.rig = new ModelRig(this.group, entity.id);
+    void this.rig.tryLoad(`char_${entity.job ?? "novice"}`, undefined, 1, () => {
+      this.char.group.visible = false; // keep refs (cape/headgear) but hide the primitive
+    }).then((swapped) => {
+      if (swapped) this.modelBacked = true;
+    });
   }
 
   override pushSnapshot(x: number, z: number, facing: number, hp: number, clientTime: number): void {
@@ -81,14 +91,14 @@ export class PlayerView extends EntityView {
     this.predTarget = null;
   }
 
-  // Trigger a quick attack swing of the weapon arm.
+  // Trigger an attack: the model's attack clip, else a procedural weapon swing.
   swing(): void {
-    this.swingT = 1;
+    if (!this.rig.playOneShot("attack")) this.swingT = 1;
   }
 
-  // Trigger a brief hit-reaction recoil.
+  // Trigger a hit reaction: the model's hit clip, else a procedural recoil.
   flinch(): void {
-    this.flinchT = 1;
+    if (!this.rig.playOneShot("hit")) this.flinchT = 1;
   }
 
   // Swap the worn hat live (e.g. when the local player equips/unequips headgear).
@@ -167,6 +177,12 @@ export class PlayerView extends EntityView {
   }
 
   protected override animate(dt: number): void {
+    if (this.modelBacked) {
+      // the loaded model drives its own idle/walk + attack/hit clips
+      this.rig.setMoving(this.moving);
+      this.rig.update(dt);
+      return;
+    }
     // cape: flow back while moving, gentle drift at rest (framerate-independent)
     if (this.char.cape) {
       const target = this.moving ? 0.6 + Math.sin(this.walkPhase * 2) * 0.08 : 0.08 + Math.sin(this.walkPhase) * 0.05;
@@ -209,6 +225,11 @@ export class PlayerView extends EntityView {
     } else if (this.char.group.rotation.x !== 0) {
       this.char.group.rotation.x *= Math.pow(0.7, dt * 60);
     }
+  }
+
+  override dispose(scene: THREE.Scene): void {
+    this.rig.dispose();
+    super.dispose(scene);
   }
 }
 

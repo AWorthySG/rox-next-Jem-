@@ -67,8 +67,10 @@ for (const f of files) {
   const tris = triangles(gltf.scene);
   const clips = gltf.animations.map((c) => c.name);
   const b = budget(id);
+  // char_<job>.glb (players) and npc_<role>.glb (NPCs) are valid non-template ids.
+  const known = !!MONSTER_TEMPLATES[id] || id.startsWith("char_") || id.startsWith("npc_");
   const flags: string[] = [];
-  if (!MONSTER_TEMPLATES[id]) flags.push("filename is not a known template id");
+  if (!known) flags.push("filename is not a known template/char/npc id");
   if (b != null && tris > b) flags.push(`over poly budget (${tris} > ${b})`);
   if (!clips.some((n) => /idle|breath|walk|run|move/i.test(n))) flags.push("no idle/walk clip");
   if (flags.length) warned++;
