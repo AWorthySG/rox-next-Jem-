@@ -87,6 +87,10 @@ export class Player {
   attackCooldown = 0; // ms remaining
   pendingSkillId: string | null = null;
   pendingSkillTargetId: number | null = null;
+  // in-progress cast (skills with a cast time): resolves when now >= castEndAt
+  castingSkillId: string | null = null;
+  castTargetId: number | null = null;
+  castEndAt = 0;
   skillCooldowns: Record<string, number> = {}; // skillId -> ms remaining
   buffs: Array<{ stat: "atk" | "matk"; mult: number; expiresAt: number }> = [];
   foodBuffs: Array<{ id: string; expiresAt: number }> = []; // timed food/cooking buffs

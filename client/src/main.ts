@@ -32,6 +32,7 @@ import { AchievementsPanel } from "./ui/AchievementsPanel.js";
 import { SkillPopup } from "./ui/SkillPopup.js";
 import { TargetFrame } from "./ui/TargetFrame.js";
 import { WorldBossBar } from "./ui/WorldBossBar.js";
+import { CastBar } from "./ui/CastBar.js";
 import { SkillVfx } from "./ui/SkillVfx.js";
 import { ScreenFx } from "./ui/ScreenFx.js";
 import { LoginPreview } from "./ui/LoginPreview.js";
@@ -55,6 +56,7 @@ const petCompanion = new PetCompanion(scene.scene);
 const skillPopup = new SkillPopup();
 const targetFrame = new TargetFrame();
 const worldBossBar = new WorldBossBar();
+const castBar = new CastBar();
 const sfx = new Sfx();
 const clickMarker = new ClickMarker(scene.scene);
 const novaTelegraph = new NovaTelegraph(scene.scene);
@@ -405,6 +407,12 @@ function handleMessage(msg: ServerMessage): void {
       break;
     case MsgType.BossTelegraph:
       novaTelegraph.spawn(msg.x, msg.z, msg.radius, msg.delayMs);
+      break;
+    case MsgType.SkillCast:
+      if (msg.casterId === selfId) {
+        if (msg.durationMs > 0) castBar.show(getSkill(msg.skillId)?.name ?? "Casting", msg.durationMs);
+        else castBar.hide();
+      }
       break;
     case MsgType.Defeated: {
       const overlay = document.getElementById("death-overlay")!;

@@ -1,6 +1,7 @@
 import {
   DamageKind,
   Element,
+  effectiveCastMs,
   environmentMultiplier,
   EXP_SHARE_RANGE,
   getSkill,
@@ -43,6 +44,11 @@ export class CombatSystem {
       if (p.attackCooldown > 0) p.attackCooldown -= dtMs;
       for (const id of Object.keys(p.skillCooldowns)) {
         if (p.skillCooldowns[id] > 0) p.skillCooldowns[id] = Math.max(0, p.skillCooldowns[id] - dtMs);
+      }
+      // A skill with a cast time locks the caster until it resolves (or a move cancels it).
+      if (p.castingSkillId) {
+        this.tickCast(p, now);
+        continue;
       }
       // Skills take priority; if one is being cast or chased this tick, skip auto-attack.
       if (this.processSkill(p)) continue;
@@ -228,12 +234,60 @@ export class CombatSystem {
       return true;
     }
 
-    // Cast.
+    // Commit the cast: face the target, pay SP, start cooldown.
     p.moveTarget = null;
     p.facing = Math.atan2(target.x - p.x, target.z - p.z);
     p.sp -= cost;
     p.skillCooldowns[def.id] = def.cooldownMs;
+    this.clearSkill(p);
 
+    // Skills with a cast time wind up first (DEX shortens it); instant ones fire now.
+    const castMs = effectiveCastMs(def, p.stats.dex);
+    if (castMs > 0) {
+      p.castingSkillId = def.id;
+      p.castTargetId = target.id;
+      p.castEndAt = Date.now() + castMs;
+      this.world.broadcastToMap(p.mapId, { t: MsgType.SkillCast, casterId: p.id, skillId: def.id, durationMs: castMs });
+    } else {
+      this.deliverSkill(p, target, def, lvl);
+    }
+    return true;
+  }
+
+  // Resolve an in-progress cast: fire when the timer elapses, cancel if the
+  // caster moves or the target is gone.
+  private tickCast(p: Player, now: number): void {
+    const def = p.castingSkillId ? getSkill(p.castingSkillId) : undefined;
+    if (!def) {
+      this.cancelCast(p);
+      return;
+    }
+    if (p.moveTarget) {
+      this.cancelCast(p); // moving interrupts the cast (SP already spent)
+      return;
+    }
+    const target = p.castTargetId != null ? this.world.monsters.get(p.castTargetId) : undefined;
+    if (!target || target.isDead || target.mapId !== p.mapId) {
+      this.cancelCast(p);
+      return;
+    }
+    p.facing = Math.atan2(target.x - p.x, target.z - p.z);
+    if (now >= p.castEndAt) {
+      this.deliverSkill(p, target, def, p.skillLevel(def.id));
+      p.castingSkillId = null;
+      p.castTargetId = null;
+    }
+  }
+
+  private cancelCast(p: Player): void {
+    if (!p.castingSkillId) return;
+    this.world.broadcastToMap(p.mapId, { t: MsgType.SkillCast, casterId: p.id, skillId: p.castingSkillId, durationMs: 0 });
+    p.castingSkillId = null;
+    p.castTargetId = null;
+  }
+
+  // Deal a skill's damage to its primary target and any AoE splash.
+  private deliverSkill(p: Player, target: Monster, def: SkillDef, lvl: number): void {
     this.applySkillHit(p, target, def, lvl);
     if (def.aoeRadius) {
       for (const m of this.world.monsters.values()) {
@@ -242,8 +296,6 @@ export class CombatSystem {
         if (dist2d(m.x, m.z, target.x, target.z) <= def.aoeRadius) this.applySkillHit(p, m, def, lvl);
       }
     }
-    this.clearSkill(p);
-    return true;
   }
 
   private castHeal(p: Player, def: SkillDef, lvl: number, cost: number): void {
@@ -587,6 +639,8 @@ export class CombatSystem {
     player.z = spawn.z;
     player.moveTarget = null;
     player.attackTargetId = null;
+    player.castingSkillId = null;
+    player.castTargetId = null;
     this.clearSkill(player);
     for (const m of this.world.monsters.values()) {
       if (m.aggroTargetId === player.id) {
