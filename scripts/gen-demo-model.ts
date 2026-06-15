@@ -3,7 +3,8 @@
 //
 // Builds a faceted "crystal construct" — a cel-shade-friendly floating gem with
 // orbiting shards and a base ring — plus an "idle" bob/spin animation clip, and
-// writes it to client/public/models/demo_crystal.glb.
+// writes it to client/public/models/jewel_drone.glb (so the jewel_drone template
+// picks it up by the <templateId>.glb naming convention).
 import * as THREE from "three";
 import { GLTFExporter } from "three/examples/jsm/exporters/GLTFExporter.js";
 import { writeFileSync, mkdirSync } from "node:fs";
@@ -66,7 +67,7 @@ const spin = new THREE.QuaternionKeyframeTrack(
 const clip = new THREE.AnimationClip("idle", 2, [bob, spin]);
 
 const outDir = fileURLToPath(new URL("../client/public/models/", import.meta.url));
-const outFile = outDir + "demo_crystal.glb";
+const outFile = outDir + "jewel_drone.glb";
 mkdirSync(outDir, { recursive: true });
 
 new GLTFExporter().parse(

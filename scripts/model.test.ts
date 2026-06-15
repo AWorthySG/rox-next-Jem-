@@ -17,7 +17,7 @@ function check(name: string, cond: boolean): void {
 }
 const near = (a: number, b: number, eps = 0.02) => Math.abs(a - b) <= eps;
 
-const glbPath = fileURLToPath(new URL("../client/public/models/demo_crystal.glb", import.meta.url));
+const glbPath = fileURLToPath(new URL("../client/public/models/jewel_drone.glb", import.meta.url));
 const bytes = readFileSync(glbPath);
 // Pass a tight ArrayBuffer view (Buffer may sit in a larger pool).
 const ab = bytes.buffer.slice(bytes.byteOffset, bytes.byteOffset + bytes.byteLength);

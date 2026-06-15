@@ -2,6 +2,7 @@ import * as THREE from "three";
 import { Element, ELEMENT_COLOR, type EntityFull } from "@rox/shared";
 import { buildMonsterMesh, type MonsterMesh } from "../procedural/monsterMeshes.js";
 import { loadMonsterModel } from "../procedural/modelLoader.js";
+import { resolveModelFile } from "../procedural/modelManifest.js";
 import type { MonsterAppearance } from "../procedural/monsters.js";
 import { EntityView } from "./EntityView.js";
 
@@ -37,8 +38,9 @@ export class MonsterView extends EntityView {
     if (bodyMat?.emissive) this.baseEmissive.copy(bodyMat.emissive);
     if (bodyMat) this.flashMats.push(bodyMat);
 
-    // Opt-in mid-poly model: load async and swap in over the primitive placeholder.
-    if (appearance.model) void this.loadModel(appearance.model);
+    // Mid-poly model: an explicit override or the models/<id>.glb convention.
+    // Loads async and swaps in over the primitive placeholder; absent = no-op.
+    void this.resolveModel(appearance);
 
     if (appearance.boss) {
       const crown = new THREE.Mesh(
@@ -73,6 +75,13 @@ export class MonsterView extends EntityView {
   private mixer: THREE.AnimationMixer | null = null; // skeletal animation (loaded models)
   private modelBacked = false; // true once a shared-geometry .glb has been swapped in
   private disposed = false;
+
+  // Pick this template's model (explicit field or <id>.glb convention) and load
+  // it if one exists; otherwise the procedural mesh stays.
+  private async resolveModel(app: MonsterAppearance): Promise<void> {
+    const file = await resolveModelFile(app.id, app.model);
+    if (file && !this.disposed && !this.dying) await this.loadModel(file);
+  }
 
   // Replace the procedural placeholder with a loaded mid-poly model. Keeps the
   // primitive mesh on any failure, so a missing/bad asset is non-fatal.

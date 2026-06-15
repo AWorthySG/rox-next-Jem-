@@ -4,6 +4,7 @@ import { makePoringTexture } from "./textures.js";
 export type MonsterArch = "jelly" | "bug" | "beast" | "undead" | "plant" | "rock" | "demon" | "bird" | "ghost" | "dragon" | "golem" | "aquatic" | "humanoid";
 
 export interface MonsterAppearance {
+  id: string; // template id (also the model-by-convention file stem)
   arch: MonsterArch;
   texture: THREE.Texture; // jelly face (also a fallback)
   main: number; // primary toon colour
@@ -24,7 +25,7 @@ interface AppearanceDef {
 }
 
 // Visual family per template — drives which low-poly mesh archetype is built.
-const ARCH: Record<string, MonsterArch> = {
+export const ARCH: Record<string, MonsterArch> = {
   poring: "jelly", drops: "jelly", lunatic: "jelly", angeling: "jelly",
   fabre: "bug", chonchon: "bug", stem_worm: "bug", metaling: "bug", venatu: "bug", sleeper: "bug",
   wolf: "beast", coco: "beast", eddga: "beast", kraken: "aquatic",
@@ -408,7 +409,7 @@ const DEFS: Record<string, AppearanceDef> = {
   // Changi (Singapore)
   pow_spirit: { inner: "#e8f4ff", outer: "#5a7a8a", eye: "#dff4ff", scale: 1.3 },
   beach_ghoul: { inner: "#3a4452", outer: "#0c0e12", eye: "#cfe8ff", scale: 1.4 },
-  jewel_drone: { inner: "#c8a860", outer: "#2a5a8a", eye: "#7ad0ff", scale: 1.2, model: "demo_crystal.glb" },
+  jewel_drone: { inner: "#c8a860", outer: "#2a5a8a", eye: "#7ad0ff", scale: 1.2 },
   changi_revenant: { inner: "#d0d8e0", outer: "#4a5a6a", scale: 2.8, boss: true },
   vortex_guardian: { inner: "#7ad0ff", outer: "#10141c", eye: "#eafaff", scale: 3.1, boss: true },
   water_monitor: { inner: "#6a7a4a", outer: "#2a3a1a", scale: 1.5 },
@@ -493,6 +494,7 @@ export function buildMonsterAppearances(): Record<string, MonsterAppearance> {
   for (const [id, d] of Object.entries(DEFS)) {
     const arch = ARCH[id] ?? "jelly";
     out[id] = {
+      id,
       arch,
       texture: makePoringTexture(d.inner, d.outer),
       main: hex(d.outer),
