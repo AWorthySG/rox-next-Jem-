@@ -417,6 +417,7 @@ function handleMessage(msg: ServerMessage): void {
       currentTargetId = null;
       approachTargetId = null;
       pvpMap = msg.pvp;
+      screenFx.mapFade();
       gameState.clearExceptSelf();
       gameState.self?.teleport(msg.x, msg.z);
       scene.setTheme(msg.theme, msg.mapId);

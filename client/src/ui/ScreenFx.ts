@@ -4,6 +4,7 @@ export class ScreenFx {
   private dmg = document.getElementById("screen-damage")!;
   private lvl = document.getElementById("screen-levelup")!;
   private low = document.getElementById("screen-lowhp")!;
+  private fade = document.getElementById("screen-fade")!;
 
   damage(): void {
     this.retrigger(this.dmg, "flash");
@@ -11,6 +12,11 @@ export class ScreenFx {
 
   levelUp(): void {
     this.retrigger(this.lvl, "flash");
+  }
+
+  // Quick black-out → fade-in, masking the entity/theme pop on a map change.
+  mapFade(): void {
+    this.retrigger(this.fade, "flash");
   }
 
   // Persistent pulsing red edge while HP is critically low.
