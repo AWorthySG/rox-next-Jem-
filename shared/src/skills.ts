@@ -496,6 +496,12 @@ export function skillEffectDurationMs(baseMs: number, level: number): number {
   return Math.round(baseMs * (1 + 0.12 * (Math.max(1, level) - 1)));
 }
 
+// A short global lock after using any skill (classic RO "after-cast delay"),
+// shortened by AGI down to a floor — agile characters chain skills faster.
+export function afterCastDelayMs(agi: number): number {
+  return Math.max(120, Math.round(420 - agi * 2.6));
+}
+
 // A skill is usable by a job if it appears in that job's kit (covers inherited
 // 1st-job skills on 2nd jobs).
 export function jobHasSkill(job: JobId, skillId: string): boolean {
