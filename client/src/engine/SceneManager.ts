@@ -22,6 +22,8 @@ export class SceneManager {
   private skyUniforms: Record<string, THREE.IUniform>;
   private sun: THREE.DirectionalLight;
   private sunSprite: THREE.Sprite;
+  private stars!: THREE.Points;
+  private moon!: THREE.Sprite;
   private hemi: THREE.HemisphereLight;
   private composer: EffectComposer;
   private bloom: UnrealBloomPass;
@@ -113,6 +115,45 @@ export class SceneManager {
     this.sunSprite.scale.setScalar(46);
     this.sunSprite.position.copy(this.sun.position).multiplyScalar(1.7);
     this.scene.add(this.sunSprite);
+
+    // ---- night sky: starfield + moon (fade in after dusk) ----
+    const starR = MAP_SIZE * 1.32;
+    const starCount = 420;
+    const starPos = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount; i++) {
+      const dir = new THREE.Vector3(Math.random() - 0.5, Math.random() * 0.9 + 0.15, Math.random() - 0.5)
+        .normalize()
+        .multiplyScalar(starR);
+      starPos[i * 3] = dir.x;
+      starPos[i * 3 + 1] = dir.y;
+      starPos[i * 3 + 2] = dir.z;
+    }
+    const starGeo = new THREE.BufferGeometry();
+    starGeo.setAttribute("position", new THREE.BufferAttribute(starPos, 3));
+    this.stars = new THREE.Points(
+      starGeo,
+      new THREE.PointsMaterial({
+        map: makeSpark(),
+        color: 0xfff4e0,
+        size: 2.4,
+        sizeAttenuation: false,
+        transparent: true,
+        opacity: 0,
+        depthWrite: false,
+        fog: false,
+        blending: THREE.AdditiveBlending,
+      }),
+    );
+    this.stars.visible = false;
+    this.scene.add(this.stars);
+
+    this.moon = new THREE.Sprite(
+      new THREE.SpriteMaterial({ map: makeSunSprite(), color: 0xcfe0ff, transparent: true, opacity: 0, depthWrite: false, fog: false, blending: THREE.AdditiveBlending }),
+    );
+    this.moon.scale.setScalar(30);
+    this.moon.position.set(-40, 70, -60).multiplyScalar(1.7);
+    this.moon.visible = false;
+    this.scene.add(this.moon);
 
     // ---- ground: PBR grass with a roughness map ----
     this.ground = new THREE.Mesh(
@@ -277,6 +318,13 @@ export class SceneManager {
     sprite.color.copy(this.themeSky).lerp(white, 0.7);
     sprite.opacity = Math.max(0, d * overcast);
     this.sunSprite.visible = d > 0.05 && overcast > 0.6;
+
+    // night sky: stars + moon fade in as the sun sets (and dim under overcast)
+    const night = (1 - d) * overcast;
+    (this.stars.material as THREE.PointsMaterial).opacity = night * 0.9;
+    this.stars.visible = night > 0.04;
+    (this.moon.material as THREE.SpriteMaterial).opacity = night * 0.8;
+    this.moon.visible = night > 0.04;
   }
 
   // Rebuild the falling rain/snow particle layer for the current weather.
