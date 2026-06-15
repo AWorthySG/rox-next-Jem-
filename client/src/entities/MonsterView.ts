@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import type { EntityFull } from "@rox/shared";
+import { Element, ELEMENT_COLOR, type EntityFull } from "@rox/shared";
 import { buildMonsterMesh, type MonsterMesh } from "../procedural/monsterMeshes.js";
 import type { MonsterAppearance } from "../procedural/monsters.js";
 import { EntityView } from "./EntityView.js";
@@ -33,10 +33,22 @@ export class MonsterView extends EntityView {
       crown.position.set(0, 1.15, 0);
       crown.scale.setScalar(appearance.scale);
       this.group.add(crown);
+
+      // menacing ground aura, tinted by element, that gently pulses
+      const auraColor = ELEMENT_COLOR[this.element as Element] ?? 0xffd24a;
+      this.bossAura = new THREE.Mesh(
+        new THREE.RingGeometry(0.7, 1.08, 36),
+        new THREE.MeshBasicMaterial({ color: auraColor, transparent: true, opacity: 0.3, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending }),
+      );
+      this.bossAura.rotation.x = -Math.PI / 2;
+      this.bossAura.position.y = 0.04;
+      this.bossAura.scale.setScalar(appearance.scale);
+      this.group.add(this.bossAura);
     }
   }
 
   private aura: THREE.Mesh | null = null;
+  private bossAura: THREE.Mesh | null = null;
   private hitT = 0;
   private lungeT = 0; // attack-lunge timer (1→0)
   private baseEmissive = new THREE.Color(0, 0, 0);
@@ -124,6 +136,11 @@ export class MonsterView extends EntityView {
     const bobAmp = this.poring.squash ? 0.18 : 0.1;
     this.poring.group.position.y = this.moving ? Math.abs(Math.sin(this.phase)) * bobAmp * this.scale : 0;
     if (this.aura) this.aura.rotation.z += dt * 3;
+    if (this.bossAura) {
+      const t = Math.sin(this.phase * 0.9) * 0.5 + 0.5;
+      (this.bossAura.material as THREE.MeshBasicMaterial).opacity = 0.24 + t * 0.18;
+      this.bossAura.scale.setScalar(this.scale * (1 + t * 0.06));
+    }
 
     // attack lunge: a brief forward hop along the monster's facing
     if (this.lungeT > 0) {
