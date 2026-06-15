@@ -67,3 +67,33 @@ export function advanceOptions(job: JobId, level: number): JobId[] {
 export function canAdvanceTo(job: JobId, target: JobId, level: number): boolean {
   return advanceOptions(job, level).includes(target);
 }
+
+// ---- job families (archetype lineages) ----
+// Equipment is tailored to a family: a sword line weapon suits Swordsman →
+// Knight → Rune Knight → Dragon Knight, and so on.
+export type JobFamily = "sword" | "mage" | "archer" | "acolyte";
+
+export const FAMILY_JOBS: Record<JobFamily, JobId[]> = {
+  sword: [JobId.Swordsman, JobId.Knight, JobId.RuneKnight, JobId.DragonKnight],
+  mage: [JobId.Mage, JobId.Wizard, JobId.HighWizard, JobId.ArchMage],
+  archer: [JobId.Archer, JobId.Hunter, JobId.Sniper, JobId.Windhawk],
+  acolyte: [JobId.Acolyte, JobId.Priest, JobId.HighPriest, JobId.Cardinal],
+};
+
+export const FAMILY_LABEL: Record<JobFamily, string> = {
+  sword: "Swordsman",
+  mage: "Mage",
+  archer: "Archer",
+  acolyte: "Acolyte",
+};
+
+const JOB_TO_FAMILY: Partial<Record<JobId, JobFamily>> = {};
+for (const fam of Object.keys(FAMILY_JOBS) as JobFamily[]) {
+  for (const j of FAMILY_JOBS[fam]) JOB_TO_FAMILY[j] = fam;
+}
+
+// The archetype family a job belongs to (Novice belongs to none).
+export function jobFamilyOf(job: JobId): JobFamily | null {
+  return JOB_TO_FAMILY[job] ?? null;
+}
+

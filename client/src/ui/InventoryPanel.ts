@@ -1,4 +1,14 @@
-import { EquipSlot, getItem, ItemType, rarityOf, type ItemDef, type SelfState } from "@rox/shared";
+import {
+  EquipSlot,
+  FAMILY_LABEL,
+  getItem,
+  itemEquippableBy,
+  ItemType,
+  jobFamilyOf,
+  rarityOf,
+  type ItemDef,
+  type SelfState,
+} from "@rox/shared";
 
 export interface InventoryHandlers {
   onUse(itemId: string): void;
@@ -141,17 +151,28 @@ export class InventoryPanel {
       const isConsumable = item.type === ItemType.Consumable;
       const isCard = item.type === ItemType.Card;
       const isMaterial = item.type === ItemType.Material;
+      // Class-restricted equipment the current job can't wear.
+      const classLocked = !!item.slot && !itemEquippableBy(item, self.job);
+      const reqFam = item.jobs?.length ? jobFamilyOf(item.jobs[0]) : null;
       const lvl = refineOf.get(entry.id) ?? 0;
-      const action = isMaterial ? "" : isCard ? "Socket" : isConsumable ? "Use" : "Equip";
+      const action = isMaterial
+        ? ""
+        : isCard
+          ? "Socket"
+          : isConsumable
+            ? "Use"
+            : classLocked && reqFam
+              ? `🔒 ${FAMILY_LABEL[reqFam]}`
+              : "Equip";
       const cell = document.createElement("button");
-      cell.className = `inv-cell ${item.type} rar-${rarityOf(item)}${isMaterial ? " inert" : ""}`;
-      cell.title = item.desc;
+      cell.className = `inv-cell ${item.type} rar-${rarityOf(item)}${isMaterial ? " inert" : ""}${classLocked ? " locked" : ""}`;
+      cell.title = classLocked && reqFam ? `${item.desc}\nRequires the ${FAMILY_LABEL[reqFam]} class line.` : item.desc;
       cell.innerHTML =
         `<span class="iicon">${iconFor(item)}</span>` +
         `<span class="iname">${item.name}${lvl > 0 ? ` <span class="refine-badge">+${lvl}</span>` : ""}</span>` +
         `<span class="iqty">×${entry.qty}</span>` +
         `<span class="iact">${action}</span>`;
-      if (!isMaterial) {
+      if (!isMaterial && !classLocked) {
         cell.addEventListener("click", () => {
           if (isCard) this.handlers.onSocket(entry.id);
           else if (isConsumable) this.handlers.onUse(entry.id);

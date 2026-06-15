@@ -12,6 +12,7 @@ import {
   rollWeather,
   Weather,
   getItem,
+  itemEquippableBy,
   JobId,
   MsgType,
   rarityOf,
@@ -500,6 +501,21 @@ async function main(): Promise<void> {
   check(ex.snapshot().length === 0, "exchange: market empty after cancel");
   check(!ex.list(exSeller, "red_potion", 99, 100), "exchange: cannot list more than you own");
   check(!ex.list(exSeller, "red_potion", 1, 0), "exchange: price must be positive");
+
+  // ---- class-restricted equipment ----
+  check(itemEquippableBy(getItem("vanguard_greatsword")!, JobId.Swordsman), "class: sword gear fits a Swordsman");
+  check(itemEquippableBy(getItem("vanguard_greatsword")!, JobId.DragonKnight), "class: sword line gear fits a Dragon Knight");
+  check(!itemEquippableBy(getItem("vanguard_greatsword")!, JobId.Mage), "class: a Mage cannot use sword gear");
+  check(itemEquippableBy(getItem("red_potion")!, JobId.Mage), "class: unrestricted items fit any job");
+  const swd = new Player(940, 1, "Swordy", JobId.Swordsman, 0, 0);
+  swd.addItem("vanguard_greatsword", 1);
+  check(swd.equip("vanguard_greatsword"), "class: Swordsman equips the Vanguard Greatsword");
+  const wiz2 = new Player(941, 2, "Wiz", JobId.Mage, 0, 0);
+  wiz2.addItem("vanguard_greatsword", 1);
+  check(!wiz2.equip("vanguard_greatsword"), "class: Mage is blocked from sword gear");
+  check((wiz2.inventory["vanguard_greatsword"] ?? 0) === 1, "class: a blocked equip leaves the item in the bag");
+  wiz2.addItem("archmage_rod", 1);
+  check(wiz2.equip("archmage_rod"), "class: Mage equips the Archmage Rod");
 
   local.stop();
   if (failures.length) {

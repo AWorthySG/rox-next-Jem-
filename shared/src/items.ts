@@ -1,5 +1,6 @@
 import { REFINE_BASE_COST, REFINE_SAFE } from "./constants.js";
-import { EquipSlot, ItemType } from "./enums.js";
+import { EquipSlot, ItemType, JobId } from "./enums.js";
+import { FAMILY_JOBS, type JobFamily } from "./jobs.js";
 import type { Stats } from "./stats.js";
 
 // Zeny cost to take an item from `level` to `level + 1` (steeper past the safe line).
@@ -95,6 +96,8 @@ export interface ItemDef {
   // progression tier (1 Worn … 6 Mythic). Optional: when set it pins the rarity
   // tint and is shown as a label; otherwise rarity is derived from sell value.
   tier?: number;
+  // class restriction: the jobs that may equip this item. Omitted/empty = any job.
+  jobs?: JobId[];
   // economy
   price?: number; // buy cost at the shop (omitted = not sold)
   sellPrice?: number; // Zeny gained when sold
@@ -134,6 +137,15 @@ export function tierOf(item: ItemDef): number {
   if (item.tier && item.tier >= 1) return Math.min(6, Math.max(1, Math.floor(item.tier)));
   return TIER_RARITY.indexOf(rarityOf(item)) + 1;
 }
+
+// Whether `job` may equip `item`. Class-restricted gear lists its eligible jobs;
+// everything else is usable by any job.
+export function itemEquippableBy(item: ItemDef, job: JobId): boolean {
+  return !item.jobs || item.jobs.length === 0 || item.jobs.includes(job);
+}
+
+// Convenience for building class gear: all jobs in an archetype family.
+const fam = (f: JobFamily): JobId[] => FAMILY_JOBS[f];
 
 // A compact item catalogue. Both server and client read this; the client only
 // needs the id + qty over the wire and looks the rest up here.
@@ -627,6 +639,99 @@ export const ITEMS: Record<string, ItemDef> = {
     id: "heart_of_the_lion", name: "Heart of the Lion", type: ItemType.Accessory, slot: EquipSlot.Accessory, tier: 6,
     desc: "The Lion City's beating core. STR +8, VIT +8, LUK +6, Max HP +280.",
     maxHp: 280, bonusStats: { str: 8, vit: 8, luk: 6 }, sellPrice: 9000,
+  },
+
+  // ============================================================================
+  // Class gear — tailored sets, each equippable only by its archetype family.
+  // Stocked in town shops; tuned to each class's primary stats.
+  // ============================================================================
+
+  // ---- Swordsman line (STR/VIT, physical melee) ----
+  vanguard_greatsword: {
+    id: "vanguard_greatsword", name: "Vanguard Greatsword", type: ItemType.Weapon, slot: EquipSlot.Weapon, tier: 4,
+    jobs: fam("sword"), desc: "A knight's two-hander. ATK +132, STR +10, VIT +6.",
+    atk: 132, bonusStats: { str: 10, vit: 6 }, price: 52000, sellPrice: 18000,
+  },
+  vanguard_plate: {
+    id: "vanguard_plate", name: "Vanguard Plate", type: ItemType.Armor, slot: EquipSlot.Armor, tier: 4,
+    jobs: fam("sword"), desc: "Full battle plate. DEF +44, Max HP +460, VIT +10.",
+    def: 44, maxHp: 460, bonusStats: { vit: 10 }, price: 48000, sellPrice: 16000,
+  },
+  vanguard_helm: {
+    id: "vanguard_helm", name: "Vanguard Helm", type: ItemType.Headgear, slot: EquipSlot.Headgear, tier: 4,
+    jobs: fam("sword"), desc: "A crested war helm. DEF +14, Max HP +180, STR +6.",
+    def: 14, maxHp: 180, bonusStats: { str: 6 }, price: 30000, sellPrice: 10000,
+  },
+  vanguard_sigil: {
+    id: "vanguard_sigil", name: "Vanguard Sigil", type: ItemType.Accessory, slot: EquipSlot.Accessory, tier: 4,
+    jobs: fam("sword"), desc: "An oath-bound sigil. STR +8, VIT +6, Max HP +200.",
+    maxHp: 200, bonusStats: { str: 8, vit: 6 }, price: 30000, sellPrice: 10000,
+  },
+
+  // ---- Mage line (INT, magic) ----
+  archmage_rod: {
+    id: "archmage_rod", name: "Archmage Rod", type: ItemType.Weapon, slot: EquipSlot.Weapon, tier: 4,
+    jobs: fam("mage"), desc: "A rod humming with arcana. MATK +132, INT +12, Max SP +120.",
+    matk: 132, maxSp: 120, bonusStats: { int: 12 }, price: 52000, sellPrice: 18000,
+  },
+  arcane_robe: {
+    id: "arcane_robe", name: "Arcane Robe", type: ItemType.Armor, slot: EquipSlot.Armor, tier: 4,
+    jobs: fam("mage"), desc: "Spellwoven silks. DEF +30, Max SP +180, INT +10.",
+    def: 30, maxSp: 180, bonusStats: { int: 10 }, price: 48000, sellPrice: 16000,
+  },
+  arcane_circlet: {
+    id: "arcane_circlet", name: "Arcane Circlet", type: ItemType.Headgear, slot: EquipSlot.Headgear, tier: 4,
+    jobs: fam("mage"), desc: "A focusing circlet. MATK +16, INT +8, Max SP +90.",
+    matk: 16, maxSp: 90, bonusStats: { int: 8 }, price: 30000, sellPrice: 10000,
+  },
+  mana_orb: {
+    id: "mana_orb", name: "Mana Orb", type: ItemType.Accessory, slot: EquipSlot.Accessory, tier: 4,
+    jobs: fam("mage"), desc: "A swirling mana orb. INT +10, Max SP +90.",
+    maxSp: 90, bonusStats: { int: 10 }, price: 30000, sellPrice: 10000,
+  },
+
+  // ---- Archer line (DEX/AGI, physical ranged) ----
+  ranger_longbow: {
+    id: "ranger_longbow", name: "Ranger Longbow", type: ItemType.Weapon, slot: EquipSlot.Weapon, tier: 4,
+    jobs: fam("archer"), desc: "A precision longbow. ATK +128, DEX +12, AGI +8.",
+    atk: 128, bonusStats: { dex: 12, agi: 8 }, price: 52000, sellPrice: 18000,
+  },
+  ranger_vest: {
+    id: "ranger_vest", name: "Ranger Vest", type: ItemType.Armor, slot: EquipSlot.Armor, tier: 4,
+    jobs: fam("archer"), desc: "Light scout's vest. DEF +34, Max HP +380, AGI +8.",
+    def: 34, maxHp: 380, bonusStats: { agi: 8 }, price: 48000, sellPrice: 16000,
+  },
+  ranger_hood: {
+    id: "ranger_hood", name: "Ranger Hood", type: ItemType.Headgear, slot: EquipSlot.Headgear, tier: 4,
+    jobs: fam("archer"), desc: "A keen-eyed hood. DEF +10, DEX +8, AGI +4.",
+    def: 10, bonusStats: { dex: 8, agi: 4 }, price: 30000, sellPrice: 10000,
+  },
+  hawk_eye_charm: {
+    id: "hawk_eye_charm", name: "Hawk Eye Charm", type: ItemType.Accessory, slot: EquipSlot.Accessory, tier: 4,
+    jobs: fam("archer"), desc: "Sharpens the aim. DEX +10, AGI +6.",
+    bonusStats: { dex: 10, agi: 6 }, price: 30000, sellPrice: 10000,
+  },
+
+  // ---- Acolyte line (INT/VIT, support / holy magic) ----
+  saints_mace: {
+    id: "saints_mace", name: "Saint's Mace", type: ItemType.Weapon, slot: EquipSlot.Weapon, tier: 4,
+    jobs: fam("acolyte"), desc: "A blessed mace. MATK +118, ATK +60, INT +10, VIT +6.",
+    matk: 118, atk: 60, bonusStats: { int: 10, vit: 6 }, price: 52000, sellPrice: 18000,
+  },
+  cleric_robe: {
+    id: "cleric_robe", name: "Cleric Robe", type: ItemType.Armor, slot: EquipSlot.Armor, tier: 4,
+    jobs: fam("acolyte"), desc: "Consecrated vestments. DEF +36, Max HP +360, Max SP +120, VIT +8.",
+    def: 36, maxHp: 360, maxSp: 120, bonusStats: { vit: 8 }, price: 48000, sellPrice: 16000,
+  },
+  cleric_hood: {
+    id: "cleric_hood", name: "Cleric Hood", type: ItemType.Headgear, slot: EquipSlot.Headgear, tier: 4,
+    jobs: fam("acolyte"), desc: "A devout's hood. MATK +14, INT +7, Max SP +80.",
+    matk: 14, maxSp: 80, bonusStats: { int: 7 }, price: 30000, sellPrice: 10000,
+  },
+  blessing_rosary: {
+    id: "blessing_rosary", name: "Blessing Rosary", type: ItemType.Accessory, slot: EquipSlot.Accessory, tier: 4,
+    jobs: fam("acolyte"), desc: "A holy rosary. INT +8, VIT +6, Max SP +70.",
+    maxSp: 70, bonusStats: { int: 8, vit: 6 }, price: 30000, sellPrice: 10000,
   },
 
   // ---- Mount Faber (Singapore) gear ----
@@ -1277,6 +1382,11 @@ export const SHOP_STOCK: string[] = [
   "leather_armor",
   "feather_beret",
   "ring_of_power",
+  // class gear sets (equippable only by the matching archetype)
+  "vanguard_greatsword", "vanguard_plate", "vanguard_helm", "vanguard_sigil",
+  "archmage_rod", "arcane_robe", "arcane_circlet", "mana_orb",
+  "ranger_longbow", "ranger_vest", "ranger_hood", "hawk_eye_charm",
+  "saints_mace", "cleric_robe", "cleric_hood", "blessing_rosary",
   "oridecon",
   "elunium",
   "poring_egg",
