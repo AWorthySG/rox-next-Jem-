@@ -38,6 +38,7 @@ export class MonsterView extends EntityView {
 
   private aura: THREE.Mesh | null = null;
   private hitT = 0;
+  private lungeT = 0; // attack-lunge timer (1→0)
   private baseEmissive = new THREE.Color(0, 0, 0);
   private deathT = -1; // -1 = alive; 0..1 = dying
   private deathMats: THREE.Material[] = [];
@@ -45,6 +46,11 @@ export class MonsterView extends EntityView {
   // Flash + scale-punch when struck.
   hit(): void {
     this.hitT = 1;
+  }
+
+  // Quick forward lunge when the monster lands an attack (reads as a commit).
+  lunge(): void {
+    this.lungeT = 1;
   }
 
   get dying(): boolean {
@@ -118,6 +124,14 @@ export class MonsterView extends EntityView {
     const bobAmp = this.poring.squash ? 0.18 : 0.1;
     this.poring.group.position.y = this.moving ? Math.abs(Math.sin(this.phase)) * bobAmp * this.scale : 0;
     if (this.aura) this.aura.rotation.z += dt * 3;
+
+    // attack lunge: a brief forward hop along the monster's facing
+    if (this.lungeT > 0) {
+      this.lungeT = Math.max(0, this.lungeT - dt * 5);
+      this.poring.group.position.z = Math.sin((1 - this.lungeT) * Math.PI) * 0.45 * this.scale;
+    } else if (this.poring.group.position.z !== 0) {
+      this.poring.group.position.z = 0;
+    }
 
     // hit reaction: quick white flash + scale punch
     const body = this.poring.body as THREE.Mesh;
