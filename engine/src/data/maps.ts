@@ -42,6 +42,7 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Payon Portal", role: "portal", x: 0, z: 14, dest: { toMap: "payon", toX: 0, toZ: 18 } },
       { name: "Geffen Portal", role: "portal", x: 14, z: 14, dest: { toMap: "geffen", toX: 0, toZ: 18 } },
       { name: "Merlion Bay Portal", role: "portal", x: -14, z: 14, dest: { toMap: "merlion_bay", toX: 0, toZ: 18 } },
+      { name: "Pasir Ris Portal", role: "portal", x: -14, z: -14, dest: { toMap: "pasir_ris", toX: 0, toZ: 18 } },
     ],
   },
   merlion_bay: {
@@ -460,6 +461,43 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
       { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
       { name: "Orchard Exit", role: "portal", x: 0, z: 24, dest: { toMap: "marina_bay", toX: 0, toZ: -44 } },
+      { name: "Marina Barrage Portal", role: "portal", x: 0, z: -50, dest: { toMap: "marina_barrage", toX: 0, toZ: 18 } },
+    ],
+  },
+  pasir_ris: {
+    id: "pasir_ris",
+    name: "Pasir Ris Park",
+    theme: { ground: 0x7aba6a, fog: 0x9fd8c0, sky: 0xc8eed8 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "pr-crab", templateId: "sandcastle_crab", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "pr-squirrel", templateId: "park_squirrel", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "pr-kite", templateId: "kite_wisp", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "pr-monitor", templateId: "mangrove_monitor", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "pr-maze", templateId: "hedge_maze_golem", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Pasir Ris Exit", role: "portal", x: 0, z: 24, dest: { toMap: "field", toX: -14, toZ: -10 } },
+    ],
+  },
+  marina_barrage: {
+    id: "marina_barrage",
+    name: "Marina Barrage",
+    theme: { ground: 0x3a5a6a, fog: 0x5a8aa0, sky: 0x88b8d0 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "br-turbine", templateId: "turbine_sentinel", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "br-wraith", templateId: "spillway_wraith", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "br-surge", templateId: "surge_elemental", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "br-leviathan", templateId: "barrage_leviathan", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "br-tempest", templateId: "tempest_dragon", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Marina Barrage Exit", role: "portal", x: 0, z: 24, dest: { toMap: "orchard_road", toX: 0, toZ: -44 } },
     ],
   },
   pulau_hantu: {

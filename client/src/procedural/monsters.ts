@@ -85,6 +85,8 @@ const ARCH: Record<string, MonsterArch> = {
   coney_bull: "beast", casuarina_sprite: "plant", mudflat_crane: "bird", white_bull_king: "beast", driftwood_treant: "plant",
   kopitiam_spirit: "ghost", songbird_swarm: "bird", back_alley_rat: "beast", art_deco_golem: "golem", market_wraith: "ghost",
   kelong_crab: "aquatic", lalang_sprite: "plant", waterway_egret: "bird", sand_quarry_golem: "golem", tilapia_titan: "aquatic",
+  sandcastle_crab: "aquatic", park_squirrel: "beast", kite_wisp: "ghost", mangrove_monitor: "beast", hedge_maze_golem: "golem",
+  turbine_sentinel: "golem", spillway_wraith: "ghost", surge_elemental: "aquatic", barrage_leviathan: "aquatic", tempest_dragon: "dragon",
 };
 
 function hex(s: string): number {
@@ -458,6 +460,16 @@ const DEFS: Record<string, AppearanceDef> = {
   waterway_egret: { inner: "#f0f0e8", outer: "#8a8a6a", scale: 1.4 },
   sand_quarry_golem: { inner: "#c0a878", outer: "#5a4424", scale: 2.9, boss: true },
   tilapia_titan: { inner: "#7a9a6a", outer: "#2a3a1a", scale: 2.9, boss: true },
+  sandcastle_crab: { inner: "#e0c080", outer: "#8a6020", scale: 1.1 },
+  park_squirrel: { inner: "#a07850", outer: "#3a2010", scale: 1.0 },
+  kite_wisp: { inner: "#ffd0a0", outer: "#a06030", scale: 1.1 },
+  mangrove_monitor: { inner: "#6a8a4a", outer: "#2a3a1a", scale: 2.4, boss: true },
+  hedge_maze_golem: { inner: "#5a9a4a", outer: "#1a3a14", scale: 2.5, boss: true },
+  turbine_sentinel: { inner: "#90b0c0", outer: "#2a4a5a", scale: 1.6 },
+  spillway_wraith: { inner: "#80c0d0", outer: "#1a4a5a", scale: 1.4 },
+  surge_elemental: { inner: "#60b0e0", outer: "#0a4a7a", scale: 1.5 },
+  barrage_leviathan: { inner: "#3a90c0", outer: "#0a2a5a", scale: 3.4, boss: true },
+  tempest_dragon: { inner: "#a0c0e0", outer: "#1a3a6a", scale: 3.4, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

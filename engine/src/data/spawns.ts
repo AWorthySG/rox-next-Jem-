@@ -584,6 +584,18 @@ Object.assign(MONSTER_TEMPLATES, {
   waterway_egret: mk("waterway_egret", "Waterway Egret", 76, 4400, 9200),
   sand_quarry_golem: mk("sand_quarry_golem", "Sand Quarry Golem", 82, 28000, 46000, true),
   tilapia_titan: mk("tilapia_titan", "Tilapia Titan", 84, 31000, 51000, true),
+  // ---- Pasir Ris Park (Singapore) ----
+  sandcastle_crab: mk("sandcastle_crab", "Sandcastle Crab", 10, 220, 480),
+  park_squirrel: mk("park_squirrel", "Park Squirrel", 12, 260, 560),
+  kite_wisp: mk("kite_wisp", "Kite Wisp", 14, 300, 640),
+  mangrove_monitor: mk("mangrove_monitor", "Mangrove Monitor", 18, 1600, 2900, true),
+  hedge_maze_golem: mk("hedge_maze_golem", "Hedge Maze Golem", 20, 1900, 3400, true),
+  // ---- Marina Barrage (Singapore) ----
+  turbine_sentinel: mk("turbine_sentinel", "Turbine Sentinel", 150, 12400, 24800),
+  spillway_wraith: mk("spillway_wraith", "Spillway Wraith", 152, 12800, 25600),
+  surge_elemental: mk("surge_elemental", "Surge Elemental", 154, 13200, 26400),
+  barrage_leviathan: mk("barrage_leviathan", "Barrage Leviathan", 158, 135000, 225000, true),
+  tempest_dragon: mk("tempest_dragon", "Tempest Dragon", 160, 150000, 250000, true),
 });
 
 export interface SpawnZone {
@@ -1121,6 +1133,23 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "summon", intervalMs: 8500, templateId: "kelong_crab", count: 2, max: 5 },
     { kind: "heal", intervalMs: 11000, pct: 0.06 },
   ],
+  mangrove_monitor: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.5 },
+  ],
+  hedge_maze_golem: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.5 },
+    { kind: "summon", intervalMs: 9000, templateId: "park_squirrel", count: 2, max: 4 },
+  ],
+  barrage_leviathan: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 2.0 },
+    { kind: "nova", intervalMs: 4800, radius: 13, powerMult: 2.0 },
+    { kind: "summon", intervalMs: 8000, templateId: "surge_elemental", count: 2, max: 6 },
+  ],
+  tempest_dragon: [
+    { kind: "enrage", hpPct: 0.3, atkMult: 2.1 },
+    { kind: "nova", intervalMs: 4600, radius: 14, powerMult: 2.1 },
+    { kind: "heal", intervalMs: 11000, pct: 0.06 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -1434,6 +1463,16 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   waterway_egret: Element.Wind,
   sand_quarry_golem: Element.Earth,
   tilapia_titan: Element.Water,
+  sandcastle_crab: Element.Water,
+  park_squirrel: Element.Neutral,
+  kite_wisp: Element.Wind,
+  mangrove_monitor: Element.Earth,
+  hedge_maze_golem: Element.Earth,
+  turbine_sentinel: Element.Wind,
+  spillway_wraith: Element.Water,
+  surge_elemental: Element.Water,
+  barrage_leviathan: Element.Water,
+  tempest_dragon: Element.Wind,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

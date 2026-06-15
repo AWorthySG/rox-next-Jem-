@@ -301,6 +301,8 @@ const WATER_MAPS: Record<string, [number, number]> = {
   labrador_park: [0x7fd0e0, 0x1a6080],
   coney_island: [0x7fd8d8, 0x1e6470],
   punggol_waterway: [0x6fc8d0, 0x1a5a78],
+  pasir_ris: [0x7fd8d0, 0x1e6470],
+  marina_barrage: [0x6fb0d0, 0x143a5a],
 };
 
 const SKY_VERT = /* glsl */ `

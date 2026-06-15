@@ -108,6 +108,8 @@ const THEMES: Record<string, Partial<Theme>> = {
   coney_island: { trunk: 0x7a6a40, foliage: [0x5aa04a, 0x7ab85f], rock: 0xb0a878, tree: "palm", trees: 56, rocks: 26, tufts: 110, tuft: 0x5fa84f },
   tiong_bahru: { trunk: 0x6a5a48, foliage: [0x5a8a4a, 0x7aaa5a], rock: 0xa09480, tree: "leafy", trees: 30, rocks: 30, tufts: 60, tuft: 0x6a9a4f },
   punggol_waterway: { trunk: 0x5a5a38, foliage: [0x6aba5a, 0x9ad070], rock: 0x8a9a78, tree: "leafy", trees: 50, rocks: 22, tufts: 130, tuft: 0x7aba5f },
+  pasir_ris: { trunk: 0x8a6b3a, foliage: [0x5fc04a, 0x8ad060], rock: 0xc0b088, tree: "palm", trees: 52, rocks: 22, tufts: 110, tuft: 0x6fc05f },
+  marina_barrage: { trunk: 0x3a3a4a, foliage: [0x4a7a9a, 0x6aa0c0], rock: 0x4a5a6a, tree: "crystal", trees: 30, rocks: 44, tufts: 50, tuft: 0x5a90b0 },
   arena: { trees: 0, rocks: 10, tufts: 30 },
 };
 

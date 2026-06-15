@@ -534,6 +534,34 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "A woven tall-grass charm. INT +5, DEX +3, Max SP +40.", maxSp: 40, bonusStats: { int: 5, dex: 3 }, sellPrice: 3000,
   },
 
+  // ---- Pasir Ris Park (Singapore) gear ----
+  beachcomber_spade: {
+    id: "beachcomber_spade", name: "Beachcomber Spade", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A sturdy sandcastle spade. ATK +20, STR +2.", atk: 20, bonusStats: { str: 2 }, sellPrice: 700,
+  },
+  kite_runner_cap: {
+    id: "kite_runner_cap", name: "Kite Runner Cap", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A breezy seaside cap. AGI +2, DEX +2, Max SP +12.", maxSp: 12, bonusStats: { agi: 2, dex: 2 }, sellPrice: 700,
+  },
+  park_jersey: {
+    id: "park_jersey", name: "Park Jersey", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "A light family-park jersey. DEF +8, Max HP +70, VIT +2.", def: 8, maxHp: 70, bonusStats: { vit: 2 }, sellPrice: 700,
+  },
+
+  // ---- Marina Barrage (Singapore) gear ----
+  tempest_glaive: {
+    id: "tempest_glaive", name: "Tempest Glaive", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A storm-charged turbine glaive. ATK +124, AGI +9, DEX +7.", atk: 124, bonusStats: { agi: 9, dex: 7 }, sellPrice: 7200,
+  },
+  storm_diadem: {
+    id: "storm_diadem", name: "Storm Diadem", type: ItemType.Headgear, slot: EquipSlot.Headgear,
+    desc: "A diadem crackling with surge energy. MATK +18, INT +9, DEX +7, Max SP +100.", matk: 18, maxSp: 100, bonusStats: { int: 9, dex: 7 }, sellPrice: 7200,
+  },
+  barrage_aegis: {
+    id: "barrage_aegis", name: "Barrage Aegis", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "Floodgate-forged plate. DEF +42, Max HP +440, VIT +9.", def: 42, maxHp: 440, bonusStats: { vit: 9 }, sellPrice: 7200,
+  },
+
   // ---- Mount Faber (Singapore) gear ----
   summit_lance: {
     id: "summit_lance", name: "Summit Lance", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1497,6 +1525,18 @@ Object.assign(DROP_TABLES, {
   waterway_egret: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "kelong_harpoon", chance: 0.03 }],
   sand_quarry_golem: HI([{ itemId: "waterway_mantle", chance: 0.6 }, { itemId: "lalang_charm", chance: 0.5 }, { itemId: "kelong_harpoon", chance: 0.4 }]),
   tilapia_titan: HI([{ itemId: "kelong_harpoon", chance: 0.6 }, { itemId: "waterway_mantle", chance: 0.45 }, { itemId: "marc_card", chance: 0.05 }]),
+  // Pasir Ris Park (Singapore)
+  sandcastle_crab: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "beachcomber_spade", chance: 0.03 }],
+  park_squirrel: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "park_jersey", chance: 0.03 }],
+  kite_wisp: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "kite_runner_cap", chance: 0.03 }],
+  mangrove_monitor: HI([{ itemId: "park_jersey", chance: 0.6 }, { itemId: "kite_runner_cap", chance: 0.5 }, { itemId: "beachcomber_spade", chance: 0.4 }]),
+  hedge_maze_golem: HI([{ itemId: "beachcomber_spade", chance: 0.6 }, { itemId: "park_jersey", chance: 0.45 }, { itemId: "poring_card", chance: 0.05 }]),
+  // Marina Barrage (Singapore)
+  turbine_sentinel: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "barrage_aegis", chance: 0.03 }],
+  spillway_wraith: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "storm_diadem", chance: 0.03 }],
+  surge_elemental: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "tempest_glaive", chance: 0.03 }],
+  barrage_leviathan: HI([{ itemId: "tempest_glaive", chance: 0.6 }, { itemId: "barrage_aegis", chance: 0.5 }, { itemId: "storm_diadem", chance: 0.4 }]),
+  tempest_dragon: HI([{ itemId: "barrage_aegis", chance: 0.6 }, { itemId: "tempest_glaive", chance: 0.45 }, { itemId: "marc_card", chance: 0.06 }]),
   // Mount Faber (Singapore)
   cable_wraith: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "alpine_plate", chance: 0.03 }],
   peak_eagle: [{ itemId: "red_potion", chance: 0.35 }, { itemId: "aviator_cap", chance: 0.03 }],
@@ -1724,6 +1764,8 @@ const ORE_REGULARS = [
   "coney_bull", "casuarina_sprite", "mudflat_crane",
   "kopitiam_spirit", "songbird_swarm", "back_alley_rat",
   "kelong_crab", "lalang_sprite", "waterway_egret",
+  "sandcastle_crab", "park_squirrel", "kite_wisp",
+  "turbine_sentinel", "spillway_wraith", "surge_elemental",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1763,6 +1805,8 @@ const ORE_BOSSES = [
   "white_bull_king", "driftwood_treant",
   "art_deco_golem", "market_wraith",
   "sand_quarry_golem", "tilapia_titan",
+  "mangrove_monitor", "hedge_maze_golem",
+  "barrage_leviathan", "tempest_dragon",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];
