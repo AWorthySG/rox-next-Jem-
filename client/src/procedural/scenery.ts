@@ -245,6 +245,21 @@ function addTrees(
   const foliage = new THREE.InstancedMesh(foliageGeo, foliageMat, n);
   foliage.castShadow = true;
 
+  // Second, smaller canopy layer in the theme's lighter foliage tone, sitting
+  // atop the first — fuller, two-tone trees.
+  const foliageColor2 = theme.foliage[1] ?? theme.foliage[0];
+  const [, foliageMat2] = track(
+    foliageGeo,
+    new THREE.MeshStandardMaterial({
+      color: foliageColor2,
+      roughness: 1,
+      flatShading: true,
+      emissive: theme.tree === "crystal" ? new THREE.Color(foliageColor2).multiplyScalar(0.35) : 0x000000,
+    }),
+  );
+  const foliage2 = new THREE.InstancedMesh(foliageGeo, foliageMat2, n);
+  foliage2.castShadow = true;
+
   const m = new THREE.Matrix4();
   const q = new THREE.Quaternion();
   const up = new THREE.Vector3(0, 1, 0);
@@ -253,8 +268,12 @@ function addTrees(
     q.setFromAxisAngle(up, p.rot);
     m.compose(new THREE.Vector3(p.x, 1.2 * p.s, p.z), q, new THREE.Vector3(p.s, p.s, p.s));
     trunks.setMatrixAt(i, m);
-    m.compose(new THREE.Vector3(p.x, foliageY * p.s, p.z), q, new THREE.Vector3(p.s * foliageScale, p.s * foliageScale, p.s * foliageScale));
+    const fs = p.s * foliageScale;
+    m.compose(new THREE.Vector3(p.x, foliageY * p.s, p.z), q, new THREE.Vector3(fs, fs, fs));
     foliage.setMatrixAt(i, m);
+    const fs2 = fs * 0.62;
+    m.compose(new THREE.Vector3(p.x, (foliageY + 0.7) * p.s, p.z), q, new THREE.Vector3(fs2, fs2, fs2));
+    foliage2.setMatrixAt(i, m);
   }
-  group.add(trunks, foliage);
+  group.add(trunks, foliage, foliage2);
 }
