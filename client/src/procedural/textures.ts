@@ -59,7 +59,7 @@ export function makeGrassTexture(): THREE.Texture {
 // Richer tileable ground: layered greens with large-scale variation, blades,
 // dirt patches and the odd flower. Used as the albedo for the PBR ground.
 export function makeGroundTexture(): THREE.Texture {
-  const N = 512;
+  const N = 1024;
   const { c, ctx } = canvas(N);
   const base = ctx.createLinearGradient(0, 0, N, N);
   base.addColorStop(0, "#588f44");
@@ -68,13 +68,13 @@ export function makeGroundTexture(): THREE.Texture {
   ctx.fillRect(0, 0, N, N);
 
   // large-scale soft blotches of lighter/darker grass
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 70; i++) {
     const x = Math.random() * N;
     const y = Math.random() * N;
-    const r = 40 + Math.random() * 90;
+    const r = 70 + Math.random() * 180;
     const light = Math.random() > 0.5;
     const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
-    grad.addColorStop(0, light ? "rgba(120,170,80,0.25)" : "rgba(40,80,40,0.25)");
+    grad.addColorStop(0, light ? "rgba(126,176,84,0.22)" : "rgba(38,78,40,0.22)");
     grad.addColorStop(1, "rgba(0,0,0,0)");
     ctx.fillStyle = grad;
     ctx.beginPath();
@@ -82,39 +82,52 @@ export function makeGroundTexture(): THREE.Texture {
     ctx.fill();
   }
   // fine mottled noise
-  for (let i = 0; i < 9000; i++) {
+  for (let i = 0; i < 26000; i++) {
     const x = Math.random() * N;
     const y = Math.random() * N;
     const g = 90 + Math.floor(Math.random() * 90);
-    ctx.fillStyle = `rgba(${Math.floor(g * 0.5)},${g},${Math.floor(g * 0.45)},0.14)`;
+    ctx.fillStyle = `rgba(${Math.floor(g * 0.5)},${g},${Math.floor(g * 0.45)},0.12)`;
     ctx.fillRect(x, y, 2, 2);
   }
-  // a couple of dirt patches
-  for (let i = 0; i < 6; i++) {
+  // a few dirt patches
+  for (let i = 0; i < 10; i++) {
     const x = Math.random() * N;
     const y = Math.random() * N;
-    const r = 16 + Math.random() * 30;
+    const r = 24 + Math.random() * 56;
     const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
     grad.addColorStop(0, "rgba(120,92,54,0.5)");
+    grad.addColorStop(0.7, "rgba(120,92,54,0.18)");
     grad.addColorStop(1, "rgba(120,92,54,0)");
     ctx.fillStyle = grad;
     ctx.beginPath();
     ctx.arc(x, y, r, 0, Math.PI * 2);
     ctx.fill();
   }
-  // grass blades
-  for (let i = 0; i < 900; i++) {
+  // grass blades (denser + longer for crisper turf)
+  for (let i = 0; i < 4200; i++) {
     const x = Math.random() * N;
     const y = Math.random() * N;
-    ctx.strokeStyle = Math.random() > 0.5 ? "#6cb255" : "#356b2c";
+    const tone = Math.random();
+    ctx.strokeStyle = tone > 0.66 ? "#7cc463" : tone > 0.33 ? "#5ca049" : "#356b2c";
     ctx.lineWidth = 1;
     ctx.beginPath();
     ctx.moveTo(x, y);
-    ctx.lineTo(x + (Math.random() - 0.5) * 5, y - 5 - Math.random() * 4);
+    ctx.lineTo(x + (Math.random() - 0.5) * 6, y - 7 - Math.random() * 6);
     ctx.stroke();
   }
+  // small clover clumps — clusters of tiny dots that read as denser foliage
+  for (let i = 0; i < 140; i++) {
+    const cx = Math.random() * N;
+    const cy = Math.random() * N;
+    ctx.fillStyle = Math.random() > 0.5 ? "rgba(96,150,70,0.5)" : "rgba(60,108,50,0.5)";
+    for (let j = 0; j < 6; j++) {
+      ctx.beginPath();
+      ctx.arc(cx + (Math.random() - 0.5) * 12, cy + (Math.random() - 0.5) * 12, 1.4, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
   // flowers
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 90; i++) {
     const x = Math.random() * N;
     const y = Math.random() * N;
     ctx.fillStyle = ["#f4d35e", "#f48fb1", "#fff", "#c79bff"][Math.floor(Math.random() * 4)];
@@ -125,7 +138,7 @@ export function makeGroundTexture(): THREE.Texture {
 
   const tex = new THREE.CanvasTexture(c);
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
-  tex.repeat.set(32, 32);
+  tex.repeat.set(28, 28);
   tex.colorSpace = THREE.SRGBColorSpace;
   tex.anisotropy = 8;
   return tex;

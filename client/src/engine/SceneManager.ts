@@ -22,9 +22,12 @@ export class SceneManager {
   private skyUniforms: Record<string, THREE.IUniform>;
   private sun: THREE.DirectionalLight;
   private sunSprite: THREE.Sprite;
+  private stars!: THREE.Points;
+  private moon!: THREE.Sprite;
   private hemi: THREE.HemisphereLight;
   private composer: EffectComposer;
   private bloom: UnrealBloomPass;
+  private grade: ShaderPass;
   private scenery: Scenery | null = null;
   private water: Water | null = null;
   private clouds: THREE.Sprite[] = [];
@@ -113,6 +116,45 @@ export class SceneManager {
     this.sunSprite.position.copy(this.sun.position).multiplyScalar(1.7);
     this.scene.add(this.sunSprite);
 
+    // ---- night sky: starfield + moon (fade in after dusk) ----
+    const starR = MAP_SIZE * 1.32;
+    const starCount = 420;
+    const starPos = new Float32Array(starCount * 3);
+    for (let i = 0; i < starCount; i++) {
+      const dir = new THREE.Vector3(Math.random() - 0.5, Math.random() * 0.9 + 0.15, Math.random() - 0.5)
+        .normalize()
+        .multiplyScalar(starR);
+      starPos[i * 3] = dir.x;
+      starPos[i * 3 + 1] = dir.y;
+      starPos[i * 3 + 2] = dir.z;
+    }
+    const starGeo = new THREE.BufferGeometry();
+    starGeo.setAttribute("position", new THREE.BufferAttribute(starPos, 3));
+    this.stars = new THREE.Points(
+      starGeo,
+      new THREE.PointsMaterial({
+        map: makeSpark(),
+        color: 0xfff4e0,
+        size: 2.4,
+        sizeAttenuation: false,
+        transparent: true,
+        opacity: 0,
+        depthWrite: false,
+        fog: false,
+        blending: THREE.AdditiveBlending,
+      }),
+    );
+    this.stars.visible = false;
+    this.scene.add(this.stars);
+
+    this.moon = new THREE.Sprite(
+      new THREE.SpriteMaterial({ map: makeSunSprite(), color: 0xcfe0ff, transparent: true, opacity: 0, depthWrite: false, fog: false, blending: THREE.AdditiveBlending }),
+    );
+    this.moon.scale.setScalar(30);
+    this.moon.position.set(-40, 70, -60).multiplyScalar(1.7);
+    this.moon.visible = false;
+    this.scene.add(this.moon);
+
     // ---- ground: PBR grass with a roughness map ----
     this.ground = new THREE.Mesh(
       new THREE.PlaneGeometry(MAP_SIZE * 1.04, MAP_SIZE * 1.04, 1, 1),
@@ -142,14 +184,16 @@ export class SceneManager {
     this.composer.addPass(new RenderPass(this.scene, undefined as unknown as THREE.Camera));
     this.bloom = new UnrealBloomPass(
       new THREE.Vector2(window.innerWidth, window.innerHeight),
-      0.55, // strength
-      0.7, // radius
-      0.82, // threshold — only bright things bloom
+      0.62, // strength — a touch dreamier glow on highlights
+      0.8, // radius — softer falloff
+      0.8, // threshold — only bright things bloom
     );
     this.composer.addPass(this.bloom);
     this.composer.addPass(new OutputPass());
-    // Cinematic grade: gentle saturation + contrast lift and a soft vignette.
-    this.composer.addPass(new ShaderPass(GRADE_SHADER));
+    // Cinematic grade: saturation + contrast, warm/cool split-tone, soft vignette,
+    // and a hint of animated film grain for richness.
+    this.grade = new ShaderPass(GRADE_SHADER);
+    this.composer.addPass(this.grade);
     const smaa = new SMAAPass(window.innerWidth, window.innerHeight);
     this.composer.addPass(smaa);
 
@@ -274,6 +318,13 @@ export class SceneManager {
     sprite.color.copy(this.themeSky).lerp(white, 0.7);
     sprite.opacity = Math.max(0, d * overcast);
     this.sunSprite.visible = d > 0.05 && overcast > 0.6;
+
+    // night sky: stars + moon fade in as the sun sets (and dim under overcast)
+    const night = (1 - d) * overcast;
+    (this.stars.material as THREE.PointsMaterial).opacity = night * 0.9;
+    this.stars.visible = night > 0.04;
+    (this.moon.material as THREE.SpriteMaterial).opacity = night * 0.8;
+    this.moon.visible = night > 0.04;
   }
 
   // Rebuild the falling rain/snow particle layer for the current weather.
@@ -369,19 +420,22 @@ export class SceneManager {
     }
 
     if (this.water) this.water.material.uniforms.time.value += dt;
+    this.grade.uniforms.time.value += dt;
     (this.composer.passes[0] as RenderPass).camera = camera;
     this.composer.render();
     this.labelRenderer.render(this.scene, camera);
   }
 }
 
-// Final colour grade: saturation, contrast and a soft vignette for depth.
+// Final colour grade: saturation + contrast, a warm/cool split-tone, a soft
+// vignette, and a hint of animated film grain for a richer cinematic look.
 const GRADE_SHADER = {
   uniforms: {
     tDiffuse: { value: null as THREE.Texture | null },
-    saturation: { value: 1.14 },
-    contrast: { value: 1.06 },
+    saturation: { value: 1.16 },
+    contrast: { value: 1.07 },
     vignette: { value: 0.42 },
+    time: { value: 0 },
   },
   vertexShader: /* glsl */ `
     varying vec2 vUv;
@@ -392,7 +446,9 @@ const GRADE_SHADER = {
     uniform float saturation;
     uniform float contrast;
     uniform float vignette;
+    uniform float time;
     varying vec2 vUv;
+    float hash(vec2 p) { return fract(sin(dot(p, vec2(127.1, 311.7))) * 43758.5453); }
     void main() {
       vec4 c = texture2D(tDiffuse, vUv);
       // contrast around mid-grey
@@ -400,10 +456,17 @@ const GRADE_SHADER = {
       // saturation toward luminance
       float l = dot(c.rgb, vec3(0.2126, 0.7152, 0.0722));
       c.rgb = mix(vec3(l), c.rgb, saturation);
-      // vignette
+      // split-tone: warm highlights, cool shadows (subtle, depth-enhancing)
+      vec3 warm = vec3(1.05, 1.0, 0.93);
+      vec3 cool = vec3(0.95, 0.99, 1.06);
+      c.rgb *= mix(cool, warm, smoothstep(0.25, 0.85, l));
+      // soft vignette with a floor so corners aren't crushed black
       vec2 d = vUv - 0.5;
-      float v = 1.0 - dot(d, d) * vignette * 2.4;
-      c.rgb *= clamp(v, 0.0, 1.0);
+      float vig = 1.0 - dot(d, d) * vignette * 2.4;
+      c.rgb *= clamp(vig, 0.6, 1.0);
+      // faint animated film grain
+      float g = hash(vUv * 1024.0 + fract(time)) - 0.5;
+      c.rgb += g * 0.022;
       gl_FragColor = c;
     }
   `,
