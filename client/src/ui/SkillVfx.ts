@@ -5,6 +5,7 @@ import { makeSpark } from "../procedural/textures.js";
 // are scaled per-effect), so impacts never allocate/dispose geometry.
 const GEO_IMPACT_RING = new THREE.RingGeometry(0.2, 0.34, 28);
 const GEO_CAST_RING = new THREE.RingGeometry(0.85, 1.0, 40);
+const GEO_SHOCK_RING = new THREE.RingGeometry(0.46, 0.52, 48); // thin, fast shockwave
 
 interface Particle {
   sprite: THREE.Sprite;
@@ -55,7 +56,9 @@ export class SkillVfx {
         size: s,
       });
     }
-    this.ring(pos, color, 2.4 * scale, GEO_IMPACT_RING, 0.1);
+    this.ring(pos, color, 2.4 * scale, GEO_IMPACT_RING, 0.1, 420);
+    // a fast, bright white-hot shockwave that expands further and fades quickly
+    this.ring(pos, 0xffffff, 3.6 * scale, GEO_SHOCK_RING, 0.12, 260);
     // a bright flash core that catches bloom
     const flash = this.acquireSprite(color, 1.6 * scale);
     flash.position.set(pos.x, pos.y + 0.8, pos.z);
@@ -70,10 +73,10 @@ export class SkillVfx {
     this.rings.push({ mesh, born: performance.now(), life: 480, maxR: -2.2 });
   }
 
-  private ring(pos: THREE.Vector3, color: number, maxR: number, geo: THREE.BufferGeometry, yOff: number): void {
+  private ring(pos: THREE.Vector3, color: number, maxR: number, geo: THREE.BufferGeometry, yOff: number, life: number): void {
     const mesh = this.acquireRing(geo, color);
     mesh.position.set(pos.x, pos.y + yOff, pos.z);
-    this.rings.push({ mesh, born: performance.now(), life: 420, maxR });
+    this.rings.push({ mesh, born: performance.now(), life, maxR });
   }
 
   private acquireSprite(color: number, scale: number): THREE.Sprite {
