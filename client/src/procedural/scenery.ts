@@ -256,9 +256,11 @@ function addTrees(
       foliageGeo = new THREE.IcosahedronGeometry(1.25, 0);
       foliageY = 2.7;
   }
+  // Foliage colour is driven per-tree via instanceColor (material left white), so
+  // a forest reads as many shades of green rather than one flat tone.
   const foliageColor = theme.foliage[0];
   const foliageMat = new THREE.MeshStandardMaterial({
-    color: foliageColor,
+    color: 0xffffff,
     roughness: 1,
     flatShading: true,
     emissive: theme.tree === "crystal" ? new THREE.Color(foliageColor).multiplyScalar(0.35) : 0x000000,
@@ -273,7 +275,7 @@ function addTrees(
   const [, foliageMat2] = track(
     foliageGeo,
     new THREE.MeshStandardMaterial({
-      color: foliageColor2,
+      color: 0xffffff,
       roughness: 1,
       flatShading: true,
       emissive: theme.tree === "crystal" ? new THREE.Color(foliageColor2).multiplyScalar(0.35) : 0x000000,
@@ -281,6 +283,11 @@ function addTrees(
   );
   const foliage2 = new THREE.InstancedMesh(foliageGeo, foliageMat2, n);
   foliage2.castShadow = true;
+
+  const fCol = new THREE.Color(foliageColor);
+  const fCol2 = new THREE.Color(foliageColor2);
+  const c = new THREE.Color();
+  const frac = (x: number) => x - Math.floor(x);
 
   const m = new THREE.Matrix4();
   const q = new THREE.Quaternion();
@@ -290,6 +297,13 @@ function addTrees(
     q.setFromAxisAngle(up, p.rot);
     m.compose(new THREE.Vector3(p.x, 1.2 * p.s, p.z), q, new THREE.Vector3(p.s, p.s, p.s));
     trunks.setMatrixAt(i, m);
+    // deterministic per-tree colour jitter from position
+    const jit = frac(Math.sin(p.x * 12.9898 + p.z * 4.1414) * 43758.5453);
+    const dl = (jit - 0.5) * 0.22;
+    c.copy(fCol).offsetHSL((jit - 0.5) * 0.04, 0, dl);
+    foliage.setColorAt(i, c);
+    c.copy(fCol2).offsetHSL((jit - 0.5) * 0.04, 0, dl * 0.8);
+    foliage2.setColorAt(i, c);
     const fs = p.s * foliageScale;
     m.compose(new THREE.Vector3(p.x, foliageY * p.s, p.z), q, new THREE.Vector3(fs, fs, fs));
     foliage.setMatrixAt(i, m);
@@ -297,5 +311,7 @@ function addTrees(
     m.compose(new THREE.Vector3(p.x, (foliageY + 0.7) * p.s, p.z), q, new THREE.Vector3(fs2, fs2, fs2));
     foliage2.setMatrixAt(i, m);
   }
+  if (foliage.instanceColor) foliage.instanceColor.needsUpdate = true;
+  if (foliage2.instanceColor) foliage2.instanceColor.needsUpdate = true;
   group.add(trunks, foliage, foliage2);
 }
