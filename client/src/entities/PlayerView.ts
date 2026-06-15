@@ -166,6 +166,11 @@ export class PlayerView extends EntityView {
   }
 
   protected override animate(dt: number): void {
+    // cape: flow back while moving, gentle drift at rest (framerate-independent)
+    if (this.char.cape) {
+      const target = this.moving ? 0.6 + Math.sin(this.walkPhase * 2) * 0.08 : 0.08 + Math.sin(this.walkPhase) * 0.05;
+      this.char.cape.rotation.x += (target - this.char.cape.rotation.x) * (1 - Math.pow(0.78, dt * 60));
+    }
     if (this.moving) {
       this.walkPhase += dt * 10;
       const swing = Math.sin(this.walkPhase) * 0.6;
