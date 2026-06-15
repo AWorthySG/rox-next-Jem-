@@ -30,7 +30,13 @@ function outline(parent: THREE.Object3D, mesh: THREE.Mesh, scale = 1.08): void {
 // A low-poly humanoid built from primitives, cel-shaded with toon materials and
 // black outlines. `colorSeed` (0..360 hue) gives each player a distinct outfit
 // tint; `magic` swaps the palette toward a mage robe.
-export function buildCharacter(colorSeed: number, magic: boolean): CharacterMesh {
+export type WeaponStyle = "blade" | "staff" | "bow" | "mace";
+
+export function buildCharacter(
+  colorSeed: number,
+  magic: boolean,
+  weapon: WeaponStyle = magic ? "staff" : "blade",
+): CharacterMesh {
   const group = new THREE.Group();
 
   const hue = (colorSeed % 360) / 360;
@@ -86,14 +92,32 @@ export function buildCharacter(colorSeed: number, magic: boolean): CharacterMesh
   const leftLeg = limb(group, legGeo, bootMat, -0.16, 0.7, accent);
   const rightLeg = limb(group, legGeo, bootMat, 0.16, 0.7, accent);
 
-  // hint of class: mage gets a glowing orb staff, others a blade
-  if (magic) {
+  // class weapon — a distinct silhouette per archetype
+  if (weapon === "staff") {
     const staff = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.3, 8), toon(0x8a5a2b));
     staff.position.set(0.56, 1.25, 0.1);
     group.add(staff);
     const orb = new THREE.Mesh(new THREE.SphereGeometry(0.13, 14, 14), new THREE.MeshBasicMaterial({ color: 0x9fe0ff }));
     orb.position.set(0.56, 1.95, 0.1);
     group.add(orb); // bright → catches bloom
+  } else if (weapon === "bow") {
+    const bow = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.035, 6, 16, Math.PI * 1.25), toon(0x6b4a2b));
+    bow.position.set(0.52, 1.2, 0.12);
+    bow.rotation.set(0, 0, Math.PI / 2);
+    group.add(bow);
+    const string = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.78, 4), toon(0xe8e2cc));
+    string.position.set(0.52, 1.2, 0.12);
+    group.add(string);
+  } else if (weapon === "mace") {
+    const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.04, 0.95, 8), toon(0x8a6a3a));
+    shaft.position.set(0.52, 1.15, 0.12);
+    group.add(shaft);
+    const macehead = new THREE.Mesh(new THREE.IcosahedronGeometry(0.14, 0), toon(0xe8e0c4));
+    macehead.position.set(0.52, 1.64, 0.12);
+    group.add(macehead);
+    const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.05), new THREE.MeshBasicMaterial({ color: 0xffe6a0 }));
+    gem.position.set(0.52, 1.64, 0.24);
+    group.add(gem); // holy glint → catches bloom
   } else {
     const blade = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.9, 0.04), toon(0xcfd6e6));
     blade.position.set(0.5, 1.2, 0.12);

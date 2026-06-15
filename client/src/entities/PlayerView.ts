@@ -1,7 +1,7 @@
 import type { EntityFull } from "@rox/shared";
-import { isMagicJob, MOUNT_SPEED_MULT, PLAYER_SPEED } from "@rox/shared";
+import { isMagicJob, jobFamilyOf, MOUNT_SPEED_MULT, PLAYER_SPEED } from "@rox/shared";
 import * as THREE from "three";
-import { applyHeadgear, buildCharacter, type CharacterMesh } from "../procedural/characterMesh.js";
+import { applyHeadgear, buildCharacter, type CharacterMesh, type WeaponStyle } from "../procedural/characterMesh.js";
 import { EntityView } from "./EntityView.js";
 
 // A player avatar. The local player ("self") is client-predicted; remote players
@@ -31,7 +31,9 @@ export class PlayerView extends EntityView {
     super(entity, "nameplate player", 2.5);
     this.nameplateEl.classList.add("player");
     const magic = entity.job ? isMagicJob(entity.job) : false;
-    this.char = buildCharacter(entity.colorSeed ?? 0, magic);
+    const fam = entity.job ? jobFamilyOf(entity.job) : null;
+    const weapon: WeaponStyle = fam === "mage" ? "staff" : fam === "archer" ? "bow" : fam === "acolyte" ? "mace" : "blade";
+    this.char = buildCharacter(entity.colorSeed ?? 0, magic, weapon);
     this.char.group.userData.entityId = entity.id;
     applyHeadgear(this.char, entity.headgear);
     this.headgearId = entity.headgear ?? null;
