@@ -61,15 +61,30 @@ export function buildCharacter(colorSeed: number, magic: boolean): CharacterMesh
   hair.position.y = 1.9;
   group.add(hair);
 
-  // arms (pivot from the shoulder so they can swing)
-  const armGeo = new THREE.CapsuleGeometry(0.1, 0.55, 4, 8);
-  const leftArm = limb(group, armGeo, accent, -0.44, 1.55);
-  const rightArm = limb(group, armGeo, accent, 0.44, 1.55);
+  // anime face: two eyes on the front (+z) with a tiny white glint that catches bloom
+  const eyeMat = new THREE.MeshBasicMaterial({ color: 0x2a2230 });
+  const eyeGeo = new THREE.SphereGeometry(0.058, 10, 10);
+  const glintMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  const glintGeo = new THREE.SphereGeometry(0.018, 8, 8);
+  for (const sx of [-1, 1]) {
+    const eye = new THREE.Mesh(eyeGeo, eyeMat);
+    eye.scale.set(0.85, 1.3, 0.5);
+    eye.position.set(sx * 0.12, 1.88, 0.3);
+    group.add(eye);
+    const glint = new THREE.Mesh(glintGeo, glintMat);
+    glint.position.set(sx * 0.12 + 0.025, 1.91, 0.33);
+    group.add(glint);
+  }
 
-  // legs
+  // arms (pivot from the shoulder so they can swing), with little skin hands
+  const armGeo = new THREE.CapsuleGeometry(0.1, 0.55, 4, 8);
+  const leftArm = limb(group, armGeo, accent, -0.44, 1.55, skin);
+  const rightArm = limb(group, armGeo, accent, 0.44, 1.55, skin);
+
+  // legs, with darker boots at the feet
   const legGeo = new THREE.CapsuleGeometry(0.12, 0.6, 4, 8);
-  const leftLeg = limb(group, legGeo, bootMat, -0.16, 0.7);
-  const rightLeg = limb(group, legGeo, bootMat, 0.16, 0.7);
+  const leftLeg = limb(group, legGeo, bootMat, -0.16, 0.7, accent);
+  const rightLeg = limb(group, legGeo, bootMat, 0.16, 0.7, accent);
 
   // hint of class: mage gets a glowing orb staff, others a blade
   if (magic) {
@@ -104,13 +119,27 @@ export function buildCharacter(colorSeed: number, magic: boolean): CharacterMesh
   return { group, leftArm, rightArm, leftLeg, rightLeg, head, headgear: null };
 }
 
-function limb(group: THREE.Object3D, geo: THREE.BufferGeometry, mat: THREE.Material, x: number, pivotY: number): THREE.Object3D {
+function limb(
+  group: THREE.Object3D,
+  geo: THREE.BufferGeometry,
+  mat: THREE.Material,
+  x: number,
+  pivotY: number,
+  capMat?: THREE.Material,
+): THREE.Object3D {
   const pivot = new THREE.Object3D();
   pivot.position.set(x, pivotY, 0);
   const mesh = new THREE.Mesh(geo, mat);
   mesh.position.y = -0.32;
   outline(pivot, mesh);
   pivot.add(mesh);
+  // a small rounded cap (hand / boot) at the end of the limb for a cleaner silhouette
+  if (capMat) {
+    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 10), capMat);
+    cap.position.y = -0.62;
+    cap.scale.y = 0.85;
+    pivot.add(cap);
+  }
   group.add(pivot);
   return pivot;
 }

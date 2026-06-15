@@ -78,6 +78,10 @@ function eyes(group: THREE.Object3D, y: number, z: number, spread: number, r = 0
     const e = new THREE.Mesh(new THREE.SphereGeometry(r, 8, 8), new THREE.MeshBasicMaterial({ color }));
     e.position.set(s * spread, y, z);
     group.add(e);
+    // a small glossy glint so eyes read as alive (and catch a touch of bloom)
+    const glint = new THREE.Mesh(new THREE.SphereGeometry(r * 0.36, 6, 6), new THREE.MeshBasicMaterial({ color: 0xffffff }));
+    glint.position.set(s * spread + r * 0.34, y + r * 0.36, z + r * 0.55);
+    group.add(glint);
   }
 }
 
