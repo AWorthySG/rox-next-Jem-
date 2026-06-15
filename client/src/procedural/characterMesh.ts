@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { makeBlobShadow, makeToonGradient } from "./textures.js";
+import { applyRimLight } from "./rimLight.js";
 
 export interface CharacterMesh {
   group: THREE.Group;
@@ -16,7 +17,9 @@ export interface CharacterMesh {
 const OUTLINE_MAT = new THREE.MeshBasicMaterial({ color: 0x171019, side: THREE.BackSide });
 
 function toon(color: THREE.ColorRepresentation): THREE.MeshToonMaterial {
-  return new THREE.MeshToonMaterial({ color, gradientMap: makeToonGradient() });
+  const m = new THREE.MeshToonMaterial({ color, gradientMap: makeToonGradient() });
+  applyRimLight(m);
+  return m;
 }
 
 // Add a black inverted-hull outline behind `mesh` for the anime cel-shaded edge.
