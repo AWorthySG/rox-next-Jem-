@@ -6,6 +6,7 @@ import { Npc } from "./Npc.js";
 import type { PortalDest } from "./Npc.js";
 import { PartySystem } from "./PartySystem.js";
 import { GuildSystem } from "./GuildSystem.js";
+import { ExchangeSystem } from "./ExchangeSystem.js";
 import { MONSTER_TEMPLATES } from "./data/spawns.js";
 import { MAPS } from "./data/maps.js";
 
@@ -18,6 +19,7 @@ export class World {
   readonly npcs = new Map<number, Npc>();
   readonly party = new PartySystem(this);
   readonly guild = new GuildSystem(this);
+  readonly exchange = new ExchangeSystem(this);
   readonly mapIds = Object.keys(MAPS);
   private nextEntityId = 1;
 

@@ -32,6 +32,10 @@ export enum MsgType {
   EnterPortal = "enterPortal",
   NpcHeal = "npcHeal",
   Warp = "warp",
+  ExchangeBrowse = "exchangeBrowse",
+  ExchangeList = "exchangeList",
+  ExchangeBuy = "exchangeBuy",
+  ExchangeCancel = "exchangeCancel",
   Chat = "chat",
   Ping = "ping",
   // server -> client
@@ -53,6 +57,7 @@ export enum MsgType {
   ChatBroadcast = "chatMsg",
   WorldState = "worldState",
   BossStatus = "bossStatus",
+  ExchangeUpdate = "exchangeUpdate",
   Pong = "pong",
 }
 

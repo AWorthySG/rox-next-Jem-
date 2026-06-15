@@ -19,6 +19,7 @@ import { InventoryPanel } from "./ui/InventoryPanel.js";
 import { StoragePanel } from "./ui/StoragePanel.js";
 import { BestiaryPanel } from "./ui/BestiaryPanel.js";
 import { ShopPanel } from "./ui/ShopPanel.js";
+import { ExchangePanel } from "./ui/ExchangePanel.js";
 import { QuestPanel } from "./ui/QuestPanel.js";
 import { RefinePanel } from "./ui/RefinePanel.js";
 import { SkillsPanel } from "./ui/SkillsPanel.js";
@@ -182,6 +183,13 @@ const storage = new StoragePanel({
   onRetrieve: (itemId, qty) => transport?.send({ t: MsgType.RetrieveItem, itemId, qty }),
 });
 
+const exchange = new ExchangePanel({
+  onBrowse: () => transport?.send({ t: MsgType.ExchangeBrowse }),
+  onList: (itemId, qty, unitPrice) => transport?.send({ t: MsgType.ExchangeList, itemId, qty, unitPrice }),
+  onBuy: (listingId, qty) => transport?.send({ t: MsgType.ExchangeBuy, listingId, qty }),
+  onCancel: (listingId) => transport?.send({ t: MsgType.ExchangeCancel, listingId }),
+});
+
 const bestiary = new BestiaryPanel(gameState);
 
 const quests = new QuestPanel({
@@ -264,6 +272,10 @@ const input = new InputController(
         refine.open();
         return;
       }
+      if (role === "exchange") {
+        exchange.open();
+        return;
+      }
       if (role === "portal") {
         // Walk to the portal and request travel (server checks proximity).
         const pos = gameState.worldPosOf(id);
@@ -308,6 +320,7 @@ function handleMessage(msg: ServerMessage): void {
       gameState.selfId = selfId;
       partyHud.setSelf(selfId);
       guildPanel.setSelf(selfId);
+      exchange.setSelfId(selfId);
       currentJob = msg.self.job;
       hud.setIdentity(msg.self.name, JOB_NAME[msg.self.job]);
       hud.update(msg.self);
@@ -350,6 +363,7 @@ function handleMessage(msg: ServerMessage): void {
       skillBar.setSp(msg.self.sp);
       inventory.sync(msg.self);
       storage.sync(msg.self);
+      exchange.sync(msg.self);
       bestiary.sync(msg.self);
       shop.sync(msg.self);
       quests.sync(msg.self);
@@ -424,6 +438,9 @@ function handleMessage(msg: ServerMessage): void {
       break;
     case MsgType.BossStatus:
       worldBossBar.update(msg);
+      break;
+    case MsgType.ExchangeUpdate:
+      exchange.setListings(msg.listings);
       break;
     case MsgType.Pong:
       hud.setLatency(Math.round(performance.now() - msg.clientTime));

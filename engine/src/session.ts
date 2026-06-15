@@ -221,6 +221,26 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       }
       break;
     }
+    case MsgType.ExchangeBrowse: {
+      const p = playerOf(world, link);
+      if (p) world.exchange.sendTo(p);
+      break;
+    }
+    case MsgType.ExchangeList: {
+      const p = playerOf(world, link);
+      if (p) world.exchange.list(p, msg.itemId, Math.floor(msg.qty || 0), Math.floor(msg.unitPrice || 0));
+      break;
+    }
+    case MsgType.ExchangeBuy: {
+      const p = playerOf(world, link);
+      if (p) world.exchange.buy(p, msg.listingId, Math.max(1, Math.floor(msg.qty || 1)));
+      break;
+    }
+    case MsgType.ExchangeCancel: {
+      const p = playerOf(world, link);
+      if (p) world.exchange.cancel(p, msg.listingId);
+      break;
+    }
     case MsgType.ClaimQuest: {
       const p = playerOf(world, link);
       if (p) {

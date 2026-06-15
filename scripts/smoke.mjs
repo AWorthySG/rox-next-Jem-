@@ -41,6 +41,7 @@ function client(name, job) {
     if (m.t === "partyUpdate") st.party = m.party;
     if (m.t === "guildUpdate") st.guild = m.guild;
     if (m.t === "chatMsg") { st.lastChat = `${m.name}: ${m.text}`; st.chats.push(`${m.name}: ${m.text}`); }
+    if (m.t === "exchangeUpdate") st.listings = m.listings;
   });
   return st;
 }
@@ -124,6 +125,42 @@ async function main() {
   await wait(400);
   check((a.guild?.members?.length ?? 0) === 2, "guild master sees 2 members");
   check((b.guild?.members?.length ?? 0) === 2, "joiner sees 2-member guild");
+
+  // Exchange Centre: Alice farms until she holds a stackable drop, lists it;
+  // Bob earns some Zeny then buys it.
+  for (let i = 0; i < 60 && (a.lastSelf?.inventory?.length ?? 0) === 0; i++) {
+    const live = [...a.monsters.values()][0];
+    if (live) {
+      a.ws.send(JSON.stringify({ t: "move", x: live.x, z: live.z }));
+      a.ws.send(JSON.stringify({ t: "attack", targetId: live.id }));
+    }
+    await wait(200);
+  }
+  const sellEntry = a.lastSelf.inventory.find((e) => e.qty >= 1);
+  check(sellEntry != null, "exchange: seller has a looted item to list");
+  for (let i = 0; i < 40 && (b.lastSelf?.zeny ?? 0) <= 0; i++) {
+    const live = [...b.monsters.values()][0];
+    if (live) {
+      b.ws.send(JSON.stringify({ t: "move", x: live.x, z: live.z }));
+      b.ws.send(JSON.stringify({ t: "attack", targetId: live.id }));
+    }
+    await wait(200);
+  }
+  if (sellEntry) {
+    const bobHad = b.lastSelf?.inventory?.find((e) => e.id === sellEntry.id)?.qty ?? 0;
+    a.ws.send(JSON.stringify({ t: "exchangeList", itemId: sellEntry.id, qty: 1, unitPrice: 1 }));
+    await wait(400);
+    b.ws.send(JSON.stringify({ t: "exchangeBrowse" }));
+    await wait(400);
+    const listing = (b.listings ?? []).find((l) => l.itemId === sellEntry.id && l.sellerId === a.self);
+    check(listing != null, "exchange: buyer sees the seller's listing on the market");
+    if (listing) {
+      b.ws.send(JSON.stringify({ t: "exchangeBuy", listingId: listing.id, qty: 1 }));
+      await wait(500);
+      const bobNow = b.lastSelf?.inventory?.find((e) => e.id === sellEntry.id)?.qty ?? 0;
+      check(bobNow === bobHad + 1, "exchange: buyer receives the purchased item");
+    }
+  }
 
   // Map travel: walk a fresh client to the cave portal and enter it.
   const t = client("Traveler", "novice");

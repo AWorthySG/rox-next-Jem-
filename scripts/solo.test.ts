@@ -25,7 +25,7 @@ import {
   type DerivedStats,
   type ServerMessage,
 } from "@rox/shared";
-import { MAPS, Monster, MONSTER_TEMPLATES, Player } from "@rox/engine";
+import { ExchangeSystem, MAPS, Monster, MONSTER_TEMPLATES, Player } from "@rox/engine";
 import { LocalServer } from "../client/src/net/LocalServer.js";
 
 const failures: string[] = [];
@@ -475,6 +475,31 @@ async function main(): Promise<void> {
   check(rarityOf(getItem("mythic_warplate")!) === "mythic", "tier: mythic armor rarity");
   check(TIER_NAME[6] === "Mythic", "tier: tier 6 is named Mythic");
   check(tierOf(getItem("red_potion")!) >= 1, "tier: items resolve to a valid tier");
+
+  // ---- deterministic Exchange Centre (player marketplace) ----
+  const exWorld: any = { players: new Map(), connections: new Map(), broadcast() {} };
+  const ex = new ExchangeSystem(exWorld);
+  const exSeller = new Player(960, 1, "Seller", JobId.Swordsman, 0, 0);
+  const exBuyer = new Player(961, 2, "Buyer", JobId.Mage, 0, 0);
+  exWorld.players.set(exSeller.id, exSeller);
+  exWorld.players.set(exBuyer.id, exBuyer);
+  exSeller.addItem("red_potion", 5);
+  exBuyer.zeny = 1000;
+  check(ex.list(exSeller, "red_potion", 3, 100), "exchange: seller lists items for sale");
+  check(exSeller.countItem("red_potion") === 2, "exchange: listed items escrowed from the bag");
+  check(ex.snapshot().length === 1, "exchange: listing appears on the market");
+  const exListing = ex.snapshot()[0];
+  check(!ex.buy(exSeller, exListing.id, 1), "exchange: cannot buy your own listing");
+  check(ex.buy(exBuyer, exListing.id, 2), "exchange: buyer purchases 2 units");
+  check(exBuyer.countItem("red_potion") === 2, "exchange: buyer receives the goods");
+  check(exBuyer.zeny === 800, "exchange: buyer charged unit price × qty");
+  check(exSeller.zeny === Math.floor(200 * 0.95), "exchange: seller paid proceeds minus 5% tax");
+  check(ex.snapshot()[0]?.qty === 1, "exchange: partial buy decrements remaining stock");
+  check(ex.cancel(exSeller, exListing.id), "exchange: seller cancels remaining listing");
+  check(exSeller.countItem("red_potion") === 3, "exchange: cancel returns escrowed items");
+  check(ex.snapshot().length === 0, "exchange: market empty after cancel");
+  check(!ex.list(exSeller, "red_potion", 99, 100), "exchange: cannot list more than you own");
+  check(!ex.list(exSeller, "red_potion", 1, 0), "exchange: price must be positive");
 
   local.stop();
   if (failures.length) {
