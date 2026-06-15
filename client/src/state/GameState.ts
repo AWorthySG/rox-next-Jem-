@@ -206,9 +206,9 @@ export class GameState {
     return out;
   }
 
-  update(dt: number): void {
+  update(dt: number, camPos?: THREE.Vector3): void {
     const renderTime = performance.now() - INTERP_DELAY_MS;
-    for (const v of this.views.values()) v.update(renderTime, dt);
+    for (const v of this.views.values()) v.update(renderTime, dt, camPos);
     // Advance dying monsters; dispose when their animation completes.
     for (let i = this.dying.length - 1; i >= 0; i--) {
       if (this.dying[i].updateDeath(dt)) {
