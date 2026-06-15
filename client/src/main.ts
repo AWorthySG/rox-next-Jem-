@@ -445,6 +445,8 @@ function handleMessage(msg: ServerMessage): void {
         sfx.levelUp();
         screenFx.levelUp();
         cameraRig.shake(0.12);
+        const sp = gameState.self?.group.position;
+        if (sp) skillVfx.levelUp(sp);
       }
       break;
     case MsgType.ChatBroadcast:

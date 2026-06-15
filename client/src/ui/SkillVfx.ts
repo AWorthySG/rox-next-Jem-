@@ -30,6 +30,7 @@ interface Beam {
   mesh: THREE.Mesh;
   born: number;
   life: number;
+  maxH: number;
 }
 
 // Pooled additive particle bursts + shock rings for skill impacts. Sprites and
@@ -85,6 +86,27 @@ export class SkillVfx {
 
   // A vertical light pillar that shoots up and fades — punctuates a crit hit.
   crit(pos: THREE.Vector3, color: number): void {
+    this.beam(pos, color, 3.4, 320);
+  }
+
+  // A celebratory burst at the player on level-up: a golden upward fountain, a
+  // wide expanding ground ring, and a tall slow light pillar.
+  levelUp(pos: THREE.Vector3): void {
+    const now = performance.now();
+    const gold = 0xffe08a;
+    for (let i = 0; i < 18; i++) {
+      const s = 0.3 + Math.random() * 0.4;
+      const sprite = this.acquireSprite(gold, s);
+      sprite.position.set(pos.x, pos.y + 0.2, pos.z);
+      const ang = Math.random() * Math.PI * 2;
+      const spd = 1 + Math.random() * 2;
+      this.particles.push({ sprite, vx: Math.cos(ang) * spd, vy: 5 + Math.random() * 4, vz: Math.sin(ang) * spd, born: now, life: 720 + Math.random() * 320, size: s });
+    }
+    this.ring(pos, gold, 5.0, GEO_IMPACT_RING, 0.06, 760);
+    this.beam(pos, gold, 5.5, 900);
+  }
+
+  private beam(pos: THREE.Vector3, color: number, maxH: number, life: number): void {
     let mesh = this.beamPool.pop();
     if (!mesh) {
       mesh = new THREE.Mesh(
@@ -98,7 +120,7 @@ export class SkillVfx {
     mesh.position.set(pos.x, pos.y + 0.1, pos.z);
     mesh.scale.set(1, 0.2, 1);
     this.scene.add(mesh);
-    this.beams.push({ mesh, born: performance.now(), life: 320 });
+    this.beams.push({ mesh, born: performance.now(), life, maxH });
   }
 
   private ring(pos: THREE.Vector3, color: number, maxR: number, geo: THREE.BufferGeometry, yOff: number, life: number): void {
@@ -182,7 +204,7 @@ export class SkillVfx {
         this.beamPool.push(b.mesh);
         continue;
       }
-      const h = 3.4 * Math.min(1, t / 0.22); // shoot up fast, then hold
+      const h = b.maxH * Math.min(1, t / 0.22); // shoot up fast, then hold
       const taper = 1 - t * 0.4;
       b.mesh.scale.set(taper, h, taper);
       (b.mesh.material as THREE.MeshBasicMaterial).opacity = 0.85 * (1 - t);
