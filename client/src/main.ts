@@ -494,6 +494,7 @@ function onDamage(msg: Extract<ServerMessage, { t: MsgType.DamageEvent }>): void
     if (msg.skillId && msg.skillId !== "burn") {
       const el = getSkill(msg.skillId)?.element ?? Element.Neutral;
       skillVfx.impact(pos, ELEMENT_COLOR[el], msg.crit ? 1.4 : 1);
+      if (msg.crit) skillVfx.crit(pos, ELEMENT_COLOR[el]);
     }
     // Game-feel: attack swing on the attacker, hit reaction on the target.
     if (msg.skillId !== "burn") gameState.onAttack(msg.sourceId);
