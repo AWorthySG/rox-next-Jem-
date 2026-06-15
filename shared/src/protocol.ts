@@ -1,6 +1,7 @@
 import { DamageKind, JobId, MsgType } from "./enums.js";
 import type { EntityFull, EntitySnapshot, SelfState } from "./entities.js";
 import type { Stats } from "./stats.js";
+import type { Weather } from "./world.js";
 
 // ---- Client -> Server ----
 
@@ -357,6 +358,26 @@ export interface ChatBroadcastMsg {
   text: string;
 }
 
+// Global sky state — drives client visuals (sun/sky/fog/weather) and informs
+// players of the elemental synergy currently in effect.
+export interface WorldStateMsg {
+  t: MsgType.WorldState;
+  timeOfDay: number; // 0..1 (0 = midnight, 0.5 = noon)
+  weather: Weather;
+}
+
+// Live HP of an engaged world boss, broadcast to EVERY player (cross-map) so the
+// whole server can rally to the fight. `defeatedBy` is set on the final tick.
+export interface BossStatusMsg {
+  t: MsgType.BossStatus;
+  bossId: number;
+  name: string;
+  hp: number;
+  maxHp: number;
+  mapName: string;
+  defeatedBy?: string;
+}
+
 export interface PongMsg {
   t: MsgType.Pong;
   clientTime: number;
@@ -380,6 +401,8 @@ export type ServerMessage =
   | DamageEventMsg
   | LevelUpMsg
   | ChatBroadcastMsg
+  | WorldStateMsg
+  | BossStatusMsg
   | PongMsg;
 
 export function encode(msg: ClientMessage | ServerMessage): string {

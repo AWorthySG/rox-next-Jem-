@@ -412,6 +412,66 @@ body {
   transition: width 0.15s linear;
 }
 
+/* world-boss raid bar (server-wide) */
+.worldboss-bar {
+  position: absolute;
+  top: 104px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 420px;
+  max-width: 64vw;
+  padding: 7px 14px 9px;
+  background: linear-gradient(180deg, rgba(40, 8, 16, 0.92), rgba(20, 4, 10, 0.92));
+  border: 2px solid #ff5a7a;
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 0 22px rgba(255, 90, 122, 0.5);
+  z-index: 6;
+}
+.wb-title {
+  font-size: 15px;
+  font-weight: 800;
+  letter-spacing: 0.5px;
+  color: #ffd0d8;
+  text-shadow: 0 0 10px rgba(255, 90, 122, 0.8);
+  margin-bottom: 5px;
+}
+.bar.wb-hp {
+  position: relative;
+  height: 16px;
+  background: rgba(0, 0, 0, 0.6);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.bar.wb-hp > i {
+  display: block;
+  height: 100%;
+  width: 100%;
+  background: linear-gradient(180deg, #ff8aa0, #d11a3a);
+  transition: width 0.18s linear;
+}
+.wb-sub {
+  margin-top: 4px;
+  font-size: 11px;
+  color: #e8b8c2;
+}
+
+/* day/night + weather badge */
+.sky-badge {
+  position: absolute;
+  top: 12px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 4px 12px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 14px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #dce8f6;
+  z-index: 5;
+}
+
 /* item icons */
 .iicon {
   display: inline-flex;
@@ -438,6 +498,7 @@ body {
 .rar-rare { --rar: #5aa9ff; }
 .rar-epic { --rar: #c07af0; }
 .rar-legendary { --rar: #ffba3a; }
+.rar-mythic { --rar: #ff5a7a; }
 .inv-cell[class*="rar-"] { border-color: var(--rar); }
 .inv-cell[class*="rar-"] .iname { color: var(--rar); }
 .equip-cell.filled[class*="rar-"] {

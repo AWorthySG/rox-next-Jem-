@@ -51,6 +51,8 @@ export enum MsgType {
   DamageEvent = "damage",
   LevelUp = "levelUp",
   ChatBroadcast = "chatMsg",
+  WorldState = "worldState",
+  BossStatus = "bossStatus",
   Pong = "pong",
 }
 

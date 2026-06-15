@@ -868,6 +868,26 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 160,
     reward: { exp: 540000, zeny: 300000, items: [{ id: "barrage_aegis", qty: 1 }] },
   },
+  fell_the_colossus: {
+    id: "fell_the_colossus",
+    name: "Fell the Colossus",
+    desc: "The Lion City Colossus has risen on The Float. Rally the server and bring it down.",
+    targetTemplate: "lion_city_colossus",
+    targetName: "Lion City Colossus",
+    count: 1,
+    requiredLevel: 150,
+    reward: { exp: 800000, zeny: 400000, items: [{ id: "aegis_of_temasek", qty: 1 }] },
+  },
+  emperor_of_tides: {
+    id: "emperor_of_tides",
+    name: "Emperor of Tides",
+    desc: "The Tide Emperor commands the strait from The Float. Join the raid to slay it.",
+    targetTemplate: "tide_emperor",
+    targetName: "Tide Emperor",
+    count: 1,
+    requiredLevel: 150,
+    reward: { exp: 900000, zeny: 450000, items: [{ id: "tide_emperors_trident", qty: 1 }] },
+  },
 
   // ---- repeatable daily bounties (turn in and re-accept for steady income) ----
   bounty_porings: {

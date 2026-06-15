@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { Element, ELEMENT_COLOR, JobId, MsgType, getSkill, type ServerMessage } from "@rox/shared";
+import { Element, ELEMENT_COLOR, JobId, MsgType, getSkill, isNight, WEATHER_ICON, WEATHER_LABEL, Weather, type ServerMessage } from "@rox/shared";
 import { SceneManager } from "./engine/SceneManager.js";
 import { CameraRig } from "./engine/CameraRig.js";
 import { InputController } from "./engine/InputController.js";
@@ -30,6 +30,7 @@ import { WarpPanel } from "./ui/WarpPanel.js";
 import { AchievementsPanel } from "./ui/AchievementsPanel.js";
 import { SkillPopup } from "./ui/SkillPopup.js";
 import { TargetFrame } from "./ui/TargetFrame.js";
+import { WorldBossBar } from "./ui/WorldBossBar.js";
 import { SkillVfx } from "./ui/SkillVfx.js";
 import { ScreenFx } from "./ui/ScreenFx.js";
 import { LoginPreview } from "./ui/LoginPreview.js";
@@ -52,6 +53,7 @@ const petCompanion = new PetCompanion(scene.scene);
 // Skill bar: casts on the current target (or nearest monster); heals target self.
 const skillPopup = new SkillPopup();
 const targetFrame = new TargetFrame();
+const worldBossBar = new WorldBossBar();
 const sfx = new Sfx();
 const clickMarker = new ClickMarker(scene.scene);
 const novaTelegraph = new NovaTelegraph(scene.scene);
@@ -416,10 +418,26 @@ function handleMessage(msg: ServerMessage): void {
       if (msg.fromId === 0) chat.system(msg.text);
       else chat.add(msg.name, msg.text, msg.fromId === selfId);
       break;
+    case MsgType.WorldState:
+      scene.setEnvironment(msg.timeOfDay, msg.weather);
+      updateSkyBadge(msg.timeOfDay, msg.weather);
+      break;
+    case MsgType.BossStatus:
+      worldBossBar.update(msg);
+      break;
     case MsgType.Pong:
       hud.setLatency(Math.round(performance.now() - msg.clientTime));
       break;
   }
+}
+
+const skyBadge = document.getElementById("sky-badge");
+const skyText = document.getElementById("sky-text");
+function updateSkyBadge(timeOfDay: number, weather: Weather): void {
+  if (!skyBadge || !skyText) return;
+  const phase = isNight(timeOfDay) ? "🌙 Night" : "🌞 Day";
+  skyText.textContent = `${phase} · ${WEATHER_ICON[weather]} ${WEATHER_LABEL[weather]}`;
+  skyBadge.classList.remove("hidden");
 }
 
 function onDamage(msg: Extract<ServerMessage, { t: MsgType.DamageEvent }>): void {

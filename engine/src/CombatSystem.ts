@@ -1,6 +1,7 @@
 import {
   DamageKind,
   Element,
+  environmentMultiplier,
   EXP_SHARE_RANGE,
   getSkill,
   HP_REGEN_PER_SEC,
@@ -157,6 +158,7 @@ export class CombatSystem {
       for (const tick of ticks) {
         if (tick.amount <= 0) continue;
         m.hp -= tick.amount;
+        m.recordDamage(tick.sourceId, tick.amount);
         this.world.broadcastToMap(m.mapId, {
           t: MsgType.DamageEvent,
           sourceId: tick.sourceId,
@@ -264,7 +266,9 @@ export class CombatSystem {
 
   private applySkillHit(p: Player, target: Monster, def: SkillDef, lvl: number): void {
     const buffMul = p.buffMul(def.kind === DamageKind.Magic ? "matk" : "atk", Date.now());
-    const result = resolveAttack(p.derived, target.derived, def.kind, Math.random, skillPower(def, lvl) * buffMul, {
+    // Day/night + weather amplify or dampen the skill's element (e.g. Water in rain).
+    const envMul = environmentMultiplier(def.element ?? Element.Neutral, this.world.timeOfDay, this.world.weather);
+    const result = resolveAttack(p.derived, target.derived, def.kind, Math.random, skillPower(def, lvl) * buffMul * envMul, {
       attack: def.element ?? Element.Neutral,
       defense: target.element,
     });
@@ -281,6 +285,7 @@ export class CombatSystem {
     });
     if (result.miss) return;
     target.hp -= result.amount;
+    target.recordDamage(p.id, result.amount);
     if (target.aiState !== MonsterAIState.Attack) {
       target.aggroTargetId = p.id;
       target.aiState = MonsterAIState.Aggro;
@@ -351,6 +356,7 @@ export class CombatSystem {
     if (result.miss) return;
 
     target.hp -= result.amount;
+    target.recordDamage(p.id, result.amount);
     if (target.aiState !== MonsterAIState.Attack) {
       target.aggroTargetId = p.id;
       target.aiState = MonsterAIState.Aggro;
@@ -405,12 +411,22 @@ export class CombatSystem {
     target.aiState = MonsterAIState.Dead;
     target.aggroTargetId = null;
     target.clearStatuses();
+    target.damageByPlayer.clear();
     target.respawnAt = Date.now() + (target.template.respawnMs ?? RESPAWN_MS);
     this.world.broadcastToMap(target.mapId, { t: MsgType.Despawn, id: target.id });
   }
 
   private killMonster(target: Monster, killer: Player): void {
+    // Snapshot the damage tally before slay() clears it (shared-HP world bosses).
+    const contributors = [...target.damageByPlayer.entries()].sort((a, b) => b[1] - a[1]);
     this.slay(target);
+
+    // Shared-HP world boss: split rewards across everyone who landed a hit.
+    if (target.template.worldBoss) {
+      this.rewardWorldBoss(target, contributors, killer);
+      this.clearKillTargets(target);
+      return;
+    }
 
     // World-wide MVP announcement (the classic "an MVP has fallen" broadcast).
     if (target.template.boss) {
@@ -474,9 +490,73 @@ export class CombatSystem {
       }
     }
 
+    this.clearKillTargets(target);
+  }
+
+  private clearKillTargets(target: Monster): void {
     for (const p of this.world.players.values()) {
       if (p.attackTargetId === target.id) p.attackTargetId = null;
       if (p.pendingSkillTargetId === target.id) this.clearSkill(p);
+    }
+  }
+
+  // Distribute a world boss's rewards across every contributor by damage share
+  // (with a floor so tag-alongs still earn), and shout a server-wide victory.
+  private rewardWorldBoss(target: Monster, contributors: Array<[number, number]>, killer: Player): void {
+    const tmpl = target.template;
+    const mapName = MAPS[target.mapId]?.name ?? target.mapId;
+    const topId = contributors[0]?.[0];
+    const topName = (topId != null ? this.world.players.get(topId)?.name : undefined) ?? killer.name;
+
+    // Empty the client-side world-boss bar, then shout the kill to everyone.
+    this.world.broadcast({
+      t: MsgType.BossStatus,
+      bossId: target.id,
+      name: tmpl.name,
+      hp: 0,
+      maxHp: target.derived.maxHp,
+      mapName,
+      defeatedBy: topName,
+    });
+    this.world.broadcast({
+      t: MsgType.ChatBroadcast,
+      fromId: 0,
+      name: "World",
+      text: `🐉 The world boss ${tmpl.name} has fallen! Top damage: ${topName}.`,
+    });
+
+    const totalDmg = contributors.reduce((s, [, d]) => s + d, 0) || 1;
+    for (const [pid, dmg] of contributors) {
+      const r = this.world.players.get(pid);
+      if (!r) continue;
+      const share = Math.max(0.05, dmg / totalDmg);
+      const exp = Math.max(1, Math.round(tmpl.baseExp * share));
+      const zeny = Math.max(1, Math.round((ZENY_MIN + ZENY_MAX) * 12 * share));
+      r.zeny += zeny;
+      const drops = rollDrops(tmpl.id); // every contributor rolls the loot table
+      for (const d of drops) r.addItem(d.id, d.qty);
+      this.world.connections.get(r.connId)?.send({ t: MsgType.Loot, items: drops, zeny });
+      r.creditKill(tmpl.id);
+      r.recordKill(tmpl.id, true);
+      if (r.gainExp(exp)) {
+        this.world.broadcast({
+          t: MsgType.LevelUp,
+          id: r.id,
+          newLevel: r.level,
+          maxHp: r.derived.maxHp,
+          maxSp: r.derived.maxSp,
+          stats: { ...r.stats },
+          expToNext: r.toSelfState().expToNext,
+        });
+      }
+      for (const a of r.evaluateAchievements()) {
+        this.world.connections.get(r.connId)?.send({
+          t: MsgType.ChatBroadcast,
+          fromId: 0,
+          name: "Achievement",
+          text: `${a.name} unlocked! +${a.rewardZeny} Zeny`,
+        });
+      }
     }
   }
 

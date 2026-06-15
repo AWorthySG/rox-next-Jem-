@@ -443,6 +443,26 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
       { name: "Marina Bay Exit", role: "portal", x: 0, z: 24, dest: { toMap: "gardens_bay", toX: 18, toZ: 16 } },
       { name: "Orchard Road Portal", role: "portal", x: 0, z: -50, dest: { toMap: "orchard_road", toX: 0, toZ: 18 } },
+      { name: "The Float Portal", role: "portal", x: -18, z: 14, dest: { toMap: "the_float", toX: 0, toZ: 18 } },
+    ],
+  },
+  the_float: {
+    id: "the_float",
+    name: "The Float @ Marina Bay",
+    theme: { ground: 0x2a4a6a, fog: 0x4a7aa0, sky: 0x88b8e0 },
+    spawn: { x: 0, z: 22 },
+    zones: [
+      { id: "tf-surge", templateId: "surge_elemental", cx: -24, cz: 4, radius: 14, count: 6 },
+      { id: "tf-wraith", templateId: "spillway_wraith", cx: 24, cz: 4, radius: 14, count: 6 },
+      { id: "tf-colossus", templateId: "lion_city_colossus", cx: -28, cz: -40, radius: 3, count: 1 },
+      { id: "tf-tide", templateId: "tide_emperor", cx: 28, cz: -40, radius: 3, count: 1 },
+    ],
+    npcs: [
+      { name: "Kafra Employee", role: "shop", x: 8, z: 26, facing: Math.PI },
+      { name: "Healer", role: "healer", x: 12, z: 26, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 26, facing: Math.PI },
+      { name: "Blacksmith", role: "refine", x: -12, z: 26, facing: Math.PI },
+      { name: "The Float Exit", role: "portal", x: 0, z: 28, dest: { toMap: "marina_bay", toX: -18, toZ: 10 } },
     ],
   },
   orchard_road: {

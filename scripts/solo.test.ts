@@ -6,12 +6,20 @@ import {
   DamageKind,
   Element,
   elementMultiplier,
+  environmentMultiplier,
+  daylight,
+  isNight,
+  rollWeather,
+  Weather,
   getItem,
   JobId,
   MsgType,
+  rarityOf,
   refineMaterial,
   resolveAttack,
   StatusType,
+  tierOf,
+  TIER_NAME,
   LEVEL_CAP,
   xpToNext,
   type DerivedStats,
@@ -432,6 +440,41 @@ async function main(): Promise<void> {
   check(rider.useItem("peco_whistle") && rider.mounted, "mount: whistle mounts the rider");
   check((rider.inventory["peco_whistle"] ?? 0) === 1, "mount: whistle is reusable (not consumed)");
   check(rider.useItem("peco_whistle") && !rider.mounted, "mount: whistle toggles dismount");
+
+  // ---- day/night + weather environment ----
+  check(daylight(0.5) > 0.9, "env: noon is bright");
+  check(daylight(0.0) < 0.1, "env: midnight is dark");
+  check(isNight(0.95) && isNight(0.1) && !isNight(0.5), "env: night before dawn / after dusk");
+  check(environmentMultiplier(Element.Shadow, 0.0, Weather.Clear) > 1, "env: Shadow amplified at night");
+  check(environmentMultiplier(Element.Holy, 0.5, Weather.Clear) > 1, "env: Holy amplified by day");
+  check(
+    environmentMultiplier(Element.Water, 0.5, Weather.Rain) > environmentMultiplier(Element.Water, 0.5, Weather.Clear),
+    "env: Water surges in the rain",
+  );
+  check(environmentMultiplier(Element.Fire, 0.5, Weather.Storm) < 1, "env: Fire dampened in a storm");
+  check(environmentMultiplier(Element.Neutral, 0.5, Weather.Clear) === 1, "env: Neutral unaffected on a clear day");
+  check(rollWeather(() => 0) === Weather.Clear, "env: rollWeather is deterministic (Clear at r=0)");
+
+  // ---- world bosses (shared HP + contribution tracking) ----
+  const wbT = MONSTER_TEMPLATES["lion_city_colossus"];
+  check(!!wbT?.worldBoss && !!wbT?.boss, "worldboss: Colossus flagged worldBoss + boss");
+  check((wbT?.baseHp ?? 0) >= 500000, "worldboss: huge shared HP pool");
+  check(!!MONSTER_TEMPLATES["tide_emperor"]?.worldBoss, "worldboss: Tide Emperor is a world boss");
+  check(!!MAPS["the_float"], "worldboss: The Float raid map exists");
+  const raidBoss = new Monster(4242, MONSTER_TEMPLATES["lion_city_colossus"], "z", "the_float", 0, 0);
+  raidBoss.recordDamage(1, 500);
+  raidBoss.recordDamage(2, 300);
+  raidBoss.recordDamage(1, 200);
+  check(
+    raidBoss.damageByPlayer.get(1) === 700 && raidBoss.damageByPlayer.get(2) === 300,
+    "worldboss: per-player damage tallied for shared HP",
+  );
+
+  // ---- mythic equipment tier ----
+  check(tierOf(getItem("aegis_of_temasek")!) === 6, "tier: mythic weapon is tier 6");
+  check(rarityOf(getItem("mythic_warplate")!) === "mythic", "tier: mythic armor rarity");
+  check(TIER_NAME[6] === "Mythic", "tier: tier 6 is named Mythic");
+  check(tierOf(getItem("red_potion")!) >= 1, "tier: items resolve to a valid tier");
 
   local.stop();
   if (failures.length) {

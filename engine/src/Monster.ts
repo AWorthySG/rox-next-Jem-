@@ -70,9 +70,17 @@ export class Monster {
   summonerId: number | null = null;
   temporary = false; // summoned add: removed on death rather than respawning
   pendingNova: { x: number; z: number; radius: number; powerMult: number; fireAt: number } | null = null;
+  // Per-player damage tally for shared-HP world bosses (cleared on death/respawn).
+  damageByPlayer = new Map<number, number>();
 
   get isDead(): boolean {
     return this.aiState === MonsterAIState.Dead;
+  }
+
+  // Tally damage dealt by a player toward this monster (drives world-boss rewards).
+  recordDamage(playerId: number, amount: number): void {
+    if (amount <= 0) return;
+    this.damageByPlayer.set(playerId, (this.damageByPlayer.get(playerId) ?? 0) + amount);
   }
 
   addStatus(type: StatusType, durationMs: number, sourceId: number, now: number, magnitude = 0): void {

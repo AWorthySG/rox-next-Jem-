@@ -1,4 +1,4 @@
-import { EntityKind, MAP_HALF, MsgType, type ServerMessage } from "@rox/shared";
+import { EntityKind, MAP_HALF, MsgType, Weather, type ServerMessage, type WorldStateMsg } from "@rox/shared";
 import type { ClientLink } from "./ClientLink.js";
 import { Player } from "./Player.js";
 import { Monster } from "./Monster.js";
@@ -20,6 +20,10 @@ export class World {
   readonly guild = new GuildSystem(this);
   readonly mapIds = Object.keys(MAPS);
   private nextEntityId = 1;
+
+  // Global sky state, advanced by TimeWeatherSystem each tick.
+  timeOfDay = 0.35; // start mid-morning
+  weather: Weather = Weather.Clear;
 
   constructor() {
     this.initWorld();
@@ -106,6 +110,10 @@ export class World {
 
   // ---- messaging ----
 
+  worldStateMsg(): WorldStateMsg {
+    return { t: MsgType.WorldState, timeOfDay: this.timeOfDay, weather: this.weather };
+  }
+
   // Send to every connected client (rarely needed; prefer broadcastToMap).
   broadcast(msg: ServerMessage): void {
     for (const link of this.connections.values()) link.send(msg);
@@ -146,6 +154,7 @@ export class World {
       x: player.x,
       z: player.z,
     });
+    conn.send(this.worldStateMsg());
     this.spawnAllFor(conn);
   }
 
