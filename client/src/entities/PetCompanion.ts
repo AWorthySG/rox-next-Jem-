@@ -9,6 +9,7 @@ export class PetCompanion {
   private petId: string | null = null;
   private phase = 0;
   private tex = makePoringTexture();
+  private scratch = new THREE.Vector3();
 
   constructor(private scene: THREE.Scene) {
     this.group.visible = false;
@@ -34,9 +35,10 @@ export class PetCompanion {
   update(selfPos: THREE.Vector3 | null, dt: number): void {
     if (!this.petId || !selfPos) return;
     this.phase += dt * 4;
-    // trail slightly behind-left of the player with a gentle bob
-    const target = new THREE.Vector3(selfPos.x - 1.3, 0, selfPos.z - 1.3);
-    this.group.position.lerp(target, Math.min(1, dt * 4));
+    // trail slightly behind-left of the player with a gentle bob (framerate-
+    // independent easing, reused scratch vector)
+    this.scratch.set(selfPos.x - 1.3, 0, selfPos.z - 1.3);
+    this.group.position.lerp(this.scratch, 1 - Math.exp(-4 * dt));
     this.group.position.y = Math.abs(Math.sin(this.phase)) * 0.15;
   }
 }
