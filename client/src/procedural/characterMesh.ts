@@ -10,6 +10,7 @@ export interface CharacterMesh {
   rightLeg: THREE.Object3D;
   head: THREE.Object3D;
   headgear: THREE.Object3D | null; // currently-worn hat mesh, if any
+  cape: THREE.Object3D | null; // swordsman cape pivot (sways with movement), if any
 }
 
 const OUTLINE_MAT = new THREE.MeshBasicMaterial({ color: 0x171019, side: THREE.BackSide });
@@ -38,6 +39,7 @@ export function buildCharacter(
   weapon: WeaponStyle = magic ? "staff" : "blade",
 ): CharacterMesh {
   const group = new THREE.Group();
+  let cape: THREE.Object3D | null = null;
 
   const hue = (colorSeed % 360) / 360;
   const skin = toon(0xf1c9a5);
@@ -122,6 +124,17 @@ export function buildCharacter(
       pad.scale.y = 0.7;
       group.add(pad);
     }
+    // a flowing cape (pivots from the shoulders so it can sway)
+    const capePivot = new THREE.Object3D();
+    capePivot.position.set(0, 1.52, -0.18);
+    const capeMesh = new THREE.Mesh(
+      new THREE.PlaneGeometry(0.62, 0.95, 1, 3),
+      new THREE.MeshToonMaterial({ color: new THREE.Color().setHSL(hue, 0.62, 0.38), gradientMap: makeToonGradient(), side: THREE.DoubleSide }),
+    );
+    capeMesh.position.y = -0.46;
+    capePivot.add(capeMesh);
+    group.add(capePivot);
+    cape = capePivot;
   }
 
   // class weapon — a distinct silhouette per archetype
@@ -172,7 +185,7 @@ export function buildCharacter(
     if (o instanceof THREE.Mesh && o.material !== OUTLINE_MAT) o.castShadow = true;
   });
 
-  return { group, leftArm, rightArm, leftLeg, rightLeg, head, headgear: null };
+  return { group, leftArm, rightArm, leftLeg, rightLeg, head, headgear: null, cape };
 }
 
 function limb(
