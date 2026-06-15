@@ -151,22 +151,37 @@ export function buildScenery(mapId: string): Scenery {
     addTrees(group, theme, placements, track);
   }
 
-  // ---- rocks (instanced icosahedra) ----
+  // ---- rocks (instanced icosahedra), with mossy caps on lush maps ----
   if (theme.rocks > 0) {
+    const rockPlace: Array<{ x: number; z: number; s: number; sy: number; q: THREE.Quaternion }> = [];
+    scatter(rng, theme.rocks, (x, z, s) => {
+      const q = new THREE.Quaternion().setFromEuler(new THREE.Euler(rng(), rng() * Math.PI * 2, rng()));
+      rockPlace.push({ x, z, s, sy: s * (0.6 + rng() * 0.5), q });
+    });
     const [rg, rm] = track(new THREE.IcosahedronGeometry(0.7, 0), new THREE.MeshStandardMaterial({ color: theme.rock, roughness: 1, flatShading: true }));
-    const rocks = new THREE.InstancedMesh(rg, rm, theme.rocks);
+    const rocks = new THREE.InstancedMesh(rg, rm, rockPlace.length);
     rocks.castShadow = true;
     rocks.receiveShadow = true;
-    let i = 0;
     const m = new THREE.Matrix4();
-    const q = new THREE.Quaternion();
-    scatter(rng, theme.rocks, (x, z, s) => {
-      q.setFromEuler(new THREE.Euler(rng(), rng() * Math.PI * 2, rng()));
-      m.compose(new THREE.Vector3(x, 0.25 * s, z), q, new THREE.Vector3(s, s * (0.6 + rng() * 0.5), s));
-      rocks.setMatrixAt(i++, m);
+    rockPlace.forEach((p, i) => {
+      m.compose(new THREE.Vector3(p.x, 0.25 * p.s, p.z), p.q, new THREE.Vector3(p.s, p.sy, p.s));
+      rocks.setMatrixAt(i, m);
     });
-    rocks.count = i;
     group.add(rocks);
+
+    // moss caps: a flattened, foliage-tinted shell atop each rock on lush maps
+    const mossy = theme.tree === "leafy" || theme.tree === "jungle" || theme.tree === "pine" || theme.tree === "palm";
+    if (mossy) {
+      const mossColor = new THREE.Color(theme.foliage[0]).multiplyScalar(0.72);
+      const [mg, mm] = track(new THREE.IcosahedronGeometry(0.7, 0), new THREE.MeshStandardMaterial({ color: mossColor, roughness: 1, flatShading: true }));
+      const moss = new THREE.InstancedMesh(mg, mm, rockPlace.length);
+      moss.receiveShadow = true;
+      rockPlace.forEach((p, i) => {
+        m.compose(new THREE.Vector3(p.x, 0.25 * p.s + p.sy * 0.34, p.z), p.q, new THREE.Vector3(p.s * 0.86, p.sy * 0.5, p.s * 0.86));
+        moss.setMatrixAt(i, m);
+      });
+      group.add(moss);
+    }
   }
 
   // ---- grass tufts / flowers (instanced little cones) ----
