@@ -113,6 +113,9 @@ export class PlayerView extends EntityView {
     }
     // ---- local prediction for the controlled player ----
     if (this.predTarget) {
+      // Advance toward the click target at the authoritative speed. We trust the
+      // prediction and let the server simply trail by ~latency — no constant pull
+      // toward the late snapshot, which is what caused end-of-move rubber-banding.
       const dx = this.predTarget.x - this.px;
       const dz = this.predTarget.z - this.pz;
       const dist = Math.hypot(dx, dz);
@@ -126,22 +129,37 @@ export class PlayerView extends EntityView {
         this.px += (dx / dist) * step;
         this.pz += (dz / dist) * step;
       }
-      // gentle correction toward server truth
-      this.px += (this.serverX - this.px) * 0.03;
-      this.pz += (this.serverZ - this.pz) * 0.03;
     } else {
-      // No local order: follow the server (idle, knockback, attack-chase).
-      const k = Math.min(1, dt * 10);
-      this.px += (this.serverX - this.px) * k;
-      this.pz += (this.serverZ - this.pz) * k;
+      // No local order: ease toward server truth (idle, knockback, attack-chase),
+      // framerate-independent so it feels identical at any refresh rate.
+      const a = 1 - Math.exp(-12 * dt);
+      this.px += (this.serverX - this.px) * a;
+      this.pz += (this.serverZ - this.pz) * a;
       this.pfacing = this.serverFacing;
+    }
+
+    // Reconcile only on a genuine mis-prediction (a blocked/clamped move, a
+    // knockback, or a teleport/respawn). During normal predicted movement the
+    // discrepancy is just ~latency, so we leave prediction untouched.
+    const ex = this.serverX - this.px;
+    const ez = this.serverZ - this.pz;
+    const err2 = ex * ex + ez * ez;
+    if (err2 > HARD_SNAP * HARD_SNAP) {
+      // teleport / respawn / large desync: snap and drop any stale order
+      this.px = this.serverX;
+      this.pz = this.serverZ;
+      this.predTarget = null;
+    } else if (err2 > SOFT_RECONCILE * SOFT_RECONCILE) {
+      const a = 1 - Math.exp(-10 * dt);
+      this.px += ex * a;
+      this.pz += ez * a;
     }
 
     this.detectMovement(this.px, this.pz);
     this.group.position.x = this.px;
     this.group.position.z = this.pz;
-    // smooth (shortest-path) turn toward the intended facing
-    this.group.rotation.y = lerpAngle(this.group.rotation.y, this.pfacing, Math.min(1, dt * 12));
+    // smooth (shortest-path) turn toward the intended facing, framerate-independent
+    this.group.rotation.y = lerpAngle(this.group.rotation.y, this.pfacing, 1 - Math.exp(-12 * dt));
     this.animate(dt);
   }
 
@@ -183,6 +201,11 @@ export class PlayerView extends EntityView {
     }
   }
 }
+
+// Self-reconciliation thresholds (world units): below SOFT we fully trust local
+// prediction; above SOFT we ease toward the server; above HARD we snap.
+const SOFT_RECONCILE = 2.5;
+const HARD_SNAP = 8;
 
 // Interpolate an angle (radians) toward a target along the shortest arc.
 function lerpAngle(from: number, to: number, t: number): number {
