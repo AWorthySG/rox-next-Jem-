@@ -27,3 +27,6 @@ jobs:
 
       - name: Solo-engine (in-browser path) test
         run: npm run test:solo
+
+      - name: Model loader runtime test
+        run: npm run test:model
