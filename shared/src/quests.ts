@@ -888,6 +888,26 @@ export const QUESTS: Record<string, Quest> = {
     requiredLevel: 150,
     reward: { exp: 900000, zeny: 450000, items: [{ id: "tide_emperors_trident", qty: 1 }] },
   },
+  the_henderson_sentinel: {
+    id: "the_henderson_sentinel",
+    name: "The Henderson Sentinel",
+    desc: "The Henderson Waves bridge has woken as a sentinel. Calm the Southern Ridges.",
+    targetTemplate: "henderson_sentinel",
+    targetName: "Henderson Sentinel",
+    count: 1,
+    requiredLevel: 68,
+    reward: { exp: 42000, zeny: 25000, items: [{ id: "ridge_cloak", qty: 1 }] },
+  },
+  king_of_the_canopy_ridge: {
+    id: "king_of_the_canopy_ridge",
+    name: "King of the Canopy",
+    desc: "The Canopy Warlord rules the Southern Ridges treetops. Topple the troop's leader.",
+    targetTemplate: "canopy_warlord",
+    targetName: "Canopy Warlord",
+    count: 1,
+    requiredLevel: 70,
+    reward: { exp: 46000, zeny: 27000, items: [{ id: "canopy_bow", qty: 1 }] },
+  },
 
   // ---- repeatable daily bounties (turn in and re-accept for steady income) ----
   bounty_porings: {

@@ -27,6 +27,7 @@ export class ExchangePanel {
     document.getElementById("exchange-close")!.addEventListener("click", () => this.close());
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && this.isOpen) this.close();
+      if ((e.key === "m" || e.key === "M") && !isTyping()) this.toggle();
     });
   }
 
@@ -36,6 +37,11 @@ export class ExchangePanel {
 
   setSelfId(id: number): void {
     this.selfId = id;
+  }
+
+  toggle(): void {
+    if (this.isOpen) this.close();
+    else this.open();
   }
 
   open(): void {
@@ -197,4 +203,10 @@ function emptyRow(text: string): HTMLDivElement {
 function clampInt(raw: string, min: number, max: number): number {
   const n = Math.floor(Number(raw) || min);
   return Math.min(max, Math.max(min, n));
+}
+
+// Don't steal hotkeys while the player is typing in chat or an input field.
+function isTyping(): boolean {
+  const el = document.activeElement;
+  return !!el && (el.tagName === "INPUT" || el.tagName === "TEXTAREA" || el.tagName === "SELECT");
 }

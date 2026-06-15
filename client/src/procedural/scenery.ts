@@ -111,6 +111,7 @@ const THEMES: Record<string, Partial<Theme>> = {
   pasir_ris: { trunk: 0x8a6b3a, foliage: [0x5fc04a, 0x8ad060], rock: 0xc0b088, tree: "palm", trees: 52, rocks: 22, tufts: 110, tuft: 0x6fc05f },
   marina_barrage: { trunk: 0x3a3a4a, foliage: [0x4a7a9a, 0x6aa0c0], rock: 0x4a5a6a, tree: "crystal", trees: 30, rocks: 44, tufts: 50, tuft: 0x5a90b0 },
   the_float: { trunk: 0x2a3a4a, foliage: [0x3a6a9a, 0x5a90c0], rock: 0x3a4a5a, tree: "crystal", trees: 18, rocks: 36, tufts: 30, tuft: 0x4a80b0 },
+  southern_ridges: { trunk: 0x5a4a30, foliage: [0x3a8a3a, 0x5faa4f], rock: 0x6a7a5a, tree: "leafy", trees: 84, rocks: 30, tufts: 130, tuft: 0x4a9a3f },
   arena: { trees: 0, rocks: 10, tufts: 30 },
 };
 

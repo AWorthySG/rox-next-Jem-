@@ -126,26 +126,31 @@ async function main() {
   check((a.guild?.members?.length ?? 0) === 2, "guild master sees 2 members");
   check((b.guild?.members?.length ?? 0) === 2, "joiner sees 2-member guild");
 
-  // Exchange Centre: Alice farms until she holds a stackable drop, lists it;
-  // Bob earns some Zeny then buys it.
-  for (let i = 0; i < 60 && (a.lastSelf?.inventory?.length ?? 0) === 0; i++) {
+  // Exchange Centre: Alice farms enough Zeny to buy a potion from the shop
+  // (deterministic — every kill yields Zeny), lists it; Bob earns Zeny and buys it.
+  for (let i = 0; i < 90 && (a.lastSelf?.zeny ?? 0) < 60; i++) {
     const live = [...a.monsters.values()][0];
     if (live) {
       a.ws.send(JSON.stringify({ t: "move", x: live.x, z: live.z }));
       a.ws.send(JSON.stringify({ t: "attack", targetId: live.id }));
+      if (i % 4 === 0) a.ws.send(JSON.stringify({ t: "skill", skillId: "bash", targetId: live.id }));
     }
     await wait(200);
   }
-  const sellEntry = a.lastSelf.inventory.find((e) => e.qty >= 1);
-  check(sellEntry != null, "exchange: seller has a looted item to list");
-  for (let i = 0; i < 40 && (b.lastSelf?.zeny ?? 0) <= 0; i++) {
+  a.ws.send(JSON.stringify({ t: "buyItem", itemId: "red_potion", qty: 1 }));
+  await wait(400);
+  const sellEntry = a.lastSelf.inventory.find((e) => e.id === "red_potion" && e.qty >= 1);
+  check(sellEntry != null, "exchange: seller has an item to list");
+  for (let i = 0; i < 80 && (b.lastSelf?.zeny ?? 0) <= 0; i++) {
     const live = [...b.monsters.values()][0];
     if (live) {
       b.ws.send(JSON.stringify({ t: "move", x: live.x, z: live.z }));
       b.ws.send(JSON.stringify({ t: "attack", targetId: live.id }));
+      if (i % 4 === 0) b.ws.send(JSON.stringify({ t: "skill", skillId: "fire_bolt", targetId: live.id }));
     }
     await wait(200);
   }
+  check((b.lastSelf?.zeny ?? 0) > 0, "exchange: buyer earned Zeny to spend");
   if (sellEntry) {
     const bobHad = b.lastSelf?.inventory?.find((e) => e.id === sellEntry.id)?.qty ?? 0;
     a.ws.send(JSON.stringify({ t: "exchangeList", itemId: sellEntry.id, qty: 1, unitPrice: 1 }));

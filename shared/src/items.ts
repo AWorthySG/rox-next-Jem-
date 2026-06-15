@@ -574,6 +574,20 @@ export const ITEMS: Record<string, ItemDef> = {
     desc: "A light family-park jersey. DEF +8, Max HP +70, VIT +2.", def: 8, maxHp: 70, bonusStats: { vit: 2 }, sellPrice: 700,
   },
 
+  // ---- Southern Ridges (Singapore) gear ----
+  canopy_bow: {
+    id: "canopy_bow", name: "Canopy Bow", type: ItemType.Weapon, slot: EquipSlot.Weapon,
+    desc: "A longbow cut from ridge timber. ATK +58, DEX +5, AGI +3.", atk: 58, bonusStats: { dex: 5, agi: 3 }, sellPrice: 2900,
+  },
+  ridge_cloak: {
+    id: "ridge_cloak", name: "Ridge Cloak", type: ItemType.Armor, slot: EquipSlot.Armor,
+    desc: "A canopy-walker's cloak. DEF +23, Max HP +210, AGI +5.", def: 23, maxHp: 210, bonusStats: { agi: 5 }, sellPrice: 2900,
+  },
+  civet_charm: {
+    id: "civet_charm", name: "Civet Charm", type: ItemType.Accessory, slot: EquipSlot.Accessory,
+    desc: "A nocturnal civet talisman. LUK +5, DEX +4, Max SP +30.", maxSp: 30, bonusStats: { luk: 5, dex: 4 }, sellPrice: 2900,
+  },
+
   // ---- Marina Barrage (Singapore) gear ----
   tempest_glaive: {
     id: "tempest_glaive", name: "Tempest Glaive", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1584,6 +1598,12 @@ Object.assign(DROP_TABLES, {
   kite_wisp: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "kite_runner_cap", chance: 0.03 }],
   mangrove_monitor: HI([{ itemId: "park_jersey", chance: 0.6 }, { itemId: "kite_runner_cap", chance: 0.5 }, { itemId: "beachcomber_spade", chance: 0.4 }]),
   hedge_maze_golem: HI([{ itemId: "beachcomber_spade", chance: 0.6 }, { itemId: "park_jersey", chance: 0.45 }, { itemId: "poring_card", chance: 0.05 }]),
+  // Southern Ridges (Singapore)
+  ridge_drongo: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "canopy_bow", chance: 0.03 }],
+  fern_sprite: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "ridge_cloak", chance: 0.03 }],
+  civet_cat: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "civet_charm", chance: 0.03 }],
+  henderson_sentinel: HI([{ itemId: "ridge_cloak", chance: 0.6 }, { itemId: "civet_charm", chance: 0.5 }, { itemId: "canopy_bow", chance: 0.4 }]),
+  canopy_warlord: HI([{ itemId: "canopy_bow", chance: 0.6 }, { itemId: "ridge_cloak", chance: 0.45 }, { itemId: "poring_card", chance: 0.05 }]),
   // Marina Barrage (Singapore)
   turbine_sentinel: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "barrage_aegis", chance: 0.03 }],
   spillway_wraith: [{ itemId: "red_potion", chance: 0.4 }, { itemId: "storm_diadem", chance: 0.03 }],
@@ -1822,6 +1842,7 @@ const ORE_REGULARS = [
   "kelong_crab", "lalang_sprite", "waterway_egret",
   "sandcastle_crab", "park_squirrel", "kite_wisp",
   "turbine_sentinel", "spillway_wraith", "surge_elemental",
+  "ridge_drongo", "fern_sprite", "civet_cat",
 ];
 for (const id of ORE_REGULARS) {
   const t = DROP_TABLES[id];
@@ -1864,6 +1885,7 @@ const ORE_BOSSES = [
   "mangrove_monitor", "hedge_maze_golem",
   "barrage_leviathan", "tempest_dragon",
   "lion_city_colossus", "tide_emperor",
+  "henderson_sentinel", "canopy_warlord",
 ];
 for (const id of ORE_BOSSES) {
   const t = DROP_TABLES[id];

@@ -632,6 +632,12 @@ Object.assign(MONSTER_TEMPLATES, {
       { kind: "heal", intervalMs: 12000, pct: 0.05 },
     ],
   },
+  // ---- Southern Ridges (Singapore) ----
+  ridge_drongo: mk("ridge_drongo", "Ridge Drongo", 58, 3400, 7000),
+  fern_sprite: mk("fern_sprite", "Fern Sprite", 60, 3600, 7400),
+  civet_cat: mk("civet_cat", "Civet Cat", 62, 3800, 7800),
+  henderson_sentinel: mk("henderson_sentinel", "Henderson Sentinel", 68, 19000, 31000, true),
+  canopy_warlord: mk("canopy_warlord", "Canopy Warlord", 70, 21000, 34000, true),
 });
 
 export interface SpawnZone {
@@ -1186,6 +1192,14 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "nova", intervalMs: 4600, radius: 14, powerMult: 2.1 },
     { kind: "heal", intervalMs: 11000, pct: 0.06 },
   ],
+  henderson_sentinel: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.6 },
+    { kind: "nova", intervalMs: 5600, radius: 11, powerMult: 1.6 },
+  ],
+  canopy_warlord: [
+    { kind: "summon", intervalMs: 8500, templateId: "civet_cat", count: 2, max: 5 },
+    { kind: "heal", intervalMs: 10000, pct: 0.06 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -1504,6 +1518,11 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   kite_wisp: Element.Wind,
   mangrove_monitor: Element.Earth,
   hedge_maze_golem: Element.Earth,
+  ridge_drongo: Element.Wind,
+  fern_sprite: Element.Earth,
+  civet_cat: Element.Shadow,
+  henderson_sentinel: Element.Earth,
+  canopy_warlord: Element.Wind,
   turbine_sentinel: Element.Wind,
   spillway_wraith: Element.Water,
   surge_elemental: Element.Water,

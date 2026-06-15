@@ -764,6 +764,23 @@ body {
   border-color: #4cae3e;
   box-shadow: 0 0 16px rgba(120, 230, 140, 0.5);
 }
+.market-btn {
+  position: absolute;
+  bottom: 24px;
+  right: 404px;
+  padding: 9px 16px;
+  font-weight: 700;
+  font-size: 13px;
+  color: #f3eede;
+  background: var(--panel);
+  border: 2px solid var(--gold);
+  border-radius: 10px;
+  cursor: pointer;
+  pointer-events: auto;
+}
+.market-btn:hover {
+  box-shadow: 0 0 14px rgba(255, 200, 110, 0.45);
+}
 
 /* ---- skill cluster (bottom-right, ROX mobile style) ---- */
 .skillbar {

@@ -189,6 +189,7 @@ const exchange = new ExchangePanel({
   onBuy: (listingId, qty) => transport?.send({ t: MsgType.ExchangeBuy, listingId, qty }),
   onCancel: (listingId) => transport?.send({ t: MsgType.ExchangeCancel, listingId }),
 });
+document.getElementById("exchange-btn")!.addEventListener("click", () => exchange.toggle());
 
 const bestiary = new BestiaryPanel(gameState);
 

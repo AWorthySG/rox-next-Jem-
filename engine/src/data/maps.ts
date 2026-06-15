@@ -350,6 +350,25 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
       { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
       { name: "Labrador Park Exit", role: "portal", x: 0, z: 24, dest: { toMap: "mount_faber", toX: 0, toZ: -44 } },
+      { name: "Southern Ridges Portal", role: "portal", x: 0, z: -50, dest: { toMap: "southern_ridges", toX: 0, toZ: 18 } },
+    ],
+  },
+  southern_ridges: {
+    id: "southern_ridges",
+    name: "Southern Ridges",
+    theme: { ground: 0x3a6a3a, fog: 0x7aae6a, sky: 0xa8d088 },
+    spawn: { x: 0, z: 18 },
+    zones: [
+      { id: "sr-drongo", templateId: "ridge_drongo", cx: -22, cz: 2, radius: 14, count: 8 },
+      { id: "sr-fern", templateId: "fern_sprite", cx: 22, cz: -2, radius: 14, count: 8 },
+      { id: "sr-civet", templateId: "civet_cat", cx: -2, cz: -28, radius: 12, count: 7 },
+      { id: "sr-sentinel", templateId: "henderson_sentinel", cx: 34, cz: -40, radius: 4, count: 1 },
+      { id: "sr-warlord", templateId: "canopy_warlord", cx: -34, cz: -40, radius: 4, count: 1 },
+    ],
+    npcs: [
+      { name: "Healer", role: "healer", x: 8, z: 22, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 22, facing: Math.PI },
+      { name: "Southern Ridges Exit", role: "portal", x: 0, z: 24, dest: { toMap: "labrador_park", toX: 0, toZ: -44 } },
     ],
   },
   coney_island: {
