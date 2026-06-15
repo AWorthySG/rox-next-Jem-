@@ -184,6 +184,17 @@ body {
   20% { opacity: 1; }
   100% { opacity: 0; }
 }
+.screen-fade {
+  background: #05070d;
+  z-index: 48; /* above other fx, below modal panels */
+}
+.screen-fade.flash {
+  animation: fx-mapfade 0.5s ease-out;
+}
+@keyframes fx-mapfade {
+  0% { opacity: 1; }
+  100% { opacity: 0; }
+}
 
 /* ---- Login overlay ---- */
 .overlay {
