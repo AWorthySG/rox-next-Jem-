@@ -11,6 +11,7 @@ import { makeGroundTexture, makeGroundRoughness, makeSunSprite, makeCloud, makeS
 import { buildScenery, type Scenery } from "../procedural/scenery.js";
 import { buildWater, type Water } from "../procedural/water.js";
 import { windTime } from "../procedural/wind.js";
+import { env } from "./env.js";
 
 // Owns the renderer, the CSS2D label layer, scene, lights, ground, sky dome and
 // the post-processing pipeline (bloom + SMAA), styled for a warm anime-MMO look.
@@ -585,6 +586,7 @@ export class SceneManager {
     // ambient motes read as pale dust by day and warm fireflies (bigger, brighter,
     // golden) at night
     const night = 1 - daylight(this.envTime);
+    env.night = night; // publish for entity views (NPC lanterns, etc.)
     const mm = this.motes.material as THREE.PointsMaterial;
     mm.opacity = 0.35 + night * 0.4;
     mm.size = 0.18 + night * 0.16;
