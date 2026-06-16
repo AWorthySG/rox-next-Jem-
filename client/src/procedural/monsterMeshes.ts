@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { buildPoring } from "./poringMesh.js";
 import { makeBlobShadow, makeToonGradient } from "./textures.js";
+import { applyRimLight } from "./rimLight.js";
 import type { MonsterAppearance } from "./monsters.js";
 
 export interface MonsterMesh {
@@ -10,13 +11,15 @@ export interface MonsterMesh {
 }
 
 function toon(color: number, opts: { transparent?: boolean; opacity?: number; emissive?: number } = {}): THREE.MeshToonMaterial {
-  return new THREE.MeshToonMaterial({
+  const m = new THREE.MeshToonMaterial({
     color,
     gradientMap: makeToonGradient(),
     transparent: opts.transparent,
     opacity: opts.opacity ?? 1,
     emissive: opts.emissive ?? 0x000000,
   });
+  applyRimLight(m);
+  return m;
 }
 
 function glow(color: number): THREE.MeshBasicMaterial {

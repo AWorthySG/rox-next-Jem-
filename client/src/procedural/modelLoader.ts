@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import type { GLTFLoader } from "three/addons/loaders/GLTFLoader.js";
 import { makeToonGradient } from "./textures.js";
+import { applyRimLight } from "./rimLight.js";
 
 // glTF support is loaded on demand: templates that never set a model never pay
 // for GLTFLoader/SkeletonUtils in the main bundle.
@@ -98,6 +99,7 @@ export function toonify(root: THREE.Object3D, gradientMap: THREE.Texture | null)
         emissive: s.emissive ? s.emissive.clone() : new THREE.Color(0x000000),
       });
       m.side = s.side;
+      applyRimLight(m);
       return m;
     };
     o.material = Array.isArray(o.material) ? o.material.map(convert) : convert(o.material as THREE.Material);

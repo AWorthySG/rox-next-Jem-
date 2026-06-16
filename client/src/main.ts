@@ -372,6 +372,7 @@ function handleMessage(msg: ServerMessage): void {
       }
       hud.update(msg.self);
       screenFx.setLowHp(msg.self.maxHp > 0 && msg.self.hp / msg.self.maxHp < 0.25);
+      gameState.self?.setBuffed((msg.self.buffs?.length ?? 0) > 0);
       skillBar.setSp(msg.self.sp);
       inventory.sync(msg.self);
       storage.sync(msg.self);
@@ -445,6 +446,8 @@ function handleMessage(msg: ServerMessage): void {
         sfx.levelUp();
         screenFx.levelUp();
         cameraRig.shake(0.12);
+        const sp = gameState.self?.group.position;
+        if (sp) skillVfx.levelUp(sp);
       }
       break;
     case MsgType.ChatBroadcast:
@@ -494,6 +497,7 @@ function onDamage(msg: Extract<ServerMessage, { t: MsgType.DamageEvent }>): void
     if (msg.skillId && msg.skillId !== "burn") {
       const el = getSkill(msg.skillId)?.element ?? Element.Neutral;
       skillVfx.impact(pos, ELEMENT_COLOR[el], msg.crit ? 1.4 : 1);
+      if (msg.crit) skillVfx.crit(pos, ELEMENT_COLOR[el]);
     }
     // Game-feel: attack swing on the attacker, hit reaction on the target.
     if (msg.skillId !== "burn") gameState.onAttack(msg.sourceId);

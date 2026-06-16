@@ -5,6 +5,9 @@ import { makeSpark } from "../procedural/textures.js";
 // are scaled per-effect), so impacts never allocate/dispose geometry.
 const GEO_IMPACT_RING = new THREE.RingGeometry(0.2, 0.34, 28);
 const GEO_CAST_RING = new THREE.RingGeometry(0.85, 1.0, 40);
+const GEO_SHOCK_RING = new THREE.RingGeometry(0.46, 0.52, 48); // thin, fast shockwave
+// Tapered beam for crit pillars; translated so its base sits at y=0 (grows up).
+const GEO_BEAM = new THREE.CylinderGeometry(0.16, 0.05, 1, 12).translate(0, 0.5, 0);
 
 interface Particle {
   sprite: THREE.Sprite;
@@ -23,15 +26,24 @@ interface Ring {
   maxR: number;
 }
 
+interface Beam {
+  mesh: THREE.Mesh;
+  born: number;
+  life: number;
+  maxH: number;
+}
+
 // Pooled additive particle bursts + shock rings for skill impacts. Sprites and
 // ring meshes (with their materials) are recycled rather than created/disposed
 // per hit, so heavy combat doesn't churn GPU resources or trigger GC.
 export class SkillVfx {
   private particles: Particle[] = [];
   private rings: Ring[] = [];
+  private beams: Beam[] = [];
   private sparkTex = makeSpark();
   private spritePool: THREE.Sprite[] = [];
   private ringPool: THREE.Mesh[] = [];
+  private beamPool: THREE.Mesh[] = [];
 
   constructor(private scene: THREE.Scene) {}
 
@@ -55,7 +67,9 @@ export class SkillVfx {
         size: s,
       });
     }
-    this.ring(pos, color, 2.4 * scale, GEO_IMPACT_RING, 0.1);
+    this.ring(pos, color, 2.4 * scale, GEO_IMPACT_RING, 0.1, 420);
+    // a fast, bright white-hot shockwave that expands further and fades quickly
+    this.ring(pos, 0xffffff, 3.6 * scale, GEO_SHOCK_RING, 0.12, 260);
     // a bright flash core that catches bloom
     const flash = this.acquireSprite(color, 1.6 * scale);
     flash.position.set(pos.x, pos.y + 0.8, pos.z);
@@ -70,10 +84,49 @@ export class SkillVfx {
     this.rings.push({ mesh, born: performance.now(), life: 480, maxR: -2.2 });
   }
 
-  private ring(pos: THREE.Vector3, color: number, maxR: number, geo: THREE.BufferGeometry, yOff: number): void {
+  // A vertical light pillar that shoots up and fades — punctuates a crit hit.
+  crit(pos: THREE.Vector3, color: number): void {
+    this.beam(pos, color, 3.4, 320);
+  }
+
+  // A celebratory burst at the player on level-up: a golden upward fountain, a
+  // wide expanding ground ring, and a tall slow light pillar.
+  levelUp(pos: THREE.Vector3): void {
+    const now = performance.now();
+    const gold = 0xffe08a;
+    for (let i = 0; i < 18; i++) {
+      const s = 0.3 + Math.random() * 0.4;
+      const sprite = this.acquireSprite(gold, s);
+      sprite.position.set(pos.x, pos.y + 0.2, pos.z);
+      const ang = Math.random() * Math.PI * 2;
+      const spd = 1 + Math.random() * 2;
+      this.particles.push({ sprite, vx: Math.cos(ang) * spd, vy: 5 + Math.random() * 4, vz: Math.sin(ang) * spd, born: now, life: 720 + Math.random() * 320, size: s });
+    }
+    this.ring(pos, gold, 5.0, GEO_IMPACT_RING, 0.06, 760);
+    this.beam(pos, gold, 5.5, 900);
+  }
+
+  private beam(pos: THREE.Vector3, color: number, maxH: number, life: number): void {
+    let mesh = this.beamPool.pop();
+    if (!mesh) {
+      mesh = new THREE.Mesh(
+        GEO_BEAM,
+        new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }),
+      );
+    }
+    const mat = mesh.material as THREE.MeshBasicMaterial;
+    mat.color.setHex(color);
+    mat.opacity = 0.85;
+    mesh.position.set(pos.x, pos.y + 0.1, pos.z);
+    mesh.scale.set(1, 0.2, 1);
+    this.scene.add(mesh);
+    this.beams.push({ mesh, born: performance.now(), life, maxH });
+  }
+
+  private ring(pos: THREE.Vector3, color: number, maxR: number, geo: THREE.BufferGeometry, yOff: number, life: number): void {
     const mesh = this.acquireRing(geo, color);
     mesh.position.set(pos.x, pos.y + yOff, pos.z);
-    this.rings.push({ mesh, born: performance.now(), life: 420, maxR });
+    this.rings.push({ mesh, born: performance.now(), life, maxR });
   }
 
   private acquireSprite(color: number, scale: number): THREE.Sprite {
@@ -141,6 +194,20 @@ export class SkillVfx {
       const s = r.maxR >= 0 ? 0.3 + t * r.maxR : -r.maxR * (1 - t) + 0.4;
       r.mesh.scale.setScalar(s);
       (r.mesh.material as THREE.MeshBasicMaterial).opacity = 0.9 * (1 - t);
+    }
+    for (let i = this.beams.length - 1; i >= 0; i--) {
+      const b = this.beams[i];
+      const t = (now - b.born) / b.life;
+      if (t >= 1) {
+        this.scene.remove(b.mesh);
+        this.beams.splice(i, 1);
+        this.beamPool.push(b.mesh);
+        continue;
+      }
+      const h = b.maxH * Math.min(1, t / 0.22); // shoot up fast, then hold
+      const taper = 1 - t * 0.4;
+      b.mesh.scale.set(taper, h, taper);
+      (b.mesh.material as THREE.MeshBasicMaterial).opacity = 0.85 * (1 - t);
     }
   }
 }

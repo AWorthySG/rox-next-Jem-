@@ -223,6 +223,31 @@ export function makeSpark(): THREE.Texture {
   return sparkCache;
 }
 
+// Simple two-wing butterfly silhouette for ambient daytime life. White so it
+// can be tinted per-sprite; faces the camera.
+let butterflyCache: THREE.Texture | null = null;
+export function makeButterfly(): THREE.Texture {
+  if (butterflyCache) return butterflyCache;
+  const N = 64;
+  const { c, ctx } = canvas(N);
+  ctx.fillStyle = "rgba(255,255,255,0.95)";
+  ctx.strokeStyle = "rgba(255,255,255,0.95)";
+  // four rounded wing lobes around the centre
+  const wing = (cx: number, cy: number, rx: number, ry: number) => {
+    ctx.beginPath();
+    ctx.ellipse(cx, cy, rx, ry, 0, 0, Math.PI * 2);
+    ctx.fill();
+  };
+  wing(24, 24, 12, 15); // upper-left
+  wing(40, 24, 12, 15); // upper-right
+  wing(26, 42, 9, 11); // lower-left
+  wing(38, 42, 9, 11); // lower-right
+  // slim body
+  ctx.fillRect(31, 18, 2, 30);
+  butterflyCache = new THREE.CanvasTexture(c);
+  return butterflyCache;
+}
+
 // Soft round blob alpha for a fake contact shadow under entities.
 let blobCache: THREE.Texture | null = null;
 export function makeBlobShadow(): THREE.Texture {

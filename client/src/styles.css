@@ -640,6 +640,55 @@ body {
 .bar.exp .bar-fill {
   background: var(--exp);
 }
+
+/* glossy "filled tube" highlight across the top of every fill */
+.bar-fill::after,
+.hpbar > i::after,
+.bar.tf-hp > i::after,
+.bar.wb-hp > i::after {
+  content: "";
+  position: absolute;
+  inset: 0 0 50% 0;
+  border-radius: inherit;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0));
+  pointer-events: none;
+}
+.hpbar > i,
+.bar.tf-hp > i,
+.bar.wb-hp > i {
+  position: relative;
+}
+
+/* slow travelling sheen on the player vitals */
+.bar.hp .bar-fill::before,
+.bar.sp .bar-fill::before,
+.bar.exp .bar-fill::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(100deg, transparent 30%, rgba(255, 255, 255, 0.35) 50%, transparent 70%);
+  transform: translateX(-100%);
+  animation: bar-sheen 3.4s ease-in-out infinite;
+  pointer-events: none;
+}
+.bar.sp .bar-fill::before { animation-delay: 0.6s; }
+.bar.exp .bar-fill::before { animation-delay: 1.2s; }
+@keyframes bar-sheen {
+  0% { transform: translateX(-100%); }
+  55%, 100% { transform: translateX(100%); }
+}
+
+/* low-HP danger: the HP bar pulses a hot red glow */
+.bar.hp.low {
+  animation: hp-danger 0.9s ease-in-out infinite;
+}
+@keyframes hp-danger {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(255, 40, 60, 0); }
+  50% { box-shadow: 0 0 10px 1px rgba(255, 40, 60, 0.75); }
+}
+.bar.hp.low .bar-fill {
+  background: linear-gradient(180deg, #ff6b5a, #d11a2a);
+}
 .bar-label {
   position: absolute;
   inset: 0;

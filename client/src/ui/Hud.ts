@@ -47,7 +47,10 @@ export class Hud {
 
   private setBar(kind: string, value: number, max: number, label: string): void {
     const pct = Math.max(0, Math.min(1, max ? value / max : 0));
-    (this.el(`${kind}-fill`) as HTMLElement).style.width = `${pct * 100}%`;
+    const fill = this.el(`${kind}-fill`) as HTMLElement;
+    fill.style.width = `${pct * 100}%`;
+    // flag a low-HP danger state so the bar pulses red (CSS-driven)
+    if (kind === "hp") fill.parentElement?.classList.toggle("low", pct > 0 && pct <= 0.3);
     this.el(`${kind}-label`).textContent = label;
   }
 
