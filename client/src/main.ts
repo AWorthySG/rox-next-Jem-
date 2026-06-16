@@ -382,9 +382,12 @@ function handleMessage(msg: ServerMessage): void {
     case MsgType.Despawn: {
       if (msg.id === currentTargetId) currentTargetId = null;
       if (msg.id === approachTargetId) approachTargetId = null;
-      // element-themed dissolve burst as the monster falls
+      // element-themed dissolve burst + a gold reward sparkle as the monster falls
       const death = gameState.monsterDeathInfo(msg.id);
-      if (death) skillVfx.impactElement(death.pos, death.element as Element, death.boss ? 2.4 : 1.1);
+      if (death) {
+        skillVfx.impactElement(death.pos, death.element as Element, death.boss ? 2.4 : 1.1);
+        skillVfx.reward(death.pos);
+      }
       gameState.removeEntity(msg.id);
       break;
     }

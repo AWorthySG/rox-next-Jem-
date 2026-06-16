@@ -230,6 +230,11 @@ export class SkillVfx {
     this.beam(pos, 0x8ad0ff, 3.2, 520);
   }
 
+  // A few gold motes that drift up from a slain monster — a loot/XP cue.
+  reward(pos: THREE.Vector3): void {
+    this.burst(pos, { color: 0xffe08a, count: 6, speedMin: 0.3, speedMax: 1.0, upMin: 2, upMax: 3.5, grav: -0.4, drag: 1.2, lifeMin: 600, lifeMax: 900, sizeMin: 0.25, sizeMax: 0.45, yStart: 0.5, mode: "out", scale: 1 });
+  }
+
   // A small lick of flame on a burn damage-over-time tick (no ring/shockwave).
   burnTick(pos: THREE.Vector3): void {
     this.burst(pos, { color: 0xff7a3a, count: 5, speedMin: 0.2, speedMax: 0.9, upMin: 2, upMax: 4, grav: 1.5, drag: 1.5, lifeMin: 300, lifeMax: 480, sizeMin: 0.2, sizeMax: 0.4, yStart: 0.7, mode: "out", scale: 0.85 });
