@@ -368,15 +368,26 @@ function handleMessage(msg: ServerMessage): void {
           : `Welcome to Prontera Field, ${msg.self.name}!`,
       );
       break;
-    case MsgType.Spawn:
+    case MsgType.Spawn: {
       gameState.addEntity(msg.entity);
+      // dramatic entrance when a boss appears near the player
+      const bpos = gameState.bossSpawnInfo(msg.entity.id);
+      const sp = gameState.self?.group.position;
+      if (bpos && sp && sp.distanceTo(bpos) < 45) {
+        skillVfx.bossEntrance(bpos);
+        cameraRig.shake(0.22);
+      }
       break;
+    }
     case MsgType.Despawn: {
       if (msg.id === currentTargetId) currentTargetId = null;
       if (msg.id === approachTargetId) approachTargetId = null;
-      // element-themed dissolve burst as the monster falls
+      // element-themed dissolve burst + a gold reward sparkle as the monster falls
       const death = gameState.monsterDeathInfo(msg.id);
-      if (death) skillVfx.impactElement(death.pos, death.element as Element, death.boss ? 2.4 : 1.1);
+      if (death) {
+        skillVfx.impactElement(death.pos, death.element as Element, death.boss ? 2.4 : 1.1);
+        skillVfx.reward(death.pos);
+      }
       gameState.removeEntity(msg.id);
       break;
     }
@@ -434,6 +445,10 @@ function handleMessage(msg: ServerMessage): void {
       if (msg.casterId === selfId) {
         if (msg.durationMs > 0) castBar.show(getSkill(msg.skillId)?.name ?? "Casting", msg.durationMs);
         else castBar.hide();
+      } else if (msg.durationMs > 0) {
+        // telegraph other casters (monsters/players) with an element-tinted wind-up
+        const cp = gameState.worldPosOf(msg.casterId);
+        if (cp) skillVfx.castRing(cp, ELEMENT_COLOR[getSkill(msg.skillId)?.element ?? Element.Neutral]);
       }
       break;
     case MsgType.Defeated: {

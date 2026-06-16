@@ -212,6 +212,15 @@ export class SkillVfx {
     this.beam(pos, color, 3.4, 320);
   }
 
+  // A dramatic entrance flourish when a boss spawns nearby: a dark ember burst,
+  // a wide violet ground ring, a white shock, and a tall dark pillar.
+  bossEntrance(pos: THREE.Vector3): void {
+    this.burst(pos, { color: 0x9a4faa, count: 22, speedMin: 2, speedMax: 5.5, upMin: 3, upMax: 7, grav: 6, drag: 0.3, lifeMin: 520, lifeMax: 820, sizeMin: 0.35, sizeMax: 0.75, yStart: 0.4, mode: "out", scale: 1.4 });
+    this.ring(pos, 0xb060ff, 6.5, GEO_IMPACT_RING, 0.06, 720);
+    this.ring(pos, 0xffffff, 7.5, GEO_SHOCK_RING, 0.1, 380);
+    this.beam(pos, 0x9a4faa, 5.5, 760);
+  }
+
   // A warp-arrival flourish: motes collapse inward, two rings ripple out, and a
   // brief portal pillar — played at the player's new position on a map change.
   warp(pos: THREE.Vector3): void {
@@ -219,6 +228,11 @@ export class SkillVfx {
     this.ring(pos, 0x8ad0ff, 3.4, GEO_IMPACT_RING, 0.06, 560);
     this.ring(pos, 0xc080ff, 2.4, GEO_SHOCK_RING, 0.1, 420);
     this.beam(pos, 0x8ad0ff, 3.2, 520);
+  }
+
+  // A few gold motes that drift up from a slain monster — a loot/XP cue.
+  reward(pos: THREE.Vector3): void {
+    this.burst(pos, { color: 0xffe08a, count: 6, speedMin: 0.3, speedMax: 1.0, upMin: 2, upMax: 3.5, grav: -0.4, drag: 1.2, lifeMin: 600, lifeMax: 900, sizeMin: 0.25, sizeMax: 0.45, yStart: 0.5, mode: "out", scale: 1 });
   }
 
   // A small lick of flame on a burn damage-over-time tick (no ring/shockwave).
