@@ -353,11 +353,14 @@ export class SceneManager {
 
     // wet-ground sheen during rain/storm: lower roughness + a touch of metalness
     // so the sun/sky catch a damp specular, and darken the albedo slightly.
+    // Snow instead dusts the ground toward a pale frost white.
     const wet = this.weather === Weather.Storm ? 1 : this.weather === Weather.Rain ? 0.7 : 0;
+    const snow = this.weather === Weather.Snow ? 1 : 0;
     const gm = this.ground.material as THREE.MeshStandardMaterial;
     gm.roughness = 1 - 0.45 * wet;
     gm.metalness = 0.2 * wet;
     gm.color.copy(this.themeGround).multiplyScalar((0.45 + 0.55 * bright) * (1 - 0.12 * wet));
+    if (snow) gm.color.lerp(ENV_SNOW, 0.55 * d); // brighter dusting by day
 
     // sun halo follows daylight: bright by day, gone at night (the moon takes over)
     this.skyUniforms.sunGlow.value = Math.max(0, d * overcast);
@@ -584,6 +587,7 @@ const ENV_NIGHT_SKY = new THREE.Color(0x0b1a3a);
 const ENV_NIGHT_FOG = new THREE.Color(0x10182e);
 const ENV_WHITE = new THREE.Color(0xffffff);
 const ENV_SUN_WARM = new THREE.Color(0xfff0c8); // warm sun-halo tint
+const ENV_SNOW = new THREE.Color(0xe2ecf4); // pale frost dusting for snow weather
 
 const SKY_VERT = /* glsl */ `
   varying vec3 vWorldPosition;
