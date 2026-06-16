@@ -189,12 +189,14 @@ export class SkillVfx {
     }
   }
 
-  // A cast telegraph at the caster's feet: a converging ring that reads as a brief wind-up.
+  // A cast telegraph: a converging ground ring plus a few motes that gather
+  // inward toward the caster, reading as a brief energy wind-up (element-tinted).
   castRing(pos: THREE.Vector3, color: number): void {
     const mesh = this.acquireRing(GEO_CAST_RING, color);
     mesh.position.set(pos.x, pos.y + 0.08, pos.z);
     mesh.scale.setScalar(2.6);
     this.rings.push({ mesh, born: performance.now(), life: 480, maxR: -2.2 });
+    this.burst(pos, { color, count: 7, speedMin: 3, speedMax: 4.5, upMin: 0.4, upMax: 1.4, grav: 0, drag: 0.6, lifeMin: 420, lifeMax: 520, sizeMin: 0.22, sizeMax: 0.4, yStart: 0.85, mode: "inward", radius: 2.0, scale: 1 });
   }
 
   // A vertical light pillar that shoots up and fades — punctuates a crit hit.
