@@ -415,6 +415,10 @@ export class SceneManager {
     gm.color.copy(this.themeGround).multiplyScalar((0.45 + 0.55 * bright) * (1 - 0.12 * wet));
     if (snow) gm.color.lerp(ENV_SNOW, 0.55 * d); // brighter dusting by day
 
+    // dim the props (trees/rocks/grass/flowers) with the same day/night + weather
+    // mood as the ground, so the whole scene reads consistently lit.
+    this.scenery?.setShade(0.5 + 0.5 * bright);
+
     // sun halo follows daylight: bright by day, gone at night (the moon takes over)
     this.skyUniforms.sunGlow.value = Math.max(0, d * overcast);
     (this.skyUniforms.sunColor.value as THREE.Color).copy(ENV_SUN_WARM).lerp(white, 1 - overcast).multiplyScalar(overcast);
