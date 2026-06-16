@@ -61,6 +61,7 @@ const castBar = new CastBar();
 const sfx = new Sfx();
 const clickMarker = new ClickMarker(scene.scene);
 const targetReticle = new TargetReticle(scene.scene);
+const moverScratch: THREE.Vector3[] = []; // reused each frame for footstep dust
 const novaTelegraph = new NovaTelegraph(scene.scene);
 const skillVfx = new SkillVfx(scene.scene);
 const screenFx = new ScreenFx();
@@ -577,6 +578,9 @@ new Loop((dt) => {
     }
   }
   gameState.update(dt, cameraRig.camera.position);
+  // footstep dust under moving entities (throttled)
+  gameState.movers(moverScratch);
+  for (const p of moverScratch) if (Math.random() < 0.09) skillVfx.footPuff(p);
   clickMarker.update(dt);
   novaTelegraph.update();
   damageNumbers.update();

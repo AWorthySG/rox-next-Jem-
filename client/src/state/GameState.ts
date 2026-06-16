@@ -107,6 +107,14 @@ export class GameState {
     }
   }
 
+  // World positions of entities that are currently moving + visible (footsteps).
+  movers(out: THREE.Vector3[]): void {
+    out.length = 0;
+    for (const v of this.views.values()) {
+      if (v.isMoving && v.group.visible) out.push(v.group.position);
+    }
+  }
+
   worldPosOf(id: number): THREE.Vector3 | null {
     const v = this.views.get(id);
     return v ? v.group.position.clone() : null;
