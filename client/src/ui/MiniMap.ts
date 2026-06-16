@@ -44,6 +44,13 @@ export class MiniMap {
         ctx.strokeStyle = "#fff3c0";
         ctx.lineWidth = 1;
         ctx.stroke();
+        // expanding radar "ping" so bosses draw the eye on the minimap
+        const t = (performance.now() % 1200) / 1200;
+        ctx.beginPath();
+        ctx.arc(px, py, dot + 2 + t * 5, 0, Math.PI * 2);
+        ctx.strokeStyle = `rgba(255, 220, 90, ${0.6 * (1 - t)})`;
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
       }
     }
 
