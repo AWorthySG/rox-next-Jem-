@@ -204,6 +204,11 @@ export class SkillVfx {
     this.beam(pos, color, 3.4, 320);
   }
 
+  // A small lick of flame on a burn damage-over-time tick (no ring/shockwave).
+  burnTick(pos: THREE.Vector3): void {
+    this.burst(pos, { color: 0xff7a3a, count: 5, speedMin: 0.2, speedMax: 0.9, upMin: 2, upMax: 4, grav: 1.5, drag: 1.5, lifeMin: 300, lifeMax: 480, sizeMin: 0.2, sizeMax: 0.4, yStart: 0.7, mode: "out", scale: 0.85 });
+  }
+
   // A celebratory burst at the player on level-up: a golden upward fountain, a
   // wide expanding ground ring, and a tall slow light pillar.
   levelUp(pos: THREE.Vector3): void {

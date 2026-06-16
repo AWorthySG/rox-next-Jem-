@@ -550,6 +550,20 @@ body {
   box-shadow: 0 0 10px color-mix(in srgb, var(--rar) 55%, transparent);
 }
 .equip-cell.filled[class*="rar-"] .slot-item { color: var(--rar); }
+
+/* legendary + mythic gear pulse their rarity glow so top-end loot feels special */
+.inv-cell.rar-legendary,
+.equip-cell.filled.rar-legendary {
+  animation: rar-glow 1.9s ease-in-out infinite;
+}
+.inv-cell.rar-mythic,
+.equip-cell.filled.rar-mythic {
+  animation: rar-glow 1.2s ease-in-out infinite;
+}
+@keyframes rar-glow {
+  0%, 100% { box-shadow: 0 0 5px color-mix(in srgb, var(--rar) 35%, transparent); }
+  50% { box-shadow: 0 0 15px color-mix(in srgb, var(--rar) 85%, transparent); }
+}
 .hud-top-left {
   position: absolute;
   top: 14px;

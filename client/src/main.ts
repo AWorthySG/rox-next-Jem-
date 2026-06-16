@@ -493,8 +493,11 @@ function onDamage(msg: Extract<ServerMessage, { t: MsgType.DamageEvent }>): void
     const suffix = mult > 1 ? " ▲" : mult < 1 ? " ▼" : "";
     damageNumbers.spawn(pos, `${msg.amount}${suffix}`, variant, mult);
     if (msg.sourceId === selfId) (msg.crit ? sfx.crit() : sfx.hit());
-    // Impact VFX for skill hits — element-styled burst + crit pillar.
-    if (msg.skillId && msg.skillId !== "burn") {
+    // Impact VFX for skill hits — element-styled burst + crit pillar. A burn DoT
+    // tick instead gets a small lick of flame on the target.
+    if (msg.skillId === "burn") {
+      skillVfx.burnTick(pos);
+    } else if (msg.skillId) {
       const el = getSkill(msg.skillId)?.element ?? Element.Neutral;
       skillVfx.impactElement(pos, el, msg.crit ? 1.4 : 1);
       if (msg.crit) skillVfx.crit(pos, ELEMENT_COLOR[el]);
