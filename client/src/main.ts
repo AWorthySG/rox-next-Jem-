@@ -368,9 +368,17 @@ function handleMessage(msg: ServerMessage): void {
           : `Welcome to Prontera Field, ${msg.self.name}!`,
       );
       break;
-    case MsgType.Spawn:
+    case MsgType.Spawn: {
       gameState.addEntity(msg.entity);
+      // dramatic entrance when a boss appears near the player
+      const bpos = gameState.bossSpawnInfo(msg.entity.id);
+      const sp = gameState.self?.group.position;
+      if (bpos && sp && sp.distanceTo(bpos) < 45) {
+        skillVfx.bossEntrance(bpos);
+        cameraRig.shake(0.22);
+      }
       break;
+    }
     case MsgType.Despawn: {
       if (msg.id === currentTargetId) currentTargetId = null;
       if (msg.id === approachTargetId) approachTargetId = null;

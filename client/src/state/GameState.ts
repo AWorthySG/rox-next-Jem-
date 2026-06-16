@@ -115,6 +115,12 @@ export class GameState {
     }
   }
 
+  // Position of a freshly-spawned boss (for an entrance flourish), else null.
+  bossSpawnInfo(id: number): THREE.Vector3 | null {
+    const v = this.views.get(id);
+    return v instanceof MonsterView && v.boss ? v.group.position.clone() : null;
+  }
+
   worldPosOf(id: number): THREE.Vector3 | null {
     const v = this.views.get(id);
     return v ? v.group.position.clone() : null;
