@@ -37,6 +37,7 @@ export class SceneManager {
   private moteBox = 34;
   private butterflies: { sprite: THREE.Sprite; vx: number; vz: number; phase: number; flap: number; baseY: number; size: number }[] = [];
   private gulls: { sprite: THREE.Sprite; cx: number; cz: number; r: number; ang: number; speed: number; baseY: number; flap: number; phase: number }[] = [];
+  private shoreMist: { sprite: THREE.Sprite; phase: number; baseY: number; baseOp: number }[] = [];
   private clock = new THREE.Clock();
 
   // ---- day/night + weather ----
@@ -311,6 +312,29 @@ export class SceneManager {
       this.scene.add(this.water.mesh);
     }
     this.setGulls(!!w);
+    this.setShoreMist(!!w);
+  }
+
+  // A soft band of low haze drifting around the island's shore (water maps only).
+  private setShoreMist(present: boolean): void {
+    for (const m of this.shoreMist) {
+      this.scene.remove(m.sprite);
+      (m.sprite.material as THREE.Material).dispose();
+    }
+    this.shoreMist = [];
+    if (!present) return;
+    const tex = makeCloud();
+    const N = 18;
+    const R = MAP_SIZE * 0.5;
+    for (let i = 0; i < N; i++) {
+      const a = (i / N) * Math.PI * 2 + (Math.random() - 0.5) * 0.25;
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, color: 0xdfeaf2, transparent: true, opacity: 0.16, depthWrite: false }));
+      sprite.position.set(Math.cos(a) * R, 1.0 + Math.random() * 0.6, Math.sin(a) * R);
+      const wide = 10 + Math.random() * 8;
+      sprite.scale.set(wide, wide * 0.4, 1);
+      this.scene.add(sprite);
+      this.shoreMist.push({ sprite, phase: Math.random() * Math.PI * 2, baseY: sprite.position.y, baseOp: 0.12 + Math.random() * 0.08 });
+    }
   }
 
   // Spawn (or clear) a small flock of gulls that wheel over coastal/lake maps.
@@ -545,6 +569,13 @@ export class SceneManager {
       g.sprite.scale.set(2.6, 0.9 + flap * 1.3, 1); // wing beat = vertical squash
       (g.sprite.material as THREE.SpriteMaterial).opacity = day * 0.7;
       g.sprite.visible = day > 0.1;
+    }
+
+    // shoreline mist: a gentle bob + opacity shimmer (visible day and night)
+    for (const m of this.shoreMist) {
+      m.phase += dt * 0.5;
+      m.sprite.position.y = m.baseY + Math.sin(m.phase) * 0.25;
+      (m.sprite.material as THREE.SpriteMaterial).opacity = m.baseOp * (0.7 + 0.3 * Math.sin(m.phase * 0.8));
     }
 
     if (this.water) this.water.material.uniforms.time.value += dt;
