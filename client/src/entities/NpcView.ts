@@ -11,6 +11,7 @@ export class NpcView extends EntityView {
   readonly role: string;
   private bob = 0;
   private marker: THREE.Mesh;
+  private glow: THREE.Mesh;
   private char: CharacterMesh;
   private rig: ModelRig;
 
@@ -35,6 +36,15 @@ export class NpcView extends EntityView {
     this.marker.userData.entityId = entity.id;
     this.group.add(this.marker);
 
+    // soft golden ground ring that signals an interactable NPC
+    this.glow = new THREE.Mesh(
+      new THREE.RingGeometry(0.5, 0.74, 36),
+      new THREE.MeshBasicMaterial({ color: 0xffd24a, transparent: true, opacity: 0.4, depthWrite: false, side: THREE.DoubleSide, blending: THREE.AdditiveBlending }),
+    );
+    this.glow.rotation.x = -Math.PI / 2;
+    this.glow.position.y = 0.04;
+    this.group.add(this.glow);
+
     // Optional mid-poly model by role: npc_<role>.glb.
     this.rig = new ModelRig(this.group, entity.id);
     void this.rig.tryLoad(`npc_${this.role}`, undefined, 1, () => {
@@ -48,6 +58,9 @@ export class NpcView extends EntityView {
     this.bob += dt * 2;
     this.marker.position.y = 2.2 + Math.sin(this.bob) * 0.12;
     this.marker.rotation.y += dt * 1.5;
+    const t = Math.sin(this.bob * 1.3) * 0.5 + 0.5;
+    (this.glow.material as THREE.MeshBasicMaterial).opacity = 0.28 + t * 0.24;
+    this.glow.scale.setScalar(1 + t * 0.08);
     if (this.modelBacked) this.rig.update(dt); // NPCs are stationary → idle loop
   }
 

@@ -153,6 +153,11 @@ export class MonsterView extends EntityView {
     return this.visual;
   }
 
+  // Ground-reticle radius factor — scales with the monster but stays readable.
+  get reticleScale(): number {
+    return 0.7 + this.scale * 0.5;
+  }
+
   setEnraged(enraged: boolean): void {
     if (enraged && !this.aura) {
       this.aura = new THREE.Mesh(

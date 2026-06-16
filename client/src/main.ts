@@ -5,6 +5,7 @@ import { CameraRig } from "./engine/CameraRig.js";
 import { InputController } from "./engine/InputController.js";
 import { Loop } from "./engine/Loop.js";
 import { ClickMarker } from "./engine/ClickMarker.js";
+import { TargetReticle } from "./engine/TargetReticle.js";
 import { NovaTelegraph } from "./engine/NovaTelegraph.js";
 import { GameState } from "./state/GameState.js";
 import { NetClient } from "./net/NetClient.js";
@@ -59,6 +60,7 @@ const worldBossBar = new WorldBossBar();
 const castBar = new CastBar();
 const sfx = new Sfx();
 const clickMarker = new ClickMarker(scene.scene);
+const targetReticle = new TargetReticle(scene.scene);
 const novaTelegraph = new NovaTelegraph(scene.scene);
 const skillVfx = new SkillVfx(scene.scene);
 const screenFx = new ScreenFx();
@@ -430,6 +432,7 @@ function handleMessage(msg: ServerMessage): void {
       gameState.clearExceptSelf();
       gameState.self?.teleport(msg.x, msg.z);
       scene.setTheme(msg.theme, msg.mapId);
+      { const sp = gameState.self?.group.position; if (sp) skillVfx.warp(sp); }
       chat.system(msg.pvp ? `Entered ${msg.name} — PvP enabled!` : `Entered ${msg.name}.`);
       break;
     case MsgType.RefineResult:
@@ -592,6 +595,9 @@ new Loop((dt) => {
   } else {
     targetFrame.hide();
   }
+  // World-space reticle under the current target.
+  const reticle = currentTargetId != null ? gameState.targetReticle(currentTargetId) : null;
+  targetReticle.update(reticle?.pos ?? null, reticle?.scale ?? 1, dt);
   const self = gameState.self;
   if (self) followPos.copy(self.group.position);
   petCompanion.update(self ? self.group.position : null, dt);
