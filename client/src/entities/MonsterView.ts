@@ -70,6 +70,12 @@ export class MonsterView extends EntityView {
   private procMats: THREE.MeshToonMaterial[] = []; // procedural toon mats for hit-flash
   private deathClip = false; // model supplied a death clip → skip the procedural pop/spin
   private disposed = false;
+  private lowHp = false; // ≤30% HP → a wounded red pulse
+
+  override setHp(hp: number): void {
+    super.setHp(hp);
+    this.lowHp = this.maxHp > 0 && hp > 0 && hp / this.maxHp <= 0.3;
+  }
 
   // The toon materials currently driven by hit/death flashes (model or primitive).
   private get flashMats(): THREE.MeshToonMaterial[] {
@@ -206,18 +212,23 @@ export class MonsterView extends EntityView {
       this.visual.position.z = 0;
     }
 
-    // hit reaction: quick white flash + scale punch
+    // hit reaction: quick white flash + scale punch; otherwise rest at base
+    // emissive, or a pulsing red glow when the monster is near death.
+    const base = this.modelBacked ? BLACK : this.baseEmissive;
     if (this.hitT > 0) {
       this.hitT = Math.max(0, this.hitT - dt * 6);
       const punch = 1 + this.hitT * 0.18;
       this.visual.scale.setScalar(this.scale * punch);
-      const base = this.modelBacked ? BLACK : this.baseEmissive;
       const f = this.hitT * 0.9;
       for (const m of this.flashMats) m.emissive.setRGB(base.r + f, base.g + f, base.b + f);
-    } else if (this.visual.scale.x !== this.scale) {
-      this.visual.scale.setScalar(this.scale);
-      const base = this.modelBacked ? BLACK : this.baseEmissive;
-      for (const m of this.flashMats) m.emissive.copy(base);
+    } else {
+      if (this.visual.scale.x !== this.scale) this.visual.scale.setScalar(this.scale);
+      if (this.lowHp) {
+        const r = (Math.sin(this.phase * 3) * 0.5 + 0.5) * 0.45; // wounded pulse
+        for (const m of this.flashMats) m.emissive.setRGB(base.r + r, base.g, base.b);
+      } else {
+        for (const m of this.flashMats) m.emissive.copy(base);
+      }
     }
   }
 
