@@ -248,6 +248,28 @@ export function makeButterfly(): THREE.Texture {
   return butterflyCache;
 }
 
+// A simple white gull silhouette (an "M" of two wing arcs) for ambient coastal
+// birds. White so it can be tinted; faces the camera.
+let birdCache: THREE.Texture | null = null;
+export function makeBird(): THREE.Texture {
+  if (birdCache) return birdCache;
+  const N = 64;
+  const { c, ctx } = canvas(N);
+  ctx.strokeStyle = "rgba(255,255,255,0.95)";
+  ctx.lineWidth = 5;
+  ctx.lineCap = "round";
+  ctx.beginPath();
+  ctx.moveTo(8, 40);
+  ctx.quadraticCurveTo(22, 22, 32, 36);
+  ctx.stroke();
+  ctx.beginPath();
+  ctx.moveTo(56, 40);
+  ctx.quadraticCurveTo(42, 22, 32, 36);
+  ctx.stroke();
+  birdCache = new THREE.CanvasTexture(c);
+  return birdCache;
+}
+
 // Soft round blob alpha for a fake contact shadow under entities.
 let blobCache: THREE.Texture | null = null;
 export function makeBlobShadow(): THREE.Texture {
