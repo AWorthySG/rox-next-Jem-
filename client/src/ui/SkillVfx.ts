@@ -204,6 +204,15 @@ export class SkillVfx {
     this.beam(pos, color, 3.4, 320);
   }
 
+  // A warp-arrival flourish: motes collapse inward, two rings ripple out, and a
+  // brief portal pillar — played at the player's new position on a map change.
+  warp(pos: THREE.Vector3): void {
+    this.burst(pos, { color: 0x8ad0ff, count: 16, speedMin: 3.5, speedMax: 6, upMin: 1, upMax: 3.5, grav: 0.5, drag: 1.0, lifeMin: 420, lifeMax: 640, sizeMin: 0.25, sizeMax: 0.5, yStart: 0.6, mode: "inward", radius: 3.0, scale: 1 });
+    this.ring(pos, 0x8ad0ff, 3.4, GEO_IMPACT_RING, 0.06, 560);
+    this.ring(pos, 0xc080ff, 2.4, GEO_SHOCK_RING, 0.1, 420);
+    this.beam(pos, 0x8ad0ff, 3.2, 520);
+  }
+
   // A small lick of flame on a burn damage-over-time tick (no ring/shockwave).
   burnTick(pos: THREE.Vector3): void {
     this.burst(pos, { color: 0xff7a3a, count: 5, speedMin: 0.2, speedMax: 0.9, upMin: 2, upMax: 4, grav: 1.5, drag: 1.5, lifeMin: 300, lifeMax: 480, sizeMin: 0.2, sizeMax: 0.4, yStart: 0.7, mode: "out", scale: 0.85 });

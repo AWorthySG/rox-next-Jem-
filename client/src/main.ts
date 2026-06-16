@@ -432,6 +432,7 @@ function handleMessage(msg: ServerMessage): void {
       gameState.clearExceptSelf();
       gameState.self?.teleport(msg.x, msg.z);
       scene.setTheme(msg.theme, msg.mapId);
+      { const sp = gameState.self?.group.position; if (sp) skillVfx.warp(sp); }
       chat.system(msg.pvp ? `Entered ${msg.name} — PvP enabled!` : `Entered ${msg.name}.`);
       break;
     case MsgType.RefineResult:
