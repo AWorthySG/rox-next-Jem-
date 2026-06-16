@@ -45,10 +45,26 @@ export class Hud {
       .join("");
   }
 
+  private ghostPct: Record<string, number> = {};
+
   private setBar(kind: string, value: number, max: number, label: string): void {
     const pct = Math.max(0, Math.min(1, max ? value / max : 0));
     const fill = this.el(`${kind}-fill`) as HTMLElement;
     fill.style.width = `${pct * 100}%`;
+    // damage ghost: drain a beat behind on loss, snap up on gain
+    const ghost = document.getElementById(`${kind}-ghost`);
+    if (ghost) {
+      const prev = this.ghostPct[kind] ?? pct;
+      if (pct >= prev) {
+        ghost.style.transition = "none";
+        ghost.style.width = `${pct * 100}%`;
+        void ghost.offsetWidth; // commit before re-enabling the delayed transition
+        ghost.style.transition = "";
+      } else {
+        ghost.style.width = `${pct * 100}%`; // CSS delay+ease drains it down
+      }
+      this.ghostPct[kind] = pct;
+    }
     // flag a low-HP danger state so the bar pulses red (CSS-driven)
     if (kind === "hp") fill.parentElement?.classList.toggle("low", pct > 0 && pct <= 0.3);
     this.el(`${kind}-label`).textContent = label;

@@ -666,6 +666,16 @@ body {
   width: 0%;
   transition: width 0.2s ease-out;
 }
+/* damage "ghost": a pale chunk left behind that drains a beat after the fill drops */
+.bar-ghost {
+  position: absolute;
+  inset: 0;
+  width: 0%;
+  border-radius: inherit;
+  transition: width 0.55s ease-out 0.18s;
+}
+.bar.hp .bar-ghost { background: rgba(255, 180, 170, 0.7); }
+.bar.sp .bar-ghost { background: rgba(180, 210, 255, 0.7); }
 .bar.hp .bar-fill {
   background: var(--hp);
 }
