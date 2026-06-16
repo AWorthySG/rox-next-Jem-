@@ -74,6 +74,7 @@ body {
 }
 
 .hpbar {
+  position: relative;
   width: 46px;
   height: 5px;
   margin: 2px auto 0;
@@ -83,13 +84,24 @@ body {
   overflow: hidden;
 }
 .hpbar > i {
-  display: block;
+  position: absolute;
+  left: 0;
+  top: 0;
   height: 100%;
   background: linear-gradient(180deg, #7CFC7C, #2faf4a);
   transition: width 0.15s linear;
 }
 .hpbar.monster > i {
   background: linear-gradient(180deg, #ff8aa8, #d14d77);
+}
+.hpbar-ghost {
+  position: absolute;
+  left: 0;
+  top: 0;
+  height: 100%;
+  width: 100%;
+  background: rgba(255, 190, 180, 0.65);
+  transition: width 0.5s ease-out 0.18s;
 }
 
 .dmg {

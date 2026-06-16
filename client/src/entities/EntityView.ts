@@ -17,6 +17,8 @@ export abstract class EntityView {
   readonly level: number;
   protected nameplateEl: HTMLDivElement;
   protected hpFillEl: HTMLElement;
+  protected hpGhostEl: HTMLElement;
+  private hpGhostPct = 1;
   protected label: CSS2DObject;
 
   protected prevX = 0;
@@ -45,12 +47,17 @@ export abstract class EntityView {
     this.setLabel(entity);
     const bar = document.createElement("div");
     bar.className = `hpbar ${labelClass === "monster" ? "monster" : ""}`;
+    const ghost = document.createElement("b"); // damage-ghost (drains a beat behind)
+    ghost.className = "hpbar-ghost";
+    ghost.style.width = "100%";
     const fill = document.createElement("i");
     fill.style.width = "100%";
+    bar.appendChild(ghost);
     bar.appendChild(fill);
     wrap.appendChild(name);
     wrap.appendChild(bar);
 
+    this.hpGhostEl = ghost;
     this.hpFillEl = fill;
     this.label = new CSS2DObject(wrap);
     this.label.position.set(0, labelHeight, 0);
@@ -78,6 +85,16 @@ export abstract class EntityView {
     this.hp = hp;
     const pct = Math.max(0, Math.min(1, this.maxHp ? hp / this.maxHp : 0));
     this.hpFillEl.style.width = `${pct * 100}%`;
+    // damage ghost: drains a beat behind on loss, snaps up on gain
+    if (pct >= this.hpGhostPct) {
+      this.hpGhostEl.style.transition = "none";
+      this.hpGhostEl.style.width = `${pct * 100}%`;
+      void this.hpGhostEl.offsetWidth;
+      this.hpGhostEl.style.transition = "";
+    } else {
+      this.hpGhostEl.style.width = `${pct * 100}%`;
+    }
+    this.hpGhostPct = pct;
   }
 
   // Default update: drive position from the interpolation buffer.
