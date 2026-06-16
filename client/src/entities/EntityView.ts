@@ -114,6 +114,11 @@ export abstract class EntityView {
     this.prevZ = z;
   }
 
+  // Whether this entity moved on the last update (for footstep dust, etc.).
+  get isMoving(): boolean {
+    return this.moving;
+  }
+
   // Subclass animation hook (walk cycle, idle bob, …).
   protected animate(_dt: number): void {}
 

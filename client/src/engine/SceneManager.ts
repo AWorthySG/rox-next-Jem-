@@ -7,7 +7,7 @@ import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { SMAAPass } from "three/addons/postprocessing/SMAAPass.js";
 import { MAP_SIZE, DAY_LENGTH_MS, daylight, Weather, type MapTheme } from "@rox/shared";
-import { makeGroundTexture, makeGroundRoughness, makeSunSprite, makeCloud, makeSpark, makeCloudShadow, makeButterfly } from "../procedural/textures.js";
+import { makeGroundTexture, makeGroundRoughness, makeSunSprite, makeCloud, makeSpark, makeCloudShadow, makeButterfly, makeBird } from "../procedural/textures.js";
 import { buildScenery, type Scenery } from "../procedural/scenery.js";
 import { buildWater, type Water } from "../procedural/water.js";
 import { windTime } from "../procedural/wind.js";
@@ -36,6 +36,7 @@ export class SceneManager {
   private motes!: THREE.Points;
   private moteBox = 34;
   private butterflies: { sprite: THREE.Sprite; vx: number; vz: number; phase: number; flap: number; baseY: number; size: number }[] = [];
+  private gulls: { sprite: THREE.Sprite; cx: number; cz: number; r: number; ang: number; speed: number; baseY: number; flap: number; phase: number }[] = [];
   private clock = new THREE.Clock();
 
   // ---- day/night + weather ----
@@ -309,6 +310,34 @@ export class SceneManager {
       this.water = buildWater(w[0], w[1]);
       this.scene.add(this.water.mesh);
     }
+    this.setGulls(!!w);
+  }
+
+  // Spawn (or clear) a small flock of gulls that wheel over coastal/lake maps.
+  private setGulls(present: boolean): void {
+    for (const g of this.gulls) {
+      this.scene.remove(g.sprite);
+      (g.sprite.material as THREE.Material).dispose();
+    }
+    this.gulls = [];
+    if (!present) return;
+    const tex = makeBird();
+    for (let i = 0; i < 6; i++) {
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, color: 0xf4f8ff, transparent: true, depthWrite: false, opacity: 0, fog: false }));
+      sprite.frustumCulled = false;
+      this.scene.add(sprite);
+      this.gulls.push({
+        sprite,
+        cx: (Math.random() - 0.5) * MAP_SIZE * 0.6,
+        cz: (Math.random() - 0.5) * MAP_SIZE * 0.6,
+        r: 18 + Math.random() * 30,
+        ang: Math.random() * Math.PI * 2,
+        speed: (0.12 + Math.random() * 0.14) * (Math.random() < 0.5 ? -1 : 1),
+        baseY: 14 + Math.random() * 12,
+        flap: 6 + Math.random() * 6,
+        phase: Math.random() * Math.PI * 2,
+      });
+    }
   }
 
   // Sync the global sky state from the server (time-of-day + weather).
@@ -505,6 +534,17 @@ export class SceneManager {
       const mat = b.sprite.material as THREE.SpriteMaterial;
       mat.opacity = day * 0.85;
       b.sprite.visible = day > 0.1;
+    }
+
+    // gulls wheel slowly over the water with a wing-flap, fading out at night
+    for (const g of this.gulls) {
+      g.ang += g.speed * dt;
+      g.phase += dt * g.flap;
+      g.sprite.position.set(g.cx + Math.cos(g.ang) * g.r, g.baseY + Math.sin(g.phase * 0.35) * 1.5, g.cz + Math.sin(g.ang) * g.r);
+      const flap = 0.5 + 0.5 * Math.abs(Math.sin(g.phase));
+      g.sprite.scale.set(2.6, 0.9 + flap * 1.3, 1); // wing beat = vertical squash
+      (g.sprite.material as THREE.SpriteMaterial).opacity = day * 0.7;
+      g.sprite.visible = day > 0.1;
     }
 
     if (this.water) this.water.material.uniforms.time.value += dt;

@@ -48,6 +48,7 @@ interface Ring {
   born: number;
   life: number;
   maxR: number;
+  op: number; // starting opacity (faint for dust, bright for impacts)
 }
 
 interface Beam {
@@ -195,8 +196,15 @@ export class SkillVfx {
     const mesh = this.acquireRing(GEO_CAST_RING, color);
     mesh.position.set(pos.x, pos.y + 0.08, pos.z);
     mesh.scale.setScalar(2.6);
-    this.rings.push({ mesh, born: performance.now(), life: 480, maxR: -2.2 });
+    this.rings.push({ mesh, born: performance.now(), life: 480, maxR: -2.2, op: 0.9 });
     this.burst(pos, { color, count: 7, speedMin: 3, speedMax: 4.5, upMin: 0.4, upMax: 1.4, grav: 0, drag: 0.6, lifeMin: 420, lifeMax: 520, sizeMin: 0.22, sizeMax: 0.4, yStart: 0.85, mode: "inward", radius: 2.0, scale: 1 });
+  }
+
+  // A faint dust scuff kicked up under a moving entity's feet.
+  footPuff(pos: THREE.Vector3): void {
+    const mesh = this.acquireRing(GEO_IMPACT_RING, 0x9a8a6a);
+    mesh.position.set(pos.x, pos.y + 0.04, pos.z);
+    this.rings.push({ mesh, born: performance.now(), life: 340, maxR: 1.0, op: 0.32 });
   }
 
   // A vertical light pillar that shoots up and fades — punctuates a crit hit.
@@ -255,7 +263,7 @@ export class SkillVfx {
   private ring(pos: THREE.Vector3, color: number, maxR: number, geo: THREE.BufferGeometry, yOff: number, life: number): void {
     const mesh = this.acquireRing(geo, color);
     mesh.position.set(pos.x, pos.y + yOff, pos.z);
-    this.rings.push({ mesh, born: performance.now(), life, maxR });
+    this.rings.push({ mesh, born: performance.now(), life, maxR, op: 0.9 });
   }
 
   private acquireSprite(color: number, scale: number): THREE.Sprite {
@@ -328,7 +336,7 @@ export class SkillVfx {
       // maxR >= 0 expands from a point; maxR < 0 is a converging cast ring.
       const s = r.maxR >= 0 ? 0.3 + t * r.maxR : -r.maxR * (1 - t) + 0.4;
       r.mesh.scale.setScalar(s);
-      (r.mesh.material as THREE.MeshBasicMaterial).opacity = 0.9 * (1 - t);
+      (r.mesh.material as THREE.MeshBasicMaterial).opacity = r.op * (1 - t);
     }
     for (let i = this.beams.length - 1; i >= 0; i--) {
       const b = this.beams[i];

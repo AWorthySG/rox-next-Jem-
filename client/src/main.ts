@@ -6,6 +6,7 @@ import { InputController } from "./engine/InputController.js";
 import { Loop } from "./engine/Loop.js";
 import { ClickMarker } from "./engine/ClickMarker.js";
 import { TargetReticle } from "./engine/TargetReticle.js";
+import { DamageDirection } from "./ui/DamageDirection.js";
 import { NovaTelegraph } from "./engine/NovaTelegraph.js";
 import { GameState } from "./state/GameState.js";
 import { NetClient } from "./net/NetClient.js";
@@ -61,6 +62,24 @@ const castBar = new CastBar();
 const sfx = new Sfx();
 const clickMarker = new ClickMarker(scene.scene);
 const targetReticle = new TargetReticle(scene.scene);
+const moverScratch: THREE.Vector3[] = []; // reused each frame for footstep dust
+const damageDir = new DamageDirection(document.getElementById("game-root")!);
+const _fwd = new THREE.Vector3();
+const _right = new THREE.Vector3();
+
+// Camera-relative bearing from the player to a world point: returns the on-screen
+// angle (0 = top, +clockwise) and how far ahead it is (1 = dead ahead).
+function screenBearing(self: THREE.Vector3, srcX: number, srcZ: number): { angle: number; ahead: number } {
+  cameraRig.camera.getWorldDirection(_fwd); _fwd.y = 0; _fwd.normalize();
+  _right.setFromMatrixColumn(cameraRig.camera.matrixWorld, 0); _right.y = 0; _right.normalize();
+  let dx = srcX - self.x;
+  let dz = srcZ - self.z;
+  const len = Math.hypot(dx, dz) || 1;
+  dx /= len; dz /= len;
+  const ahead = dx * _fwd.x + dz * _fwd.z;
+  const rightAmt = dx * _right.x + dz * _right.z;
+  return { angle: Math.atan2(rightAmt, ahead), ahead };
+}
 const novaTelegraph = new NovaTelegraph(scene.scene);
 const skillVfx = new SkillVfx(scene.scene);
 const screenFx = new ScreenFx();
@@ -512,6 +531,13 @@ function onDamage(msg: Extract<ServerMessage, { t: MsgType.DamageEvent }>): void
     if (msg.targetId === selfId) {
       cameraRig.shake(0.3);
       screenFx.damage();
+      // point toward the attacker when it's off the front of the screen
+      const src = gameState.worldPosOf(msg.sourceId);
+      const self = gameState.self?.group.position;
+      if (src && self) {
+        const b = screenBearing(self, src.x, src.z);
+        if (b.ahead < 0.5) damageDir.hit(b.angle);
+      }
     } else if (msg.sourceId === selfId && msg.crit) {
       cameraRig.shake(0.16);
     }
@@ -577,7 +603,11 @@ new Loop((dt) => {
     }
   }
   gameState.update(dt, cameraRig.camera.position);
+  // footstep dust under moving entities (throttled)
+  gameState.movers(moverScratch);
+  for (const p of moverScratch) if (Math.random() < 0.09) skillVfx.footPuff(p);
   clickMarker.update(dt);
+  damageDir.update();
   novaTelegraph.update();
   damageNumbers.update();
   skillVfx.update();
