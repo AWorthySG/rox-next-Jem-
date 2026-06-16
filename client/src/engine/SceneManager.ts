@@ -575,6 +575,14 @@ export class SceneManager {
       g.sprite.visible = day > 0.1;
     }
 
+    // ambient motes read as pale dust by day and warm fireflies (bigger, brighter,
+    // golden) at night
+    const night = 1 - daylight(this.envTime);
+    const mm = this.motes.material as THREE.PointsMaterial;
+    mm.opacity = 0.35 + night * 0.4;
+    mm.size = 0.18 + night * 0.16;
+    mm.color.copy(MOTE_DAY).lerp(MOTE_NIGHT, night);
+
     // shoreline mist: a gentle bob + opacity shimmer (visible day and night)
     for (const m of this.shoreMist) {
       m.phase += dt * 0.5;
@@ -663,6 +671,8 @@ const ENV_NIGHT_FOG = new THREE.Color(0x10182e);
 const ENV_WHITE = new THREE.Color(0xffffff);
 const ENV_SUN_WARM = new THREE.Color(0xfff0c8); // warm sun-halo tint
 const ENV_SNOW = new THREE.Color(0xe2ecf4); // pale frost dusting for snow weather
+const MOTE_DAY = new THREE.Color(0xfff2cf); // pale dust motes by day
+const MOTE_NIGHT = new THREE.Color(0xffd060); // warm firefly glow at night
 
 const SKY_VERT = /* glsl */ `
   varying vec3 vWorldPosition;
