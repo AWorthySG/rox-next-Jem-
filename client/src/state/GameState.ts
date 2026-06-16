@@ -112,6 +112,13 @@ export class GameState {
     return v ? v.group.position.clone() : null;
   }
 
+  // Position + reticle size for the current target (living monsters only).
+  targetReticle(id: number): { pos: THREE.Vector3; scale: number } | null {
+    const v = this.views.get(id);
+    if (v instanceof MonsterView && !v.dying) return { pos: v.group.position, scale: v.reticleScale };
+    return null;
+  }
+
   // Nearest living monster to the local player (for target-less skill casts).
   nearestMonsterId(): number | null {
     const self = this.self;
