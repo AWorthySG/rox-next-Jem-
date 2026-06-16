@@ -433,8 +433,12 @@ export class SceneManager {
 
     this.sun.intensity = 0.25 + 2.0 * d * overcast;
     this.hemi.intensity = 0.3 + 0.6 * bright;
+    // golden hour: warm the key light + horizon as the sun nears the horizon
+    const golden = smoothstep(0.05, 0.3, d) * (1 - smoothstep(0.3, 0.62, d)) * overcast;
+    this.sun.color.copy(ENV_SUN_KEY).lerp(ENV_GOLDEN, golden * 0.8);
+    this.skyUniforms.bottomColor.value.lerp(ENV_SUNSET, golden * 0.45);
     const sprite = this.sunSprite.material as THREE.SpriteMaterial;
-    sprite.color.copy(this.themeSky).lerp(white, 0.7);
+    sprite.color.copy(this.themeSky).lerp(white, 0.7).lerp(ENV_GOLDEN, golden * 0.6);
     sprite.opacity = Math.max(0, d * overcast);
     this.sunSprite.visible = d > 0.05 && overcast > 0.6;
 
@@ -682,6 +686,15 @@ const ENV_SUN_WARM = new THREE.Color(0xfff0c8); // warm sun-halo tint
 const ENV_SNOW = new THREE.Color(0xe2ecf4); // pale frost dusting for snow weather
 const MOTE_DAY = new THREE.Color(0xfff2cf); // pale dust motes by day
 const MOTE_NIGHT = new THREE.Color(0xffd060); // warm firefly glow at night
+const ENV_SUN_KEY = new THREE.Color(0xfff0d2); // neutral-warm key light
+const ENV_GOLDEN = new THREE.Color(0xff9a4a); // dawn/dusk golden tint
+const ENV_SUNSET = new THREE.Color(0xff8a5a); // horizon glow at golden hour
+
+// Smooth Hermite ramp between edges a→b (GLSL smoothstep).
+function smoothstep(a: number, b: number, x: number): number {
+  const t = Math.max(0, Math.min(1, (x - a) / (b - a)));
+  return t * t * (3 - 2 * t);
+}
 
 const SKY_VERT = /* glsl */ `
   varying vec3 vWorldPosition;
