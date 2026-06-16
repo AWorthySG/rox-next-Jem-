@@ -353,9 +353,9 @@ function handleMessage(msg: ServerMessage): void {
     case MsgType.Despawn: {
       if (msg.id === currentTargetId) currentTargetId = null;
       if (msg.id === approachTargetId) approachTargetId = null;
-      // gold loot sparkle as the monster falls
+      // element-themed dissolve burst as the monster falls
       const death = gameState.monsterDeathInfo(msg.id);
-      if (death) skillVfx.impact(death.pos, 0xffd24a, death.boss ? 2.4 : 1.1);
+      if (death) skillVfx.impactElement(death.pos, death.element as Element, death.boss ? 2.4 : 1.1);
       gameState.removeEntity(msg.id);
       break;
     }
@@ -493,10 +493,13 @@ function onDamage(msg: Extract<ServerMessage, { t: MsgType.DamageEvent }>): void
     const suffix = mult > 1 ? " ▲" : mult < 1 ? " ▼" : "";
     damageNumbers.spawn(pos, `${msg.amount}${suffix}`, variant, mult);
     if (msg.sourceId === selfId) (msg.crit ? sfx.crit() : sfx.hit());
-    // Impact VFX for skill hits, colored by the skill's element.
-    if (msg.skillId && msg.skillId !== "burn") {
+    // Impact VFX for skill hits — element-styled burst + crit pillar. A burn DoT
+    // tick instead gets a small lick of flame on the target.
+    if (msg.skillId === "burn") {
+      skillVfx.burnTick(pos);
+    } else if (msg.skillId) {
       const el = getSkill(msg.skillId)?.element ?? Element.Neutral;
-      skillVfx.impact(pos, ELEMENT_COLOR[el], msg.crit ? 1.4 : 1);
+      skillVfx.impactElement(pos, el, msg.crit ? 1.4 : 1);
       if (msg.crit) skillVfx.crit(pos, ELEMENT_COLOR[el]);
     }
     // Game-feel: attack swing on the attacker, hit reaction on the target.

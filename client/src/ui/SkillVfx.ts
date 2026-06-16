@@ -1,4 +1,5 @@
 import * as THREE from "three";
+import { Element, ELEMENT_COLOR } from "@rox/shared";
 import { makeSpark } from "../procedural/textures.js";
 
 // Shared ring geometries — created once and reused for every ring (their meshes
@@ -14,9 +15,32 @@ interface Particle {
   vx: number;
   vy: number;
   vz: number;
+  grav: number; // downward accel (negative = rises, e.g. dust/embers)
+  drag: number; // per-second velocity damping (swirl/float feel)
   born: number;
   life: number;
   size: number;
+}
+
+// Per-element burst tuning. Spawn mode shapes the silhouette: "out" sprays
+// outward, "tangential" swirls (wind), "inward" collapses from a ring (shadow).
+interface BurstOpts {
+  color: number;
+  count: number;
+  speedMin: number;
+  speedMax: number;
+  upMin: number;
+  upMax: number;
+  grav: number;
+  drag: number;
+  lifeMin: number;
+  lifeMax: number;
+  sizeMin: number;
+  sizeMax: number;
+  yStart: number;
+  mode: "out" | "tangential" | "inward";
+  radius?: number; // inward spawn radius
+  scale: number;
 }
 
 interface Ring {
@@ -47,7 +71,8 @@ export class SkillVfx {
 
   constructor(private scene: THREE.Scene) {}
 
-  // A burst of glowing sparks + an expanding ground ring at a world position.
+  // A generic burst of glowing sparks + an expanding ground ring at a world
+  // position (used for non-elemental events like monster deaths).
   impact(pos: THREE.Vector3, color: number, scale = 1): void {
     const now = performance.now();
     const n = 10;
@@ -62,31 +87,126 @@ export class SkillVfx {
         vx: Math.cos(ang) * spd,
         vy: 2 + Math.random() * 3,
         vz: Math.sin(ang) * spd,
+        grav: 9,
+        drag: 0,
         born: now,
         life: 360 + Math.random() * 220,
         size: s,
       });
     }
     this.ring(pos, color, 2.4 * scale, GEO_IMPACT_RING, 0.1, 420);
-    // a fast, bright white-hot shockwave that expands further and fades quickly
-    this.ring(pos, 0xffffff, 3.6 * scale, GEO_SHOCK_RING, 0.12, 260);
-    // a bright flash core that catches bloom
-    const flash = this.acquireSprite(color, 1.6 * scale);
-    flash.position.set(pos.x, pos.y + 0.8, pos.z);
-    this.particles.push({ sprite: flash, vx: 0, vy: 0, vz: 0, born: now, life: 180, size: 1.6 * scale });
+    this.shockAndFlash(pos, color, scale);
   }
 
-  // A cast telegraph at the caster's feet: a converging ring that reads as a brief wind-up.
+  // Element-styled skill impact: each element gets a distinct particle silhouette
+  // (fire licks up, water splashes + falls, wind swirls, earth throws debris +
+  // dust, holy radiates + a light shaft, shadow collapses inward) over the shared
+  // shockwave + flash.
+  impactElement(pos: THREE.Vector3, element: Element, scale = 1): void {
+    const color = ELEMENT_COLOR[element] ?? 0xffffff;
+    this.shockAndFlash(pos, color, scale);
+    switch (element) {
+      case Element.Fire:
+        this.burst(pos, { color, count: 12, speedMin: 0.3, speedMax: 1.4, upMin: 3.5, upMax: 7, grav: 2, drag: 1.2, lifeMin: 380, lifeMax: 640, sizeMin: 0.3, sizeMax: 0.6, yStart: 0.6, mode: "out", scale });
+        this.ring(pos, color, 1.8 * scale, GEO_IMPACT_RING, 0.1, 380);
+        break;
+      case Element.Water:
+        this.burst(pos, { color, count: 16, speedMin: 2.5, speedMax: 5, upMin: 1.5, upMax: 3.5, grav: 16, drag: 0.2, lifeMin: 340, lifeMax: 560, sizeMin: 0.22, sizeMax: 0.45, yStart: 0.6, mode: "out", scale });
+        this.ring(pos, color, 3.2 * scale, GEO_IMPACT_RING, 0.08, 480);
+        break;
+      case Element.Wind:
+        this.burst(pos, { color, count: 16, speedMin: 3, speedMax: 5.5, upMin: 0.5, upMax: 2, grav: 1, drag: 1.4, lifeMin: 300, lifeMax: 480, sizeMin: 0.25, sizeMax: 0.5, yStart: 0.8, mode: "tangential", scale });
+        this.ring(pos, color, 4.0 * scale, GEO_SHOCK_RING, 0.12, 300);
+        break;
+      case Element.Earth:
+        this.burst(pos, { color, count: 12, speedMin: 2, speedMax: 4, upMin: 1.5, upMax: 3, grav: 18, drag: 0.1, lifeMin: 380, lifeMax: 600, sizeMin: 0.3, sizeMax: 0.6, yStart: 0.4, mode: "out", scale });
+        this.burst(pos, { color: 0xb89a72, count: 5, speedMin: 0.4, speedMax: 1.2, upMin: 0.4, upMax: 1.2, grav: -0.6, drag: 1.6, lifeMin: 520, lifeMax: 760, sizeMin: 0.7, sizeMax: 1.1, yStart: 0.3, mode: "out", scale });
+        this.ring(pos, color, 2.6 * scale, GEO_IMPACT_RING, 0.06, 460);
+        break;
+      case Element.Holy:
+        this.burst(pos, { color, count: 12, speedMin: 0.4, speedMax: 1.4, upMin: 3, upMax: 6, grav: 1, drag: 1.0, lifeMin: 480, lifeMax: 760, sizeMin: 0.3, sizeMax: 0.55, yStart: 0.4, mode: "out", scale });
+        this.beam(pos, color, 2.8, 380);
+        this.ring(pos, color, 2.6 * scale, GEO_IMPACT_RING, 0.08, 520);
+        break;
+      case Element.Shadow:
+        this.burst(pos, { color, count: 14, speedMin: 3, speedMax: 5, upMin: 0.5, upMax: 2.5, grav: 2, drag: 0.8, lifeMin: 360, lifeMax: 560, sizeMin: 0.28, sizeMax: 0.55, yStart: 0.7, mode: "inward", radius: 2.6 * scale, scale });
+        this.ring(pos, color, 2.2 * scale, GEO_IMPACT_RING, 0.1, 460);
+        break;
+      default: // Neutral
+        this.burst(pos, { color, count: 10, speedMin: 2, speedMax: 5, upMin: 2, upMax: 5, grav: 9, drag: 0, lifeMin: 360, lifeMax: 580, sizeMin: 0.35, sizeMax: 0.75, yStart: 0.8, mode: "out", scale });
+        this.ring(pos, color, 2.4 * scale, GEO_IMPACT_RING, 0.1, 420);
+    }
+  }
+
+  // The shared white-hot shockwave ring + a bright flash core (catches bloom).
+  private shockAndFlash(pos: THREE.Vector3, color: number, scale: number): void {
+    this.ring(pos, 0xffffff, 3.6 * scale, GEO_SHOCK_RING, 0.12, 260);
+    const flash = this.acquireSprite(color, 1.6 * scale);
+    flash.position.set(pos.x, pos.y + 0.8, pos.z);
+    this.particles.push({ sprite: flash, vx: 0, vy: 0, vz: 0, grav: 0, drag: 0, born: performance.now(), life: 180, size: 1.6 * scale });
+  }
+
+  // Spawn a shaped spark burst (see BurstOpts).
+  private burst(pos: THREE.Vector3, o: BurstOpts): void {
+    const now = performance.now();
+    for (let i = 0; i < o.count; i++) {
+      const ang = Math.random() * Math.PI * 2;
+      const dx = Math.cos(ang);
+      const dz = Math.sin(ang);
+      const spd = (o.speedMin + Math.random() * (o.speedMax - o.speedMin)) * o.scale;
+      const s = (o.sizeMin + Math.random() * (o.sizeMax - o.sizeMin)) * o.scale;
+      const sprite = this.acquireSprite(o.color, s);
+      let px = pos.x;
+      let pz = pos.z;
+      let vx: number;
+      let vz: number;
+      if (o.mode === "tangential") {
+        const sign = Math.random() < 0.5 ? -1 : 1;
+        vx = -dz * spd * sign;
+        vz = dx * spd * sign;
+      } else if (o.mode === "inward") {
+        const r = o.radius ?? 2.5;
+        px = pos.x + dx * r;
+        pz = pos.z + dz * r;
+        vx = -dx * spd;
+        vz = -dz * spd;
+      } else {
+        vx = dx * spd;
+        vz = dz * spd;
+      }
+      sprite.position.set(px, pos.y + o.yStart, pz);
+      this.particles.push({
+        sprite,
+        vx,
+        vy: (o.upMin + Math.random() * (o.upMax - o.upMin)) * o.scale,
+        vz,
+        grav: o.grav,
+        drag: o.drag,
+        born: now,
+        life: o.lifeMin + Math.random() * (o.lifeMax - o.lifeMin),
+        size: s,
+      });
+    }
+  }
+
+  // A cast telegraph: a converging ground ring plus a few motes that gather
+  // inward toward the caster, reading as a brief energy wind-up (element-tinted).
   castRing(pos: THREE.Vector3, color: number): void {
     const mesh = this.acquireRing(GEO_CAST_RING, color);
     mesh.position.set(pos.x, pos.y + 0.08, pos.z);
     mesh.scale.setScalar(2.6);
     this.rings.push({ mesh, born: performance.now(), life: 480, maxR: -2.2 });
+    this.burst(pos, { color, count: 7, speedMin: 3, speedMax: 4.5, upMin: 0.4, upMax: 1.4, grav: 0, drag: 0.6, lifeMin: 420, lifeMax: 520, sizeMin: 0.22, sizeMax: 0.4, yStart: 0.85, mode: "inward", radius: 2.0, scale: 1 });
   }
 
   // A vertical light pillar that shoots up and fades — punctuates a crit hit.
   crit(pos: THREE.Vector3, color: number): void {
     this.beam(pos, color, 3.4, 320);
+  }
+
+  // A small lick of flame on a burn damage-over-time tick (no ring/shockwave).
+  burnTick(pos: THREE.Vector3): void {
+    this.burst(pos, { color: 0xff7a3a, count: 5, speedMin: 0.2, speedMax: 0.9, upMin: 2, upMax: 4, grav: 1.5, drag: 1.5, lifeMin: 300, lifeMax: 480, sizeMin: 0.2, sizeMax: 0.4, yStart: 0.7, mode: "out", scale: 0.85 });
   }
 
   // A celebratory burst at the player on level-up: a golden upward fountain, a
@@ -100,7 +220,7 @@ export class SkillVfx {
       sprite.position.set(pos.x, pos.y + 0.2, pos.z);
       const ang = Math.random() * Math.PI * 2;
       const spd = 1 + Math.random() * 2;
-      this.particles.push({ sprite, vx: Math.cos(ang) * spd, vy: 5 + Math.random() * 4, vz: Math.sin(ang) * spd, born: now, life: 720 + Math.random() * 320, size: s });
+      this.particles.push({ sprite, vx: Math.cos(ang) * spd, vy: 5 + Math.random() * 4, vz: Math.sin(ang) * spd, grav: 9, drag: 0, born: now, life: 720 + Math.random() * 320, size: s });
     }
     this.ring(pos, gold, 5.0, GEO_IMPACT_RING, 0.06, 760);
     this.beam(pos, gold, 5.5, 900);
@@ -174,10 +294,16 @@ export class SkillVfx {
         continue;
       }
       const dt = 0.016;
+      if (p.drag) {
+        const f = Math.max(0, 1 - p.drag * dt);
+        p.vx *= f;
+        p.vy *= f;
+        p.vz *= f;
+      }
+      p.vy -= p.grav * dt; // gravity (negative grav rises)
       p.sprite.position.x += p.vx * dt;
       p.sprite.position.y += p.vy * dt;
       p.sprite.position.z += p.vz * dt;
-      p.vy -= 9 * dt; // gravity
       (p.sprite.material as THREE.SpriteMaterial).opacity = 1 - t;
       p.sprite.scale.setScalar(p.size * (1 - t * 0.5));
     }
