@@ -442,6 +442,10 @@ function handleMessage(msg: ServerMessage): void {
       if (msg.casterId === selfId) {
         if (msg.durationMs > 0) castBar.show(getSkill(msg.skillId)?.name ?? "Casting", msg.durationMs);
         else castBar.hide();
+      } else if (msg.durationMs > 0) {
+        // telegraph other casters (monsters/players) with an element-tinted wind-up
+        const cp = gameState.worldPosOf(msg.casterId);
+        if (cp) skillVfx.castRing(cp, ELEMENT_COLOR[getSkill(msg.skillId)?.element ?? Element.Neutral]);
       }
       break;
     case MsgType.Defeated: {
