@@ -535,7 +535,13 @@ function onDamage(msg: Extract<ServerMessage, { t: MsgType.DamageEvent }>): void
     if (msg.skillId === "burn") {
       skillVfx.burnTick(pos);
     } else if (msg.skillId) {
-      const el = getSkill(msg.skillId)?.element ?? Element.Neutral;
+      const sk = getSkill(msg.skillId);
+      const el = sk?.element ?? Element.Neutral;
+      // ranged skills fire a bolt streak from the caster to the target
+      if (sk && sk.range > 4) {
+        const srcPos = gameState.worldPosOf(msg.sourceId);
+        if (srcPos) skillVfx.tracer(srcPos, pos, ELEMENT_COLOR[el]);
+      }
       skillVfx.impactElement(pos, el, msg.crit ? 1.4 : 1);
       if (msg.crit) skillVfx.crit(pos, ELEMENT_COLOR[el]);
     }

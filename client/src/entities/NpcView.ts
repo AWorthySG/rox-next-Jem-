@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import type { EntityFull } from "@rox/shared";
 import { buildCharacter, type CharacterMesh } from "../procedural/characterMesh.js";
+import { makeSpark } from "../procedural/textures.js";
+import { env } from "../engine/env.js";
 import { EntityView } from "./EntityView.js";
 import { ModelRig } from "./ModelRig.js";
 
@@ -12,6 +14,7 @@ export class NpcView extends EntityView {
   private bob = 0;
   private marker: THREE.Mesh;
   private glow: THREE.Mesh;
+  private lantern: THREE.Sprite;
   private char: CharacterMesh;
   private rig: ModelRig;
 
@@ -45,6 +48,12 @@ export class NpcView extends EntityView {
     this.glow.position.y = 0.04;
     this.group.add(this.glow);
 
+    // a warm lantern glow beside the NPC that lights up at night
+    this.lantern = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeSpark(), color: 0xffb050, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
+    this.lantern.scale.setScalar(1.6);
+    this.lantern.position.set(0.55, 1.6, 0.2);
+    this.group.add(this.lantern);
+
     // Optional mid-poly model by role: npc_<role>.glb.
     this.rig = new ModelRig(this.group, entity.id);
     void this.rig.tryLoad(`npc_${this.role}`, undefined, 1, () => {
@@ -61,6 +70,10 @@ export class NpcView extends EntityView {
     const t = Math.sin(this.bob * 1.3) * 0.5 + 0.5;
     (this.glow.material as THREE.MeshBasicMaterial).opacity = 0.28 + t * 0.24;
     this.glow.scale.setScalar(1 + t * 0.08);
+    // lantern: lit at night, with a gentle flicker
+    const flick = 0.85 + Math.sin(this.bob * 5) * 0.15;
+    (this.lantern.material as THREE.SpriteMaterial).opacity = env.night * 0.85 * flick;
+    this.lantern.visible = env.night > 0.05;
     if (this.modelBacked) this.rig.update(dt); // NPCs are stationary → idle loop
   }
 

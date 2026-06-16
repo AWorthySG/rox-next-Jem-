@@ -11,6 +11,7 @@ import { makeGroundTexture, makeGroundRoughness, makeSunSprite, makeCloud, makeS
 import { buildScenery, type Scenery } from "../procedural/scenery.js";
 import { buildWater, type Water } from "../procedural/water.js";
 import { windTime } from "../procedural/wind.js";
+import { env } from "./env.js";
 
 // Owns the renderer, the CSS2D label layer, scene, lights, ground, sky dome and
 // the post-processing pipeline (bloom + SMAA), styled for a warm anime-MMO look.
@@ -37,6 +38,7 @@ export class SceneManager {
   private moteBox = 34;
   private butterflies: { sprite: THREE.Sprite; vx: number; vz: number; phase: number; flap: number; baseY: number; size: number }[] = [];
   private gulls: { sprite: THREE.Sprite; cx: number; cz: number; r: number; ang: number; speed: number; baseY: number; flap: number; phase: number }[] = [];
+  private shoreMist: { sprite: THREE.Sprite; phase: number; baseY: number; baseOp: number }[] = [];
   private clock = new THREE.Clock();
 
   // ---- day/night + weather ----
@@ -311,6 +313,29 @@ export class SceneManager {
       this.scene.add(this.water.mesh);
     }
     this.setGulls(!!w);
+    this.setShoreMist(!!w);
+  }
+
+  // A soft band of low haze drifting around the island's shore (water maps only).
+  private setShoreMist(present: boolean): void {
+    for (const m of this.shoreMist) {
+      this.scene.remove(m.sprite);
+      (m.sprite.material as THREE.Material).dispose();
+    }
+    this.shoreMist = [];
+    if (!present) return;
+    const tex = makeCloud();
+    const N = 18;
+    const R = MAP_SIZE * 0.5;
+    for (let i = 0; i < N; i++) {
+      const a = (i / N) * Math.PI * 2 + (Math.random() - 0.5) * 0.25;
+      const sprite = new THREE.Sprite(new THREE.SpriteMaterial({ map: tex, color: 0xdfeaf2, transparent: true, opacity: 0.16, depthWrite: false }));
+      sprite.position.set(Math.cos(a) * R, 1.0 + Math.random() * 0.6, Math.sin(a) * R);
+      const wide = 10 + Math.random() * 8;
+      sprite.scale.set(wide, wide * 0.4, 1);
+      this.scene.add(sprite);
+      this.shoreMist.push({ sprite, phase: Math.random() * Math.PI * 2, baseY: sprite.position.y, baseOp: 0.12 + Math.random() * 0.08 });
+    }
   }
 
   // Spawn (or clear) a small flock of gulls that wheel over coastal/lake maps.
@@ -391,14 +416,29 @@ export class SceneManager {
     gm.color.copy(this.themeGround).multiplyScalar((0.45 + 0.55 * bright) * (1 - 0.12 * wet));
     if (snow) gm.color.lerp(ENV_SNOW, 0.55 * d); // brighter dusting by day
 
+    // dim the props (trees/rocks/grass/flowers) with the same day/night + weather
+    // mood as the ground, so the whole scene reads consistently lit.
+    this.scenery?.setShade(0.5 + 0.5 * bright);
+
+    // moodier colour grade in bad weather: storms drain saturation, rain/fog a touch.
+    this.grade.uniforms.saturation.value =
+      this.weather === Weather.Storm ? 0.85 :
+      this.weather === Weather.Rain ? 0.99 :
+      this.weather === Weather.Fog ? 0.94 :
+      this.weather === Weather.Snow ? 1.02 : 1.16;
+
     // sun halo follows daylight: bright by day, gone at night (the moon takes over)
     this.skyUniforms.sunGlow.value = Math.max(0, d * overcast);
     (this.skyUniforms.sunColor.value as THREE.Color).copy(ENV_SUN_WARM).lerp(white, 1 - overcast).multiplyScalar(overcast);
 
     this.sun.intensity = 0.25 + 2.0 * d * overcast;
     this.hemi.intensity = 0.3 + 0.6 * bright;
+    // golden hour: warm the key light + horizon as the sun nears the horizon
+    const golden = smoothstep(0.05, 0.3, d) * (1 - smoothstep(0.3, 0.62, d)) * overcast;
+    this.sun.color.copy(ENV_SUN_KEY).lerp(ENV_GOLDEN, golden * 0.8);
+    this.skyUniforms.bottomColor.value.lerp(ENV_SUNSET, golden * 0.45);
     const sprite = this.sunSprite.material as THREE.SpriteMaterial;
-    sprite.color.copy(this.themeSky).lerp(white, 0.7);
+    sprite.color.copy(this.themeSky).lerp(white, 0.7).lerp(ENV_GOLDEN, golden * 0.6);
     sprite.opacity = Math.max(0, d * overcast);
     this.sunSprite.visible = d > 0.05 && overcast > 0.6;
 
@@ -547,6 +587,22 @@ export class SceneManager {
       g.sprite.visible = day > 0.1;
     }
 
+    // ambient motes read as pale dust by day and warm fireflies (bigger, brighter,
+    // golden) at night
+    const night = 1 - daylight(this.envTime);
+    env.night = night; // publish for entity views (NPC lanterns, etc.)
+    const mm = this.motes.material as THREE.PointsMaterial;
+    mm.opacity = 0.35 + night * 0.4;
+    mm.size = 0.18 + night * 0.16;
+    mm.color.copy(MOTE_DAY).lerp(MOTE_NIGHT, night);
+
+    // shoreline mist: a gentle bob + opacity shimmer (visible day and night)
+    for (const m of this.shoreMist) {
+      m.phase += dt * 0.5;
+      m.sprite.position.y = m.baseY + Math.sin(m.phase) * 0.25;
+      (m.sprite.material as THREE.SpriteMaterial).opacity = m.baseOp * (0.7 + 0.3 * Math.sin(m.phase * 0.8));
+    }
+
     if (this.water) this.water.material.uniforms.time.value += dt;
     windTime.value += dt;
     this.grade.uniforms.time.value += dt;
@@ -628,6 +684,17 @@ const ENV_NIGHT_FOG = new THREE.Color(0x10182e);
 const ENV_WHITE = new THREE.Color(0xffffff);
 const ENV_SUN_WARM = new THREE.Color(0xfff0c8); // warm sun-halo tint
 const ENV_SNOW = new THREE.Color(0xe2ecf4); // pale frost dusting for snow weather
+const MOTE_DAY = new THREE.Color(0xfff2cf); // pale dust motes by day
+const MOTE_NIGHT = new THREE.Color(0xffd060); // warm firefly glow at night
+const ENV_SUN_KEY = new THREE.Color(0xfff0d2); // neutral-warm key light
+const ENV_GOLDEN = new THREE.Color(0xff9a4a); // dawn/dusk golden tint
+const ENV_SUNSET = new THREE.Color(0xff8a5a); // horizon glow at golden hour
+
+// Smooth Hermite ramp between edges a→b (GLSL smoothstep).
+function smoothstep(a: number, b: number, x: number): number {
+  const t = Math.max(0, Math.min(1, (x - a) / (b - a)));
+  return t * t * (3 - 2 * t);
+}
 
 const SKY_VERT = /* glsl */ `
   varying vec3 vWorldPosition;

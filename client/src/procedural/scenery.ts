@@ -4,6 +4,8 @@ import { applyWind } from "./wind.js";
 
 export interface Scenery {
   group: THREE.Group;
+  // Multiply all prop albedos by `mul` (day/night + weather dimming, base*mul).
+  setShade(mul: number): void;
   dispose(): void;
 }
 
@@ -233,8 +235,17 @@ export function buildScenery(mapId: string): Scenery {
     group.add(flowers);
   }
 
+  // Capture each prop material's base colour so day/night dimming can scale it
+  // (base × mul) without losing the material's hue.
+  const shadeList = mats
+    .filter((m): m is THREE.MeshStandardMaterial => m instanceof THREE.MeshStandardMaterial)
+    .map((m) => ({ mat: m, base: m.color.clone() }));
+
   return {
     group,
+    setShade(mul: number) {
+      for (const s of shadeList) s.mat.color.copy(s.base).multiplyScalar(mul);
+    },
     dispose() {
       for (const g of geos) g.dispose();
       for (const m of mats) m.dispose();
