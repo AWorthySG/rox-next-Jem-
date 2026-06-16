@@ -353,9 +353,9 @@ function handleMessage(msg: ServerMessage): void {
     case MsgType.Despawn: {
       if (msg.id === currentTargetId) currentTargetId = null;
       if (msg.id === approachTargetId) approachTargetId = null;
-      // gold loot sparkle as the monster falls
+      // element-themed dissolve burst as the monster falls
       const death = gameState.monsterDeathInfo(msg.id);
-      if (death) skillVfx.impact(death.pos, 0xffd24a, death.boss ? 2.4 : 1.1);
+      if (death) skillVfx.impactElement(death.pos, death.element as Element, death.boss ? 2.4 : 1.1);
       gameState.removeEntity(msg.id);
       break;
     }
