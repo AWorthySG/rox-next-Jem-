@@ -207,6 +207,32 @@ export function buildScenery(mapId: string): Scenery {
     group.add(tufts);
   }
 
+  // ---- wildflowers: bright instanced blooms scattered through grassy maps ----
+  const grassy = theme.tree === "leafy" || theme.tree === "jungle" || theme.tree === "palm";
+  if (grassy && theme.tufts > 40) {
+    const fcount = Math.round(theme.tufts * 0.5);
+    const [fg, fm] = track(
+      new THREE.IcosahedronGeometry(0.13, 0),
+      new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.85, flatShading: true }),
+    );
+    applyWind(fm, 0.06);
+    const flowers = new THREE.InstancedMesh(fg, fm, fcount);
+    const palette = [0xff6b8a, 0xffd24a, 0xf4f0f0, 0xff9a3a, 0xc080e0, 0xff5060];
+    const col = new THREE.Color();
+    const fm4 = new THREE.Matrix4();
+    let fi = 0;
+    scatter(rng, fcount, (x, z, s) => {
+      fm4.compose(new THREE.Vector3(x, 0.3 * s, z), new THREE.Quaternion(), new THREE.Vector3(s, s, s));
+      flowers.setMatrixAt(fi, fm4);
+      col.setHex(palette[(rng() * palette.length) | 0]).offsetHSL((rng() - 0.5) * 0.04, 0, (rng() - 0.5) * 0.1);
+      flowers.setColorAt(fi, col);
+      fi++;
+    });
+    flowers.count = fi;
+    if (flowers.instanceColor) flowers.instanceColor.needsUpdate = true;
+    group.add(flowers);
+  }
+
   return {
     group,
     dispose() {
