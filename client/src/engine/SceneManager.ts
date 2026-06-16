@@ -419,6 +419,13 @@ export class SceneManager {
     // mood as the ground, so the whole scene reads consistently lit.
     this.scenery?.setShade(0.5 + 0.5 * bright);
 
+    // moodier colour grade in bad weather: storms drain saturation, rain/fog a touch.
+    this.grade.uniforms.saturation.value =
+      this.weather === Weather.Storm ? 0.85 :
+      this.weather === Weather.Rain ? 0.99 :
+      this.weather === Weather.Fog ? 0.94 :
+      this.weather === Weather.Snow ? 1.02 : 1.16;
+
     // sun halo follows daylight: bright by day, gone at night (the moon takes over)
     this.skyUniforms.sunGlow.value = Math.max(0, d * overcast);
     (this.skyUniforms.sunColor.value as THREE.Color).copy(ENV_SUN_WARM).lerp(white, 1 - overcast).multiplyScalar(overcast);
