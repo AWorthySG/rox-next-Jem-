@@ -484,7 +484,10 @@ function handleMessage(msg: ServerMessage): void {
         screenFx.levelUp();
         cameraRig.shake(0.12);
         const sp = gameState.self?.group.position;
-        if (sp) skillVfx.levelUp(sp);
+        if (sp) {
+          skillVfx.levelUp(sp);
+          damageNumbers.spawn(sp, "LEVEL UP!", "levelup");
+        }
       }
       break;
     case MsgType.ChatBroadcast:

@@ -5,6 +5,7 @@ interface Slot {
   el: HTMLButtonElement;
   cdOverlay: HTMLDivElement;
   cooldownUntil: number; // performance.now() ms
+  cooling: boolean; // was on cooldown last frame (to detect the ready transition)
 }
 
 // Renders the job's skill bar with hotkeys, SP gating and a cooldown sweep.
@@ -37,7 +38,7 @@ export class SkillBar {
       const cdOverlay = document.createElement("div");
       cdOverlay.className = "cd";
       el.appendChild(cdOverlay);
-      const slot: Slot = { def, el, cdOverlay, cooldownUntil: 0 };
+      const slot: Slot = { def, el, cdOverlay, cooldownUntil: 0, cooling: false };
       el.addEventListener("click", () => this.tryCast(slot));
       this.root.appendChild(el);
       this.slots.push(slot);
@@ -76,13 +77,20 @@ export class SkillBar {
     const now = performance.now();
     for (const s of this.slots) {
       const remain = s.cooldownUntil - now;
-      if (remain > 0) {
+      const cooling = remain > 0;
+      if (cooling) {
         s.cdOverlay.style.height = `${Math.min(100, (remain / s.def.cooldownMs) * 100)}%`;
         s.el.classList.add("cooling");
       } else {
         s.cdOverlay.style.height = "0%";
         s.el.classList.remove("cooling");
+        // just came off cooldown → a brief "ready" flash
+        if (s.cooling) {
+          s.el.classList.add("ready");
+          setTimeout(() => s.el.classList.remove("ready"), 420);
+        }
       }
+      s.cooling = cooling;
       s.el.classList.toggle("dim", this.sp < s.def.spCost);
     }
   }
