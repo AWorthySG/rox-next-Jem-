@@ -493,10 +493,10 @@ function onDamage(msg: Extract<ServerMessage, { t: MsgType.DamageEvent }>): void
     const suffix = mult > 1 ? " ▲" : mult < 1 ? " ▼" : "";
     damageNumbers.spawn(pos, `${msg.amount}${suffix}`, variant, mult);
     if (msg.sourceId === selfId) (msg.crit ? sfx.crit() : sfx.hit());
-    // Impact VFX for skill hits, colored by the skill's element.
+    // Impact VFX for skill hits — element-styled burst + crit pillar.
     if (msg.skillId && msg.skillId !== "burn") {
       const el = getSkill(msg.skillId)?.element ?? Element.Neutral;
-      skillVfx.impact(pos, ELEMENT_COLOR[el], msg.crit ? 1.4 : 1);
+      skillVfx.impactElement(pos, el, msg.crit ? 1.4 : 1);
       if (msg.crit) skillVfx.crit(pos, ELEMENT_COLOR[el]);
     }
     // Game-feel: attack swing on the attacker, hit reaction on the target.
