@@ -9,6 +9,10 @@ const GEO_CAST_RING = new THREE.RingGeometry(0.85, 1.0, 40);
 const GEO_SHOCK_RING = new THREE.RingGeometry(0.46, 0.52, 48); // thin, fast shockwave
 // Tapered beam for crit pillars; translated so its base sits at y=0 (grows up).
 const GEO_BEAM = new THREE.CylinderGeometry(0.16, 0.05, 1, 12).translate(0, 0.5, 0);
+// Thin centred cylinder for ranged tracers (oriented + length-scaled per shot).
+const GEO_TRACER = new THREE.CylinderGeometry(0.07, 0.07, 1, 6);
+const TRACER_UP = new THREE.Vector3(0, 1, 0);
+const TRACER_DIR = new THREE.Vector3();
 
 interface Particle {
   sprite: THREE.Sprite;
@@ -58,6 +62,12 @@ interface Beam {
   maxH: number;
 }
 
+interface Tracer {
+  mesh: THREE.Mesh;
+  born: number;
+  life: number;
+}
+
 // Pooled additive particle bursts + shock rings for skill impacts. Sprites and
 // ring meshes (with their materials) are recycled rather than created/disposed
 // per hit, so heavy combat doesn't churn GPU resources or trigger GC.
@@ -65,10 +75,12 @@ export class SkillVfx {
   private particles: Particle[] = [];
   private rings: Ring[] = [];
   private beams: Beam[] = [];
+  private tracers: Tracer[] = [];
   private sparkTex = makeSpark();
   private spritePool: THREE.Sprite[] = [];
   private ringPool: THREE.Mesh[] = [];
   private beamPool: THREE.Mesh[] = [];
+  private tracerPool: THREE.Mesh[] = [];
 
   constructor(private scene: THREE.Scene) {}
 
@@ -230,6 +242,32 @@ export class SkillVfx {
     this.beam(pos, 0x8ad0ff, 3.2, 520);
   }
 
+  // A fast bolt streak from a caster to its target, for ranged skills.
+  tracer(from: THREE.Vector3, to: THREE.Vector3, color: number): void {
+    let mesh = this.tracerPool.pop();
+    if (!mesh) {
+      mesh = new THREE.Mesh(
+        GEO_TRACER,
+        new THREE.MeshBasicMaterial({ transparent: true, depthWrite: false, blending: THREE.AdditiveBlending }),
+      );
+    }
+    const ay = from.y + 0.9;
+    const by = to.y + 0.9;
+    const dx = to.x - from.x;
+    const dy = by - ay;
+    const dz = to.z - from.z;
+    const len = Math.hypot(dx, dy, dz) || 0.01;
+    mesh.position.set((from.x + to.x) / 2, (ay + by) / 2, (from.z + to.z) / 2);
+    TRACER_DIR.set(dx / len, dy / len, dz / len);
+    mesh.quaternion.setFromUnitVectors(TRACER_UP, TRACER_DIR);
+    mesh.scale.set(1, len, 1);
+    const mat = mesh.material as THREE.MeshBasicMaterial;
+    mat.color.setHex(color);
+    mat.opacity = 0.9;
+    this.scene.add(mesh);
+    this.tracers.push({ mesh, born: performance.now(), life: 170 });
+  }
+
   // A few gold motes that drift up from a slain monster — a loot/XP cue.
   reward(pos: THREE.Vector3): void {
     this.burst(pos, { color: 0xffe08a, count: 6, speedMin: 0.3, speedMax: 1.0, upMin: 2, upMax: 3.5, grav: -0.4, drag: 1.2, lifeMin: 600, lifeMax: 900, sizeMin: 0.25, sizeMax: 0.45, yStart: 0.5, mode: "out", scale: 1 });
@@ -365,6 +403,20 @@ export class SkillVfx {
       const taper = 1 - t * 0.4;
       b.mesh.scale.set(taper, h, taper);
       (b.mesh.material as THREE.MeshBasicMaterial).opacity = 0.85 * (1 - t);
+    }
+    for (let i = this.tracers.length - 1; i >= 0; i--) {
+      const tr = this.tracers[i];
+      const t = (now - tr.born) / tr.life;
+      if (t >= 1) {
+        this.scene.remove(tr.mesh);
+        this.tracers.splice(i, 1);
+        this.tracerPool.push(tr.mesh);
+        continue;
+      }
+      const taper = 1 - t * 0.7; // thins as it fades, length stays
+      tr.mesh.scale.x = taper;
+      tr.mesh.scale.z = taper;
+      (tr.mesh.material as THREE.MeshBasicMaterial).opacity = 0.9 * (1 - t);
     }
   }
 }
