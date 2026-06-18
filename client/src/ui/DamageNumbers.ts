@@ -24,7 +24,7 @@ export class DamageNumbers {
   spawn(
     pos: THREE.Vector3,
     text: string,
-    variant: "" | "crit" | "miss" | "taken" | "heal",
+    variant: "" | "crit" | "miss" | "taken" | "heal" | "levelup",
     elementMult = 1,
   ): void {
     const f = this.pool.pop() ?? this.create();
@@ -37,7 +37,7 @@ export class DamageNumbers {
     f.baseX = pos.x + (Math.random() - 0.5) * 0.6;
     f.baseY = baseY;
     f.vx = (Math.random() - 0.5) * 1.1; // gentle sideways drift
-    f.pop = variant === "crit" ? 1.7 : variant === "heal" ? 1.3 : 1.0;
+    f.pop = variant === "levelup" ? 1.8 : variant === "crit" ? 1.7 : variant === "heal" ? 1.3 : 1.0;
     f.obj.position.set(f.baseX, baseY, pos.z);
     f.born = performance.now();
     this.scene.add(f.obj);

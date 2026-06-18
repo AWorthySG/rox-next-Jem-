@@ -126,6 +126,12 @@ body {
 .dmg.heal {
   color: #7CFC7C;
 }
+.dmg.levelup {
+  color: #ffe070;
+  font-size: 26px;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px #ffae2a, 0 2px 4px #000;
+}
 .dmg.super {
   color: #aef9b0;
   font-size: 22px;
@@ -1007,6 +1013,15 @@ body {
 }
 .skill-slot.nosp {
   border-color: #ff6b6b;
+}
+/* brief glow pulse the moment a skill comes off cooldown */
+.skill-slot.ready {
+  animation: skill-ready 0.42s ease-out;
+}
+@keyframes skill-ready {
+  0% { box-shadow: 0 0 0 0 rgba(255, 230, 130, 0); }
+  35% { box-shadow: 0 0 12px 3px rgba(255, 230, 130, 0.9); border-color: var(--gold); }
+  100% { box-shadow: 0 0 0 0 rgba(255, 230, 130, 0); }
 }
 
 /* ---- skill-name popup ---- */
