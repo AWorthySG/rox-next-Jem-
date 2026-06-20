@@ -468,6 +468,11 @@ async function main(): Promise<void> {
   check((wbT?.baseHp ?? 0) >= 500000, "worldboss: huge shared HP pool");
   check(!!MONSTER_TEMPLATES["tide_emperor"]?.worldBoss, "worldboss: Tide Emperor is a world boss");
   check(!!MAPS["the_float"], "worldboss: The Float raid map exists");
+  // ---- Celestial Spire endgame content ----
+  check(!!MAPS["celestial_spire"], "content: Celestial Spire map exists");
+  check(!!MONSTER_TEMPLATES["aether_sovereign"]?.worldBoss, "content: Aether Sovereign is a world boss");
+  check((MONSTER_TEMPLATES["aether_sovereign"]?.mechanics?.length ?? 0) >= 3, "content: Aether Sovereign has multiple mechanics");
+  check(MAPS["the_float"].npcs.some((n) => n.dest?.toMap === "celestial_spire"), "content: The Float links to the Spire");
   const raidBoss = new Monster(4242, MONSTER_TEMPLATES["lion_city_colossus"], "z", "the_float", 0, 0);
   raidBoss.recordDamage(1, 500);
   raidBoss.recordDamage(2, 300);

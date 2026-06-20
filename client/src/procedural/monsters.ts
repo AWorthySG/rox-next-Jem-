@@ -94,6 +94,7 @@ export const ARCH: Record<string, MonsterArch> = {
   turbine_sentinel: "golem", spillway_wraith: "ghost", surge_elemental: "aquatic", barrage_leviathan: "aquatic", tempest_dragon: "dragon",
   lion_city_colossus: "golem", tide_emperor: "dragon",
   ridge_drongo: "bird", fern_sprite: "plant", civet_cat: "beast", henderson_sentinel: "golem", canopy_warlord: "beast",
+  astral_sentinel: "golem", void_seraph: "demon", nebula_wisp: "ghost", celestial_warden: "humanoid", aether_sovereign: "dragon",
 };
 
 function hex(s: string): number {
@@ -484,6 +485,12 @@ const DEFS: Record<string, AppearanceDef> = {
   civet_cat: { inner: "#3a4a6a", outer: "#14182a", eye: "#aef0ff", scale: 1.3 },
   henderson_sentinel: { inner: "#c0a878", outer: "#5a4a28", scale: 2.8, boss: true },
   canopy_warlord: { inner: "#a08850", outer: "#3a2a14", scale: 2.9, boss: true },
+  // Celestial Spire (endgame finale)
+  astral_sentinel: { inner: "#aab0e0", outer: "#3a3a5a", eye: "#cfe0ff", scale: 1.5 },
+  void_seraph: { inner: "#8a5fd0", outer: "#1a1428", eye: "#c060ff", scale: 1.5 },
+  nebula_wisp: { inner: "#80c0ff", outer: "#2a2a6a", eye: "#aef0ff", scale: 1.3 },
+  celestial_warden: { inner: "#e0d090", outer: "#4a4a7a", eye: "#fff0a0", scale: 3.0, boss: true },
+  aether_sovereign: { inner: "#ffd86a", outer: "#e8e0ff", eye: "#fff0c0", scale: 3.5, boss: true },
 };
 
 export const DEFAULT_TEMPLATE = "poring";

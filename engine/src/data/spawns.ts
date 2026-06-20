@@ -638,6 +638,29 @@ Object.assign(MONSTER_TEMPLATES, {
   civet_cat: mk("civet_cat", "Civet Cat", 62, 3800, 7800),
   henderson_sentinel: mk("henderson_sentinel", "Henderson Sentinel", 68, 19000, 31000, true),
   canopy_warlord: mk("canopy_warlord", "Canopy Warlord", 70, 21000, 34000, true),
+  // ---- Celestial Spire (endgame finale above the Singapore tier) ----
+  astral_sentinel: mk("astral_sentinel", "Astral Sentinel", 72, 24000, 38000),
+  void_seraph: mk("void_seraph", "Void Seraph", 74, 26000, 41000),
+  nebula_wisp: mk("nebula_wisp", "Nebula Wisp", 76, 28000, 44000),
+  celestial_warden: mk("celestial_warden", "Celestial Warden", 170, 92000, 96000, true),
+  aether_sovereign: {
+    id: "aether_sovereign",
+    name: "Aether Sovereign",
+    level: 172,
+    stats: makeStats({ str: 260, agi: 120, vit: 230, int: 160, dex: 170, luk: 90 }),
+    baseHp: 820000,
+    baseExp: 820000,
+    boss: true,
+    worldBoss: true,
+    respawnMs: 600000,
+    element: Element.Holy,
+    mechanics: [
+      { kind: "enrage", hpPct: 0.3, atkMult: 2.0 },
+      { kind: "nova", intervalMs: 4600, radius: 16, powerMult: 2.1 },
+      { kind: "summon", intervalMs: 8500, templateId: "void_seraph", count: 2, max: 6 },
+      { kind: "heal", intervalMs: 13000, pct: 0.04 },
+    ],
+  },
 });
 
 export interface SpawnZone {
@@ -1200,6 +1223,10 @@ const BOSS_MECHANICS: Record<string, BossMechanic[]> = {
     { kind: "summon", intervalMs: 8500, templateId: "civet_cat", count: 2, max: 5 },
     { kind: "heal", intervalMs: 10000, pct: 0.06 },
   ],
+  celestial_warden: [
+    { kind: "enrage", hpPct: 0.35, atkMult: 1.8 },
+    { kind: "summon", intervalMs: 8000, templateId: "nebula_wisp", count: 2, max: 6 },
+  ],
 };
 for (const [id, mechs] of Object.entries(BOSS_MECHANICS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].mechanics = mechs;
@@ -1528,6 +1555,10 @@ const MONSTER_ELEMENTS: Record<string, Element> = {
   surge_elemental: Element.Water,
   barrage_leviathan: Element.Water,
   tempest_dragon: Element.Wind,
+  astral_sentinel: Element.Holy,
+  void_seraph: Element.Shadow,
+  nebula_wisp: Element.Wind,
+  celestial_warden: Element.Holy,
 };
 for (const [id, el] of Object.entries(MONSTER_ELEMENTS)) {
   if (MONSTER_TEMPLATES[id]) MONSTER_TEMPLATES[id].element = el;

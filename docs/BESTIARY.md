@@ -2,7 +2,7 @@
 
 _Auto-generated from the game data via `npm run bestiary`. Do not edit by hand._
 
-**333** total creatures — **196** regular monsters, **135** MVP bosses, and **2** shared-HP world bosses, spawning across **70** maps.
+**338** total creatures — **199** regular monsters, **136** MVP bosses, and **3** shared-HP world bosses, spawning across **71** maps.
 
 ## 🐉 World Bosses (shared HP raids)
 
@@ -10,6 +10,7 @@ _Auto-generated from the game data via `npm run bestiary`. Do not edit by hand._
 |------|----|----|-----|---------|-----------|----------|
 | **Lion City Colossus** | 165 | 620,000 | 620,000 | Earth | Enrage ≤40% (×1.8 ATK); Nova (radius 14); Summon Stone Golem | The Float @ Marina Bay |
 | **Tide Emperor** | 168 | 720,000 | 720,000 | Water | Enrage ≤35% (×1.9 ATK); Nova (radius 15); Heal 5%/cast | The Float @ Marina Bay |
+| **Aether Sovereign** | 172 | 820,000 | 820,000 | Holy | Enrage ≤30% (×2 ATK); Nova (radius 16); Summon Void Seraph; Heal 4%/cast | Celestial Spire |
 
 ## ⚔️ MVP Bosses
 
@@ -150,6 +151,7 @@ _Auto-generated from the game data via `npm run bestiary`. Do not edit by hand._
 | **Mandai Naga** | 146 | 120,000 | 200,000 | Earth | Enrage ≤30% (×2 ATK); Nova (radius 13); Heal 6%/cast | Mandai Night Safari |
 | **Barrage Leviathan** | 158 | 135,000 | 225,000 | Water | Enrage ≤35% (×2 ATK); Nova (radius 13); Summon Surge Elemental | Marina Barrage |
 | **Tempest Dragon** | 160 | 150,000 | 250,000 | Wind | Enrage ≤30% (×2.1 ATK); Nova (radius 14); Heal 6%/cast | Marina Barrage |
+| **Celestial Warden** | 170 | 92,000 | 96,000 | Holy | Enrage ≤35% (×1.8 ATK); Summon Nebula Wisp | Celestial Spire |
 
 ## 👹 Regular Monsters
 
@@ -252,6 +254,7 @@ _Auto-generated from the game data via `npm run bestiary`. Do not edit by hand._
 | Dryad | 70 | 4,200 | 7,000 | Earth | Umbala Jungle |
 | Permeter | 70 | 4,200 | 9,400 | Fire | Turtle Island |
 | Shrine Carp | 70 | 3,800 | 8,000 | Water | Kusu Island |
+| Astral Sentinel | 72 | 24,000 | 38,000 | Holy | Celestial Spire |
 | Dustiness | 72 | 4,300 | 9,200 | Wind | Veins Canyon |
 | Increase Soil | 72 | 4,400 | 9,500 | Earth | Louyang |
 | Kelong Crab | 72 | 4,000 | 8,400 | Water | Punggol Waterway |
@@ -262,11 +265,13 @@ _Auto-generated from the game data via `npm run bestiary`. Do not edit by hand._
 | Hode | 74 | 4,600 | 9,900 | Earth | Veins Canyon |
 | Lalang Sprite | 74 | 4,200 | 8,800 | Wind | Punggol Waterway |
 | Stone Golem | 74 | 4,600 | 10,400 | Earth | Mount Faber |
+| Void Seraph | 74 | 26,000 | 41,000 | Shadow | Celestial Spire |
 | Zhu Po Long | 74 | 4,600 | 10,000 | Wind | Louyang |
 | Supertree Sprite | 75 | 4,800 | 10,400 | Earth | Gardens by the Bay |
 | Brilight | 76 | 4,800 | 10,500 | Wind | Ayothaya Temple |
 | Galapago | 76 | 4,900 | 10,600 | Fire | Veins Canyon |
 | Mao Guai | 76 | 4,900 | 10,800 | Shadow | Louyang |
+| Nebula Wisp | 76 | 28,000 | 44,000 | Wind | Celestial Spire |
 | Sleeper | 76 | 4,800 | 7,600 | Neutral | Juno |
 | Waterway Egret | 76 | 4,400 | 9,200 | Wind | Punggol Waterway |
 | Firefly Swarm | 77 | 5,100 | 11,200 | Fire | Gardens by the Bay |

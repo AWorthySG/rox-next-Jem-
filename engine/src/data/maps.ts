@@ -484,7 +484,30 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Guide", role: "guide", x: -8, z: 26, facing: Math.PI },
       { name: "Blacksmith", role: "refine", x: -12, z: 26, facing: Math.PI },
       { name: "Exchange Broker", role: "exchange", x: 0, z: 30, facing: Math.PI },
+      { name: "Celestial Spire", role: "portal", x: 16, z: 28, dest: { toMap: "celestial_spire", toX: 0, toZ: 26 } },
       { name: "The Float Exit", role: "portal", x: 0, z: 28, dest: { toMap: "marina_bay", toX: -18, toZ: 10 } },
+    ],
+  },
+  // Endgame finale arena, reached from The Float.
+  celestial_spire: {
+    id: "celestial_spire",
+    name: "Celestial Spire",
+    theme: { ground: 0x2a2440, fog: 0x3a3060, sky: 0x6a4faa },
+    spawn: { x: 0, z: 24 },
+    zones: [
+      { id: "cs-sentinel", templateId: "astral_sentinel", cx: -24, cz: 4, radius: 14, count: 6 },
+      { id: "cs-seraph", templateId: "void_seraph", cx: 24, cz: 4, radius: 14, count: 6 },
+      { id: "cs-wisp", templateId: "nebula_wisp", cx: 0, cz: -12, radius: 12, count: 5 },
+      { id: "cs-warden", templateId: "celestial_warden", cx: -28, cz: -42, radius: 3, count: 1 },
+      { id: "cs-sovereign", templateId: "aether_sovereign", cx: 28, cz: -42, radius: 3, count: 1 },
+    ],
+    npcs: [
+      { name: "Kafra Employee", role: "shop", x: 8, z: 28, facing: Math.PI },
+      { name: "Healer", role: "healer", x: 12, z: 28, facing: Math.PI },
+      { name: "Guide", role: "guide", x: -8, z: 28, facing: Math.PI },
+      { name: "Blacksmith", role: "refine", x: -12, z: 28, facing: Math.PI },
+      { name: "Exchange Broker", role: "exchange", x: 0, z: 32, facing: Math.PI },
+      { name: "Spire Exit", role: "portal", x: 0, z: 30, dest: { toMap: "the_float", toX: 16, toZ: 24 } },
     ],
   },
   orchard_road: {
