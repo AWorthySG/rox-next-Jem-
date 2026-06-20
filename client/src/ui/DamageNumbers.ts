@@ -17,6 +17,7 @@ interface FloatingNumber {
 export class DamageNumbers {
   private active: FloatingNumber[] = [];
   private pool: FloatingNumber[] = [];
+  private recent: { x: number; z: number; t: number }[] = []; // stacking rapid hits
   private readonly life = 900; // ms
 
   constructor(private scene: THREE.Scene) {}
@@ -27,19 +28,25 @@ export class DamageNumbers {
     variant: "" | "crit" | "miss" | "taken" | "heal" | "levelup",
     elementMult = 1,
   ): void {
+    const now = performance.now();
+    // stagger numbers landing on the same spot in quick succession so they don't overlap
+    this.recent = this.recent.filter((r) => now - r.t < 360);
+    const stack = this.recent.filter((r) => Math.hypot(r.x - pos.x, r.z - pos.z) < 1.6).length;
+    this.recent.push({ x: pos.x, z: pos.z, t: now });
+
     const f = this.pool.pop() ?? this.create();
     const el = f.obj.element as HTMLElement;
     const elem = elementMult > 1 ? " super" : elementMult < 1 ? " resist" : "";
     el.className = `dmg ${variant}${elem}`.trim();
     f.span.textContent = text;
     el.style.opacity = "1";
-    const baseY = pos.y + 2;
+    const baseY = pos.y + 2 + Math.min(stack, 5) * 0.5;
     f.baseX = pos.x + (Math.random() - 0.5) * 0.6;
     f.baseY = baseY;
     f.vx = (Math.random() - 0.5) * 1.1; // gentle sideways drift
     f.pop = variant === "levelup" ? 1.8 : variant === "crit" ? 1.7 : variant === "heal" ? 1.3 : 1.0;
     f.obj.position.set(f.baseX, baseY, pos.z);
-    f.born = performance.now();
+    f.born = now;
     this.scene.add(f.obj);
     this.active.push(f);
   }
