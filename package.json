@@ -21,6 +21,7 @@
     "test:model": "tsx scripts/model.test.ts",
     "check:models": "tsx scripts/check-models.ts",
     "gen:model": "tsx scripts/gen-demo-model.ts",
+    "gen:models": "tsx scripts/gen-models.ts",
     "gen:manifest": "tsx scripts/gen-model-manifest.ts",
     "copy:decoders": "tsx scripts/copy-decoders.ts",
     "bestiary": "tsx scripts/dump-bestiary.ts",
