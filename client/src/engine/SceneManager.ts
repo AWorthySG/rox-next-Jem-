@@ -7,7 +7,7 @@ import { OutputPass } from "three/addons/postprocessing/OutputPass.js";
 import { ShaderPass } from "three/addons/postprocessing/ShaderPass.js";
 import { SMAAPass } from "three/addons/postprocessing/SMAAPass.js";
 import { MAP_SIZE, DAY_LENGTH_MS, daylight, Weather, type MapTheme } from "@rox/shared";
-import { makeGroundTexture, makeGroundRoughness, makeSunSprite, makeCloud, makeSpark, makeCloudShadow, makeButterfly, makeBird } from "../procedural/textures.js";
+import { makeGroundTexture, makeGroundRoughness, makeSunSprite, makeCloud, makeSpark, makeCloudShadow, makeButterfly, makeBird, makeRaindrop } from "../procedural/textures.js";
 import { buildScenery, type Scenery } from "../procedural/scenery.js";
 import { buildWater, type Water } from "../procedural/water.js";
 import { windTime } from "../procedural/wind.js";
@@ -478,9 +478,9 @@ export class SceneManager {
     this.precip = new THREE.Points(
       geo,
       new THREE.PointsMaterial({
-        map: makeSpark(),
+        map: snow ? makeSpark() : makeRaindrop(),
         color: snow ? 0xffffff : 0x9fc4ff,
-        size: snow ? 0.55 : 0.34,
+        size: snow ? 0.55 : 0.5,
         transparent: true,
         opacity: snow ? 0.85 : 0.6,
         depthWrite: false,

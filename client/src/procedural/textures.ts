@@ -185,18 +185,33 @@ export function makeToonGradient(): THREE.Texture {
   return tex;
 }
 
-// A soft puffy cloud sprite (lumpy alpha) for the drifting sky layer.
+// A soft puffy cloud sprite (lumpy alpha) for the drifting sky layer — a cooler
+// shaded underside with bright tops on top, so clouds read with some volume.
 let cloudCache: THREE.Texture | null = null;
 export function makeCloud(): THREE.Texture {
   if (cloudCache) return cloudCache;
   const N = 256;
   const { c, ctx } = canvas(N);
-  for (let i = 0; i < 22; i++) {
+  // shaded underside (cooler grey, lower band)
+  for (let i = 0; i < 16; i++) {
     const x = 40 + Math.random() * (N - 80);
-    const y = 70 + Math.random() * (N - 150);
+    const y = 120 + Math.random() * (N - 170);
+    const r = 26 + Math.random() * 50;
+    const g = ctx.createRadialGradient(x, y, 0, x, y, r);
+    g.addColorStop(0, "rgba(184,198,224,0.5)");
+    g.addColorStop(1, "rgba(184,198,224,0)");
+    ctx.fillStyle = g;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  // bright tops (upper band)
+  for (let i = 0; i < 24; i++) {
+    const x = 40 + Math.random() * (N - 80);
+    const y = 60 + Math.random() * (N - 160);
     const r = 28 + Math.random() * 56;
     const g = ctx.createRadialGradient(x, y, 0, x, y, r);
-    g.addColorStop(0, "rgba(255,255,255,0.9)");
+    g.addColorStop(0, "rgba(255,255,255,0.92)");
     g.addColorStop(1, "rgba(255,255,255,0)");
     ctx.fillStyle = g;
     ctx.beginPath();
@@ -237,6 +252,28 @@ export function makeSpark(): THREE.Texture {
   streak(false);
   sparkCache = new THREE.CanvasTexture(c);
   return sparkCache;
+}
+
+// A thin vertical streak for falling rain (a billboard point renders it as a
+// raindrop). Tinted/additive per use.
+let raindropCache: THREE.Texture | null = null;
+export function makeRaindrop(): THREE.Texture {
+  if (raindropCache) return raindropCache;
+  const N = 64;
+  const { c, ctx } = canvas(N);
+  const g = ctx.createLinearGradient(N / 2, 2, N / 2, N - 2);
+  g.addColorStop(0, "rgba(255,255,255,0)");
+  g.addColorStop(0.5, "rgba(255,255,255,0.85)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = g;
+  // a thin streak with a slightly fatter, brighter tail tip
+  ctx.fillRect(N / 2 - 2, 4, 4, N - 8);
+  ctx.fillStyle = "rgba(255,255,255,0.9)";
+  ctx.beginPath();
+  ctx.arc(N / 2, N - 12, 3.2, 0, Math.PI * 2);
+  ctx.fill();
+  raindropCache = new THREE.CanvasTexture(c);
+  return raindropCache;
 }
 
 // Simple two-wing butterfly silhouette for ambient daytime life. White so it
@@ -288,6 +325,11 @@ export function makeBird(): THREE.Texture {
   ctx.moveTo(56, 40);
   ctx.quadraticCurveTo(42, 22, 32, 36);
   ctx.stroke();
+  // a small tapered body between the wings so it reads as a bird, not just an "M"
+  ctx.fillStyle = "rgba(255,255,255,0.95)";
+  ctx.beginPath();
+  ctx.ellipse(32, 37, 3, 7, 0, 0, Math.PI * 2);
+  ctx.fill();
   birdCache = new THREE.CanvasTexture(c);
   return birdCache;
 }
