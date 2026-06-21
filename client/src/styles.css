@@ -187,6 +187,67 @@ body {
   filter: drop-shadow(0 0 6px rgba(255, 40, 40, 0.7));
 }
 
+/* ---- active-quest HUD tracker ---- */
+#quest-tracker {
+  position: fixed;
+  top: 130px;
+  right: 12px;
+  width: 190px;
+  padding: 7px 9px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 8px;
+  z-index: 18;
+  pointer-events: none;
+  font-size: 11px;
+}
+.qt-title {
+  color: var(--gold);
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  margin-bottom: 5px;
+}
+.qt-row { margin-bottom: 6px; }
+.qt-row:last-child { margin-bottom: 0; }
+.qt-name { font-weight: 600; margin-bottom: 2px; }
+.qt-bar {
+  height: 5px;
+  background: rgba(0, 0, 0, 0.45);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.qt-bar > i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(180deg, #ffd86b, #e0a93a);
+  transition: width 0.25s ease-out;
+}
+.qt-count { opacity: 0.8; margin-top: 2px; font-size: 10px; }
+.qt-row.ready .qt-count { color: #8fe0a0; opacity: 1; }
+.qt-row.ready .qt-bar > i { background: linear-gradient(180deg, #9be88f, #4cae3e); }
+
+/* ---- mounted speed lines (radial streaks at the screen edges) ---- */
+#speed-lines {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 22;
+  opacity: 0;
+  transition: opacity 0.25s ease-out;
+  background: repeating-conic-gradient(from 0deg at 50% 52%, rgba(255, 255, 255, 0) 0deg, rgba(255, 255, 255, 0) 1.1deg, rgba(255, 255, 255, 0.5) 1.4deg, rgba(255, 255, 255, 0) 1.7deg);
+  -webkit-mask: radial-gradient(circle at 50% 52%, transparent 40%, #000 76%);
+  mask: radial-gradient(circle at 50% 52%, transparent 40%, #000 76%);
+}
+#speed-lines.active {
+  opacity: 0.5;
+  animation: speed-pulse 0.5s ease-in-out infinite alternate;
+}
+@keyframes speed-pulse {
+  from { opacity: 0.36; }
+  to { opacity: 0.6; }
+}
+
 /* ---- full-screen feedback overlays ---- */
 .screen-fx {
   position: fixed;
@@ -2241,9 +2302,22 @@ body {
   color: var(--gold);
   font-weight: 600;
 }
+.chat-line {
+  animation: chat-in 0.25s ease-out;
+}
+@keyframes chat-in {
+  from { opacity: 0; transform: translateY(5px); }
+  to { opacity: 1; transform: none; }
+}
 .chat-line.system {
-  opacity: 0.6;
-  font-style: italic;
+  color: #cfe0ff;
+  font-style: normal;
+  opacity: 0.95;
+  background: rgba(90, 120, 180, 0.18);
+  border-left: 2px solid rgba(150, 190, 255, 0.75);
+  padding: 1px 7px;
+  border-radius: 0 5px 5px 0;
+  margin: 2px 0;
 }
 
 .latency {

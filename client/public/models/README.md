@@ -67,6 +67,15 @@ it; a death clip clamps on its last frame while the body fades out.
 counts + clip names, and warns on over-budget meshes, missing idle/walk clips, or
 filenames that aren't a real template id.
 
+## Procedural placeholder models
+
+`npm run gen:models` bakes a small batch of procedural mid-poly placeholders for
+templates whose theme suits abstract geometry — `chrome_sentry.glb` (hovering
+chrome orb), `lab_slime.glb` (gel blob), `neon_wisp.glb` (glowing wisp) — each
+with idle/walk clips. They auto-load by the naming convention and exercise the
+pipeline at scale (multiple models, manifest resolution, validation, LOD). Swap
+them for sculpted art any time by overwriting the same filenames.
+
 ## Demo asset
 
 `jewel_drone.glb` is a generated mid-poly crystal construct (788 tris) with an

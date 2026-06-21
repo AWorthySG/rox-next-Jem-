@@ -7,6 +7,8 @@ import { Loop } from "./engine/Loop.js";
 import { ClickMarker } from "./engine/ClickMarker.js";
 import { TargetReticle } from "./engine/TargetReticle.js";
 import { DamageDirection } from "./ui/DamageDirection.js";
+import { SpeedLines } from "./ui/SpeedLines.js";
+import { QuestTracker } from "./ui/QuestTracker.js";
 import { NovaTelegraph } from "./engine/NovaTelegraph.js";
 import { GameState } from "./state/GameState.js";
 import { NetClient } from "./net/NetClient.js";
@@ -64,6 +66,9 @@ const clickMarker = new ClickMarker(scene.scene);
 const targetReticle = new TargetReticle(scene.scene);
 const moverScratch: THREE.Vector3[] = []; // reused each frame for footstep dust
 const damageDir = new DamageDirection(document.getElementById("game-root")!);
+const speedLines = new SpeedLines(document.getElementById("game-root")!);
+const questTracker = new QuestTracker(document.getElementById("game-root")!);
+let selfMounted = false;
 const _fwd = new THREE.Vector3();
 const _right = new THREE.Vector3();
 
@@ -418,6 +423,8 @@ function handleMessage(msg: ServerMessage): void {
       aesir.sync(msg.self);
       petCompanion.setPet(msg.self.pet);
       gameState.self?.setMounted(msg.self.mounted);
+      selfMounted = msg.self.mounted;
+      questTracker.sync(msg.self);
       gameState.self?.setHeadgear(msg.self.equipped.find((e) => e.slot === EquipSlot.Headgear)?.id ?? null);
       jobAdvance.update(msg.self);
       break;
@@ -632,6 +639,7 @@ new Loop((dt) => {
   for (const p of moverScratch) if (Math.random() < 0.09) skillVfx.footPuff(p);
   clickMarker.update(dt);
   damageDir.update();
+  speedLines.setActive(selfMounted && !!gameState.self?.isMoving);
   novaTelegraph.update();
   damageNumbers.update();
   skillVfx.update();
