@@ -69,12 +69,15 @@ filenames that aren't a real template id.
 
 ## Procedural placeholder models
 
-`npm run gen:models` bakes a small batch of procedural mid-poly placeholders for
-templates whose theme suits abstract geometry — `chrome_sentry.glb` (hovering
-chrome orb), `lab_slime.glb` (gel blob), `neon_wisp.glb` (glowing wisp) — each
-with idle/walk clips. They auto-load by the naming convention and exercise the
-pipeline at scale (multiple models, manifest resolution, validation, LOD). Swap
-them for sculpted art any time by overwriting the same filenames.
+`npm run gen:models` bakes a batch of procedural mid-poly placeholders from
+reusable builders (orb-mech, gel, elemental, swarm, serpent, biped-mech) for
+templates whose theme suits abstract geometry, each with idle/walk clips. They
+auto-load by the naming convention and exercise the pipeline at scale (manifest
+resolution, validation, LOD). Currently covers: `chrome_sentry`, `scout_bot`,
+`metaling`, `lab_slime`, `magmaring`, `snowier`, `butoijo`, `neon_wisp`,
+`surge_elemental`, `drone_swarm`, `firefly_swarm`, `holo_serpent`, `mecha_dino`,
+`war_machine` (plus the `jewel_drone` demo). Swap any for sculpted art by
+overwriting the same filename.
 
 ## Demo asset
 

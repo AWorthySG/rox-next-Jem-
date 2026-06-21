@@ -207,18 +207,34 @@ export function makeCloud(): THREE.Texture {
   return cloudCache;
 }
 
-// A soft round white spark for additive particle VFX (tinted per use).
+// A soft round white spark with a faint 4-point star flare for additive particle
+// VFX (tinted per use) — reads as a twinkle on stars, fireflies and impacts.
 let sparkCache: THREE.Texture | null = null;
 export function makeSpark(): THREE.Texture {
   if (sparkCache) return sparkCache;
   const N = 64;
   const { c, ctx } = canvas(N);
+  // soft round core
   const g = ctx.createRadialGradient(N / 2, N / 2, 0, N / 2, N / 2, N / 2);
   g.addColorStop(0, "rgba(255,255,255,1)");
-  g.addColorStop(0.4, "rgba(255,255,255,0.7)");
+  g.addColorStop(0.38, "rgba(255,255,255,0.62)");
   g.addColorStop(1, "rgba(255,255,255,0)");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, N, N);
+  // 4-point star flare: a thin bright cross that fades toward the edges
+  const streak = (vertical: boolean) => {
+    const grad = vertical
+      ? ctx.createLinearGradient(N / 2, 0, N / 2, N)
+      : ctx.createLinearGradient(0, N / 2, N, N / 2);
+    grad.addColorStop(0, "rgba(255,255,255,0)");
+    grad.addColorStop(0.5, "rgba(255,255,255,0.85)");
+    grad.addColorStop(1, "rgba(255,255,255,0)");
+    ctx.fillStyle = grad;
+    if (vertical) ctx.fillRect(N / 2 - 1, 0, 2, N);
+    else ctx.fillRect(0, N / 2 - 1, N, 2);
+  };
+  streak(true);
+  streak(false);
   sparkCache = new THREE.CanvasTexture(c);
   return sparkCache;
 }
@@ -244,6 +260,12 @@ export function makeButterfly(): THREE.Texture {
   wing(38, 42, 9, 11); // lower-right
   // slim body
   ctx.fillRect(31, 18, 2, 30);
+  // faint eyespots on the upper wings for a touch of pattern
+  ctx.fillStyle = "rgba(40,30,60,0.32)";
+  ctx.beginPath();
+  ctx.arc(24, 24, 4, 0, Math.PI * 2);
+  ctx.arc(40, 24, 4, 0, Math.PI * 2);
+  ctx.fill();
   butterflyCache = new THREE.CanvasTexture(c);
   return butterflyCache;
 }
@@ -368,17 +390,36 @@ export function makePoringTexture(inner = "#ffd1e6", outer = "#ff9ec4"): THREE.T
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, 256, 256);
 
+  // glossy top-left jelly sheen (sits above the eyes, reads as a wet highlight)
+  const gloss = ctx.createRadialGradient(98, 66, 4, 98, 66, 64);
+  gloss.addColorStop(0, "rgba(255,255,255,0.5)");
+  gloss.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = gloss;
+  ctx.save();
+  ctx.translate(100, 70);
+  ctx.rotate(-0.3);
+  ctx.scale(1, 0.62);
+  ctx.beginPath();
+  ctx.arc(0, 0, 46, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.restore();
+
   // eyes
   ctx.fillStyle = "#222";
   ctx.beginPath();
   ctx.ellipse(98, 120, 12, 16, 0, 0, Math.PI * 2);
   ctx.ellipse(158, 120, 12, 16, 0, 0, Math.PI * 2);
   ctx.fill();
-  // eye shines
+  // eye shines (a big glint + a small secondary sparkle for a livelier look)
   ctx.fillStyle = "#fff";
   ctx.beginPath();
-  ctx.arc(102, 114, 4, 0, Math.PI * 2);
-  ctx.arc(162, 114, 4, 0, Math.PI * 2);
+  ctx.arc(102, 114, 5, 0, Math.PI * 2);
+  ctx.arc(162, 114, 5, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "rgba(255,255,255,0.7)";
+  ctx.beginPath();
+  ctx.arc(94, 126, 2, 0, Math.PI * 2);
+  ctx.arc(154, 126, 2, 0, Math.PI * 2);
   ctx.fill();
   // big grin
   ctx.strokeStyle = "#a83b63";
