@@ -254,6 +254,28 @@ export function makeSpark(): THREE.Texture {
   return sparkCache;
 }
 
+// A thin vertical streak for falling rain (a billboard point renders it as a
+// raindrop). Tinted/additive per use.
+let raindropCache: THREE.Texture | null = null;
+export function makeRaindrop(): THREE.Texture {
+  if (raindropCache) return raindropCache;
+  const N = 64;
+  const { c, ctx } = canvas(N);
+  const g = ctx.createLinearGradient(N / 2, 2, N / 2, N - 2);
+  g.addColorStop(0, "rgba(255,255,255,0)");
+  g.addColorStop(0.5, "rgba(255,255,255,0.85)");
+  g.addColorStop(1, "rgba(255,255,255,0)");
+  ctx.fillStyle = g;
+  // a thin streak with a slightly fatter, brighter tail tip
+  ctx.fillRect(N / 2 - 2, 4, 4, N - 8);
+  ctx.fillStyle = "rgba(255,255,255,0.9)";
+  ctx.beginPath();
+  ctx.arc(N / 2, N - 12, 3.2, 0, Math.PI * 2);
+  ctx.fill();
+  raindropCache = new THREE.CanvasTexture(c);
+  return raindropCache;
+}
+
 // Simple two-wing butterfly silhouette for ambient daytime life. White so it
 // can be tinted per-sprite; faces the camera.
 let butterflyCache: THREE.Texture | null = null;
