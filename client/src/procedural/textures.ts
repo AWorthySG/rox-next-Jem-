@@ -379,7 +379,8 @@ export function makeCloudShadow(): THREE.Texture {
   return cloudShadowCache;
 }
 
-// Soft radial sun glow sprite (additive). Bloom turns it into a warm halo.
+// Soft radial sun glow sprite with a faint 4-point flare (additive). Bloom turns
+// it into a warm halo; the flare gives the sun/moon a gentle gleam.
 export function makeSunSprite(): THREE.Texture {
   const N = 256;
   const { c, ctx } = canvas(N);
@@ -390,6 +391,20 @@ export function makeSunSprite(): THREE.Texture {
   g.addColorStop(1, "rgba(255,221,150,0)");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, N, N);
+  // a faint cross flare that fades toward the edges
+  const flare = (vertical: boolean) => {
+    const grad = vertical
+      ? ctx.createLinearGradient(N / 2, 0, N / 2, N)
+      : ctx.createLinearGradient(0, N / 2, N, N / 2);
+    grad.addColorStop(0, "rgba(255,245,210,0)");
+    grad.addColorStop(0.5, "rgba(255,245,210,0.28)");
+    grad.addColorStop(1, "rgba(255,245,210,0)");
+    ctx.fillStyle = grad;
+    if (vertical) ctx.fillRect(N / 2 - 3, 0, 6, N);
+    else ctx.fillRect(0, N / 2 - 3, N, 6);
+  };
+  flare(true);
+  flare(false);
   const tex = new THREE.CanvasTexture(c);
   tex.colorSpace = THREE.SRGBColorSpace;
   return tex;
@@ -431,6 +446,13 @@ export function makePoringTexture(inner = "#ffd1e6", outer = "#ff9ec4"): THREE.T
   g.addColorStop(1, outer);
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, 256, 256);
+
+  // soft bottom shading so the jelly reads as round, not flat
+  const shade = ctx.createLinearGradient(0, 168, 0, 256);
+  shade.addColorStop(0, "rgba(0,0,0,0)");
+  shade.addColorStop(1, "rgba(0,0,0,0.18)");
+  ctx.fillStyle = shade;
+  ctx.fillRect(0, 168, 256, 88);
 
   // glossy top-left jelly sheen (sits above the eyes, reads as a wet highlight)
   const gloss = ctx.createRadialGradient(98, 66, 4, 98, 66, 64);
