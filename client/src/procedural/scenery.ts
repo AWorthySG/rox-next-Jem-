@@ -241,6 +241,27 @@ export function buildScenery(mapId: string): Scenery {
     .filter((m): m is THREE.MeshStandardMaterial => m instanceof THREE.MeshStandardMaterial)
     .map((m) => ({ mat: m, base: m.color.clone() }));
 
+  // ---- landmark centerpiece + plaza lamps (ROX-style town dressing) ----
+  // The map centre is kept clear of scatter props, so a themed monument there
+  // gives every map a readable landmark; lamps ring it and glow at night
+  // (MeshBasicMaterial heads are exempt from setShade, so they stay lit).
+  if (mapId !== "arena") {
+    addCenterpiece(group, theme, track);
+    const lampPost = track(new THREE.CylinderGeometry(0.07, 0.09, 2.2, 6), new THREE.MeshStandardMaterial({ color: 0x3a3430, roughness: 0.9 }));
+    const lampHeadGeo = new THREE.SphereGeometry(0.16, 10, 8);
+    const lampMat = new THREE.MeshBasicMaterial({ color: 0xffd9a0 });
+    track(lampHeadGeo, lampMat);
+    for (const [lx, lz] of [[-5.5, -5.5], [5.5, -5.5], [-5.5, 5.5], [5.5, 5.5]] as const) {
+      const post = new THREE.Mesh(lampPost[0], lampPost[1]);
+      post.position.set(lx, 1.1, lz);
+      post.castShadow = true;
+      group.add(post);
+      const head = new THREE.Mesh(lampHeadGeo, lampMat);
+      head.position.set(lx, 2.3, lz);
+      group.add(head);
+    }
+  }
+
   return {
     group,
     setShade(mul: number) {
@@ -251,6 +272,69 @@ export function buildScenery(mapId: string): Scenery {
       for (const m of mats) m.dispose();
     },
   };
+}
+
+// A themed monument at the map centre: a tiered fountain on living maps, a
+// glowing crystal monolith on crystal maps, a weathered obelisk on dead ones.
+function addCenterpiece(
+  group: THREE.Group,
+  theme: Theme,
+  track: <T extends THREE.BufferGeometry, M extends THREE.Material>(g: T, m: M) => [T, M],
+): void {
+  const stoneMat = new THREE.MeshStandardMaterial({ color: theme.rock, roughness: 0.95 });
+  if (theme.tree === "crystal") {
+    // crystal monolith with a soft inner glow
+    const [geo, mat] = track(
+      new THREE.OctahedronGeometry(1.5, 0),
+      new THREE.MeshStandardMaterial({ color: theme.foliage[0], roughness: 0.3, emissive: new THREE.Color(theme.foliage[0]).multiplyScalar(0.4) }),
+    );
+    const shard = new THREE.Mesh(geo, mat);
+    shard.position.y = 2.0;
+    shard.scale.y = 1.6;
+    shard.castShadow = true;
+    const [baseGeo] = track(new THREE.CylinderGeometry(1.4, 1.7, 0.5, 8), stoneMat);
+    const base = new THREE.Mesh(baseGeo, stoneMat);
+    base.position.y = 0.25;
+    group.add(base, shard);
+  } else if (theme.tree === "dead") {
+    // weathered obelisk
+    const [geo] = track(new THREE.CylinderGeometry(0.35, 0.6, 3.4, 4), stoneMat);
+    const obelisk = new THREE.Mesh(geo, stoneMat);
+    obelisk.position.y = 1.7;
+    obelisk.rotation.y = Math.PI / 4;
+    obelisk.castShadow = true;
+    const [tipGeo] = track(new THREE.ConeGeometry(0.42, 0.5, 4), stoneMat);
+    const tip = new THREE.Mesh(tipGeo, stoneMat);
+    tip.position.y = 3.6;
+    tip.rotation.y = Math.PI / 4;
+    const [baseGeo2] = track(new THREE.BoxGeometry(1.6, 0.5, 1.6), stoneMat);
+    const base = new THREE.Mesh(baseGeo2, stoneMat);
+    base.position.y = 0.25;
+    group.add(base, obelisk, tip);
+  } else {
+    // tiered plaza fountain with a glowing water disc + centre jet
+    const [basinGeo] = track(new THREE.CylinderGeometry(2.2, 2.4, 0.7, 14, 1, false), stoneMat);
+    const basin = new THREE.Mesh(basinGeo, stoneMat);
+    basin.position.y = 0.35;
+    basin.castShadow = true;
+    const [waterGeo, waterMat] = track(
+      new THREE.CylinderGeometry(2.0, 2.0, 0.08, 14),
+      new THREE.MeshBasicMaterial({ color: 0x8fd8e8, transparent: true, opacity: 0.85 }),
+    );
+    const water = new THREE.Mesh(waterGeo, waterMat);
+    water.position.y = 0.68;
+    const [colGeo] = track(new THREE.CylinderGeometry(0.28, 0.4, 1.3, 10), stoneMat);
+    const column = new THREE.Mesh(colGeo, stoneMat);
+    column.position.y = 1.3;
+    column.castShadow = true;
+    const [topGeo] = track(new THREE.CylinderGeometry(0.85, 1.0, 0.3, 12), stoneMat);
+    const top = new THREE.Mesh(topGeo, stoneMat);
+    top.position.y = 1.95;
+    const [jetGeo, jetMat] = track(new THREE.ConeGeometry(0.18, 0.7, 8), new THREE.MeshBasicMaterial({ color: 0xbfeaf4, transparent: true, opacity: 0.8 }));
+    const jet = new THREE.Mesh(jetGeo, jetMat);
+    jet.position.y = 2.4;
+    group.add(basin, water, column, top, jet);
+  }
 }
 
 function addTrees(

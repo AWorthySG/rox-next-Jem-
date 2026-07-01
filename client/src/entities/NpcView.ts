@@ -19,7 +19,7 @@ export class NpcView extends EntityView {
   private rig: ModelRig;
 
   constructor(entity: EntityFull) {
-    super(entity, "nameplate npc", 2.6);
+    super(entity, "nameplate npc", 2.2);
     this.role = entity.npcRole ?? "";
     this.char = buildCharacter(48, false);
     this.char.group.userData.entityId = entity.id;
@@ -35,7 +35,7 @@ export class NpcView extends EntityView {
       new THREE.OctahedronGeometry(0.18),
       new THREE.MeshBasicMaterial({ color: 0xffd24a }),
     );
-    this.marker.position.set(0, 2.2, 0);
+    this.marker.position.set(0, 1.95, 0);
     this.marker.userData.entityId = entity.id;
     this.group.add(this.marker);
 
@@ -51,7 +51,7 @@ export class NpcView extends EntityView {
     // a warm lantern glow beside the NPC that lights up at night
     this.lantern = new THREE.Sprite(new THREE.SpriteMaterial({ map: makeSpark(), color: 0xffb050, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
     this.lantern.scale.setScalar(1.6);
-    this.lantern.position.set(0.55, 1.6, 0.2);
+    this.lantern.position.set(0.5, 1.2, 0.2);
     this.group.add(this.lantern);
 
     // Optional mid-poly model by role: npc_<role>.glb.
@@ -65,7 +65,7 @@ export class NpcView extends EntityView {
 
   protected override animate(dt: number): void {
     this.bob += dt * 2;
-    this.marker.position.y = 2.2 + Math.sin(this.bob) * 0.12;
+    this.marker.position.y = 1.95 + Math.sin(this.bob) * 0.12;
     this.marker.rotation.y += dt * 1.5;
     const t = Math.sin(this.bob * 1.3) * 0.5 + 0.5;
     (this.glow.material as THREE.MeshBasicMaterial).opacity = 0.28 + t * 0.24;
