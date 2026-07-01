@@ -246,6 +246,30 @@ export function buildScenery(mapId: string): Scenery {
   // gives every map a readable landmark; lamps ring it and glow at night
   // (MeshBasicMaterial heads are exempt from setShade, so they stay lit).
   if (mapId !== "arena") {
+    // stone plaza under the fountain + a paved path south toward the spawn row,
+    // so the town centre reads as constructed ground rather than bare grass
+    const paveMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).lerp(new THREE.Color(0xffffff), 0.18), roughness: 0.9 });
+    const [plazaGeo] = track(new THREE.CircleGeometry(4.4, 24), paveMat);
+    const plaza = new THREE.Mesh(plazaGeo, paveMat);
+    plaza.rotation.x = -Math.PI / 2;
+    plaza.position.y = 0.015;
+    plaza.receiveShadow = true;
+    group.add(plaza);
+    const [rimGeo, rimMat] = track(
+      new THREE.RingGeometry(4.4, 4.75, 24),
+      new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(0.75), roughness: 0.95 }),
+    );
+    const rim = new THREE.Mesh(rimGeo, rimMat);
+    rim.rotation.x = -Math.PI / 2;
+    rim.position.y = 0.014;
+    group.add(rim);
+    const [pathGeo] = track(new THREE.PlaneGeometry(2.4, 22), rimMat);
+    const path = new THREE.Mesh(pathGeo, rimMat);
+    path.rotation.x = -Math.PI / 2;
+    path.position.set(0, 0.012, 15);
+    path.receiveShadow = true;
+    group.add(path);
+
     addCenterpiece(group, theme, track);
     addHouses(group, theme, track);
     const lampPost = track(new THREE.CylinderGeometry(0.07, 0.09, 2.2, 6), new THREE.MeshStandardMaterial({ color: 0x3a3430, roughness: 0.9 }));

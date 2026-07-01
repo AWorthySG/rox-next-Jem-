@@ -1,5 +1,5 @@
 import type { EntityFull } from "@rox/shared";
-import { isMagicJob, jobFamilyOf, MOUNT_SPEED_MULT, PLAYER_SPEED } from "@rox/shared";
+import { isMagicJob, jobFamilyOf, jobTierOf, MOUNT_SPEED_MULT, PLAYER_SPEED } from "@rox/shared";
 import * as THREE from "three";
 import { applyHeadgear, buildCharacter, type CharacterMesh, type WeaponStyle } from "../procedural/characterMesh.js";
 import { EntityView } from "./EntityView.js";
@@ -37,7 +37,7 @@ export class PlayerView extends EntityView {
     const magic = entity.job ? isMagicJob(entity.job) : false;
     const fam = entity.job ? jobFamilyOf(entity.job) : null;
     const weapon: WeaponStyle = fam === "mage" ? "staff" : fam === "archer" ? "bow" : fam === "acolyte" ? "mace" : "blade";
-    this.char = buildCharacter(entity.colorSeed ?? 0, magic, weapon);
+    this.char = buildCharacter(entity.colorSeed ?? 0, magic, weapon, entity.job ? jobTierOf(entity.job) : 0);
     this.char.group.userData.entityId = entity.id;
     applyHeadgear(this.char, entity.headgear);
     this.headgearId = entity.headgear ?? null;

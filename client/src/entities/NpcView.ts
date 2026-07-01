@@ -1,10 +1,21 @@
 import * as THREE from "three";
 import type { EntityFull } from "@rox/shared";
-import { buildCharacter, type CharacterMesh } from "../procedural/characterMesh.js";
+import { applyHeadgear, buildCharacter, type CharacterMesh, type WeaponStyle } from "../procedural/characterMesh.js";
 import { makeSpark } from "../procedural/textures.js";
 import { env } from "../engine/env.js";
 import { EntityView } from "./EntityView.js";
 import { ModelRig } from "./ModelRig.js";
+
+// Per-role look so townsfolk are tellable at a glance (ROX towns are full of
+// distinct service NPCs): outfit hue, silhouette (via weapon/magic), and a hat.
+const ROLE_LOOKS: Record<string, { seed: number; magic: boolean; weapon: WeaponStyle; hat: string | null }> = {
+  shop: { seed: 330, magic: false, weapon: "mace", hat: "poring_hat" }, // Kafra: pink, friendly
+  healer: { seed: 110, magic: true, weapon: "staff", hat: "apprentice_circlet" },
+  guide: { seed: 200, magic: false, weapon: "bow", hat: "feather_beret" },
+  refine: { seed: 25, magic: false, weapon: "mace", hat: null }, // Blacksmith: ember tones
+  exchange: { seed: 48, magic: false, weapon: "blade", hat: "gem_crown" }, // Broker: gold
+  portal: { seed: 265, magic: true, weapon: "staff", hat: "valkyrie_helm" }, // mystic gatekeeper
+};
 
 // A static town NPC. Renders a humanoid (or a npc_<role>.glb model if present)
 // with a floating marker; clicking it (handled in main) opens the shop. No HP
@@ -21,7 +32,9 @@ export class NpcView extends EntityView {
   constructor(entity: EntityFull) {
     super(entity, "nameplate npc", 2.2);
     this.role = entity.npcRole ?? "";
-    this.char = buildCharacter(48, false);
+    const look = ROLE_LOOKS[this.role] ?? { seed: 48, magic: false, weapon: "blade" as WeaponStyle, hat: null };
+    this.char = buildCharacter(look.seed, look.magic, look.weapon);
+    if (look.hat) applyHeadgear(this.char, look.hat);
     this.char.group.userData.entityId = entity.id;
     this.group.add(this.char.group);
     this.group.rotation.y = entity.facing;

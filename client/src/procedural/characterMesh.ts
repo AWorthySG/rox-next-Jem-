@@ -42,6 +42,7 @@ export function buildCharacter(
   colorSeed: number,
   magic: boolean,
   weapon: WeaponStyle = magic ? "staff" : "blade",
+  tier = 0, // job advancement tier: 3rd-job = small feather wings, 4th-job = large glowing wings
 ): CharacterMesh {
   const group = new THREE.Group();
   let cape: THREE.Object3D | null = null;
@@ -246,6 +247,29 @@ export function buildCharacter(
     const hilt = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.08, 0.07), toon(0x6b4a2b));
     hilt.position.set(0.46, 0.32, 0.12);
     group.add(hilt);
+  }
+
+  // advanced-job back wings: a fan of feather cones per side; 4th-job wings are
+  // larger with glowing tips (a status symbol, like ROX's high-tier looks)
+  if (tier >= 3) {
+    const big = tier >= 4;
+    const wingMat = toon(0xf4f6fb);
+    const tipMat = new THREE.MeshBasicMaterial({ color: 0xffe6a0 });
+    const wingScale = big ? 1.35 : 1;
+    for (const s of [-1, 1]) {
+      for (let k = 0; k < 3; k++) {
+        const len = (0.4 - k * 0.08) * wingScale;
+        const feather = new THREE.Mesh(new THREE.ConeGeometry(0.055 * wingScale, len, 6), wingMat);
+        feather.position.set(s * (0.24 + k * 0.11) * wingScale, 0.95 + k * 0.03, -0.28);
+        feather.rotation.z = s * (2.1 + k * 0.35);
+        group.add(feather);
+        if (big && k === 0) {
+          const tip = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8), tipMat);
+          tip.position.set(s * 0.52, 1.2, -0.28);
+          group.add(tip); // catches bloom
+        }
+      }
+    }
   }
 
   // soft contact shadow
