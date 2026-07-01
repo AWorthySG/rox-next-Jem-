@@ -120,14 +120,15 @@ export function buildCharacter(
     group.add(blush);
   }
 
-  // ---- styled hair: cap + swept bangs + side tufts + back spike ----
+  // ---- styled hair: shared cap + one of three styles keyed off the seed, so
+  // a crowd doesn't share a single haircut ----
   const hairCap = new THREE.Mesh(
     new THREE.SphereGeometry(0.455, 20, 18, 0, Math.PI * 2, 0, Math.PI / 1.65),
     hairMat,
   );
   hairCap.position.y = 1.37;
   group.add(hairCap);
-  // front bangs: a row of little cones sweeping across the forehead
+  // front bangs: a row of little cones sweeping across the forehead (all styles)
   for (let i = -2; i <= 2; i++) {
     const bang = new THREE.Mesh(new THREE.ConeGeometry(0.085, 0.24, 6), hairMat);
     bang.position.set(i * 0.135, 1.5, 0.38 - Math.abs(i) * 0.03);
@@ -135,19 +136,44 @@ export function buildCharacter(
     bang.rotation.z = i * 0.16;
     group.add(bang);
   }
-  // side tufts
-  for (const sx of [-1, 1]) {
-    const tuft = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.3, 6), hairMat);
-    tuft.position.set(sx * 0.42, 1.28, 0.08);
-    tuft.rotation.x = Math.PI;
-    tuft.rotation.z = sx * 0.25;
-    group.add(tuft);
+  const hairStyle = Math.floor(Math.abs(colorSeed)) % 3;
+  if (hairStyle === 0) {
+    // short + windswept: side tufts and a back spike
+    for (const sx of [-1, 1]) {
+      const tuft = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.3, 6), hairMat);
+      tuft.position.set(sx * 0.42, 1.28, 0.08);
+      tuft.rotation.x = Math.PI;
+      tuft.rotation.z = sx * 0.25;
+      group.add(tuft);
+    }
+    const backTuft = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.34, 6), hairMat);
+    backTuft.position.set(0, 1.35, -0.38);
+    backTuft.rotation.x = Math.PI - 0.7;
+    group.add(backTuft);
+  } else if (hairStyle === 1) {
+    // twin tails: long side falls that reach the shoulders
+    for (const sx of [-1, 1]) {
+      const tail = new THREE.Mesh(new THREE.ConeGeometry(0.11, 0.62, 8), hairMat);
+      tail.position.set(sx * 0.44, 1.08, -0.05);
+      tail.rotation.x = Math.PI;
+      tail.rotation.z = sx * 0.18;
+      group.add(tail);
+      const bobble = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), toon(0xf0c25a));
+      bobble.position.set(sx * 0.42, 1.36, -0.02);
+      group.add(bobble);
+    }
+  } else {
+    // spiky top: a crown of upward spikes
+    for (let i = 0; i < 5; i++) {
+      const a = (i / 5) * Math.PI * 2;
+      const spike = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.3, 6), hairMat);
+      spike.position.set(Math.sin(a) * 0.22, 1.72, Math.cos(a) * 0.22 - 0.05);
+      // lean each spike outward from the crown's centre
+      spike.rotation.z = -Math.sin(a) * 0.45;
+      spike.rotation.x = Math.cos(a) * 0.35;
+      group.add(spike);
+    }
   }
-  // back spike
-  const backTuft = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.34, 6), hairMat);
-  backTuft.position.set(0, 1.35, -0.38);
-  backTuft.rotation.x = Math.PI - 0.7;
-  group.add(backTuft);
 
   // ---- stubby limbs (pivot from shoulder/hip so they can swing) ----
   const armGeo = new THREE.CapsuleGeometry(0.09, 0.26, 4, 8);
