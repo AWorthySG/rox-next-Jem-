@@ -11,7 +11,7 @@ export class PlayerView extends EntityView {
   private char: CharacterMesh;
   private walkPhase = 0;
   private speedMul = 1;
-  private mount: THREE.Mesh | null = null;
+  private mount: THREE.Object3D | null = null;
   private bodyBaseY = 0;
   private headgearId: string | null = null;
   private swingT = 0; // attack-swing animation timer (1→0)
@@ -72,17 +72,58 @@ export class PlayerView extends EntityView {
     this.predTarget = { x, z };
   }
 
-  // Toggle the Peco Peco mount: a faster move speed + a simple steed under the rider.
+  // Toggle the Peco Peco mount: a faster move speed + a big yellow bird under
+  // the rider (round body, craning neck, orange beak, tail feathers and legs).
   setMounted(mounted: boolean): void {
     this.speedMul = mounted ? MOUNT_SPEED_MULT : 1;
     if (mounted && !this.mount) {
-      this.mount = new THREE.Mesh(
-        new THREE.CapsuleGeometry(0.45, 0.9, 6, 10),
-        new THREE.MeshLambertMaterial({ color: 0xf4c542 }),
-      );
-      this.mount.rotation.z = Math.PI / 2;
-      this.mount.position.y = 0.5;
-      this.char.group.add(this.mount);
+      const bird = new THREE.Group();
+      const feather = new THREE.MeshLambertMaterial({ color: 0xf4c542 });
+      const featherDark = new THREE.MeshLambertMaterial({ color: 0xd9a52e });
+      const orange = new THREE.MeshLambertMaterial({ color: 0xe07a2a });
+
+      const body = new THREE.Mesh(new THREE.SphereGeometry(0.5, 14, 12), feather);
+      body.position.y = 0.55;
+      body.scale.set(0.9, 0.85, 1.15);
+      bird.add(body);
+      const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.18, 0.5, 8), feather);
+      neck.position.set(0, 0.95, 0.42);
+      neck.rotation.x = 0.35;
+      bird.add(neck);
+      const headM = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 10), feather);
+      headM.position.set(0, 1.2, 0.55);
+      bird.add(headM);
+      const beak = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.3, 8), orange);
+      beak.position.set(0, 1.18, 0.82);
+      beak.rotation.x = Math.PI / 2;
+      bird.add(beak);
+      for (const s of [-1, 1]) {
+        const eye = new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 8), new THREE.MeshBasicMaterial({ color: 0x241c2c }));
+        eye.position.set(s * 0.13, 1.26, 0.68);
+        bird.add(eye);
+        // folded wing
+        const wing = new THREE.Mesh(new THREE.SphereGeometry(0.3, 10, 8), featherDark);
+        wing.position.set(s * 0.42, 0.6, -0.05);
+        wing.scale.set(0.35, 0.6, 0.95);
+        bird.add(wing);
+        // stubby leg
+        const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 0.5, 6), orange);
+        leg.position.set(s * 0.2, 0.2, 0.05);
+        bird.add(leg);
+      }
+      // tail feathers
+      for (let i = -1; i <= 1; i++) {
+        const tail = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.5, 6), featherDark);
+        tail.position.set(i * 0.14, 0.72, -0.62);
+        tail.rotation.x = -2.2;
+        tail.rotation.z = i * 0.2;
+        bird.add(tail);
+      }
+      bird.traverse((o) => {
+        if (o instanceof THREE.Mesh) o.castShadow = true;
+      });
+      this.mount = bird;
+      this.char.group.add(bird);
       this.bodyBaseY = 0.7; // sit the rider up
     } else if (!mounted && this.mount) {
       this.char.group.remove(this.mount);
