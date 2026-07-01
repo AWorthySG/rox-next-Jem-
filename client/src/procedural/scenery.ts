@@ -273,6 +273,29 @@ export function buildScenery(mapId: string): Scenery {
     addCenterpiece(group, theme, track);
     addHouses(group, theme, track);
     addPlazaProps(group, theme, track);
+  }
+
+  // ---- horizon mountains: a ring of hazy peaks outside the playfield so the
+  // world doesn't end at the map border (they sit deep in the fog) ----
+  {
+    const [peakGeo, peakMat] = track(
+      new THREE.ConeGeometry(1, 1, 5),
+      new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).lerp(new THREE.Color(theme.foliage[0]), 0.35), roughness: 1, flatShading: true }),
+    );
+    const peaks = new THREE.InstancedMesh(peakGeo, peakMat, 16);
+    const m = new THREE.Matrix4();
+    const q = new THREE.Quaternion();
+    const up = new THREE.Vector3(0, 1, 0);
+    for (let i = 0; i < 16; i++) {
+      const a = (i / 16) * Math.PI * 2 + rng() * 0.25;
+      const r = MAP_HALF * (1.5 + rng() * 0.4); // inside the fog falloff → hazy peaks
+      const h = 16 + rng() * 22;
+      const w = 14 + rng() * 14;
+      q.setFromAxisAngle(up, rng() * Math.PI);
+      m.compose(new THREE.Vector3(Math.cos(a) * r, h / 2 - 1, Math.sin(a) * r), q, new THREE.Vector3(w, h, w));
+      peaks.setMatrixAt(i, m);
+    }
+    group.add(peaks);
     const lampPost = track(new THREE.CylinderGeometry(0.07, 0.09, 2.2, 6), new THREE.MeshStandardMaterial({ color: 0x3a3430, roughness: 0.9 }));
     const lampHeadGeo = new THREE.SphereGeometry(0.16, 10, 8);
     const lampMat = new THREE.MeshBasicMaterial({ color: 0xffd9a0 });
