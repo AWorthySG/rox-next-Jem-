@@ -37,8 +37,8 @@ export class LoginPreview {
     this.container.appendChild(this.renderer.domElement);
 
     this.camera = new THREE.PerspectiveCamera(40, w / h, 0.1, 100);
-    this.camera.position.set(0, 1.55, 4.2);
-    this.camera.lookAt(0, 1.15, 0);
+    this.camera.position.set(0, 1.25, 3.4);
+    this.camera.lookAt(0, 0.92, 0);
 
     this.scene.add(new THREE.HemisphereLight(0xdcefff, 0x404858, 1.0));
     const key = new THREE.DirectionalLight(0xfff0d2, 2.2);

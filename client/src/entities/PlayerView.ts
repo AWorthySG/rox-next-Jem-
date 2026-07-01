@@ -32,7 +32,7 @@ export class PlayerView extends EntityView {
   private predTarget: { x: number; z: number } | null = null;
 
   constructor(entity: EntityFull) {
-    super(entity, "nameplate player", 2.5);
+    super(entity, "nameplate player", 2.15);
     this.nameplateEl.classList.add("player");
     const magic = entity.job ? isMagicJob(entity.job) : false;
     const fam = entity.job ? jobFamilyOf(entity.job) : null;

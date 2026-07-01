@@ -20,6 +20,20 @@ export function makeGrassTexture(): THREE.Texture {
   ctx.fillStyle = base;
   ctx.fillRect(0, 0, 256, 256);
 
+  // large-scale soft blotches of lighter/darker grass for variation
+  for (let i = 0; i < 36; i++) {
+    const x = Math.random() * 256;
+    const y = Math.random() * 256;
+    const r = 24 + Math.random() * 64;
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
+    grad.addColorStop(0, Math.random() > 0.5 ? "rgba(126,176,84,0.22)" : "rgba(38,78,40,0.22)");
+    grad.addColorStop(1, "rgba(0,0,0,0)");
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+
   // mottled noise
   for (let i = 0; i < 2600; i++) {
     const x = Math.random() * 256;
@@ -39,11 +53,22 @@ export function makeGrassTexture(): THREE.Texture {
     ctx.lineTo(x + (Math.random() - 0.5) * 4, y - 4 - Math.random() * 3);
     ctx.stroke();
   }
+  // small clover clumps for denser-reading foliage
+  for (let i = 0; i < 40; i++) {
+    const cx = Math.random() * 256;
+    const cy = Math.random() * 256;
+    ctx.fillStyle = Math.random() > 0.5 ? "rgba(96,150,70,0.5)" : "rgba(60,108,50,0.5)";
+    for (let j = 0; j < 5; j++) {
+      ctx.beginPath();
+      ctx.arc(cx + (Math.random() - 0.5) * 10, cy + (Math.random() - 0.5) * 10, 1.3, 0, Math.PI * 2);
+      ctx.fill();
+    }
+  }
   // flowers
-  for (let i = 0; i < 14; i++) {
+  for (let i = 0; i < 18; i++) {
     const x = Math.random() * 256;
     const y = Math.random() * 256;
-    ctx.fillStyle = ["#f4d35e", "#f48fb1", "#fff"][Math.floor(Math.random() * 3)];
+    ctx.fillStyle = ["#f4d35e", "#f48fb1", "#fff", "#c79bff"][Math.floor(Math.random() * 4)];
     ctx.beginPath();
     ctx.arc(x, y, 2, 0, Math.PI * 2);
     ctx.fill();
@@ -135,6 +160,21 @@ export function makeGroundTexture(): THREE.Texture {
     ctx.arc(x, y, 2.2, 0, Math.PI * 2);
     ctx.fill();
   }
+  // scattered pebbles / small stones with a tiny highlight, for ground detail
+  for (let i = 0; i < 80; i++) {
+    const x = Math.random() * N;
+    const y = Math.random() * N;
+    const r = 2 + Math.random() * 4;
+    const tone = 118 + Math.floor(Math.random() * 60);
+    ctx.fillStyle = `rgba(${tone},${tone - 6},${tone - 14},0.55)`;
+    ctx.beginPath();
+    ctx.ellipse(x, y, r, r * 0.7, Math.random() * Math.PI, 0, Math.PI * 2);
+    ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,0.22)";
+    ctx.beginPath();
+    ctx.arc(x - r * 0.3, y - r * 0.3, r * 0.3, 0, Math.PI * 2);
+    ctx.fill();
+  }
 
   const tex = new THREE.CanvasTexture(c);
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
@@ -164,6 +204,25 @@ export function makeGroundRoughness(): THREE.Texture {
     ctx.arc(x, y, r, 0, Math.PI * 2);
     ctx.fill();
   }
+  // worn / damp patches that catch the light (lower roughness = darker here)
+  for (let i = 0; i < 24; i++) {
+    const x = Math.random() * N;
+    const y = Math.random() * N;
+    const r = 6 + Math.random() * 20;
+    const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
+    grad.addColorStop(0, "rgba(70,70,70,0.5)");
+    grad.addColorStop(1, "rgba(70,70,70,0)");
+    ctx.fillStyle = grad;
+    ctx.beginPath();
+    ctx.arc(x, y, r, 0, Math.PI * 2);
+    ctx.fill();
+  }
+  // fine speckle so the specular breaks up at close range
+  for (let i = 0; i < 3000; i++) {
+    const v = Math.random() > 0.5 ? 210 : 120;
+    ctx.fillStyle = `rgba(${v},${v},${v},0.1)`;
+    ctx.fillRect(Math.random() * N, Math.random() * N, 1, 1);
+  }
   const tex = new THREE.CanvasTexture(c);
   tex.wrapS = tex.wrapT = THREE.RepeatWrapping;
   tex.repeat.set(32, 32);
@@ -171,12 +230,19 @@ export function makeGroundRoughness(): THREE.Texture {
 }
 
 // A stepped grayscale ramp for MeshToonMaterial — gives characters/monsters the
-// banded cel-shaded look of an anime MMO.
+// banded cel-shaded look of an anime MMO. Five soft steps: a gentle shadow toe,
+// two mid-tones, a near-white and white, for smoother banding than a hard 4-step.
 let toonGradientCache: THREE.Texture | null = null;
 export function makeToonGradient(): THREE.Texture {
   if (toonGradientCache) return toonGradientCache;
-  const data = new Uint8Array([90, 90, 90, 255, 160, 160, 160, 255, 215, 215, 215, 255, 255, 255, 255, 255]);
-  const tex = new THREE.DataTexture(data, 4, 1, THREE.RGBAFormat);
+  const data = new Uint8Array([
+    78, 78, 78, 255,
+    128, 128, 128, 255,
+    178, 178, 178, 255,
+    222, 222, 222, 255,
+    255, 255, 255, 255,
+  ]);
+  const tex = new THREE.DataTexture(data, 5, 1, THREE.RGBAFormat);
   tex.minFilter = THREE.NearestFilter;
   tex.magFilter = THREE.NearestFilter;
   tex.generateMipmaps = false;
@@ -341,8 +407,9 @@ export function makeBlobShadow(): THREE.Texture {
   const N = 128;
   const { c, ctx } = canvas(N);
   const g = ctx.createRadialGradient(N / 2, N / 2, 0, N / 2, N / 2, N / 2);
-  g.addColorStop(0, "rgba(0,0,0,0.55)");
-  g.addColorStop(0.7, "rgba(0,0,0,0.25)");
+  g.addColorStop(0, "rgba(0,0,0,0.6)"); // denser core grounds the entity
+  g.addColorStop(0.5, "rgba(0,0,0,0.32)");
+  g.addColorStop(0.85, "rgba(0,0,0,0.08)");
   g.addColorStop(1, "rgba(0,0,0,0)");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, N, N);
@@ -366,7 +433,8 @@ export function makeCloudShadow(): THREE.Texture {
     const r = 38 + Math.random() * 64;
     for (const [ox, oy] of offsets) {
       const g = ctx.createRadialGradient(x + ox, y + oy, 0, x + ox, y + oy, r);
-      g.addColorStop(0, "rgba(0,0,0,0.5)");
+      g.addColorStop(0, "rgba(0,0,0,0.46)");
+      g.addColorStop(0.55, "rgba(0,0,0,0.2)"); // soft core so dapple looks natural
       g.addColorStop(1, "rgba(0,0,0,0)");
       ctx.fillStyle = g;
       ctx.beginPath();
@@ -414,15 +482,30 @@ export function makeSunSprite(): THREE.Texture {
 export function makeSkyTexture(): THREE.Texture {
   const { c, ctx } = canvas(512);
   const g = ctx.createLinearGradient(0, 0, 0, 512);
-  g.addColorStop(0, "#3a6fb0");
+  g.addColorStop(0, "#2f6bb4");
   g.addColorStop(0.5, "#7fb2e0");
-  g.addColorStop(1, "#dfeefc");
+  g.addColorStop(0.82, "#cfe6f6");
+  g.addColorStop(1, "#eef6fc");
   ctx.fillStyle = g;
   ctx.fillRect(0, 0, 512, 512);
+  // soft horizon haze band
+  const haze = ctx.createLinearGradient(0, 360, 0, 512);
+  haze.addColorStop(0, "rgba(255,255,255,0)");
+  haze.addColorStop(1, "rgba(255,255,255,0.3)");
+  ctx.fillStyle = haze;
+  ctx.fillRect(0, 360, 512, 152);
+  // clouds with a cooler shaded underside and bright tops
   for (let i = 0; i < 16; i++) {
     const x = Math.random() * 512;
     const y = 30 + Math.random() * 200;
     const r = 18 + Math.random() * 40;
+    const under = ctx.createRadialGradient(x, y + r * 0.4, 0, x, y + r * 0.4, r);
+    under.addColorStop(0, "rgba(186,200,224,0.5)");
+    under.addColorStop(1, "rgba(186,200,224,0)");
+    ctx.fillStyle = under;
+    ctx.beginPath();
+    ctx.arc(x, y + r * 0.4, r, 0, Math.PI * 2);
+    ctx.fill();
     const grad = ctx.createRadialGradient(x, y, 0, x, y, r);
     grad.addColorStop(0, "rgba(255,255,255,0.85)");
     grad.addColorStop(1, "rgba(255,255,255,0)");

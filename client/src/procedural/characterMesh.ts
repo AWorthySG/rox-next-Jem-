@@ -31,9 +31,11 @@ function outline(parent: THREE.Object3D, mesh: THREE.Mesh, scale = 1.08): void {
   parent.add(o);
 }
 
-// A low-poly humanoid built from primitives, cel-shaded with toon materials and
-// black outlines. `colorSeed` (0..360 hue) gives each player a distinct outfit
-// tint; `magic` swaps the palette toward a mage robe.
+// A chibi anime humanoid in the ROX:NG style — roughly two heads tall with a big
+// expressive face (colored irises, brows, blush) and a styled hair mesh (bangs,
+// side tufts, back spike) — cel-shaded with toon materials and black outlines.
+// `colorSeed` (0..360 hue) gives each player a distinct outfit/hair tint;
+// `magic` swaps the palette toward a mage robe.
 export type WeaponStyle = "blade" | "staff" | "bow" | "mace";
 
 export function buildCharacter(
@@ -45,139 +47,181 @@ export function buildCharacter(
   let cape: THREE.Object3D | null = null;
 
   const hue = (colorSeed % 360) / 360;
-  const skin = toon(0xf1c9a5);
+  const skin = toon(0xf6d3b2);
   const outfit = toon(new THREE.Color().setHSL(hue, magic ? 0.6 : 0.62, magic ? 0.5 : 0.46));
   const accent = toon(new THREE.Color().setHSL((hue + 0.08) % 1, 0.55, 0.34));
-  const hairMat = toon(new THREE.Color().setHSL((hue + 0.5) % 1, 0.45, 0.24));
+  const hairMat = toon(new THREE.Color().setHSL((hue + 0.5) % 1, 0.55, 0.42));
   const bootMat = toon(new THREE.Color().setHSL((hue + 0.08) % 1, 0.4, 0.2));
 
-  // torso (tapered) + a little collar
-  const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.36, 0.9, 10), outfit);
-  torso.position.y = 1.15;
+  // ---- stubby chibi body ----
+  const torso = new THREE.Mesh(new THREE.CylinderGeometry(0.24, 0.3, 0.45, 10), outfit);
+  torso.position.y = 0.68;
   outline(group, torso);
   group.add(torso);
 
-  const hips = new THREE.Mesh(new THREE.CylinderGeometry(0.34, 0.3, 0.3, 10), accent);
-  hips.position.y = 0.72;
+  const hips = new THREE.Mesh(new THREE.CylinderGeometry(0.3, 0.26, 0.18, 10), accent);
+  hips.position.y = 0.42;
   group.add(hips);
 
-  // head
-  const head = new THREE.Mesh(new THREE.SphereGeometry(0.33, 18, 18), skin);
-  head.position.y = 1.86;
-  outline(group, head, 1.06);
+  // ---- big chibi head ----
+  const head = new THREE.Mesh(new THREE.SphereGeometry(0.42, 20, 18), skin);
+  head.position.y = 1.32;
+  outline(group, head, 1.05);
   group.add(head);
 
-  // hair cap
-  const hair = new THREE.Mesh(new THREE.SphereGeometry(0.36, 18, 18, 0, Math.PI * 2, 0, Math.PI / 1.7), hairMat);
-  hair.position.y = 1.9;
-  group.add(hair);
-
-  // anime face: two eyes on the front (+z) with a tiny white glint that catches bloom
-  const eyeMat = new THREE.MeshBasicMaterial({ color: 0x2a2230 });
-  const eyeGeo = new THREE.SphereGeometry(0.058, 10, 10);
+  // ---- anime face: big colored-iris eyes, brows and blush ----
+  const eyeMat = new THREE.MeshBasicMaterial({ color: 0x241c2c });
+  const irisMat = new THREE.MeshBasicMaterial({ color: new THREE.Color().setHSL((hue + 0.6) % 1, 0.55, 0.42) });
   const glintMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
-  const glintGeo = new THREE.SphereGeometry(0.018, 8, 8);
   for (const sx of [-1, 1]) {
-    const eye = new THREE.Mesh(eyeGeo, eyeMat);
-    eye.scale.set(0.85, 1.3, 0.5);
-    eye.position.set(sx * 0.12, 1.88, 0.3);
+    const eye = new THREE.Mesh(new THREE.SphereGeometry(0.085, 12, 12), eyeMat);
+    eye.scale.set(0.85, 1.4, 0.45);
+    eye.position.set(sx * 0.16, 1.32, 0.37);
     group.add(eye);
-    const glint = new THREE.Mesh(glintGeo, glintMat);
-    glint.position.set(sx * 0.12 + 0.025, 1.91, 0.33);
+    const iris = new THREE.Mesh(new THREE.SphereGeometry(0.055, 10, 10), irisMat);
+    iris.scale.set(0.85, 1.35, 0.5);
+    iris.position.set(sx * 0.16, 1.31, 0.395);
+    group.add(iris);
+    const glint = new THREE.Mesh(new THREE.SphereGeometry(0.024, 8, 8), glintMat);
+    glint.position.set(sx * 0.16 + 0.03, 1.36, 0.425);
     group.add(glint);
+    const glint2 = new THREE.Mesh(new THREE.SphereGeometry(0.012, 6, 6), glintMat);
+    glint2.position.set(sx * 0.16 - 0.025, 1.27, 0.425);
+    group.add(glint2);
+    // eyebrow: a thin tilted bar above the eye
+    const brow = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.022, 0.02), eyeMat);
+    brow.position.set(sx * 0.16, 1.47, 0.395);
+    brow.rotation.z = sx * -0.12;
+    group.add(brow);
+    // soft blush mark on the cheek
+    const blush = new THREE.Mesh(
+      new THREE.CircleGeometry(0.05, 10),
+      new THREE.MeshBasicMaterial({ color: 0xff9daa, transparent: true, opacity: 0.55 }),
+    );
+    blush.position.set(sx * 0.27, 1.2, 0.335);
+    blush.rotation.y = sx * 0.55;
+    group.add(blush);
   }
 
-  // arms (pivot from the shoulder so they can swing), with little skin hands
-  const armGeo = new THREE.CapsuleGeometry(0.1, 0.55, 4, 8);
-  const leftArm = limb(group, armGeo, accent, -0.44, 1.55, skin);
-  const rightArm = limb(group, armGeo, accent, 0.44, 1.55, skin);
+  // ---- styled hair: cap + swept bangs + side tufts + back spike ----
+  const hairCap = new THREE.Mesh(
+    new THREE.SphereGeometry(0.455, 20, 18, 0, Math.PI * 2, 0, Math.PI / 1.65),
+    hairMat,
+  );
+  hairCap.position.y = 1.37;
+  group.add(hairCap);
+  // front bangs: a row of little cones sweeping across the forehead
+  for (let i = -2; i <= 2; i++) {
+    const bang = new THREE.Mesh(new THREE.ConeGeometry(0.085, 0.24, 6), hairMat);
+    bang.position.set(i * 0.135, 1.5, 0.38 - Math.abs(i) * 0.03);
+    bang.rotation.x = Math.PI - 0.45; // point down over the brow
+    bang.rotation.z = i * 0.16;
+    group.add(bang);
+  }
+  // side tufts
+  for (const sx of [-1, 1]) {
+    const tuft = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.3, 6), hairMat);
+    tuft.position.set(sx * 0.42, 1.28, 0.08);
+    tuft.rotation.x = Math.PI;
+    tuft.rotation.z = sx * 0.25;
+    group.add(tuft);
+  }
+  // back spike
+  const backTuft = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.34, 6), hairMat);
+  backTuft.position.set(0, 1.35, -0.38);
+  backTuft.rotation.x = Math.PI - 0.7;
+  group.add(backTuft);
 
-  // legs, with darker boots at the feet
-  const legGeo = new THREE.CapsuleGeometry(0.12, 0.6, 4, 8);
-  const leftLeg = limb(group, legGeo, bootMat, -0.16, 0.7, accent);
-  const rightLeg = limb(group, legGeo, bootMat, 0.16, 0.7, accent);
+  // ---- stubby limbs (pivot from shoulder/hip so they can swing) ----
+  const armGeo = new THREE.CapsuleGeometry(0.09, 0.26, 4, 8);
+  const leftArm = limb(group, armGeo, accent, -0.34, 0.86, skin);
+  const rightArm = limb(group, armGeo, accent, 0.34, 0.86, skin);
 
-  // class outfit flourish — deepens each archetype's silhouette
+  const legGeo = new THREE.CapsuleGeometry(0.11, 0.22, 4, 8);
+  const leftLeg = limb(group, legGeo, bootMat, -0.14, 0.38, accent);
+  const rightLeg = limb(group, legGeo, bootMat, 0.14, 0.38, accent);
+
+  // ---- class outfit flourish — deepens each archetype's silhouette ----
   if (weapon === "staff") {
     // mage robe: a long skirt over the legs
-    const robe = new THREE.Mesh(new THREE.ConeGeometry(0.5, 1.05, 12, 1, true), outfit);
-    robe.position.y = 0.78;
+    const robe = new THREE.Mesh(new THREE.ConeGeometry(0.42, 0.66, 12, 1, true), outfit);
+    robe.position.y = 0.4;
     group.add(robe);
   } else if (weapon === "bow") {
     // archer quiver of arrows on the back
-    const quiver = new THREE.Mesh(new THREE.CylinderGeometry(0.09, 0.09, 0.5, 8), toon(0x6b4a2b));
-    quiver.position.set(-0.2, 1.42, -0.24);
+    const quiver = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.4, 8), toon(0x6b4a2b));
+    quiver.position.set(-0.16, 0.74, -0.2);
     quiver.rotation.x = -0.35;
     group.add(quiver);
     for (let i = -1; i <= 1; i++) {
-      const arrow = new THREE.Mesh(new THREE.ConeGeometry(0.03, 0.18, 5), toon(0xe8e2cc));
-      arrow.position.set(-0.2 + i * 0.05, 1.72, -0.28);
+      const arrow = new THREE.Mesh(new THREE.ConeGeometry(0.028, 0.15, 5), toon(0xe8e2cc));
+      arrow.position.set(-0.16 + i * 0.045, 0.97, -0.24);
       group.add(arrow);
     }
   } else if (weapon === "mace") {
     // acolyte shoulder mantle
-    const mantle = new THREE.Mesh(new THREE.ConeGeometry(0.44, 0.42, 14, 1, true), toon(0xf2efe6));
-    mantle.position.y = 1.46;
+    const mantle = new THREE.Mesh(new THREE.ConeGeometry(0.4, 0.34, 14, 1, true), toon(0xf2efe6));
+    mantle.position.y = 0.86;
     group.add(mantle);
   } else {
     // swordsman pauldrons
     for (const s of [-1, 1]) {
-      const pad = new THREE.Mesh(new THREE.SphereGeometry(0.17, 12, 10, 0, Math.PI * 2, 0, Math.PI / 1.8), accent);
-      pad.position.set(s * 0.4, 1.5, 0);
+      const pad = new THREE.Mesh(new THREE.SphereGeometry(0.14, 12, 10, 0, Math.PI * 2, 0, Math.PI / 1.8), accent);
+      pad.position.set(s * 0.32, 0.9, 0);
       pad.scale.y = 0.7;
       group.add(pad);
     }
     // a flowing cape (pivots from the shoulders so it can sway)
     const capePivot = new THREE.Object3D();
-    capePivot.position.set(0, 1.52, -0.18);
+    capePivot.position.set(0, 0.9, -0.18);
     const capeMesh = new THREE.Mesh(
-      new THREE.PlaneGeometry(0.62, 0.95, 1, 3),
+      new THREE.PlaneGeometry(0.52, 0.62, 1, 3),
       new THREE.MeshToonMaterial({ color: new THREE.Color().setHSL(hue, 0.62, 0.38), gradientMap: makeToonGradient(), side: THREE.DoubleSide }),
     );
-    capeMesh.position.y = -0.46;
+    capeMesh.position.y = -0.3;
     capePivot.add(capeMesh);
     group.add(capePivot);
     cape = capePivot;
   }
 
-  // class weapon — a distinct silhouette per archetype
+  // ---- class weapon — a distinct silhouette per archetype ----
   if (weapon === "staff") {
-    const staff = new THREE.Mesh(new THREE.CylinderGeometry(0.04, 0.04, 1.3, 8), toon(0x8a5a2b));
-    staff.position.set(0.56, 1.25, 0.1);
+    const staff = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.035, 0.95, 8), toon(0x8a5a2b));
+    staff.position.set(0.5, 0.66, 0.1);
     group.add(staff);
-    const orb = new THREE.Mesh(new THREE.SphereGeometry(0.13, 14, 14), new THREE.MeshBasicMaterial({ color: 0x9fe0ff }));
-    orb.position.set(0.56, 1.95, 0.1);
+    const orb = new THREE.Mesh(new THREE.SphereGeometry(0.11, 14, 14), new THREE.MeshBasicMaterial({ color: 0x9fe0ff }));
+    orb.position.set(0.5, 1.16, 0.1);
     group.add(orb); // bright → catches bloom
   } else if (weapon === "bow") {
-    const bow = new THREE.Mesh(new THREE.TorusGeometry(0.42, 0.035, 6, 16, Math.PI * 1.25), toon(0x6b4a2b));
-    bow.position.set(0.52, 1.2, 0.12);
+    const bow = new THREE.Mesh(new THREE.TorusGeometry(0.32, 0.03, 6, 16, Math.PI * 1.25), toon(0x6b4a2b));
+    bow.position.set(0.48, 0.64, 0.12);
     bow.rotation.set(0, 0, Math.PI / 2);
     group.add(bow);
-    const string = new THREE.Mesh(new THREE.CylinderGeometry(0.006, 0.006, 0.78, 4), toon(0xe8e2cc));
-    string.position.set(0.52, 1.2, 0.12);
+    const string = new THREE.Mesh(new THREE.CylinderGeometry(0.005, 0.005, 0.58, 4), toon(0xe8e2cc));
+    string.position.set(0.48, 0.64, 0.12);
     group.add(string);
   } else if (weapon === "mace") {
-    const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.035, 0.04, 0.95, 8), toon(0x8a6a3a));
-    shaft.position.set(0.52, 1.15, 0.12);
+    const shaft = new THREE.Mesh(new THREE.CylinderGeometry(0.03, 0.035, 0.6, 8), toon(0x8a6a3a));
+    shaft.position.set(0.48, 0.62, 0.12);
     group.add(shaft);
-    const macehead = new THREE.Mesh(new THREE.IcosahedronGeometry(0.14, 0), toon(0xe8e0c4));
-    macehead.position.set(0.52, 1.64, 0.12);
+    const macehead = new THREE.Mesh(new THREE.IcosahedronGeometry(0.12, 0), toon(0xe8e0c4));
+    macehead.position.set(0.48, 0.95, 0.12);
     group.add(macehead);
-    const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.05), new THREE.MeshBasicMaterial({ color: 0xffe6a0 }));
-    gem.position.set(0.52, 1.64, 0.24);
+    const gem = new THREE.Mesh(new THREE.OctahedronGeometry(0.045), new THREE.MeshBasicMaterial({ color: 0xffe6a0 }));
+    gem.position.set(0.48, 0.95, 0.23);
     group.add(gem); // holy glint → catches bloom
   } else {
-    const blade = new THREE.Mesh(new THREE.BoxGeometry(0.08, 0.9, 0.04), toon(0xcfd6e6));
-    blade.position.set(0.5, 1.2, 0.12);
+    const blade = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.6, 0.035), toon(0xcfd6e6));
+    blade.position.set(0.46, 0.64, 0.12);
     group.add(blade);
-    const hilt = new THREE.Mesh(new THREE.BoxGeometry(0.16, 0.1, 0.08), toon(0x6b4a2b));
-    hilt.position.set(0.5, 0.78, 0.12);
+    const hilt = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.08, 0.07), toon(0x6b4a2b));
+    hilt.position.set(0.46, 0.32, 0.12);
     group.add(hilt);
   }
 
   // soft contact shadow
   const shadow = new THREE.Mesh(
-    new THREE.PlaneGeometry(1.1, 1.1),
+    new THREE.PlaneGeometry(1.0, 1.0),
     new THREE.MeshBasicMaterial({ map: makeBlobShadow(), transparent: true, depthWrite: false, opacity: 0.7 }),
   );
   shadow.rotation.x = -Math.PI / 2;
@@ -202,13 +246,13 @@ function limb(
   const pivot = new THREE.Object3D();
   pivot.position.set(x, pivotY, 0);
   const mesh = new THREE.Mesh(geo, mat);
-  mesh.position.y = -0.32;
+  mesh.position.y = -0.17;
   outline(pivot, mesh);
   pivot.add(mesh);
   // a small rounded cap (hand / boot) at the end of the limb for a cleaner silhouette
   if (capMat) {
-    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.12, 10, 10), capMat);
-    cap.position.y = -0.62;
+    const cap = new THREE.Mesh(new THREE.SphereGeometry(0.11, 10, 10), capMat);
+    cap.position.y = -0.35;
     cap.scale.y = 0.85;
     pivot.add(cap);
   }
@@ -227,6 +271,7 @@ export function applyHeadgear(char: CharacterMesh, itemId: string | null | undef
   const hat = buildHeadgear(itemId);
   if (!hat) return;
   hat.position.y = char.head.position.y;
+  hat.scale.setScalar(1.25); // hats were sized for a smaller head; fit the chibi dome
   hat.traverse((o) => {
     o.castShadow = true;
   });

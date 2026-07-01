@@ -11,6 +11,7 @@ export class CameraRig {
   private pitch = 0.85; // radians above horizon
   private dragging = false;
   private lastX = 0;
+  private lastY = 0;
   private shakeAmt = 0;
   // reused each frame to avoid per-frame allocation
   private scratchTarget = new THREE.Vector3();
@@ -27,13 +28,17 @@ export class CameraRig {
       if (e.button === 2) {
         this.dragging = true;
         this.lastX = e.clientX;
+        this.lastY = e.clientY;
       }
     });
     window.addEventListener("pointerup", () => (this.dragging = false));
     window.addEventListener("pointermove", (e) => {
       if (this.dragging) {
         this.yaw -= (e.clientX - this.lastX) * 0.006;
+        // vertical drag tilts the camera (clamped so it never flips or grazes the ground)
+        this.pitch = THREE.MathUtils.clamp(this.pitch + (e.clientY - this.lastY) * 0.004, 0.35, 1.3);
         this.lastX = e.clientX;
+        this.lastY = e.clientY;
       }
     });
     window.addEventListener("resize", () => {
