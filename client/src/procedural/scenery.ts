@@ -247,6 +247,7 @@ export function buildScenery(mapId: string): Scenery {
   // (MeshBasicMaterial heads are exempt from setShade, so they stay lit).
   if (mapId !== "arena") {
     addCenterpiece(group, theme, track);
+    addHouses(group, theme, track);
     const lampPost = track(new THREE.CylinderGeometry(0.07, 0.09, 2.2, 6), new THREE.MeshStandardMaterial({ color: 0x3a3430, roughness: 0.9 }));
     const lampHeadGeo = new THREE.SphereGeometry(0.16, 10, 8);
     const lampMat = new THREE.MeshBasicMaterial({ color: 0xffd9a0 });
@@ -272,6 +273,56 @@ export function buildScenery(mapId: string): Scenery {
       for (const m of mats) m.dispose();
     },
   };
+}
+
+// A trio of small village houses ringing the plaza on its north side (the south
+// approach from spawn stays open). Plastered walls tinted by the map's rock
+// tone, a pyramid roof from the trunk tone, a door and warm windows that stay
+// lit at night (MeshBasicMaterial is exempt from day/night shading).
+function addHouses(
+  group: THREE.Group,
+  theme: Theme,
+  track: <T extends THREE.BufferGeometry, M extends THREE.Material>(g: T, m: M) => [T, M],
+): void {
+  const [wallGeo, wallMat] = track(
+    new THREE.BoxGeometry(2.6, 1.8, 2.2),
+    new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).lerp(new THREE.Color(0xffffff), 0.35), roughness: 0.95 }),
+  );
+  const [roofGeo, roofMat] = track(
+    new THREE.ConeGeometry(2.2, 1.2, 4),
+    new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(0.9), roughness: 0.9, flatShading: true }),
+  );
+  const [doorGeo, doorMat] = track(new THREE.BoxGeometry(0.6, 1.0, 0.08), new THREE.MeshStandardMaterial({ color: 0x4a3220, roughness: 1 }));
+  const [winGeo, winMat] = track(new THREE.BoxGeometry(0.42, 0.42, 0.06), new THREE.MeshBasicMaterial({ color: 0xffd9a0 }));
+
+  const placements = [
+    { x: -9.5, z: -7 },
+    { x: 0, z: -11.5 },
+    { x: 9.5, z: -7 },
+  ];
+  for (const p of placements) {
+    const house = new THREE.Group();
+    const walls = new THREE.Mesh(wallGeo, wallMat);
+    walls.position.y = 0.9;
+    walls.castShadow = true;
+    house.add(walls);
+    const roof = new THREE.Mesh(roofGeo, roofMat);
+    roof.position.y = 2.35;
+    roof.rotation.y = Math.PI / 4;
+    roof.castShadow = true;
+    house.add(roof);
+    const door = new THREE.Mesh(doorGeo, doorMat);
+    door.position.set(0, 0.5, 1.12);
+    house.add(door);
+    for (const s of [-1, 1]) {
+      const win = new THREE.Mesh(winGeo, winMat);
+      win.position.set(s * 0.85, 1.1, 1.12);
+      house.add(win);
+    }
+    house.position.set(p.x, 0, p.z);
+    house.rotation.y = Math.atan2(-p.x, -p.z); // door side (+z) faces the fountain
+    group.add(house);
+  }
 }
 
 // A themed monument at the map centre: a tiered fountain on living maps, a
