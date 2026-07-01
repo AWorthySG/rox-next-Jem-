@@ -63,6 +63,14 @@ export function buildCharacter(
   hips.position.y = 0.42;
   group.add(hips);
 
+  // belt with a golden buckle — a small touch every ROX outfit shares
+  const belt = new THREE.Mesh(new THREE.CylinderGeometry(0.31, 0.31, 0.07, 12), toon(0x4a3524));
+  belt.position.y = 0.5;
+  group.add(belt);
+  const buckle = new THREE.Mesh(new THREE.BoxGeometry(0.1, 0.07, 0.03), new THREE.MeshBasicMaterial({ color: 0xf0c25a }));
+  buckle.position.set(0, 0.5, 0.3);
+  group.add(buckle);
+
   // ---- big chibi head ----
   const head = new THREE.Mesh(new THREE.SphereGeometry(0.42, 20, 18), skin);
   head.position.y = 1.32;
@@ -143,12 +151,19 @@ export function buildCharacter(
 
   // ---- class outfit flourish — deepens each archetype's silhouette ----
   if (weapon === "staff") {
-    // mage robe: a long skirt over the legs
+    // mage robe: a long skirt over the legs, with a glowing hem and shoulder cowl
     const robe = new THREE.Mesh(new THREE.ConeGeometry(0.42, 0.66, 12, 1, true), outfit);
     robe.position.y = 0.4;
     group.add(robe);
+    const hem = new THREE.Mesh(new THREE.TorusGeometry(0.41, 0.024, 8, 20), new THREE.MeshBasicMaterial({ color: 0x9fd6ff }));
+    hem.position.y = 0.1;
+    hem.rotation.x = Math.PI / 2;
+    group.add(hem);
+    const cowl = new THREE.Mesh(new THREE.ConeGeometry(0.34, 0.22, 12, 1, true), accent);
+    cowl.position.y = 0.88;
+    group.add(cowl);
   } else if (weapon === "bow") {
-    // archer quiver of arrows on the back
+    // archer quiver of arrows on the back + a leather chest strap
     const quiver = new THREE.Mesh(new THREE.CylinderGeometry(0.08, 0.08, 0.4, 8), toon(0x6b4a2b));
     quiver.position.set(-0.16, 0.74, -0.2);
     quiver.rotation.x = -0.35;
@@ -158,19 +173,33 @@ export function buildCharacter(
       arrow.position.set(-0.16 + i * 0.045, 0.97, -0.24);
       group.add(arrow);
     }
+    const strap = new THREE.Mesh(new THREE.BoxGeometry(0.07, 0.62, 0.03), toon(0x5a3a22));
+    strap.position.set(0, 0.7, 0.26);
+    strap.rotation.z = 0.7;
+    group.add(strap);
   } else if (weapon === "mace") {
-    // acolyte shoulder mantle
+    // acolyte shoulder mantle with a gold trim ring and chest emblem
     const mantle = new THREE.Mesh(new THREE.ConeGeometry(0.4, 0.34, 14, 1, true), toon(0xf2efe6));
     mantle.position.y = 0.86;
     group.add(mantle);
+    const trim = new THREE.Mesh(new THREE.TorusGeometry(0.395, 0.02, 8, 20), new THREE.MeshBasicMaterial({ color: 0xf0c25a }));
+    trim.position.y = 0.7;
+    trim.rotation.x = Math.PI / 2;
+    group.add(trim);
+    const emblem = new THREE.Mesh(new THREE.OctahedronGeometry(0.05), new THREE.MeshBasicMaterial({ color: 0xffe6a0 }));
+    emblem.position.set(0, 0.62, 0.28);
+    group.add(emblem);
   } else {
-    // swordsman pauldrons
+    // swordsman pauldrons + a metal chest plate
     for (const s of [-1, 1]) {
       const pad = new THREE.Mesh(new THREE.SphereGeometry(0.14, 12, 10, 0, Math.PI * 2, 0, Math.PI / 1.8), accent);
       pad.position.set(s * 0.32, 0.9, 0);
       pad.scale.y = 0.7;
       group.add(pad);
     }
+    const plate = new THREE.Mesh(new THREE.BoxGeometry(0.32, 0.26, 0.05), toon(0xcfd6e6));
+    plate.position.set(0, 0.72, 0.25);
+    group.add(plate);
     // a flowing cape (pivots from the shoulders so it can sway)
     const capePivot = new THREE.Object3D();
     capePivot.position.set(0, 0.9, -0.18);
