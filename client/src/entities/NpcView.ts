@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import type { EntityFull } from "@rox/shared";
-import { applyHeadgear, buildCharacter, type CharacterMesh, type WeaponStyle } from "../procedural/characterMesh.js";
+import { applyHeadgear, buildCharacter, setEyeBlink, type CharacterMesh, type WeaponStyle } from "../procedural/characterMesh.js";
 import { makeSpark } from "../procedural/textures.js";
 import { env } from "../engine/env.js";
 import { EntityView } from "./EntityView.js";
@@ -28,6 +28,8 @@ export class NpcView extends EntityView {
   private lantern: THREE.Sprite;
   private char: CharacterMesh;
   private rig: ModelRig;
+  private blinkIn = 1.5 + Math.random() * 3;
+  private blinkT = 0;
 
   constructor(entity: EntityFull) {
     super(entity, "nameplate npc", 2.2);
@@ -87,6 +89,18 @@ export class NpcView extends EntityView {
     const flick = 0.85 + Math.sin(this.bob * 5) * 0.15;
     (this.lantern.material as THREE.SpriteMaterial).opacity = env.night * 0.85 * flick;
     this.lantern.visible = env.night > 0.05;
+    // anime blink (procedural avatar only)
+    if (!this.modelBacked) {
+      this.blinkIn -= dt;
+      if (this.blinkIn <= 0) {
+        this.blinkIn = 1.5 + Math.random() * 3.5;
+        this.blinkT = 0.13;
+      }
+      if (this.blinkT > 0) {
+        this.blinkT -= dt;
+        setEyeBlink(this.char, this.blinkT > 0 ? 0.08 : 1);
+      }
+    }
     if (this.modelBacked) this.rig.update(dt); // NPCs are stationary → idle loop
   }
 

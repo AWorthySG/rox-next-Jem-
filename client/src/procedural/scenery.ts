@@ -272,6 +272,7 @@ export function buildScenery(mapId: string): Scenery {
 
     addCenterpiece(group, theme, track);
     addHouses(group, theme, track);
+    addPlazaProps(group, theme, track);
     const lampPost = track(new THREE.CylinderGeometry(0.07, 0.09, 2.2, 6), new THREE.MeshStandardMaterial({ color: 0x3a3430, roughness: 0.9 }));
     const lampHeadGeo = new THREE.SphereGeometry(0.16, 10, 8);
     const lampMat = new THREE.MeshBasicMaterial({ color: 0xffd9a0 });
@@ -347,6 +348,58 @@ function addHouses(
     house.rotation.y = Math.atan2(-p.x, -p.z); // door side (+z) faces the fountain
     group.add(house);
   }
+}
+
+// Plaza furniture: two benches facing the fountain, plus a crate stack and a
+// barrel by the houses — small props that make the square feel inhabited.
+function addPlazaProps(
+  group: THREE.Group,
+  theme: Theme,
+  track: <T extends THREE.BufferGeometry, M extends THREE.Material>(g: T, m: M) => [T, M],
+): void {
+  const wood = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(1.1), roughness: 0.95 });
+  const [seatGeo] = track(new THREE.BoxGeometry(1.4, 0.08, 0.4), wood);
+  const [backGeo] = track(new THREE.BoxGeometry(1.4, 0.34, 0.06), wood);
+  const [legGeo] = track(new THREE.BoxGeometry(0.08, 0.42, 0.4), wood);
+  for (const s of [-1, 1]) {
+    const bench = new THREE.Group();
+    const seat = new THREE.Mesh(seatGeo, wood);
+    seat.position.y = 0.42;
+    seat.castShadow = true;
+    const back = new THREE.Mesh(backGeo, wood);
+    back.position.set(0, 0.62, -0.2);
+    const legL = new THREE.Mesh(legGeo, wood);
+    legL.position.set(-0.6, 0.21, 0);
+    const legR = new THREE.Mesh(legGeo, wood);
+    legR.position.set(0.6, 0.21, 0);
+    bench.add(seat, back, legL, legR);
+    bench.position.set(s * 6.2, 0, 0.6);
+    bench.rotation.y = s * Math.PI / 2; // face the fountain
+    group.add(bench);
+  }
+  // crate stack beside the east house
+  const [crateGeo] = track(new THREE.BoxGeometry(0.62, 0.62, 0.62), wood);
+  const crates = [
+    { x: 7.6, y: 0.31, z: -5.2, rot: 0.2 },
+    { x: 8.3, y: 0.31, z: -5.5, rot: -0.35 },
+    { x: 7.9, y: 0.93, z: -5.3, rot: 0.55 },
+  ];
+  for (const cfg of crates) {
+    const crate = new THREE.Mesh(crateGeo, wood);
+    crate.position.set(cfg.x, cfg.y, cfg.z);
+    crate.rotation.y = cfg.rot;
+    crate.castShadow = true;
+    group.add(crate);
+  }
+  // barrel by the west house
+  const [barrelGeo, barrelMat] = track(
+    new THREE.CylinderGeometry(0.3, 0.34, 0.72, 10),
+    new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(0.85), roughness: 0.95 }),
+  );
+  const barrel = new THREE.Mesh(barrelGeo, barrelMat);
+  barrel.position.set(-7.8, 0.36, -5.3);
+  barrel.castShadow = true;
+  group.add(barrel);
 }
 
 // A themed monument at the map centre: a tiered fountain on living maps, a

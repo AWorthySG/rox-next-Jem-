@@ -12,6 +12,12 @@ export interface CharacterMesh {
   head: THREE.Object3D;
   headgear: THREE.Object3D | null; // currently-worn hat mesh, if any
   cape: THREE.Object3D | null; // swordsman cape pivot (sways with movement), if any
+  eyeParts: { mesh: THREE.Object3D; baseY: number }[]; // eye meshes, for blinking
+}
+
+// Squash/restore the eyes for an anime blink: f=1 open, f≈0.08 closed.
+export function setEyeBlink(char: CharacterMesh, f: number): void {
+  for (const p of char.eyeParts) p.mesh.scale.y = p.baseY * f;
 }
 
 const OUTLINE_MAT = new THREE.MeshBasicMaterial({ color: 0x171019, side: THREE.BackSide });
@@ -82,6 +88,7 @@ export function buildCharacter(
   const eyeMat = new THREE.MeshBasicMaterial({ color: 0x241c2c });
   const irisMat = new THREE.MeshBasicMaterial({ color: new THREE.Color().setHSL((hue + 0.6) % 1, 0.55, 0.42) });
   const glintMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  const eyeParts: { mesh: THREE.Object3D; baseY: number }[] = [];
   for (const sx of [-1, 1]) {
     const eye = new THREE.Mesh(new THREE.SphereGeometry(0.085, 12, 12), eyeMat);
     eye.scale.set(0.85, 1.4, 0.45);
@@ -97,6 +104,7 @@ export function buildCharacter(
     const glint2 = new THREE.Mesh(new THREE.SphereGeometry(0.012, 6, 6), glintMat);
     glint2.position.set(sx * 0.16 - 0.025, 1.27, 0.425);
     group.add(glint2);
+    eyeParts.push({ mesh: eye, baseY: eye.scale.y }, { mesh: iris, baseY: iris.scale.y }, { mesh: glint, baseY: 1 }, { mesh: glint2, baseY: 1 });
     // eyebrow: a thin tilted bar above the eye
     const brow = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.022, 0.02), eyeMat);
     brow.position.set(sx * 0.16, 1.47, 0.395);
@@ -285,7 +293,7 @@ export function buildCharacter(
     if (o instanceof THREE.Mesh && o.material !== OUTLINE_MAT) o.castShadow = true;
   });
 
-  return { group, leftArm, rightArm, leftLeg, rightLeg, head, headgear: null, cape };
+  return { group, leftArm, rightArm, leftLeg, rightLeg, head, headgear: null, cape, eyeParts };
 }
 
 function limb(

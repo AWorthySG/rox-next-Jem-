@@ -1,7 +1,7 @@
 import type { EntityFull } from "@rox/shared";
 import { isMagicJob, jobFamilyOf, jobTierOf, MOUNT_SPEED_MULT, PLAYER_SPEED } from "@rox/shared";
 import * as THREE from "three";
-import { applyHeadgear, buildCharacter, type CharacterMesh, type WeaponStyle } from "../procedural/characterMesh.js";
+import { applyHeadgear, buildCharacter, setEyeBlink, type CharacterMesh, type WeaponStyle } from "../procedural/characterMesh.js";
 import { EntityView } from "./EntityView.js";
 import { ModelRig } from "./ModelRig.js";
 
@@ -19,6 +19,8 @@ export class PlayerView extends EntityView {
   private rig: ModelRig;
   private buffAura: THREE.Mesh | null = null;
   private auraPhase = 0;
+  private blinkIn = 1.5 + Math.random() * 3; // seconds until the next blink
+  private blinkT = 0; // remaining blink duration
 
   isSelf = false;
   // server-authoritative position (used for self correction / remote idle)
@@ -209,6 +211,16 @@ export class PlayerView extends EntityView {
       this.rig.setMoving(this.moving);
       this.rig.update(dt);
       return;
+    }
+    // anime blink: eyes squash shut for a beat every few seconds
+    this.blinkIn -= dt;
+    if (this.blinkIn <= 0) {
+      this.blinkIn = 1.5 + Math.random() * 3.5;
+      this.blinkT = 0.13;
+    }
+    if (this.blinkT > 0) {
+      this.blinkT -= dt;
+      setEyeBlink(this.char, this.blinkT > 0 ? 0.08 : 1);
     }
     // cape: flow back while moving, gentle drift at rest (framerate-independent)
     if (this.char.cape) {
