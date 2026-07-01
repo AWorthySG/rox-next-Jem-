@@ -30,6 +30,7 @@ export class NpcView extends EntityView {
   private rig: ModelRig;
   private blinkIn = 1.5 + Math.random() * 3;
   private blinkT = 0;
+  private portalRing: THREE.Mesh | null = null;
 
   constructor(entity: EntityFull) {
     super(entity, "nameplate npc", 2.2);
@@ -69,6 +70,24 @@ export class NpcView extends EntityView {
     this.lantern.position.set(0.5, 1.2, 0.2);
     this.group.add(this.lantern);
 
+    // Portal gatekeepers get a standing swirl ring beside them, so map exits
+    // read as glowing gates (ROX-style) rather than an ordinary villager.
+    if (this.role === "portal") {
+      this.portalRing = new THREE.Mesh(
+        new THREE.TorusGeometry(0.9, 0.07, 10, 36),
+        new THREE.MeshBasicMaterial({ color: 0x8ad0ff, transparent: true, opacity: 0.75, blending: THREE.AdditiveBlending, depthWrite: false }),
+      );
+      this.portalRing.position.set(1.3, 1.2, 0);
+      this.group.add(this.portalRing);
+      const core = new THREE.Mesh(
+        new THREE.CircleGeometry(0.72, 24),
+        new THREE.MeshBasicMaterial({ color: 0xc0e8ff, transparent: true, opacity: 0.22, blending: THREE.AdditiveBlending, depthWrite: false, side: THREE.DoubleSide }),
+      );
+      core.position.set(1.3, 1.2, 0);
+      this.portalRing.userData.core = core;
+      this.group.add(core);
+    }
+
     // Optional mid-poly model by role: npc_<role>.glb.
     this.rig = new ModelRig(this.group, entity.id);
     void this.rig.tryLoad(`npc_${this.role}`, undefined, 1, () => {
@@ -100,6 +119,14 @@ export class NpcView extends EntityView {
         this.blinkT -= dt;
         setEyeBlink(this.char, this.blinkT > 0 ? 0.08 : 1);
       }
+    }
+    // portal swirl: slow spin + gentle pulse
+    if (this.portalRing) {
+      this.portalRing.rotation.z += dt * 1.2;
+      const t = Math.sin(this.bob * 1.6) * 0.5 + 0.5;
+      (this.portalRing.material as THREE.MeshBasicMaterial).opacity = 0.55 + t * 0.3;
+      const core = this.portalRing.userData.core as THREE.Mesh;
+      (core.material as THREE.MeshBasicMaterial).opacity = 0.14 + t * 0.14;
     }
     if (this.modelBacked) this.rig.update(dt); // NPCs are stationary → idle loop
   }
