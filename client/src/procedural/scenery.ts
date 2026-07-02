@@ -3317,6 +3317,79 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- orc war banner: a crude tribal totem of stacked bones and a hide
+  // banner marks the dungeon entrance ----
+  if (mapId === "orc_dungeon") {
+    const orcWood = new THREE.MeshStandardMaterial({ color: 0x4a3a26, roughness: 1, flatShading: true });
+    mats.push(orcWood);
+    const [poleGeo] = track(new THREE.CylinderGeometry(0.09, 0.12, 3.4, 6), orcWood);
+    const [skullGeo, skullMat] = track(new THREE.SphereGeometry(0.24, 8, 6), new THREE.MeshStandardMaterial({ color: 0xe0d8c0, roughness: 1 }));
+    const [hornGeo] = track(new THREE.ConeGeometry(0.05, 0.3, 4), skullMat);
+    const [hideGeo, hideMat] = track(new THREE.PlaneGeometry(1.1, 1.5), new THREE.MeshStandardMaterial({ color: 0x8a5a3a, roughness: 1, side: THREE.DoubleSide }));
+    const totem = new THREE.Group();
+    const pole = new THREE.Mesh(poleGeo, orcWood);
+    pole.position.y = 1.7;
+    pole.castShadow = true;
+    totem.add(pole);
+    for (let s = 0; s < 3; s++) {
+      const skull = new THREE.Mesh(skullGeo, skullMat);
+      skull.position.y = 0.6 + s * 0.85;
+      totem.add(skull);
+      for (const side of [-1, 1]) {
+        const horn = new THREE.Mesh(hornGeo, skullMat);
+        horn.position.set(side * 0.18, 0.6 + s * 0.85 + 0.12, 0.05);
+        horn.rotation.z = side * 0.5;
+        totem.add(horn);
+      }
+    }
+    const hide = new THREE.Mesh(hideGeo, hideMat);
+    hide.position.set(0.65, 2.8, 0);
+    totem.add(hide);
+    totem.position.set(-11, 0, -11);
+    totem.rotation.y = Math.PI / 4;
+    group.add(totem);
+  }
+
+  // ---- bio lab hazard tanks: two glass cylinders of glowing green liquid
+  // with rising bubbles, the lab's grim ambience ----
+  if (mapId === "bio_lab") {
+    const [tankGeo, tankMat] = track(
+      new THREE.CylinderGeometry(0.55, 0.55, 2.2, 12, 1, true),
+      new THREE.MeshStandardMaterial({ color: 0x8a9aa0, roughness: 0.2, metalness: 0.3, transparent: true, opacity: 0.35, side: THREE.DoubleSide }),
+    );
+    const [liquidGeo, liquidMat] = track(
+      new THREE.CylinderGeometry(0.5, 0.5, 1.9, 12),
+      new THREE.MeshBasicMaterial({ color: 0x5aff8a, transparent: true, opacity: 0.55 }),
+    );
+    nightLights.push({ mat: liquidMat, day: new THREE.Color(0x5aff8a), night: new THREE.Color(0x8affb0) });
+    const [capGeo, capMat] = track(new THREE.CylinderGeometry(0.6, 0.6, 0.15, 12), new THREE.MeshStandardMaterial({ color: 0x5a626c, roughness: 0.5, metalness: 0.6 }));
+    const bubbleMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0x8affb0, transparent: true, opacity: 0.5, depthWrite: false, blending: THREE.AdditiveBlending });
+    mats.push(bubbleMat);
+    for (const [tx, tz] of [[-13.5, -9], [-11.5, -10.5]] as const) {
+      const tank = new THREE.Group();
+      const shell = new THREE.Mesh(tankGeo, tankMat);
+      shell.position.y = 1.2;
+      tank.add(shell);
+      const liquid = new THREE.Mesh(liquidGeo, liquidMat);
+      liquid.position.y = 1.15;
+      tank.add(liquid);
+      const capTop = new THREE.Mesh(capGeo, capMat);
+      capTop.position.y = 2.35;
+      tank.add(capTop);
+      const capBottom = new THREE.Mesh(capGeo, capMat);
+      capBottom.position.y = 0.05;
+      tank.add(capBottom);
+      for (let b = 0; b < 2; b++) {
+        const bubble = new THREE.Sprite(bubbleMat);
+        bubble.scale.setScalar(0.1);
+        tank.add(bubble);
+        smokes.push({ sprite: bubble, baseY: 0.3, offset: b / 2 });
+      }
+      tank.position.set(tx, 0, tz);
+      group.add(tank);
+    }
+  }
+
   // ---- Einbroch smokestacks: the steam town's skyline — two brick stacks
   // venting heavy plumes on the chimney-puff channel ----
   if (mapId === "einbroch" || mapId === "bio_lab") {
