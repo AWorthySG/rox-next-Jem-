@@ -1288,6 +1288,27 @@ export function buildScenery(mapId: string): Scenery {
         group.add(post);
       }
     }
+    // a coiled rope and rusty anchor resting at the foot of the pier
+    const [ropeCoilGeo, ropeCoilMat] = track(new THREE.TorusGeometry(0.28, 0.05, 6, 14), new THREE.MeshStandardMaterial({ color: 0xc8a860, roughness: 1 }));
+    const ropeCoil = new THREE.Mesh(ropeCoilGeo, ropeCoilMat);
+    ropeCoil.rotation.x = -Math.PI / 2;
+    ropeCoil.position.set(MAP_HALF * 0.94 - 0.8, 0.06, pierZ - 1.6);
+    group.add(ropeCoil);
+    const anchorMat = new THREE.MeshStandardMaterial({ color: 0x5a4a42, roughness: 0.6, metalness: 0.5 });
+    mats.push(anchorMat);
+    const [anchorShaftGeo] = track(new THREE.CylinderGeometry(0.04, 0.04, 0.6, 6), anchorMat);
+    const [anchorArmGeo] = track(new THREE.TorusGeometry(0.22, 0.045, 6, 10, Math.PI), anchorMat);
+    const anchor = new THREE.Group();
+    const anchorShaft = new THREE.Mesh(anchorShaftGeo, anchorMat);
+    anchorShaft.rotation.z = 0.15;
+    anchorShaft.position.y = 0.3;
+    anchor.add(anchorShaft);
+    const anchorArm = new THREE.Mesh(anchorArmGeo, anchorMat);
+    anchorArm.position.y = 0.02;
+    anchor.add(anchorArm);
+    anchor.position.set(MAP_HALF * 0.94 - 0.3, 0, pierZ - 1.0);
+    anchor.rotation.y = 0.6;
+    group.add(anchor);
     // a little rowboat moored beside the pier, bobbing on the swell
     const boat = new THREE.Group();
     const [hullGeo] = track(new THREE.BoxGeometry(0.95, 0.35, 2.0), woodMat);
@@ -1674,6 +1695,29 @@ export function buildScenery(mapId: string): Scenery {
       deer.rotation.y = rng() * Math.PI * 2;
       group.add(deer);
     }
+  }
+
+  // ---- kite: a diamond paper kite tugs and dips on an invisible string
+  // high over the leafy fields ----
+  if (theme.tree === "leafy" && mapId !== "arena") {
+    const kiteMat = new THREE.MeshStandardMaterial({ color: 0xe85a5a, roughness: 0.85, side: THREE.DoubleSide });
+    mats.push(kiteMat);
+    const [kiteGeo] = track(new THREE.ConeGeometry(0.9, 1.4, 4), kiteMat);
+    const [tailGeo, tailMat] = track(new THREE.PlaneGeometry(0.12, 0.12), new THREE.MeshStandardMaterial({ color: 0xf0d040, side: THREE.DoubleSide }));
+    const kite = new THREE.Group();
+    const diamond = new THREE.Mesh(kiteGeo, kiteMat);
+    diamond.rotation.z = Math.PI / 2;
+    diamond.scale.z = 0.06;
+    kite.add(diamond);
+    for (let t = 0; t < 4; t++) {
+      const tailBow = new THREE.Mesh(tailGeo, tailMat);
+      tailBow.position.set(-0.7 - t * 0.32, -t * 0.1, 0);
+      tailBow.rotation.z = t * 0.6;
+      kite.add(tailBow);
+    }
+    kite.position.set(-14, 18, 8);
+    group.add(kite);
+    cruisers.push({ obj: kite, cx: -14, cz: 8, r: 3, y: 18, speed: 0.14, phase: 0, bob: 1.4 });
   }
 
   // ---- countryside dressing: a scarecrow watching the grass, and golden
