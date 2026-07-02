@@ -1275,6 +1275,63 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Payon pagoda: a three-tier timber pagoda rises over the pine town,
+  // its top window kept lit through the night ----
+  if (mapId === "payon") {
+    const pagodaWood = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(1.05), roughness: 0.95 });
+    mats.push(pagodaWood);
+    const [tierGeo] = track(new THREE.BoxGeometry(2.4, 1.15, 2.4), pagodaWood);
+    const [pagodaRoofGeo, pagodaRoofMat] = track(
+      new THREE.ConeGeometry(2.15, 0.75, 4),
+      new THREE.MeshStandardMaterial({ color: 0x3a5a3a, roughness: 0.9, flatShading: true }),
+    );
+    const [pagodaWinGeo, pagodaWinMat] = track(new THREE.BoxGeometry(0.38, 0.38, 0.06), new THREE.MeshBasicMaterial({ color: 0xffd9a0 }));
+    nightLights.push({ mat: pagodaWinMat, day: new THREE.Color(0x8a7a62), night: new THREE.Color(0xffd9a0) });
+    const pagoda = new THREE.Group();
+    for (let t = 0; t < 3; t++) {
+      const shrink = 1 - t * 0.22;
+      const tier = new THREE.Mesh(tierGeo, pagodaWood);
+      tier.scale.setScalar(shrink);
+      tier.position.y = 0.6 + t * 1.55;
+      tier.castShadow = true;
+      pagoda.add(tier);
+      const tierRoof = new THREE.Mesh(pagodaRoofGeo, pagodaRoofMat);
+      tierRoof.scale.setScalar(shrink);
+      tierRoof.position.y = 1.55 + t * 1.55;
+      tierRoof.rotation.y = Math.PI / 4;
+      tierRoof.castShadow = true;
+      pagoda.add(tierRoof);
+    }
+    const pagodaWin = new THREE.Mesh(pagodaWinGeo, pagodaWinMat);
+    pagodaWin.position.set(0, 3.75, 0.75);
+    pagoda.add(pagodaWin);
+    pagoda.position.set(-12.5, 0, -10.5);
+    pagoda.rotation.y = Math.atan2(12.5, 10.5);
+    group.add(pagoda);
+  }
+
+  // ---- Juno levitation: the sky city's outskirts float slow-bobbing rock
+  // shards, as if the ground itself forgot gravity ----
+  if (mapId === "juno") {
+    const [floatRockGeo, floatRockMat] = track(
+      new THREE.DodecahedronGeometry(0.5, 0),
+      new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(0.95), roughness: 1, flatShading: true }),
+    );
+    for (let i = 0; i < 7; i++) {
+      const rock = new THREE.Mesh(floatRockGeo, floatRockMat);
+      const sc = 0.5 + rng() * 0.9;
+      rock.scale.setScalar(sc);
+      rock.rotation.set(rng() * Math.PI, rng() * Math.PI, rng() * Math.PI);
+      rock.castShadow = true;
+      group.add(rock);
+      const a = rng() * Math.PI * 2;
+      const r = 12 + rng() * 16;
+      rock.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
+      bobbers.push({ obj: rock, baseY: 1.6 + rng() * 2.2, phase: rng() * Math.PI * 2 });
+      spinners.push({ obj: rock, speed: (rng() - 0.5) * 0.3, axis: "y" });
+    }
+  }
+
   // ---- Moscovia chapel: a little whitewashed chapel with a gilded onion
   // dome and a warm window, tucked off the plaza ----
   if (mapId === "moscovia") {
