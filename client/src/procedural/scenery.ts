@@ -1275,6 +1275,83 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- MacRitchie treetop walk: two lattice towers with a gently sagging
+  // suspension walkway strung between them at canopy height ----
+  if (mapId === "macritchie") {
+    const walkSteel = new THREE.MeshStandardMaterial({ color: 0x6a7268, roughness: 0.7, metalness: 0.4 });
+    mats.push(walkSteel);
+    const [wTowerGeo] = track(new THREE.BoxGeometry(0.9, 6.0, 0.9), walkSteel);
+    const [wDeckGeo, wDeckMat] = track(
+      new THREE.BoxGeometry(1.4, 0.12, 1.0),
+      new THREE.MeshStandardMaterial({ color: 0x8a6a42, roughness: 0.95 }),
+    );
+    const [wCableGeo] = track(new THREE.CylinderGeometry(0.03, 0.03, 1, 4), walkSteel);
+    const walk = new THREE.Group();
+    const x1 = -5.5;
+    const x2 = 5.5;
+    for (const tx of [x1, x2]) {
+      const tower = new THREE.Mesh(wTowerGeo, walkSteel);
+      tower.position.set(tx, 3.0, 0);
+      tower.castShadow = true;
+      walk.add(tower);
+    }
+    // deck segments trace a shallow catenary between the towers
+    const segs = 7;
+    for (let i = 0; i < segs; i++) {
+      const t = (i + 0.5) / segs;
+      const dx = x1 + (x2 - x1) * t;
+      const sag = Math.sin(Math.PI * t) * 0.9;
+      const deckSeg = new THREE.Mesh(wDeckGeo, wDeckMat);
+      deckSeg.position.set(dx, 5.4 - sag, 0);
+      deckSeg.rotation.z = Math.cos(Math.PI * t) * 0.22; // follow the curve
+      walk.add(deckSeg);
+      for (const s of [-1, 1]) {
+        const rail = new THREE.Mesh(wCableGeo, walkSteel);
+        rail.scale.y = 0.9;
+        rail.position.set(dx, 5.85 - sag, s * 0.45);
+        walk.add(rail);
+      }
+    }
+    walk.position.set(-11, 0, -13);
+    walk.rotation.y = 0.6;
+    group.add(walk);
+  }
+
+  // ---- Coney Island driftwood: sun-bleached logs and a bare casuarina snag
+  // scattered along the wild shore ----
+  if (mapId === "coney_island") {
+    const [driftGeo, driftMat] = track(
+      new THREE.CylinderGeometry(0.16, 0.22, 2.6, 6),
+      new THREE.MeshStandardMaterial({ color: 0xb8a888, roughness: 1, flatShading: true }),
+    );
+    for (let d = 0; d < 4; d++) {
+      const a = rng() * Math.PI * 2;
+      const r = MAP_HALF * (0.72 + rng() * 0.12);
+      const log = new THREE.Mesh(driftGeo, driftMat);
+      log.scale.setScalar(0.7 + rng() * 0.6);
+      log.position.set(Math.cos(a) * r, 0.16, Math.sin(a) * r);
+      log.rotation.set(Math.PI / 2, 0, rng() * Math.PI); // lying on its side
+      log.castShadow = true;
+      group.add(log);
+    }
+    const [snagGeo] = track(new THREE.CylinderGeometry(0.14, 0.3, 3.4, 7), driftMat);
+    const [snagBranchGeo] = track(new THREE.CylinderGeometry(0.05, 0.09, 1.3, 5), driftMat);
+    const snag = new THREE.Group();
+    const snagTrunk = new THREE.Mesh(snagGeo, driftMat);
+    snagTrunk.position.y = 1.7;
+    snagTrunk.rotation.z = 0.1;
+    snagTrunk.castShadow = true;
+    snag.add(snagTrunk);
+    for (const [by, rot] of [[2.2, 0.9], [2.8, -1.1]] as const) {
+      const branch = new THREE.Mesh(snagBranchGeo, driftMat);
+      branch.position.set(Math.sin(rot) * 0.5, by, 0);
+      branch.rotation.z = rot;
+      snag.add(branch);
+    }
+    snag.position.set(12, 0, 11);
+    group.add(snag);
+  }
+
   // ---- Punggol arc bridge: the waterway's red jewel — an arched span with
   // a plank deck crossing toward the water's edge ----
   if (mapId === "punggol_waterway") {
