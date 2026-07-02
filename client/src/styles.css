@@ -709,6 +709,16 @@ body {
 .equip-cell.filled.rar-mythic {
   animation: rar-glow 1.2s ease-in-out infinite;
 }
+/* immediate click feedback for storage deposit/withdraw, same idea as the
+   shop panel's transaction flash */
+.inv-cell-flash {
+  animation: inv-cell-flash-anim 0.3s ease-out;
+}
+@keyframes inv-cell-flash-anim {
+  0% { background: rgba(230, 200, 120, 0.35); }
+  100% { background: rgba(0, 0, 0, 0.3); }
+}
+
 @keyframes rar-glow {
   0%, 100% { box-shadow: 0 0 5px color-mix(in srgb, var(--rar) 35%, transparent); }
   50% { box-shadow: 0 0 15px color-mix(in srgb, var(--rar) 85%, transparent); }
