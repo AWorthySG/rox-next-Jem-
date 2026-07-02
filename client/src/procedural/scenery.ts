@@ -278,7 +278,7 @@ export function buildScenery(mapId: string): Scenery {
   const smokes: { sprite: THREE.Sprite; baseY: number; offset: number }[] = [];
   // things that fly a circular route around the map (airship, seabirds); they
   // face along the flight path and optionally flap wing pivots as they go
-  const cruisers: { obj: THREE.Object3D; r: number; y: number; speed: number; phase: number; wings?: THREE.Object3D[]; cx?: number; cz?: number; flapRate?: number }[] = [];
+  const cruisers: { obj: THREE.Object3D; r: number; y: number; speed: number; phase: number; wings?: THREE.Object3D[]; cx?: number; cz?: number; flapRate?: number; bob?: number }[] = [];
   // leaves that tumble down around the plaza on living maps, looping forever
   const leaves: { m: THREE.Mesh; x: number; z: number; offset: number; spin: number }[] = [];
   // fish that periodically leap out of the sea in a little arc near the pier
@@ -295,6 +295,12 @@ export function buildScenery(mapId: string): Scenery {
   const star = new THREE.Sprite(starMat);
   star.scale.set(3.2, 0.18, 1);
   group.add(star);
+  // one recycled festival firework: a soft coloured burst blooms over the
+  // town every ~13 s after dark, expanding as it fades
+  const fireworkMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0xff80c0, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, fog: false });
+  mats.push(fireworkMat);
+  const firework = new THREE.Sprite(fireworkMat);
+  group.add(firework);
   if (mapId !== "arena") {
     // stone plaza under the fountain + a paved path south toward the spawn row,
     // so the town centre reads as constructed ground rather than bare grass
@@ -321,6 +327,21 @@ export function buildScenery(mapId: string): Scenery {
     group.add(path);
 
     animated = addCenterpiece(group, theme, track);
+    // koi circling the fountain basin on maps whose centerpiece holds water
+    if (animated?.water) {
+      const [koiGeo, koiMat] = track(
+        new THREE.ConeGeometry(0.06, 0.3, 6),
+        new THREE.MeshStandardMaterial({ color: 0xe8823a, roughness: 0.5 }),
+      );
+      for (let k = 0; k < 3; k++) {
+        const koi = new THREE.Group();
+        const koiBody = new THREE.Mesh(koiGeo, koiMat);
+        koiBody.rotation.x = Math.PI / 2; // nose along +z
+        koi.add(koiBody);
+        group.add(koi);
+        cruisers.push({ obj: koi, r: 0.75 + k * 0.25, y: 0.32, speed: (0.5 + k * 0.15) * (k % 2 === 0 ? 1 : -1), phase: (k / 3) * Math.PI * 2, bob: 0.02 });
+      }
+    }
     addHouses(group, theme, track, nightLights, smokes);
     addPlazaProps(group, theme, track);
 
@@ -1442,6 +1463,23 @@ export function buildScenery(mapId: string): Scenery {
           starMat.opacity = 0;
         }
       }
+      // a firework blooms over town: grows through the burst while it fades
+      {
+        const CYCLE = 13;
+        const idx = Math.floor(animPhase / CYCLE);
+        const t = (animPhase % CYCLE) / 1.4; // 0→1 over the first 1.4 s
+        const h1 = Math.abs(Math.sin(idx * 91.7) * 47453.3) % 1;
+        const h2 = Math.abs(Math.sin(idx * 217.3) * 33871.1) % 1;
+        if (t < 1) {
+          const a = h1 * Math.PI * 2;
+          firework.position.set(Math.cos(a) * 24, 20 + h2 * 8, Math.sin(a) * 24);
+          firework.scale.setScalar(1 + t * 9);
+          fireworkMat.color.setHSL(h2, 0.85, 0.65);
+          fireworkMat.opacity = nightNow * (1 - t) * 0.85;
+        } else {
+          fireworkMat.opacity = 0;
+        }
+      }
       // leaves tumble down from canopy height, swaying sideways as they fall
       for (const l of leaves) {
         const t = (animPhase * 0.06 + l.offset) % 1;
@@ -1466,7 +1504,7 @@ export function buildScenery(mapId: string): Scenery {
       // cruisers fly their ring route, nose along the tangent, wings flapping
       for (const c of cruisers) {
         const a = c.phase + animPhase * c.speed;
-        c.obj.position.set((c.cx ?? 0) + Math.cos(a) * c.r, c.y + Math.sin(a * 3 + c.phase) * 0.4, (c.cz ?? 0) + Math.sin(a) * c.r);
+        c.obj.position.set((c.cx ?? 0) + Math.cos(a) * c.r, c.y + Math.sin(a * 3 + c.phase) * (c.bob ?? 0.4), (c.cz ?? 0) + Math.sin(a) * c.r);
         c.obj.rotation.y = -a + (c.speed < 0 ? Math.PI : 0);
         if (c.wings) {
           const flap = Math.sin(animPhase * (c.flapRate ?? 9) + c.phase * 7) * 0.55;
