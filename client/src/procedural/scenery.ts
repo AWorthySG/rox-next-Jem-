@@ -286,6 +286,9 @@ export function buildScenery(mapId: string): Scenery {
   const flockWings: THREE.Object3D[] = [];
   // fish that periodically leap out of the sea in a little arc near the pier
   const jumpers: { obj: THREE.Object3D; x: number; z: number; offset: number }[] = [];
+  // soft cloud shadows drifting in a straight line across the ground, wrapping
+  // around once they clear the map
+  const drifters: { obj: THREE.Object3D; vx: number; vz: number }[] = [];
   let animated: CenterpieceAnim = null;
   let animPhase = 0;
   // current darkness level (0 day → 1 night), mirrored from setNight so tick()
@@ -1415,6 +1418,51 @@ export function buildScenery(mapId: string): Scenery {
         speed: 0.03 + rng() * 0.04,
         phase: rng() * Math.PI * 2,
       });
+    }
+  }
+
+  // ---- grazing deer: a small herd stands still in the leafy meadows, heads
+  // down as if grazing, ears occasionally flicking (tick-driven twitch) ----
+  if (theme.tree === "leafy" && mapId !== "arena") {
+    const deerMat = new THREE.MeshStandardMaterial({ color: 0x9a6a42, roughness: 0.9 });
+    mats.push(deerMat);
+    const [deerBodyGeo] = track(new THREE.CapsuleGeometry(0.22, 0.5, 4, 8), deerMat);
+    const [deerNeckGeo] = track(new THREE.CylinderGeometry(0.09, 0.12, 0.4, 6), deerMat);
+    const [deerHeadGeo] = track(new THREE.ConeGeometry(0.12, 0.32, 6), deerMat);
+    const [deerLegGeo] = track(new THREE.CylinderGeometry(0.035, 0.045, 0.5, 5), deerMat);
+    const [deerEarGeo, deerEarMat] = track(new THREE.ConeGeometry(0.05, 0.12, 4), deerMat);
+    for (let d = 0; d < 3; d++) {
+      const a = rng() * Math.PI * 2;
+      const r = 10 + rng() * 18;
+      const deer = new THREE.Group();
+      const body = new THREE.Mesh(deerBodyGeo, deerMat);
+      body.rotation.z = Math.PI / 2;
+      body.position.y = 0.55;
+      body.castShadow = true;
+      deer.add(body);
+      const neck = new THREE.Mesh(deerNeckGeo, deerMat);
+      neck.rotation.x = 1.1; // lowered, grazing posture
+      neck.position.set(0, 0.42, 0.35);
+      deer.add(neck);
+      const head = new THREE.Mesh(deerHeadGeo, deerMat);
+      head.rotation.x = Math.PI / 2 + 0.3;
+      head.position.set(0, 0.22, 0.55);
+      deer.add(head);
+      for (const s of [-1, 1]) {
+        const ear = new THREE.Mesh(deerEarGeo, deerEarMat);
+        ear.position.set(s * 0.06, 0.3, 0.5);
+        ear.rotation.z = s * 0.6;
+        deer.add(ear);
+        flickers.push(ear); // subtle scale-pulse reads as an ear twitch
+      }
+      for (const [lx, lz] of [[-0.15, 0.2], [0.15, 0.2], [-0.15, -0.2], [0.15, -0.2]] as const) {
+        const leg = new THREE.Mesh(deerLegGeo, deerMat);
+        leg.position.set(lx, 0.25, lz);
+        deer.add(leg);
+      }
+      deer.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
+      deer.rotation.y = rng() * Math.PI * 2;
+      group.add(deer);
     }
   }
 
@@ -2985,6 +3033,28 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- cloud shadows: soft dark ellipses drift across the ground in
+  // straight lines, wrapping around once they clear the map ----
+  if (mapId !== "arena") {
+    const cloudShadowMat = new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.1, depthWrite: false });
+    mats.push(cloudShadowMat);
+    const [cloudShadowGeo] = track(new THREE.CircleGeometry(1, 16), cloudShadowMat);
+    for (let c = 0; c < 3; c++) {
+      const patch = new THREE.Mesh(cloudShadowGeo, cloudShadowMat);
+      patch.rotation.x = -Math.PI / 2;
+      const sc = 5 + rng() * 4;
+      patch.scale.set(sc * 1.6, sc, 1);
+      const a = rng() * Math.PI * 2;
+      const r = rng() * MAP_HALF * 1.1;
+      patch.position.set(Math.cos(a) * r, 0.05, Math.sin(a) * r);
+      const heading = rng() * Math.PI * 2;
+      const speed = 0.6 + rng() * 0.4;
+      patch.rotation.z = heading;
+      group.add(patch);
+      drifters.push({ obj: patch, vx: Math.cos(heading) * speed, vz: Math.sin(heading) * speed });
+    }
+  }
+
   // ---- migratory flock: on every open map, a V of seven birds crosses the
   // whole sky once per ~26 s cycle on a hashed heading ----
   if (mapId !== "arena") {
@@ -3130,6 +3200,16 @@ export function buildScenery(mapId: string): Scenery {
         } else {
           fireworkMat.opacity = 0;
         }
+      }
+      // cloud shadows drift in a straight line, wrapping around the map edge
+      for (const d of drifters) {
+        d.obj.position.x += d.vx * dt;
+        d.obj.position.z += d.vz * dt;
+        const lim = MAP_HALF * 1.3;
+        if (d.obj.position.x > lim) d.obj.position.x = -lim;
+        if (d.obj.position.x < -lim) d.obj.position.x = lim;
+        if (d.obj.position.z > lim) d.obj.position.z = -lim;
+        if (d.obj.position.z < -lim) d.obj.position.z = lim;
       }
       // leaves tumble down from canopy height, swaying sideways as they fall
       for (const l of leaves) {
