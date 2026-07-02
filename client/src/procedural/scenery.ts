@@ -1466,6 +1466,28 @@ export function buildScenery(mapId: string): Scenery {
         group.add(post);
       }
     }
+    // a seagull perches on the end piling, preening now and then
+    const gullMat = new THREE.MeshStandardMaterial({ color: 0xf0f2f4, roughness: 0.85 });
+    mats.push(gullMat);
+    const [gullBodyGeo] = track(new THREE.ConeGeometry(0.1, 0.32, 6), gullMat);
+    const [gullBeakGeo, gullBeakMat] = track(new THREE.ConeGeometry(0.025, 0.09, 4), new THREE.MeshStandardMaterial({ color: 0xe89a2a, roughness: 0.7 }));
+    const gull = new THREE.Group();
+    const gullBody = new THREE.Mesh(gullBodyGeo, gullMat);
+    gullBody.rotation.x = Math.PI / 2;
+    gull.add(gullBody);
+    const gullHead = new THREE.Mesh(gullBodyGeo, gullMat);
+    gullHead.scale.setScalar(0.5);
+    gullHead.position.set(0, 0.14, 0.1);
+    gull.add(gullHead);
+    const gullBeak = new THREE.Mesh(gullBeakGeo, gullBeakMat);
+    gullBeak.rotation.x = Math.PI / 2;
+    gullBeak.position.set(0, 0.14, 0.2);
+    gull.add(gullBeak);
+    flickers.push(gullHead); // a subtle scale-pulse reads as head-preening
+    gull.position.set(MAP_HALF * 0.94 + (5 - 1) * 1.55 + 0.6, 0.9, pierZ + 0.95);
+    gull.rotation.y = Math.PI;
+    group.add(gull);
+
     // a coiled rope and rusty anchor resting at the foot of the pier
     const [ropeCoilGeo, ropeCoilMat] = track(new THREE.TorusGeometry(0.28, 0.05, 6, 14), new THREE.MeshStandardMaterial({ color: 0xc8a860, roughness: 1 }));
     const ropeCoil = new THREE.Mesh(ropeCoilGeo, ropeCoilMat);
@@ -3797,6 +3819,33 @@ export function buildScenery(mapId: string): Scenery {
     }
     flock.visible = false;
     group.add(flock);
+  }
+
+  // ---- spectator banners: the PvP arena rings its perimeter with tall
+  // duelist banners that ripple gently on the breeze ----
+  if (mapId === "arena") {
+    const bannerPoleMat = new THREE.MeshStandardMaterial({ color: 0x3a3430, roughness: 0.7, metalness: 0.3 });
+    mats.push(bannerPoleMat);
+    const [bannerPoleGeo] = track(new THREE.CylinderGeometry(0.05, 0.06, 3.4, 6), bannerPoleMat);
+    const bannerColors = [0xc0392a, 0x2a6ac0, 0xd0a02a, 0x4a9a5a];
+    const [bannerClothGeo] = track(
+      new THREE.PlaneGeometry(0.7, 1.6),
+      new THREE.MeshStandardMaterial({ color: bannerColors[0], roughness: 0.9, side: THREE.DoubleSide }),
+    );
+    for (let b = 0; b < 8; b++) {
+      const a = (b / 8) * Math.PI * 2;
+      const r = 13.5;
+      const pole = new THREE.Mesh(bannerPoleGeo, bannerPoleMat);
+      pole.position.set(Math.cos(a) * r, 1.7, Math.sin(a) * r);
+      group.add(pole);
+      const clothMat = new THREE.MeshStandardMaterial({ color: bannerColors[b % bannerColors.length], roughness: 0.9, side: THREE.DoubleSide });
+      mats.push(clothMat);
+      const cloth = new THREE.Mesh(bannerClothGeo, clothMat);
+      cloth.position.set(Math.cos(a) * r + Math.cos(a) * 0.4, 2.6, Math.sin(a) * r + Math.sin(a) * 0.4);
+      cloth.rotation.y = -a;
+      group.add(cloth);
+      bobbers.push({ obj: cloth, baseY: 2.6, phase: (b / 8) * Math.PI * 2 });
+    }
   }
 
   // ---- seabirds: a small wheeling flock over the water on coastal maps ----
