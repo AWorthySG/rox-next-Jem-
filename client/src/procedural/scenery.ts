@@ -485,6 +485,35 @@ export function buildScenery(mapId: string): Scenery {
       }
     }
 
+    // training dummy: a straw-stuffed practice post standing near the smithy,
+    // a nod to where new adventurers learn to swing a weapon
+    {
+      const dummyWood = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(0.85), roughness: 1 });
+      mats.push(dummyWood);
+      const [dPostGeo] = track(new THREE.CylinderGeometry(0.09, 0.11, 1.5, 6), dummyWood);
+      const [dBodyGeo, dBodyMat] = track(new THREE.CylinderGeometry(0.26, 0.3, 1.0, 8), new THREE.MeshStandardMaterial({ color: 0xc8a86a, roughness: 1 }));
+      const [dArmGeo] = track(new THREE.CylinderGeometry(0.05, 0.06, 0.7, 5), dummyWood);
+      const [dHeadGeo, dHeadMat] = track(new THREE.SphereGeometry(0.16, 8, 6), new THREE.MeshStandardMaterial({ color: 0xe0c088, roughness: 1 }));
+      const dummy = new THREE.Group();
+      const dPost = new THREE.Mesh(dPostGeo, dummyWood);
+      dPost.position.y = 0.75;
+      dummy.add(dPost);
+      const dBody = new THREE.Mesh(dBodyGeo, dBodyMat);
+      dBody.position.y = 1.55;
+      dBody.castShadow = true;
+      dummy.add(dBody);
+      const dArm = new THREE.Mesh(dArmGeo, dummyWood);
+      dArm.rotation.z = Math.PI / 2;
+      dArm.position.y = 1.9;
+      dummy.add(dArm);
+      const dHead = new THREE.Mesh(dHeadGeo, dHeadMat);
+      dHead.position.y = 2.2;
+      dummy.add(dHead);
+      dummy.position.set(-9.0, 0, 6.4);
+      dummy.rotation.y = Math.atan2(9.0, -6.4);
+      group.add(dummy);
+    }
+
     // village smithy: an anvil under a lean-to roof beside a glowing forge,
     // embers drifting up from the coals ----
     {
@@ -748,6 +777,45 @@ export function buildScenery(mapId: string): Scenery {
       well.add(cat);
       well.position.set(-5.6, 0, -8.8);
       group.add(well);
+    }
+
+    // hitching post: a Peco Peco rests here, head tucked and one leg cocked,
+    // tethered near the houses like a traveller's parked mount
+    {
+      const postWood = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(0.85), roughness: 1 });
+      mats.push(postWood);
+      const [hPostGeo] = track(new THREE.CylinderGeometry(0.06, 0.08, 1.1, 6), postWood);
+      const hitchPost = new THREE.Mesh(hPostGeo, postWood);
+      hitchPost.position.set(4.2, 0.55, -5.4);
+      group.add(hitchPost);
+      const pecoBodyMat = new THREE.MeshStandardMaterial({ color: 0xe0c85a, roughness: 0.9 });
+      mats.push(pecoBodyMat);
+      const [pecoBodyGeo] = track(new THREE.SphereGeometry(0.34, 10, 8), pecoBodyMat);
+      const [pecoHeadGeo] = track(new THREE.SphereGeometry(0.16, 8, 6), pecoBodyMat);
+      const [pecoBeakGeo, pecoBeakMat] = track(new THREE.ConeGeometry(0.05, 0.16, 5), new THREE.MeshStandardMaterial({ color: 0xd8892a, roughness: 0.8 }));
+      const [pecoLegGeo] = track(new THREE.CylinderGeometry(0.03, 0.03, 0.4, 5), new THREE.MeshStandardMaterial({ color: 0xd8892a, roughness: 0.8 }));
+      const restingPeco = new THREE.Group();
+      const pecoBody = new THREE.Mesh(pecoBodyGeo, pecoBodyMat);
+      pecoBody.scale.set(1.1, 0.9, 1.3);
+      pecoBody.position.y = 0.42;
+      pecoBody.castShadow = true;
+      restingPeco.add(pecoBody);
+      const pecoHead = new THREE.Mesh(pecoHeadGeo, pecoBodyMat);
+      pecoHead.position.set(0, 0.5, 0.42); // tucked low, resting
+      restingPeco.add(pecoHead);
+      const pecoBeak = new THREE.Mesh(pecoBeakGeo, pecoBeakMat);
+      pecoBeak.rotation.x = Math.PI / 2;
+      pecoBeak.position.set(0, 0.5, 0.58);
+      restingPeco.add(pecoBeak);
+      for (const s of [-1, 1]) {
+        const leg = new THREE.Mesh(pecoLegGeo, pecoBeakMat);
+        leg.position.set(s * 0.16, 0.2, s > 0 ? 0.05 : -0.02); // one leg cocked
+        leg.rotation.x = s > 0 ? 0.1 : -0.15;
+        restingPeco.add(leg);
+      }
+      restingPeco.position.set(4.2, 0, -6.1);
+      restingPeco.rotation.y = 2.6;
+      group.add(restingPeco);
     }
 
     // laundry line between the west and north houses: a taut rope with a few
