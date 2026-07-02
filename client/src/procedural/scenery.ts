@@ -523,6 +523,26 @@ export function buildScenery(mapId: string): Scenery {
       flame.position.y = 0.42;
       camp.add(flame);
       flickers.push(flame);
+      // wood smoke drifting off the flame, on the chimney-puff channel
+      const campSmokeMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0x8a8f98, transparent: true, opacity: 0.24, depthWrite: false });
+      mats.push(campSmokeMat);
+      for (let puff = 0; puff < 2; puff++) {
+        const sprite = new THREE.Sprite(campSmokeMat);
+        sprite.position.set(0, 0.75, 0);
+        sprite.scale.setScalar(0.2);
+        camp.add(sprite);
+        smokes.push({ sprite, baseY: 0.75, offset: puff / 2 });
+      }
+      // embers dance in a tight swirl just above the fire after dark
+      const emberSparkMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0xffb060, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
+      mats.push(emberSparkMat);
+      nightFades.push({ mat: emberSparkMat, max: 0.9 });
+      for (let e = 0; e < 3; e++) {
+        const spark = new THREE.Sprite(emberSparkMat);
+        spark.scale.setScalar(0.09);
+        group.add(spark);
+        orbiters.push({ sprite: spark, cx: 4.6, cz: 17.5, y: 0.9 + rng() * 0.5, r: 0.16 + rng() * 0.2, speed: 1.6 + rng() * 1.2, phase: rng() * Math.PI * 2 });
+      }
       const [glowGeo, glowMat] = track(
         new THREE.PlaneGeometry(3.6, 3.6),
         new THREE.MeshBasicMaterial({ map: makeSpark(), color: 0xff9a4a, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }),
@@ -534,6 +554,58 @@ export function buildScenery(mapId: string): Scenery {
       camp.add(glow);
       camp.position.set(4.6, 0, 17.5);
       group.add(camp);
+    }
+
+    // village well between the houses: a stone ring, twin posts holding a
+    // little pyramid roof, and a bucket hanging from the crossbar
+    {
+      const [wellGeo, wellMat] = track(
+        new THREE.CylinderGeometry(0.62, 0.68, 0.55, 10, 1, true),
+        new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(0.9), roughness: 1, side: THREE.DoubleSide }),
+      );
+      const [wellRimGeo] = track(new THREE.TorusGeometry(0.62, 0.07, 6, 12), wellMat);
+      const wellWood = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(0.95), roughness: 1 });
+      mats.push(wellWood);
+      const [wPostGeo] = track(new THREE.BoxGeometry(0.1, 1.35, 0.1), wellWood);
+      const [wBarGeo] = track(new THREE.CylinderGeometry(0.045, 0.045, 1.5, 6), wellWood);
+      const [wRoofGeo] = track(new THREE.ConeGeometry(0.95, 0.5, 4), wellWood);
+      const [ropeGeo2] = track(new THREE.CylinderGeometry(0.015, 0.015, 0.45, 4), wellWood);
+      const [bucketGeo, bucketMat] = track(
+        new THREE.CylinderGeometry(0.13, 0.11, 0.18, 8, 1, true),
+        new THREE.MeshStandardMaterial({ color: 0x6a5238, roughness: 1, side: THREE.DoubleSide }),
+      );
+      const well = new THREE.Group();
+      const ring = new THREE.Mesh(wellGeo, wellMat);
+      ring.position.y = 0.28;
+      ring.castShadow = true;
+      well.add(ring);
+      const rim = new THREE.Mesh(wellRimGeo, wellMat);
+      rim.rotation.x = Math.PI / 2;
+      rim.position.y = 0.56;
+      well.add(rim);
+      for (const s of [-1, 1]) {
+        const post = new THREE.Mesh(wPostGeo, wellWood);
+        post.position.set(s * 0.62, 0.95, 0);
+        well.add(post);
+      }
+      const bar = new THREE.Mesh(wBarGeo, wellWood);
+      bar.rotation.z = Math.PI / 2;
+      bar.position.y = 1.55;
+      well.add(bar);
+      const wroof = new THREE.Mesh(wRoofGeo, wellWood);
+      wroof.position.y = 1.95;
+      wroof.rotation.y = Math.PI / 4;
+      wroof.castShadow = true;
+      well.add(wroof);
+      const rope2 = new THREE.Mesh(ropeGeo2, wellWood);
+      rope2.position.y = 1.32;
+      well.add(rope2);
+      const bucket = new THREE.Mesh(bucketGeo, bucketMat);
+      bucket.position.y = 1.02;
+      well.add(bucket);
+      bobbers.push({ obj: bucket, baseY: 1.02, phase: 2.6 });
+      well.position.set(-5.6, 0, -8.8);
+      group.add(well);
     }
 
     // laundry line between the west and north houses: a taut rope with a few
