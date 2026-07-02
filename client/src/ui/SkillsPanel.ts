@@ -58,7 +58,16 @@ export class SkillsPanel {
       this.list.appendChild(row);
     }
     this.list.querySelectorAll<HTMLButtonElement>("[data-skill]").forEach((b) =>
-      b.addEventListener("click", () => this.handlers.onLevel(b.dataset.skill!)),
+      b.addEventListener("click", () => {
+        // immediate feedback: the card only reflects the new level once the
+        // server confirms the point spend on the next sync
+        const card = b.closest(".skill-card") as HTMLElement | null;
+        if (card) {
+          card.classList.add("inv-cell-flash");
+          setTimeout(() => card.classList.remove("inv-cell-flash"), 300);
+        }
+        this.handlers.onLevel(b.dataset.skill!);
+      }),
     );
   }
 }

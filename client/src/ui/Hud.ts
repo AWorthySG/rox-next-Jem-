@@ -85,7 +85,13 @@ export class Hud {
         const btn = document.createElement("button");
         btn.className = "stat-plus";
         btn.textContent = "+";
-        btn.addEventListener("click", () => this.onAllocate(key));
+        btn.addEventListener("click", () => {
+          // immediate feedback: the row only reflects the new stat value
+          // once the server confirms the allocation on the next sync
+          row.classList.add("inv-cell-flash");
+          setTimeout(() => row.classList.remove("inv-cell-flash"), 300);
+          this.onAllocate(key);
+        });
         row.appendChild(btn);
       }
       panel.appendChild(row);
