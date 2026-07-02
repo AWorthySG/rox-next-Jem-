@@ -6,7 +6,17 @@ export interface Scenery {
   group: THREE.Group;
   // Multiply all prop albedos by `mul` (day/night + weather dimming, base*mul).
   setShade(mul: number): void;
+  // Blend emissive props (lamp heads, house windows) between a dim daytime
+  // tone and a bright night glow (0 = day, 1 = night).
+  setNight(n: number): void;
   dispose(): void;
+}
+
+// An emissive prop material that changes with the day/night cycle.
+interface NightLight {
+  mat: THREE.MeshBasicMaterial;
+  day: THREE.Color;
+  night: THREE.Color;
 }
 
 // Deterministic small PRNG so each map's scenery layout is stable across visits.
@@ -245,6 +255,7 @@ export function buildScenery(mapId: string): Scenery {
   // The map centre is kept clear of scatter props, so a themed monument there
   // gives every map a readable landmark; lamps ring it and glow at night
   // (MeshBasicMaterial heads are exempt from setShade, so they stay lit).
+  const nightLights: NightLight[] = [];
   if (mapId !== "arena") {
     // stone plaza under the fountain + a paved path south toward the spawn row,
     // so the town centre reads as constructed ground rather than bare grass
@@ -271,7 +282,7 @@ export function buildScenery(mapId: string): Scenery {
     group.add(path);
 
     addCenterpiece(group, theme, track);
-    addHouses(group, theme, track);
+    addHouses(group, theme, track, nightLights);
     addPlazaProps(group, theme, track);
   }
 
@@ -300,6 +311,7 @@ export function buildScenery(mapId: string): Scenery {
     const lampHeadGeo = new THREE.SphereGeometry(0.16, 10, 8);
     const lampMat = new THREE.MeshBasicMaterial({ color: 0xffd9a0 });
     track(lampHeadGeo, lampMat);
+    nightLights.push({ mat: lampMat, day: new THREE.Color(0x9a8468), night: new THREE.Color(0xffd9a0) });
     for (const [lx, lz] of [[-5.5, -5.5], [5.5, -5.5], [-5.5, 5.5], [5.5, 5.5]] as const) {
       const post = new THREE.Mesh(lampPost[0], lampPost[1]);
       post.position.set(lx, 1.1, lz);
@@ -316,6 +328,9 @@ export function buildScenery(mapId: string): Scenery {
     setShade(mul: number) {
       for (const s of shadeList) s.mat.color.copy(s.base).multiplyScalar(mul);
     },
+    setNight(n: number) {
+      for (const l of nightLights) l.mat.color.copy(l.day).lerp(l.night, n);
+    },
     dispose() {
       for (const g of geos) g.dispose();
       for (const m of mats) m.dispose();
@@ -331,6 +346,7 @@ function addHouses(
   group: THREE.Group,
   theme: Theme,
   track: <T extends THREE.BufferGeometry, M extends THREE.Material>(g: T, m: M) => [T, M],
+  nightLights: NightLight[],
 ): void {
   const [wallGeo, wallMat] = track(
     new THREE.BoxGeometry(2.6, 1.8, 2.2),
@@ -342,6 +358,7 @@ function addHouses(
   );
   const [doorGeo, doorMat] = track(new THREE.BoxGeometry(0.6, 1.0, 0.08), new THREE.MeshStandardMaterial({ color: 0x4a3220, roughness: 1 }));
   const [winGeo, winMat] = track(new THREE.BoxGeometry(0.42, 0.42, 0.06), new THREE.MeshBasicMaterial({ color: 0xffd9a0 }));
+  nightLights.push({ mat: winMat, day: new THREE.Color(0x8a7a62), night: new THREE.Color(0xffd9a0) });
 
   const placements = [
     { x: -9.5, z: -7 },

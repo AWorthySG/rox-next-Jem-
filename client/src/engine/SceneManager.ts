@@ -449,6 +449,8 @@ export class SceneManager {
 
     // night sky: stars + moon fade in as the sun sets (and dim under overcast)
     const night = (1 - d) * overcast;
+    // lamp heads + house windows warm up as the light fades
+    this.scenery?.setNight(1 - d);
     (this.stars.material as THREE.PointsMaterial).opacity = night * 0.9;
     this.stars.visible = night > 0.04;
     (this.moon.material as THREE.SpriteMaterial).opacity = night * 0.8;
