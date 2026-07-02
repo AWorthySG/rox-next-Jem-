@@ -342,7 +342,7 @@ export function buildScenery(mapId: string): Scenery {
         cruisers.push({ obj: koi, r: 0.75 + k * 0.25, y: 0.32, speed: (0.5 + k * 0.15) * (k % 2 === 0 ? 1 : -1), phase: (k / 3) * Math.PI * 2, bob: 0.02 });
       }
     }
-    addHouses(group, theme, track, nightLights, smokes);
+    addHouses(group, theme, track, nightLights, smokes, spinners);
     addPlazaProps(group, theme, track);
 
     // flower beds around the plaza rim on living maps (the south path stays clear)
@@ -1255,6 +1255,48 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Aldebaran clock tower: the town's landmark — a tall stone tower with
+  // a white clock face whose hands really turn ----
+  if (mapId === "aldebaran") {
+    const towerMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).lerp(new THREE.Color(0xffffff), 0.15), roughness: 0.95 });
+    mats.push(towerMat);
+    const [towerGeo] = track(new THREE.BoxGeometry(2.6, 9, 2.6), towerMat);
+    const [towerRoofGeo, towerRoofMat] = track(
+      new THREE.ConeGeometry(2.2, 1.8, 4),
+      new THREE.MeshStandardMaterial({ color: 0x3a5a4a, roughness: 0.9, flatShading: true }),
+    );
+    const [faceGeo, faceMat] = track(new THREE.CircleGeometry(0.85, 20), new THREE.MeshBasicMaterial({ color: 0xf4efe0 }));
+    nightLights.push({ mat: faceMat, day: new THREE.Color(0xf4efe0), night: new THREE.Color(0xffe9b0) });
+    const [handGeo, handMat] = track(new THREE.BoxGeometry(0.06, 0.62, 0.02), new THREE.MeshBasicMaterial({ color: 0x2a2430 }));
+    const clockTower = new THREE.Group();
+    const shaft = new THREE.Mesh(towerGeo, towerMat);
+    shaft.position.y = 4.5;
+    shaft.castShadow = true;
+    clockTower.add(shaft);
+    const towerRoof = new THREE.Mesh(towerRoofGeo, towerRoofMat);
+    towerRoof.position.y = 9.9;
+    towerRoof.rotation.y = Math.PI / 4;
+    towerRoof.castShadow = true;
+    clockTower.add(towerRoof);
+    const face = new THREE.Mesh(faceGeo, faceMat);
+    face.position.set(0, 7.6, 1.32);
+    clockTower.add(face);
+    // minute and hour hands pivot from their base ends and turn at scaled rates
+    for (const [len, speed] of [[0.62, 0.2], [0.42, 0.0167]] as const) {
+      const hand = new THREE.Mesh(handGeo, handMat);
+      hand.scale.y = len / 0.62;
+      const pivot = new THREE.Group();
+      hand.position.y = len / 2 - 0.03;
+      pivot.add(hand);
+      pivot.position.set(0, 7.6, 1.33);
+      clockTower.add(pivot);
+      spinners.push({ obj: pivot, speed: -speed });
+    }
+    clockTower.position.set(-14, 0, -14);
+    clockTower.rotation.y = Math.PI / 4; // face turned toward the plaza
+    group.add(clockTower);
+  }
+
   // ---- snowman: snowy towns get a lopsided snowman by the plaza with a
   // carrot nose, coal eyes and twig arms ----
   if (theme.snowy) {
@@ -1638,6 +1680,7 @@ function addHouses(
   track: <T extends THREE.BufferGeometry, M extends THREE.Material>(g: T, m: M) => [T, M],
   nightLights: NightLight[],
   smokes: { sprite: THREE.Sprite; baseY: number; offset: number }[],
+  spinners: { obj: THREE.Object3D; speed: number; axis?: "y" }[],
 ): void {
   const [wallGeo, wallMat] = track(
     new THREE.BoxGeometry(2.6, 1.8, 2.2),
@@ -1689,6 +1732,29 @@ function addHouses(
     const chimney = new THREE.Mesh(chimneyGeo, chimneyMat);
     chimney.position.set(0.7, 2.55, -0.4);
     house.add(chimney);
+    // the north house carries a weather vane that swings slowly with the wind
+    if (p.x === 0) {
+      const vaneMat = new THREE.MeshStandardMaterial({ color: 0x3a3430, roughness: 0.7, metalness: 0.4 });
+      const [rodGeo] = track(new THREE.CylinderGeometry(0.02, 0.02, 0.5, 5), vaneMat);
+      const rod = new THREE.Mesh(rodGeo, vaneMat);
+      rod.position.y = 3.15;
+      house.add(rod);
+      const [vaneShaftGeo] = track(new THREE.BoxGeometry(0.03, 0.03, 0.6), vaneMat);
+      const [vaneHeadGeo] = track(new THREE.ConeGeometry(0.05, 0.14, 4), vaneMat);
+      const [vaneFinGeo] = track(new THREE.BoxGeometry(0.02, 0.14, 0.16), vaneMat);
+      const vane = new THREE.Group();
+      vane.add(new THREE.Mesh(vaneShaftGeo, vaneMat));
+      const vaneHead = new THREE.Mesh(vaneHeadGeo, vaneMat);
+      vaneHead.rotation.x = Math.PI / 2;
+      vaneHead.position.z = 0.34;
+      vane.add(vaneHead);
+      const vaneFin = new THREE.Mesh(vaneFinGeo, vaneMat);
+      vaneFin.position.z = -0.28;
+      vane.add(vaneFin);
+      vane.position.y = 3.32;
+      house.add(vane);
+      spinners.push({ obj: vane, speed: 0.3, axis: "y" });
+    }
     for (let puff = 0; puff < 3; puff++) {
       const sprite = new THREE.Sprite(smokeMat);
       sprite.position.set(0.7, 2.95, -0.4);
