@@ -779,6 +779,60 @@ export function buildScenery(mapId: string): Scenery {
       group.add(well);
     }
 
+    // chalk hopscotch grid: a child's game scratched onto the flagstones,
+    // white line segments forming the classic single/double/single layout
+    {
+      const chalkMat = new THREE.MeshBasicMaterial({ color: 0xf0ece0 });
+      mats.push(chalkMat);
+      const [lineGeo] = track(new THREE.PlaneGeometry(0.9, 0.05), chalkMat);
+      const [lineGeoV] = track(new THREE.PlaneGeometry(0.05, 0.9), chalkMat);
+      const hopscotch = new THREE.Group();
+      // five rungs stacked along z, each 0.9 wide; middle two rungs split in half
+      for (let row = 0; row < 5; row++) {
+        const rz = row * 0.95;
+        const rung = new THREE.Mesh(lineGeo, chalkMat);
+        rung.position.set(0, 0.02, rz);
+        hopscotch.add(rung);
+        if (row === 1 || row === 3) {
+          const split = new THREE.Mesh(lineGeoV, chalkMat);
+          split.position.set(0, 0.02, rz + 0.475);
+          hopscotch.add(split);
+        }
+      }
+      const sideL = new THREE.Mesh(lineGeoV, chalkMat);
+      sideL.scale.y = 4.8 / 0.9;
+      sideL.position.set(-0.45, 0.02, 1.9);
+      hopscotch.add(sideL);
+      const sideR = new THREE.Mesh(lineGeoV, chalkMat);
+      sideR.scale.y = 4.8 / 0.9;
+      sideR.position.set(0.45, 0.02, 1.9);
+      hopscotch.add(sideR);
+      for (const m of hopscotch.children) (m as THREE.Mesh).rotation.x = -Math.PI / 2;
+      hopscotch.position.set(2.5, 0, -3.2);
+      hopscotch.rotation.y = 0.3;
+      group.add(hopscotch);
+    }
+
+    // rope swing: hangs from the north house's roofline, seat swaying gently
+    {
+      const swingRopeMat = new THREE.MeshStandardMaterial({ color: 0xc8b088, roughness: 1 });
+      mats.push(swingRopeMat);
+      const [swingRopeGeo] = track(new THREE.CylinderGeometry(0.02, 0.02, 1.6, 4), swingRopeMat);
+      const [swingSeatGeo, swingSeatMat] = track(new THREE.BoxGeometry(0.5, 0.05, 0.22), new THREE.MeshStandardMaterial({ color: 0x8a6a42, roughness: 0.95 }));
+      const swing = new THREE.Group();
+      for (const s of [-1, 1]) {
+        const rope = new THREE.Mesh(swingRopeGeo, swingRopeMat);
+        rope.position.set(s * 0.2, -0.8, 0);
+        swing.add(rope);
+      }
+      const seat = new THREE.Mesh(swingSeatGeo, swingSeatMat);
+      seat.position.y = -1.6;
+      swing.add(seat);
+      swing.position.set(0.9, 3.35, -12.9); // hangs beside the north house
+      group.add(swing);
+      bobbers.push({ obj: swing, baseY: swing.position.y, phase: 0.8 });
+    }
+
     // hitching post: a Peco Peco rests here, head tucked and one leg cocked,
     // tethered near the houses like a traveller's parked mount
     {
