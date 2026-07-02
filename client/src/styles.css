@@ -1982,6 +1982,52 @@ body {
   to { opacity: 0; transform: translateY(-10px) scale(0.95); }
 }
 
+/* ---- notable-loot toast: rarity-tinted, top-right so it never collides
+   with the centered achievement banner ---- */
+#loot-toast-host {
+  position: absolute;
+  top: 90px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  z-index: 20;
+  pointer-events: none;
+}
+.loot-toast {
+  min-width: 160px;
+  padding: 6px 14px;
+  background: rgba(20, 18, 26, 0.92);
+  border: 2px solid var(--rar, #9aa0a8);
+  border-radius: 8px;
+  text-align: right;
+  box-shadow: 0 0 14px color-mix(in srgb, var(--rar, #9aa0a8) 55%, transparent);
+  animation: loot-toast-in 0.3s ease-out;
+}
+.loot-toast.out {
+  animation: loot-toast-out 0.4s ease-in forwards;
+}
+.loot-toast-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--rar, #f3eede);
+}
+.loot-toast-rarity {
+  font-size: 9px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+@keyframes loot-toast-in {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes loot-toast-out {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translateX(16px); }
+}
+
 /* ---- warp panel ---- */
 .warp {
   position: absolute;
