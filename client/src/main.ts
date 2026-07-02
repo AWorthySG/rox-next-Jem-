@@ -249,7 +249,7 @@ const achievements = new AchievementsPanel();
 const aesir = new AesirPanel({ onUnlock: (runeId) => transport?.send({ t: MsgType.UnlockRune, runeId }) });
 
 let currentJob: JobId | null = null;
-const jobAdvance = new JobAdvance((job) => transport?.send({ t: MsgType.JobAdvance, targetJob: job }));
+const jobAdvance = new JobAdvance((job) => transport?.send({ t: MsgType.JobAdvance, targetJob: job }), screenFx);
 
 const partyHud = new PartyHud(
   () => transport?.send({ t: MsgType.PartyLeave }),
