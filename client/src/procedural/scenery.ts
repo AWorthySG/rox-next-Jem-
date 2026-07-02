@@ -1162,6 +1162,47 @@ export function buildScenery(mapId: string): Scenery {
       }
     }
 
+    // a stray dog trots a slow loop around the plaza, tail wagging
+    {
+      const dogMat = new THREE.MeshStandardMaterial({ color: 0xa87850, roughness: 0.9 });
+      mats.push(dogMat);
+      const [dogBodyGeo] = track(new THREE.CapsuleGeometry(0.13, 0.32, 4, 8), dogMat);
+      const [dogHeadGeo] = track(new THREE.SphereGeometry(0.11, 8, 6), dogMat);
+      const [dogEarGeo, dogEarMat] = track(new THREE.ConeGeometry(0.045, 0.12, 4), new THREE.MeshStandardMaterial({ color: 0x7a5a3a, roughness: 0.9 }));
+      const [dogLegGeo] = track(new THREE.CylinderGeometry(0.028, 0.028, 0.3, 5), dogMat);
+      const [dogTailGeo] = track(new THREE.CylinderGeometry(0.02, 0.035, 0.28, 5), dogMat);
+      const dog = new THREE.Group();
+      const dogBody = new THREE.Mesh(dogBodyGeo, dogMat);
+      dogBody.rotation.z = Math.PI / 2;
+      dogBody.position.y = 0.3;
+      dogBody.castShadow = true;
+      dog.add(dogBody);
+      const dogHead = new THREE.Mesh(dogHeadGeo, dogMat);
+      dogHead.position.set(0, 0.34, 0.22);
+      dog.add(dogHead);
+      for (const s of [-1, 1]) {
+        const ear = new THREE.Mesh(dogEarGeo, dogEarMat);
+        ear.position.set(s * 0.06, 0.42, 0.22);
+        ear.rotation.x = 0.3;
+        dog.add(ear);
+      }
+      for (const [lx, lz] of [[-0.08, 0.15], [0.08, 0.15], [-0.08, -0.15], [0.08, -0.15]] as const) {
+        const leg = new THREE.Mesh(dogLegGeo, dogMat);
+        leg.position.set(lx, 0.15, lz);
+        dog.add(leg);
+      }
+      const tailPivot = new THREE.Group();
+      const dogTail = new THREE.Mesh(dogTailGeo, dogMat);
+      dogTail.rotation.x = -0.6;
+      dogTail.position.y = 0.14;
+      tailPivot.add(dogTail);
+      tailPivot.position.set(0, 0.32, -0.2);
+      dog.add(tailPivot);
+      bobbers.push({ obj: tailPivot, baseY: 0.32, phase: 0 });
+      group.add(dog);
+      cruisers.push({ obj: dog, r: 6.5, y: 0, speed: 0.22, phase: rng() * Math.PI * 2, bob: 0 });
+    }
+
     // hitching post: a Peco Peco rests here, head tucked and one leg cocked,
     // tethered near the houses like a traveller's parked mount
     {
@@ -2668,6 +2709,44 @@ export function buildScenery(mapId: string): Scenery {
       panel.rotation.x = 0.35; // tilt down onto the field
       group.add(panel);
     }
+  }
+
+  // ---- Thanatos arcane doorway: a broken stone archway framing a slowly
+  // swirling void, the tower's ominous landmark ----
+  if (mapId === "thanatos" || mapId === "tower") {
+    const archStone = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(0.9), roughness: 1, flatShading: true });
+    mats.push(archStone);
+    const [doorPillarGeo] = track(new THREE.BoxGeometry(0.6, 3.2, 0.6), archStone);
+    const [doorTopGeo] = track(new THREE.BoxGeometry(2.6, 0.6, 0.6), archStone);
+    const [voidGeo, voidMat] = track(
+      new THREE.CircleGeometry(1.0, 20),
+      new THREE.MeshBasicMaterial({ color: theme.foliage[0], transparent: true, opacity: 0.7 }),
+    );
+    const [swirlGeo, swirlMat] = track(
+      new THREE.RingGeometry(0.3, 0.95, 16),
+      new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.25, side: THREE.DoubleSide }),
+    );
+    const doorway = new THREE.Group();
+    for (const s of [-1, 1]) {
+      const pillar = new THREE.Mesh(doorPillarGeo, archStone);
+      pillar.position.set(s * 1.0, 1.6, 0);
+      pillar.castShadow = true;
+      doorway.add(pillar);
+    }
+    const top = new THREE.Mesh(doorTopGeo, archStone);
+    top.position.y = 3.5;
+    top.castShadow = true;
+    doorway.add(top);
+    const voidPane = new THREE.Mesh(voidGeo, voidMat);
+    voidPane.position.set(0, 1.7, 0.05);
+    doorway.add(voidPane);
+    const swirl = new THREE.Mesh(swirlGeo, swirlMat);
+    swirl.position.set(0, 1.7, 0.1);
+    doorway.add(swirl);
+    spinners.push({ obj: swirl, speed: 0.7 });
+    doorway.position.set(-13, 0, -13);
+    doorway.rotation.y = Math.PI / 4;
+    group.add(doorway);
   }
 
   // ---- Bifrost rainbow: three nested translucent arcs span the sky over
