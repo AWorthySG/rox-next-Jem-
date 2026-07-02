@@ -127,7 +127,10 @@ export class InventoryPanel {
         `<span class="slot-label">${SLOT_LABEL[slot]}</span>${icon}<span class="slot-item">${item ? item.name : "—"}</span>${socket}${refine}`;
       if (item) {
         cell.title = `${item.desc}\n(click to unequip)`;
-        cell.addEventListener("click", () => this.handlers.onUnequip(slot));
+        cell.addEventListener("click", () => {
+          this.flash(cell);
+          this.handlers.onUnequip(slot);
+        });
       }
       this.slotsEl.appendChild(cell);
     }
@@ -174,6 +177,7 @@ export class InventoryPanel {
         `<span class="iact">${action}</span>`;
       if (!isMaterial && !classLocked) {
         cell.addEventListener("click", () => {
+          this.flash(cell);
           if (isCard) this.handlers.onSocket(entry.id);
           else if (isConsumable) this.handlers.onUse(entry.id);
           else this.handlers.onEquip(entry.id);
@@ -181,6 +185,14 @@ export class InventoryPanel {
       }
       this.grid.appendChild(cell);
     }
+  }
+
+  // Immediate click feedback: the cell is only rebuilt once the server
+  // confirms the equip/use/socket on the next sync, same idea as the shop
+  // and storage panels' transaction flash.
+  private flash(cell: HTMLElement): void {
+    cell.classList.add("inv-cell-flash");
+    setTimeout(() => cell.classList.remove("inv-cell-flash"), 300);
   }
 }
 
