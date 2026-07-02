@@ -1275,6 +1275,64 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Labrador cannon: the park's preserved coastal gun on a stone mount,
+  // barrel raised toward the sea ----
+  if (mapId === "labrador_park") {
+    const gunMetal = new THREE.MeshStandardMaterial({ color: 0x3a4038, roughness: 0.6, metalness: 0.5 });
+    mats.push(gunMetal);
+    const [mountGeo, mountMat] = track(
+      new THREE.CylinderGeometry(1.1, 1.3, 0.5, 10),
+      new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(0.9), roughness: 1 }),
+    );
+    const [breechGeo] = track(new THREE.BoxGeometry(0.9, 0.7, 1.3), gunMetal);
+    const [barrelGeo] = track(new THREE.CylinderGeometry(0.14, 0.2, 2.6, 8), gunMetal);
+    const cannon = new THREE.Group();
+    const mount = new THREE.Mesh(mountGeo, mountMat);
+    mount.position.y = 0.25;
+    mount.receiveShadow = true;
+    cannon.add(mount);
+    const breech = new THREE.Mesh(breechGeo, gunMetal);
+    breech.position.y = 0.85;
+    breech.castShadow = true;
+    cannon.add(breech);
+    const barrel = new THREE.Mesh(barrelGeo, gunMetal);
+    barrel.position.set(0, 1.35, 1.3);
+    barrel.rotation.x = Math.PI / 2 - 0.35; // raised toward the horizon
+    barrel.castShadow = true;
+    cannon.add(barrel);
+    cannon.position.set(12, 0, -11.5);
+    cannon.rotation.y = Math.atan2(12, -11.5); // aim out to sea, away from town
+    group.add(cannon);
+  }
+
+  // ---- Changi control tower: a slim tower with a wide glass cab and a red
+  // beacon that pulses on the flicker channel ----
+  if (mapId === "changi") {
+    const towerConc = new THREE.MeshStandardMaterial({ color: 0xd8dce0, roughness: 0.8 });
+    mats.push(towerConc);
+    const [shaftGeo] = track(new THREE.CylinderGeometry(0.5, 0.7, 7.0, 10), towerConc);
+    const [cabGeo, cabMat] = track(
+      new THREE.CylinderGeometry(1.3, 0.9, 1.1, 10),
+      new THREE.MeshBasicMaterial({ color: 0x9ad0e8 }),
+    );
+    nightLights.push({ mat: cabMat, day: new THREE.Color(0x7aa8c0), night: new THREE.Color(0xd0ecff) });
+    const [beaconGeo, beaconMat] = track(new THREE.SphereGeometry(0.14, 8, 6), new THREE.MeshBasicMaterial({ color: 0xff3a30 }));
+    const controlTower = new THREE.Group();
+    const shaft = new THREE.Mesh(shaftGeo, towerConc);
+    shaft.position.y = 3.5;
+    shaft.castShadow = true;
+    controlTower.add(shaft);
+    const cab = new THREE.Mesh(cabGeo, cabMat);
+    cab.position.y = 7.55;
+    controlTower.add(cab);
+    const beacon = new THREE.Mesh(beaconGeo, beaconMat);
+    beacon.position.y = 8.25;
+    controlTower.add(beacon);
+    flickers.push(beacon);
+    controlTower.position.set(-13, 0, -13);
+    group.add(controlTower);
+  }
+
   // ---- Ayothaya chedi: a golden bell-shaped stupa rising over the temple
   // town, its spire catching light after dark ----
   if (mapId === "ayothaya") {
