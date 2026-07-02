@@ -386,6 +386,29 @@ export function buildScenery(mapId: string): Scenery {
         group.add(dragonfly);
         cruisers.push({ obj: dragonfly, r: 1.2 + d * 0.5, y: 0.55 + d * 0.1, speed: 3.2 + d * 0.6, phase: rng() * Math.PI * 2, wings, flapRate: 30 });
       }
+
+      // a frog perches on one lily pad, throat pulsing on the flicker channel
+      const frogMat = new THREE.MeshStandardMaterial({ color: 0x5a9a4a, roughness: 0.85 });
+      mats.push(frogMat);
+      const [frogBodyGeo] = track(new THREE.SphereGeometry(0.09, 8, 6), frogMat);
+      const [frogEyeGeo, frogEyeMat] = track(new THREE.SphereGeometry(0.025, 6, 5), new THREE.MeshStandardMaterial({ color: 0xf0e050, roughness: 0.5 }));
+      const frog = new THREE.Group();
+      const frogBody = new THREE.Mesh(frogBodyGeo, frogMat);
+      frogBody.scale.set(1.1, 0.7, 1.2);
+      frog.add(frogBody);
+      const throat = new THREE.Mesh(frogBodyGeo, frogMat);
+      throat.scale.setScalar(0.4);
+      throat.position.set(0, -0.03, 0.09);
+      frog.add(throat);
+      flickers.push(throat);
+      for (const s of [-1, 1]) {
+        const eye = new THREE.Mesh(frogEyeGeo, frogEyeMat);
+        eye.position.set(s * 0.05, 0.06, 0.05);
+        frog.add(eye);
+      }
+      frog.position.set(0.55, 0.335, 0);
+      group.add(frog);
+      cruisers.push({ obj: frog, r: 0.4, y: 0.335, speed: -0.08, phase: 0, bob: 0.005 });
     }
     addHouses(group, theme, track, nightLights, smokes, spinners);
     addPlazaProps(group, theme, track);
@@ -3394,6 +3417,30 @@ export function buildScenery(mapId: string): Scenery {
       group.add(dew);
       flickers.push(dew);
     }
+  }
+
+  // ---- night owl: a single owl perches at canopy height on leafy/pine maps,
+  // its eyes glowing faintly once the sun goes down ----
+  if ((theme.tree === "leafy" || theme.tree === "pine") && mapId !== "arena") {
+    const owlMat = new THREE.MeshStandardMaterial({ color: 0x6a5a48, roughness: 0.9 });
+    mats.push(owlMat);
+    const [owlBodyGeo] = track(new THREE.SphereGeometry(0.16, 10, 8), owlMat);
+    const [owlEyeGeo, owlEyeMat] = track(new THREE.SphereGeometry(0.035, 6, 5), new THREE.MeshBasicMaterial({ color: 0xffe27a }));
+    nightLights.push({ mat: owlEyeMat, day: new THREE.Color(0x8a7a5a), night: new THREE.Color(0xffe27a) });
+    const owl = new THREE.Group();
+    const owlBody = new THREE.Mesh(owlBodyGeo, owlMat);
+    owlBody.scale.set(0.9, 1.2, 0.9);
+    owl.add(owlBody);
+    for (const s of [-1, 1]) {
+      const eye = new THREE.Mesh(owlEyeGeo, owlEyeMat);
+      eye.position.set(s * 0.07, 0.1, 0.13);
+      owl.add(eye);
+    }
+    const a = rng() * Math.PI * 2;
+    const r = 9 + rng() * 16;
+    owl.position.set(Math.cos(a) * r, 3.4 + rng() * 1.4, Math.sin(a) * r);
+    owl.rotation.y = rng() * Math.PI * 2;
+    group.add(owl);
   }
 
   // ---- night bats: on haunted maps a few bats wheel overhead after dark,
