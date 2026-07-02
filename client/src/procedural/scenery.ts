@@ -3534,6 +3534,79 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Morocc grand bazaar: a striped desert dome flanked by market tents,
+  // the caravan town's own identity apart from the dunes it shares with
+  // Pyramid, Veins and Scaraba ----
+  if (mapId === "morocc") {
+    const domeStone = new THREE.MeshStandardMaterial({ color: 0xd8b878, roughness: 0.85 });
+    mats.push(domeStone);
+    const [domeBaseGeo] = track(new THREE.CylinderGeometry(2.0, 2.2, 2.2, 16), domeStone);
+    const [domeCapGeo, domeCapMat] = track(
+      new THREE.SphereGeometry(2.0, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2),
+      new THREE.MeshStandardMaterial({ color: 0x3a7a8a, roughness: 0.4, metalness: 0.3 }),
+    );
+    const [finialGeo, finialMat] = track(new THREE.ConeGeometry(0.16, 0.5, 6), new THREE.MeshStandardMaterial({ color: 0xd8a83a, roughness: 0.4, metalness: 0.6 }));
+    const bazaar = new THREE.Group();
+    const domeBase = new THREE.Mesh(domeBaseGeo, domeStone);
+    domeBase.position.y = 1.1;
+    domeBase.castShadow = true;
+    bazaar.add(domeBase);
+    const domeCap = new THREE.Mesh(domeCapGeo, domeCapMat);
+    domeCap.position.y = 2.2;
+    domeCap.castShadow = true;
+    bazaar.add(domeCap);
+    const finial = new THREE.Mesh(finialGeo, finialMat);
+    finial.position.y = 4.2;
+    bazaar.add(finial);
+    // striped market tents flanking the dome
+    const [tentGeo] = track(new THREE.ConeGeometry(1.1, 1.6, 8), domeStone);
+    const tentStripeMat = new THREE.MeshStandardMaterial({ color: 0xc0392a, roughness: 0.9 });
+    mats.push(tentStripeMat);
+    for (const s of [-1, 1]) {
+      const tent = new THREE.Mesh(tentGeo, tentStripeMat);
+      tent.position.set(s * 3.4, 0.8, 1.6);
+      tent.castShadow = true;
+      bazaar.add(tent);
+    }
+    bazaar.position.set(10, 0, -12);
+    group.add(bazaar);
+  }
+
+  // ---- Amatsu hot springs: steaming pools near the plaza, honoring the
+  // town's onsen reputation — its own identity apart from Louyang and
+  // Gonryun which it otherwise shares torii/lantern/lion dressing with ----
+  if (mapId === "amatsu") {
+    const [poolRingGeo, poolRingMat] = track(
+      new THREE.TorusGeometry(0.9, 0.14, 8, 16),
+      new THREE.MeshStandardMaterial({ color: 0x6a5a48, roughness: 1 }),
+    );
+    const [poolWaterGeo, poolWaterMat] = track(
+      new THREE.CircleGeometry(0.85, 16),
+      new THREE.MeshStandardMaterial({ color: 0x4a90a0, roughness: 0.15, metalness: 0.2, transparent: true, opacity: 0.85 }),
+    );
+    const steamMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0xe8f0f0, transparent: true, opacity: 0.28, depthWrite: false });
+    mats.push(steamMat);
+    for (const [px, pz] of [[7.5, 9.0], [8.6, 7.6]] as const) {
+      const springGroup = new THREE.Group();
+      const ring = new THREE.Mesh(poolRingGeo, poolRingMat);
+      ring.rotation.x = -Math.PI / 2;
+      springGroup.add(ring);
+      const water = new THREE.Mesh(poolWaterGeo, poolWaterMat);
+      water.rotation.x = -Math.PI / 2;
+      water.position.y = 0.02;
+      springGroup.add(water);
+      for (let s = 0; s < 2; s++) {
+        const steam = new THREE.Sprite(steamMat);
+        steam.position.set((s - 0.5) * 0.4, 0.2, 0);
+        steam.scale.setScalar(0.3);
+        springGroup.add(steam);
+        smokes.push({ sprite: steam, baseY: 0.2, offset: s / 2 });
+      }
+      springGroup.position.set(px, 0.06, pz);
+      group.add(springGroup);
+    }
+  }
+
   // ---- Geffen wizard spire: a twisted stone tower crowned with a glowing
   // crystal ball, honoring the mage guild's home town ----
   if (mapId === "geffen") {
