@@ -2144,6 +2144,23 @@ export function buildScenery(mapId: string): Scenery {
     group.add(lighthouse);
   }
 
+  // ---- god rays: soft sunbeam shafts angle down through the jungle canopy,
+  // visible by day and fading out at night ----
+  if (theme.tree === "jungle") {
+    const rayMat = new THREE.MeshBasicMaterial({ color: 0xfff2c0, transparent: true, opacity: 0.12, depthWrite: false, side: THREE.DoubleSide });
+    mats.push(rayMat);
+    dayFades.push({ mat: rayMat, max: 0.12 });
+    const [rayGeo] = track(new THREE.ConeGeometry(0.8, 10, 6, 1, true), rayMat);
+    for (let r = 0; r < 5; r++) {
+      const a = rng() * Math.PI * 2;
+      const rr = 8 + rng() * 18;
+      const ray = new THREE.Mesh(rayGeo, rayMat);
+      ray.position.set(Math.cos(a) * rr, 5, Math.sin(a) * rr);
+      ray.rotation.set(Math.PI + 0.25, rng() * Math.PI * 2, 0);
+      group.add(ray);
+    }
+  }
+
   // ---- hanging vines: jungle canopies drop wind-swayed vine curtains from
   // above, reaching almost to the ground ----
   if (theme.tree === "jungle") {
@@ -2826,6 +2843,30 @@ export function buildScenery(mapId: string): Scenery {
         orbiters.push({ sprite: glitter, cx, cz, y: 1.2 + rng() * 1.2, r: 0.7 + rng() * 0.6, speed: 0.5 + rng() * 0.5, phase: rng() * Math.PI * 2 });
       }
     }
+  }
+
+  // ---- shipwreck: a broken hull half-buried in the sand on wilder coastal
+  // maps, ribs exposed, listing to one side ----
+  if (mapId === "pulau_hantu" || mapId === "coney_island") {
+    const wreckWood = new THREE.MeshStandardMaterial({ color: 0x5a4a3a, roughness: 1, flatShading: true });
+    mats.push(wreckWood);
+    const [hullSideGeo] = track(new THREE.BoxGeometry(3.6, 1.1, 0.15), wreckWood);
+    const [ribGeo] = track(new THREE.CylinderGeometry(0.05, 0.06, 1.3, 5), wreckWood);
+    const wreck = new THREE.Group();
+    const hullSide = new THREE.Mesh(hullSideGeo, wreckWood);
+    hullSide.position.y = 0.4;
+    hullSide.castShadow = true;
+    wreck.add(hullSide);
+    for (let r = 0; r < 5; r++) {
+      const rib = new THREE.Mesh(ribGeo, wreckWood);
+      rib.position.set(-1.4 + r * 0.7, 0.5, 0.12);
+      rib.rotation.x = 0.15;
+      wreck.add(rib);
+    }
+    wreck.position.set(MAP_HALF * 0.75, -0.15, MAP_HALF * 0.5);
+    wreck.rotation.y = rng() * Math.PI * 2;
+    wreck.rotation.z = 0.3; // listing to one side, half-swallowed by sand
+    group.add(wreck);
   }
 
   // ---- beach day: sandy resort coasts plant a striped parasol with a towel
