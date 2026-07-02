@@ -1255,6 +1255,63 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Einbroch smokestacks: the steam town's skyline — two brick stacks
+  // venting heavy plumes on the chimney-puff channel ----
+  if (mapId === "einbroch" || mapId === "bio_lab") {
+    const [stackGeo, stackMat] = track(
+      new THREE.CylinderGeometry(0.6, 0.85, 7.5, 10),
+      new THREE.MeshStandardMaterial({ color: 0x5a4038, roughness: 1 }),
+    );
+    const [bandGeo, bandMat] = track(
+      new THREE.CylinderGeometry(0.68, 0.68, 0.35, 10),
+      new THREE.MeshStandardMaterial({ color: 0x3a2c26, roughness: 1 }),
+    );
+    const heavySmokeMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0x6a6d76, transparent: true, opacity: 0.32, depthWrite: false });
+    mats.push(heavySmokeMat);
+    for (const [sx, sz] of [[-17, -11], [-13, -16]] as const) {
+      const stack = new THREE.Mesh(stackGeo, stackMat);
+      stack.position.set(sx, 3.75, sz);
+      stack.castShadow = true;
+      group.add(stack);
+      const band = new THREE.Mesh(bandGeo, bandMat);
+      band.position.set(sx, 7.1, sz);
+      group.add(band);
+      for (let puff = 0; puff < 3; puff++) {
+        const sprite = new THREE.Sprite(heavySmokeMat);
+        sprite.position.set(sx, 7.6, sz);
+        sprite.scale.setScalar(0.6);
+        group.add(sprite);
+        smokes.push({ sprite, baseY: 7.6, offset: puff / 3 });
+      }
+    }
+  }
+
+  // ---- arcane shards: the sorcery towns levitate glowing fragments that
+  // orbit the centerpiece in a slow helix, brightening after dark ----
+  if (mapId === "geffen" || mapId === "tower" || mapId === "gh_abyss") {
+    const shardOrbitMat = new THREE.MeshBasicMaterial({ color: theme.foliage[0], transparent: true, opacity: 0.9 });
+    mats.push(shardOrbitMat);
+    nightLights.push({
+      mat: shardOrbitMat,
+      day: new THREE.Color(theme.foliage[0]).multiplyScalar(0.6),
+      night: new THREE.Color(theme.foliage[0]).lerp(new THREE.Color(0xffffff), 0.4),
+    });
+    const [orbGeo] = track(new THREE.TetrahedronGeometry(0.16, 0), shardOrbitMat);
+    for (let s = 0; s < 5; s++) {
+      const shard = new THREE.Mesh(orbGeo, shardOrbitMat);
+      group.add(shard);
+      spinners.push({ obj: shard, speed: 1.2 + s * 0.3 });
+      cruisers.push({
+        obj: shard,
+        r: 2.2 + s * 0.35,
+        y: 2.6 + s * 0.5,
+        speed: 0.35 * (s % 2 === 0 ? 1 : -1),
+        phase: (s / 5) * Math.PI * 2,
+        bob: 0.2,
+      });
+    }
+  }
+
   // ---- Aldebaran clock tower: the town's landmark — a tall stone tower with
   // a white clock face whose hands really turn ----
   if (mapId === "aldebaran") {
