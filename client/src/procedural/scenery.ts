@@ -495,7 +495,7 @@ export function buildScenery(mapId: string): Scenery {
     // wooden crossbeam and lantern caps that warm up after dark. East-Asian
     // towns get a vermilion torii treatment with a second, upswept top lintel.
     {
-      const torii = mapId === "amatsu" || mapId === "louyang" || mapId === "gonryun" || mapId === "chinatown";
+      const torii = mapId === "amatsu" || mapId === "louyang" || mapId === "gonryun";
       const [pillarGeo, pillarMat] = track(
         new THREE.BoxGeometry(0.7, 3.0, 0.7),
         new THREE.MeshStandardMaterial({ color: torii ? 0xc23a28 : new THREE.Color(theme.rock).multiplyScalar(0.85).getHex(), roughness: 0.95 }),
@@ -536,6 +536,23 @@ export function buildScenery(mapId: string): Scenery {
           tip.rotation.z = s * 0.18;
           group.add(tip);
         }
+      }
+      // Chinatown gets a circular moon gate instead of a torii — a proper
+      // Chinese garden threshold, distinct from its East-Asian sister towns
+      if (mapId === "chinatown") {
+        const moonStone = new THREE.MeshStandardMaterial({ color: 0xd8302a, roughness: 0.85 });
+        mats.push(moonStone);
+        const [ringGeo] = track(new THREE.TorusGeometry(2.4, 0.32, 10, 28), moonStone);
+        const ring = new THREE.Mesh(ringGeo, moonStone);
+        ring.position.set(0, 2.5, 24);
+        ring.castShadow = true;
+        group.add(ring);
+        // a small glowing plaque above the gate, warming after dark
+        const [plaqueGeo, plaqueMat] = track(new THREE.CircleGeometry(0.35, 12), new THREE.MeshBasicMaterial({ color: 0xffd24a }));
+        nightLights.push({ mat: plaqueMat, day: new THREE.Color(0xc9a850), night: new THREE.Color(0xffe27a) });
+        const plaque = new THREE.Mesh(plaqueGeo, plaqueMat);
+        plaque.position.set(0, 5.1, 24.35);
+        group.add(plaque);
       }
     }
 
@@ -3141,6 +3158,46 @@ export function buildScenery(mapId: string): Scenery {
       column.castShadow = true;
       group.add(column);
     }
+  }
+
+  // ---- Gonryun dojo: a modest training hall with a wooden practice post
+  // and a hanging banner, honoring the town's martial-arts reputation ----
+  if (mapId === "gonryun") {
+    const dojoWood = new THREE.MeshStandardMaterial({ color: 0x6a4a30, roughness: 1 });
+    mats.push(dojoWood);
+    const [dojoWallGeo, dojoWallMat] = track(new THREE.BoxGeometry(3.2, 1.9, 2.4), new THREE.MeshStandardMaterial({ color: 0xe8ddc8, roughness: 0.95 }));
+    const [dojoRoofGeo, dojoRoofMat] = track(new THREE.ConeGeometry(2.6, 1.0, 4), new THREE.MeshStandardMaterial({ color: 0x3a3a3a, roughness: 0.9, flatShading: true }));
+    const [postGeo3] = track(new THREE.CylinderGeometry(0.1, 0.13, 1.6, 8), dojoWood);
+    const [padGeo, padMat] = track(new THREE.CylinderGeometry(0.24, 0.24, 0.5, 8), new THREE.MeshStandardMaterial({ color: 0xc8a860, roughness: 1 }));
+    const [bannerGeo, bannerMat] = track(new THREE.PlaneGeometry(0.6, 1.6), new THREE.MeshStandardMaterial({ color: 0x2a3a6a, roughness: 0.9, side: THREE.DoubleSide }));
+    const dojo = new THREE.Group();
+    const dojoWall = new THREE.Mesh(dojoWallGeo, dojoWallMat);
+    dojoWall.position.y = 0.95;
+    dojoWall.castShadow = true;
+    dojo.add(dojoWall);
+    const dojoRoof = new THREE.Mesh(dojoRoofGeo, dojoRoofMat);
+    dojoRoof.position.y = 2.4;
+    dojoRoof.rotation.y = Math.PI / 4;
+    dojoRoof.castShadow = true;
+    dojo.add(dojoRoof);
+    // a wooden practice post out front, padded at striking height
+    const post3 = new THREE.Mesh(postGeo3, dojoWood);
+    post3.position.set(2.6, 0.8, 1.6);
+    dojo.add(post3);
+    const pad = new THREE.Mesh(padGeo, padMat);
+    pad.position.set(2.6, 1.1, 1.6);
+    dojo.add(pad);
+    const bannerPole = new THREE.Mesh(postGeo3, dojoWood);
+    bannerPole.scale.y = 1.3;
+    bannerPole.position.set(-2.3, 1.0, 1.5);
+    dojo.add(bannerPole);
+    const banner = new THREE.Mesh(bannerGeo, bannerMat);
+    banner.position.set(-2.3, 1.6, 1.8);
+    dojo.add(banner);
+    bobbers.push({ obj: banner, baseY: 1.6, phase: rng() * Math.PI * 2 });
+    dojo.position.set(11.5, 0, -10.5);
+    dojo.rotation.y = Math.atan2(-11.5, 10.5);
+    group.add(dojo);
   }
 
   // ---- Payon pagoda: a three-tier timber pagoda rises over the pine town,
