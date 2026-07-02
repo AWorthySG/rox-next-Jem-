@@ -713,6 +713,39 @@ export function buildScenery(mapId: string): Scenery {
       group.add(grindstone);
     }
 
+    // watchtower: a timber lookout post beside the town gate, torch burning
+    // at the top rail through the night
+    {
+      const towerWood = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(0.9), roughness: 1 });
+      mats.push(towerWood);
+      const [wtPostGeo] = track(new THREE.CylinderGeometry(0.1, 0.14, 4.2, 6), towerWood);
+      const [wtPlatformGeo] = track(new THREE.BoxGeometry(1.6, 0.12, 1.6), towerWood);
+      const [wtRailGeo] = track(new THREE.BoxGeometry(1.6, 0.5, 0.06), towerWood);
+      const [wtTorchGeo, wtTorchMat] = track(new THREE.ConeGeometry(0.09, 0.24, 6), new THREE.MeshBasicMaterial({ color: 0xff9a3a }));
+      nightLights.push({ mat: wtTorchMat, day: new THREE.Color(0xff9a3a), night: new THREE.Color(0xffc060) });
+      const watchtower = new THREE.Group();
+      const wtPost = new THREE.Mesh(wtPostGeo, towerWood);
+      wtPost.position.y = 2.1;
+      wtPost.castShadow = true;
+      watchtower.add(wtPost);
+      const wtPlatform = new THREE.Mesh(wtPlatformGeo, towerWood);
+      wtPlatform.position.y = 4.26;
+      wtPlatform.castShadow = true;
+      watchtower.add(wtPlatform);
+      for (const [rz, ry] of [[-0.77, 0], [0.77, 0], [0, Math.PI / 2]] as const) {
+        const rail = new THREE.Mesh(wtRailGeo, towerWood);
+        rail.position.set(0, 4.57, rz);
+        rail.rotation.y = ry;
+        watchtower.add(rail);
+      }
+      const wtTorch = new THREE.Mesh(wtTorchGeo, wtTorchMat);
+      wtTorch.position.set(0.7, 4.6, 0.7);
+      watchtower.add(wtTorch);
+      flickers.push(wtTorch);
+      watchtower.position.set(3.6, 0, 22.5); // beside the south gate arch
+      group.add(watchtower);
+    }
+
     // adventurer quest board beside the plaza: a roofed notice board with a
     // scatter of pinned job postings, angled to face the fountain
     {
@@ -1739,6 +1772,33 @@ export function buildScenery(mapId: string): Scenery {
       deer.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
       deer.rotation.y = rng() * Math.PI * 2;
       group.add(deer);
+    }
+  }
+
+  // ---- hay bales: a few round bales rest out in the leafy fields, some
+  // stacked in twos ----
+  if (theme.tree === "leafy" && mapId !== "arena") {
+    const [bareGeo, bareMat] = track(
+      new THREE.CylinderGeometry(0.55, 0.55, 0.9, 12),
+      new THREE.MeshStandardMaterial({ color: 0xd8b850, roughness: 1, flatShading: true }),
+    );
+    for (let b = 0; b < 4; b++) {
+      const a = rng() * Math.PI * 2;
+      const r = 9 + rng() * 20;
+      const bx = Math.cos(a) * r;
+      const bz = Math.sin(a) * r;
+      const bale = new THREE.Mesh(bareGeo, bareMat);
+      bale.rotation.z = Math.PI / 2;
+      bale.position.set(bx, 0.55, bz);
+      bale.castShadow = true;
+      group.add(bale);
+      if (b % 2 === 0) {
+        const stacked = new THREE.Mesh(bareGeo, bareMat);
+        stacked.rotation.z = Math.PI / 2;
+        stacked.position.set(bx, 1.5, bz);
+        stacked.castShadow = true;
+        group.add(stacked);
+      }
     }
   }
 
