@@ -274,6 +274,9 @@ export function buildScenery(mapId: string): Scenery {
   const orbiters: { sprite: THREE.Sprite; cx: number; cz: number; y: number; r: number; speed: number; phase: number }[] = [];
   // looping chimney-smoke puffs (rise, swell and thin out above house roofs)
   const smokes: { sprite: THREE.Sprite; baseY: number; offset: number }[] = [];
+  // things that fly a circular route around the map (airship, seabirds); they
+  // face along the flight path and optionally flap wing pivots as they go
+  const cruisers: { obj: THREE.Object3D; r: number; y: number; speed: number; phase: number; wings?: THREE.Object3D[] }[] = [];
   let animated: CenterpieceAnim = null;
   let animPhase = 0;
   if (mapId !== "arena") {
@@ -614,6 +617,83 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- horizon airship: a little dirigible on a slow sky lane above the
+  // peaks — a nod to Juno's airships. Cabin windows warm up after dark. ----
+  if (mapId !== "arena") {
+    const ship = new THREE.Group();
+    const [hullGeo, hullMat] = track(
+      new THREE.CapsuleGeometry(1.5, 4.6, 6, 12),
+      new THREE.MeshStandardMaterial({ color: 0xd8cfc0, roughness: 0.8 }),
+    );
+    const hull = new THREE.Mesh(hullGeo, hullMat);
+    hull.rotation.x = Math.PI / 2; // capsule axis along +z = direction of travel
+    ship.add(hull);
+    const [cabinGeo, cabinMat] = track(
+      new THREE.BoxGeometry(0.9, 0.7, 2.6),
+      new THREE.MeshStandardMaterial({ color: 0x6a5238, roughness: 0.9 }),
+    );
+    const cabin = new THREE.Mesh(cabinGeo, cabinMat);
+    cabin.position.y = -1.75;
+    ship.add(cabin);
+    const [winGeo, winMat] = track(new THREE.BoxGeometry(0.94, 0.2, 1.8), new THREE.MeshBasicMaterial({ color: 0xffd9a0 }));
+    nightLights.push({ mat: winMat, day: new THREE.Color(0x8a7a62), night: new THREE.Color(0xffd9a0) });
+    const win = new THREE.Mesh(winGeo, winMat);
+    win.position.y = -1.72;
+    ship.add(win);
+    const [finGeo] = track(new THREE.BoxGeometry(0.1, 1.3, 1.1), cabinMat);
+    for (const tilt of [0, Math.PI / 2]) {
+      const fin = new THREE.Mesh(finGeo, cabinMat);
+      fin.position.z = -3.1;
+      fin.rotation.z = tilt;
+      ship.add(fin);
+    }
+    const [propGeo] = track(new THREE.BoxGeometry(0.16, 1.6, 0.06), cabinMat);
+    const prop = new THREE.Mesh(propGeo, cabinMat);
+    prop.position.z = -3.8;
+    ship.add(prop);
+    spinners.push({ obj: prop, speed: 9 });
+    ship.scale.setScalar(2.2);
+    group.add(ship);
+    cruisers.push({ obj: ship, r: MAP_HALF * 1.2, y: 27, speed: 0.02, phase: rng() * Math.PI * 2 });
+  }
+
+  // ---- seabirds: a small wheeling flock over the water on coastal maps ----
+  if (WATER_MAPS[mapId]) {
+    const [birdBodyGeo, birdMat] = track(
+      new THREE.ConeGeometry(0.11, 0.55, 6),
+      new THREE.MeshStandardMaterial({ color: 0xf2f4f6, roughness: 0.8 }),
+    );
+    const [wingGeo] = track(new THREE.BoxGeometry(0.85, 0.03, 0.26), birdMat);
+    for (let b = 0; b < 4; b++) {
+      const bird = new THREE.Group();
+      const body = new THREE.Mesh(birdBodyGeo, birdMat);
+      body.rotation.x = Math.PI / 2; // cone nose points +z = direction of travel
+      bird.add(body);
+      const wings: THREE.Object3D[] = [];
+      for (const s of [-1, 1]) {
+        // pivot at the shoulder; the left pivot is mirrored so one shared
+        // rotation.z flaps both wings up and down together
+        const pivot = new THREE.Group();
+        pivot.position.x = s * 0.08;
+        if (s < 0) pivot.rotation.y = Math.PI;
+        const wing = new THREE.Mesh(wingGeo, birdMat);
+        wing.position.x = 0.42;
+        pivot.add(wing);
+        bird.add(pivot);
+        wings.push(pivot);
+      }
+      group.add(bird);
+      cruisers.push({
+        obj: bird,
+        r: MAP_HALF * (1.02 + rng() * 0.08),
+        y: 11 + rng() * 5,
+        speed: (0.16 + rng() * 0.08) * (b % 2 === 0 ? 1 : -1),
+        phase: rng() * Math.PI * 2,
+        wings,
+      });
+    }
+  }
+
   return {
     group,
     setShade(mul: number) {
@@ -647,6 +727,16 @@ export function buildScenery(mapId: string): Scenery {
         const t = (animPhase * 0.22 + s.offset) % 1;
         s.sprite.position.y = s.baseY + t * 1.5;
         s.sprite.scale.setScalar(0.2 + Math.sin(Math.PI * t) * 0.55);
+      }
+      // cruisers fly their ring route, nose along the tangent, wings flapping
+      for (const c of cruisers) {
+        const a = c.phase + animPhase * c.speed;
+        c.obj.position.set(Math.cos(a) * c.r, c.y + Math.sin(a * 3 + c.phase) * 0.4, Math.sin(a) * c.r);
+        c.obj.rotation.y = -a + (c.speed < 0 ? Math.PI : 0);
+        if (c.wings) {
+          const flap = Math.sin(animPhase * 9 + c.phase * 7) * 0.55;
+          for (const w of c.wings) w.rotation.z = flap;
+        }
       }
       if (!animated) return;
       if (animated.jet) {
