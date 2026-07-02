@@ -56,6 +56,7 @@ interface Theme {
   rocks: number;
   tufts: number;
   tuft: number;
+  snowy?: boolean; // pines carry snow caps (Lutie / Rachel)
 }
 
 const DEFAULT: Theme = { trunk: 0x6b4a2b, foliage: [0x3f8f3a, 0x4fa044, 0x357a30], rock: 0x8a8d92, tree: "leafy", trees: 64, rocks: 34, tufts: 140, tuft: 0x4f9a3f };
@@ -70,7 +71,7 @@ const THEMES: Record<string, Partial<Theme>> = {
   umbala: { trunk: 0x5a3f28, foliage: [0x2f7a3a, 0x3f9a4a, 0x256b30], rock: 0x6b6f5a, tree: "jungle", trees: 90, rocks: 26, tufts: 160, tuft: 0x3f8f3f },
   juno: { rock: 0x9a8d9a, tree: "leafy", trees: 40, rocks: 44 },
   einbroch: { trunk: 0x4a4438, foliage: [0x55613a], rock: 0x7a756a, tree: "dead", trees: 28, rocks: 60, tufts: 50, tuft: 0x6a6a44 },
-  rachel: { trunk: 0x6a5a4a, foliage: [0xbfe0e8], rock: 0xc8d2da, tree: "pine", trees: 44, rocks: 50, tufts: 70, tuft: 0xa9c8c0 },
+  rachel: { trunk: 0x6a5a4a, foliage: [0xbfe0e8], rock: 0xc8d2da, tree: "pine", trees: 44, rocks: 50, tufts: 70, tuft: 0xa9c8c0, snowy: true },
   thanatos: { trunk: 0x3a2f3a, foliage: [0x6a4fb0], rock: 0x5a4f6a, tree: "crystal", trees: 30, rocks: 60, tufts: 30, tuft: 0x6a4faa },
   tower: { trunk: 0x3a2f3a, foliage: [0x6a4fb0], rock: 0x5a4f6a, tree: "crystal", trees: 24, rocks: 56, tufts: 24, tuft: 0x6a4faa },
   morocc: { rock: 0xc9a86a, tree: "palm", trunk: 0x9a7b4a, foliage: [0x6cae54], trees: 18, rocks: 64, tufts: 30, tuft: 0xc7b576 },
@@ -79,7 +80,7 @@ const THEMES: Record<string, Partial<Theme>> = {
   geffen: { trunk: 0x3a3458, foliage: [0x6a5fb0], rock: 0x4a4470, tree: "crystal", trees: 26, rocks: 50, tufts: 40, tuft: 0x6a5fb0 },
   niflheim: { trunk: 0x3a3338, foliage: [0x2a3230], rock: 0x4a505a, tree: "dead", trees: 40, rocks: 60, tufts: 24, tuft: 0x3a4a42 },
   amatsu: { trunk: 0x6a4a3a, foliage: [0xf0a0c0, 0x4fae54, 0x6cc35f], rock: 0x7a8270, tree: "leafy", trees: 70, rocks: 30, tufts: 120, tuft: 0x4f9a3f },
-  lutie: { trunk: 0x7a6a5a, foliage: [0xe8f0f8], rock: 0xd8e4ee, tree: "pine", trees: 60, rocks: 44, tufts: 50, tuft: 0xeaf2fa },
+  lutie: { trunk: 0x7a6a5a, foliage: [0xe8f0f8], rock: 0xd8e4ee, tree: "pine", trees: 60, rocks: 44, tufts: 50, tuft: 0xeaf2fa, snowy: true },
   ayothaya: { trunk: 0x5a3f28, foliage: [0x2f7a3a, 0x3f9a4a], rock: 0x8a8260, tree: "jungle", trees: 80, rocks: 40, tufts: 130, tuft: 0x3f8f3f },
   moscovia: { trunk: 0x4a3a2a, foliage: [0x2f6b2c, 0x3a7a38], rock: 0x5a6a4a, tree: "pine", trees: 90, rocks: 36, tufts: 90, tuft: 0x3a6a30 },
   thor: { trunk: 0x3a1810, foliage: [0xc0401a], rock: 0x4a241a, tree: "dead", trees: 20, rocks: 70, tufts: 40, tuft: 0xc0501a },
@@ -883,6 +884,16 @@ function addTrees(
   const foliage2 = new THREE.InstancedMesh(foliageGeo, foliageMat2, n);
   foliage2.castShadow = true;
 
+  // snow caps on snowy pines: a small white cone perched on each canopy
+  let snowCaps: THREE.InstancedMesh | null = null;
+  if (theme.snowy) {
+    const [snowGeo, snowMat] = track(
+      new THREE.ConeGeometry(0.72, 0.9, 7),
+      new THREE.MeshStandardMaterial({ color: 0xf4f8fc, roughness: 0.9, flatShading: true }),
+    );
+    snowCaps = new THREE.InstancedMesh(snowGeo, snowMat, n);
+  }
+
   const fCol = new THREE.Color(foliageColor);
   const fCol2 = new THREE.Color(foliageColor2);
   const c = new THREE.Color();
@@ -909,8 +920,13 @@ function addTrees(
     const fs2 = fs * 0.62;
     m.compose(new THREE.Vector3(p.x, (foliageY + 0.7) * p.s, p.z), q, new THREE.Vector3(fs2, fs2, fs2));
     foliage2.setMatrixAt(i, m);
+    if (snowCaps) {
+      m.compose(new THREE.Vector3(p.x, (foliageY + 1.15) * p.s, p.z), q, new THREE.Vector3(fs, fs, fs));
+      snowCaps.setMatrixAt(i, m);
+    }
   }
   if (foliage.instanceColor) foliage.instanceColor.needsUpdate = true;
   if (foliage2.instanceColor) foliage2.instanceColor.needsUpdate = true;
   group.add(trunks, foliage, foliage2);
+  if (snowCaps) group.add(snowCaps);
 }
