@@ -927,6 +927,42 @@ export function buildScenery(mapId: string): Scenery {
       group.add(hopscotch);
     }
 
+    // parked wagon: a farmer's cart with two spoked wheels, resting near the
+    // houses as if just arrived with goods
+    {
+      const wagonWood = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(1.0), roughness: 1 });
+      mats.push(wagonWood);
+      const [bedGeo] = track(new THREE.BoxGeometry(1.6, 0.35, 0.9), wagonWood);
+      const [wheelGeo, wheelMat] = track(new THREE.TorusGeometry(0.35, 0.06, 6, 12), new THREE.MeshStandardMaterial({ color: 0x4a3a28, roughness: 1 }));
+      const [spokeGeo] = track(new THREE.CylinderGeometry(0.02, 0.02, 0.66, 4), wheelMat);
+      const [shaftGeo] = track(new THREE.CylinderGeometry(0.04, 0.04, 1.3, 5), wagonWood);
+      const wagon = new THREE.Group();
+      const bed = new THREE.Mesh(bedGeo, wagonWood);
+      bed.position.y = 0.55;
+      bed.castShadow = true;
+      wagon.add(bed);
+      const shaft = new THREE.Mesh(shaftGeo, wagonWood);
+      shaft.rotation.x = Math.PI / 2;
+      shaft.position.set(0, 0.5, 1.1);
+      wagon.add(shaft);
+      for (const s of [-1, 1]) {
+        const wheel = new THREE.Mesh(wheelGeo, wheelMat);
+        wheel.rotation.y = Math.PI / 2;
+        wheel.position.set(s * 0.85, 0.36, 0);
+        wagon.add(wheel);
+        for (let sp = 0; sp < 2; sp++) {
+          const spoke = new THREE.Mesh(spokeGeo, wheelMat);
+          spoke.rotation.z = sp * Math.PI / 2;
+          spoke.rotation.y = Math.PI / 2;
+          spoke.position.set(s * 0.85, 0.36, 0);
+          wagon.add(spoke);
+        }
+      }
+      wagon.position.set(3.4, 0, 6.9);
+      wagon.rotation.y = 0.9;
+      group.add(wagon);
+    }
+
     // rope swing: hangs from the north house's roofline, seat swaying gently
     {
       const swingRopeMat = new THREE.MeshStandardMaterial({ color: 0xc8b088, roughness: 1 });
@@ -945,6 +981,42 @@ export function buildScenery(mapId: string): Scenery {
       swing.position.set(0.9, 3.35, -12.9); // hangs beside the north house
       group.add(swing);
       bobbers.push({ obj: swing, baseY: swing.position.y, phase: 0.8 });
+    }
+
+    // chickens: a few peck around near the wagon, bobbing their heads down
+    // and up on a fast, jittery cycle
+    {
+      const chickenBodyMat = new THREE.MeshStandardMaterial({ color: 0xf0ece0, roughness: 0.9 });
+      mats.push(chickenBodyMat);
+      const [chickenBodyGeo] = track(new THREE.SphereGeometry(0.12, 8, 6), chickenBodyMat);
+      const [combGeo, combMat] = track(new THREE.ConeGeometry(0.03, 0.06, 4), new THREE.MeshStandardMaterial({ color: 0xd83030, roughness: 0.8 }));
+      const [beakGeo] = track(new THREE.ConeGeometry(0.02, 0.06, 4), combMat);
+      for (let c = 0; c < 3; c++) {
+        const chicken = new THREE.Group();
+        const body = new THREE.Mesh(chickenBodyGeo, chickenBodyMat);
+        body.scale.set(1, 1.1, 1.3);
+        chicken.add(body);
+        // head + beak ride a pivot so the peck cycle can nod it down and up
+        const headPivot = new THREE.Group();
+        headPivot.position.set(0, 0.1, 0.13);
+        const head = new THREE.Mesh(chickenBodyGeo, chickenBodyMat);
+        head.scale.setScalar(0.55);
+        headPivot.add(head);
+        const comb = new THREE.Mesh(combGeo, combMat);
+        comb.position.y = 0.07;
+        headPivot.add(comb);
+        const beak = new THREE.Mesh(beakGeo, combMat);
+        beak.rotation.x = Math.PI / 2;
+        beak.position.set(0, 0, 0.08);
+        headPivot.add(beak);
+        chicken.add(headPivot);
+        const a = rng() * Math.PI * 2;
+        const r = 2.5 + rng() * 1.5;
+        chicken.position.set(3.4 + Math.cos(a) * r, 0.13, 6.9 + Math.sin(a) * r);
+        chicken.rotation.y = rng() * Math.PI * 2;
+        group.add(chicken);
+        flickers.push(headPivot); // scale-pulse reads as a quick peck bob
+      }
     }
 
     // hitching post: a Peco Peco rests here, head tucked and one leg cocked,
