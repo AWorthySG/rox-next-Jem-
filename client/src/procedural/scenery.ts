@@ -627,6 +627,37 @@ export function buildScenery(mapId: string): Scenery {
       bucket.position.y = 1.02;
       well.add(bucket);
       bobbers.push({ obj: bucket, baseY: 1.02, phase: 2.6 });
+      // a village cat sits on the rim, tail swaying off the edge
+      const catMat = new THREE.MeshStandardMaterial({ color: 0x8a7050, roughness: 0.9 });
+      mats.push(catMat);
+      const [catBodyGeo] = track(new THREE.SphereGeometry(0.14, 8, 6), catMat);
+      const [catEarGeo] = track(new THREE.ConeGeometry(0.04, 0.07, 4), catMat);
+      const [catTailGeo] = track(new THREE.CylinderGeometry(0.025, 0.018, 0.4, 5), catMat);
+      const cat = new THREE.Group();
+      const catBody = new THREE.Mesh(catBodyGeo, catMat);
+      catBody.scale.set(0.9, 1.1, 0.9);
+      catBody.position.y = 0.13;
+      cat.add(catBody);
+      const catHead = new THREE.Mesh(catBodyGeo, catMat);
+      catHead.scale.setScalar(0.6);
+      catHead.position.set(0, 0.32, 0.03);
+      cat.add(catHead);
+      for (const s of [-1, 1]) {
+        const ear = new THREE.Mesh(catEarGeo, catMat);
+        ear.position.set(s * 0.05, 0.42, 0.02);
+        cat.add(ear);
+      }
+      // the tail hangs from a pivot so the bobber sway reads as a lazy flick
+      const tailPivot = new THREE.Group();
+      const catTail = new THREE.Mesh(catTailGeo, catMat);
+      catTail.position.y = -0.2;
+      tailPivot.add(catTail);
+      tailPivot.position.set(0, 0.14, -0.12);
+      cat.add(tailPivot);
+      bobbers.push({ obj: tailPivot, baseY: 0.14, phase: 1.3 });
+      cat.position.set(0.52, 0.56, 0.3);
+      cat.rotation.y = -0.6;
+      well.add(cat);
       well.position.set(-5.6, 0, -8.8);
       group.add(well);
     }
@@ -688,6 +719,13 @@ export function buildScenery(mapId: string): Scenery {
         mats.push(m);
         return m;
       });
+      const [fruitCrateGeo] = track(new THREE.BoxGeometry(0.55, 0.38, 0.55), counterMat);
+      const [fruitGeo] = track(new THREE.SphereGeometry(0.075, 8, 6), counterMat);
+      const fruitMats = [0xe06a2a, 0xd8b03a, 0xc04040].map((c) => {
+        const m = new THREE.MeshStandardMaterial({ color: c, roughness: 0.6 });
+        mats.push(m);
+        return m;
+      });
       for (const n of shopNpcs) {
         const facing = n.facing ?? 0;
         const stall = new THREE.Group();
@@ -715,6 +753,18 @@ export function buildScenery(mapId: string): Scenery {
         trim.position.set(0, 1.76, 0.56);
         trim.rotation.x = 0.28;
         stall.add(trim);
+        // a produce crate beside the counter, piled with fruit
+        const crate = new THREE.Group();
+        const box = new THREE.Mesh(fruitCrateGeo, counterMat);
+        box.position.y = 0.19;
+        crate.add(box);
+        for (let f = 0; f < 5; f++) {
+          const fruit = new THREE.Mesh(fruitGeo, fruitMats[f % fruitMats.length]);
+          fruit.position.set(((f % 3) - 1) * 0.14, 0.42, (Math.floor(f / 3) - 0.5) * 0.14);
+          crate.add(fruit);
+        }
+        crate.position.set(1.35, 0, 0.15);
+        stall.add(crate);
         // sit just behind the NPC, opening toward wherever they face
         stall.position.set(n.x - Math.sin(facing) * 1.1, 0, n.z - Math.cos(facing) * 1.1);
         stall.rotation.y = facing;
