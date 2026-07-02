@@ -1275,6 +1275,73 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Moscovia chapel: a little whitewashed chapel with a gilded onion
+  // dome and a warm window, tucked off the plaza ----
+  if (mapId === "moscovia") {
+    const [chapelGeo, chapelMat] = track(
+      new THREE.BoxGeometry(2.2, 2.4, 2.2),
+      new THREE.MeshStandardMaterial({ color: 0xf0ead8, roughness: 0.95 }),
+    );
+    const [drumGeo] = track(new THREE.CylinderGeometry(0.55, 0.55, 0.9, 10), chapelMat);
+    const [onionGeo, onionMat] = track(
+      new THREE.SphereGeometry(0.72, 12, 10),
+      new THREE.MeshStandardMaterial({ color: 0xd8a83a, roughness: 0.35, metalness: 0.6 }),
+    );
+    const [spikeGeo] = track(new THREE.ConeGeometry(0.18, 0.55, 8), onionMat);
+    const [chapelWinGeo, chapelWinMat] = track(new THREE.BoxGeometry(0.4, 0.6, 0.06), new THREE.MeshBasicMaterial({ color: 0xffd9a0 }));
+    nightLights.push({ mat: chapelWinMat, day: new THREE.Color(0x8a7a62), night: new THREE.Color(0xffd9a0) });
+    const chapel = new THREE.Group();
+    const hall = new THREE.Mesh(chapelGeo, chapelMat);
+    hall.position.y = 1.2;
+    hall.castShadow = true;
+    chapel.add(hall);
+    const drum = new THREE.Mesh(drumGeo, chapelMat);
+    drum.position.y = 2.85;
+    chapel.add(drum);
+    const onion = new THREE.Mesh(onionGeo, onionMat);
+    onion.scale.y = 1.15;
+    onion.position.y = 3.85;
+    onion.castShadow = true;
+    chapel.add(onion);
+    const spike = new THREE.Mesh(spikeGeo, onionMat);
+    spike.position.y = 4.85;
+    chapel.add(spike);
+    const chapelWin = new THREE.Mesh(chapelWinGeo, chapelWinMat);
+    chapelWin.position.set(0, 1.3, 1.12);
+    chapel.add(chapelWin);
+    chapel.position.set(12.5, 0, -9.5);
+    chapel.rotation.y = Math.atan2(-12.5, 9.5);
+    group.add(chapel);
+  }
+
+  // ---- tiki torches: tropical palm maps ring the plaza with bamboo torches
+  // whose flames flicker on the brazier channel ----
+  if (theme.tree === "palm") {
+    const [tikiPoleGeo, tikiPoleMat] = track(
+      new THREE.CylinderGeometry(0.06, 0.08, 1.7, 6),
+      new THREE.MeshStandardMaterial({ color: 0x9a7b4a, roughness: 1 }),
+    );
+    const [tikiBowlGeo] = track(new THREE.CylinderGeometry(0.14, 0.09, 0.2, 6), tikiPoleMat);
+    const [tikiFlameGeo, tikiFlameMat] = track(new THREE.ConeGeometry(0.11, 0.3, 6), new THREE.MeshBasicMaterial({ color: 0xff9a3a }));
+    nightLights.push({ mat: tikiFlameMat, day: new THREE.Color(0xff9a3a), night: new THREE.Color(0xffc060) });
+    for (const deg of [30, 120, 210, 300]) {
+      const a = (deg / 180) * Math.PI;
+      const tx = Math.cos(a) * 8.2;
+      const tz = Math.sin(a) * 8.2;
+      const pole = new THREE.Mesh(tikiPoleGeo, tikiPoleMat);
+      pole.position.set(tx, 0.85, tz);
+      pole.castShadow = true;
+      group.add(pole);
+      const bowl = new THREE.Mesh(tikiBowlGeo, tikiPoleMat);
+      bowl.position.set(tx, 1.78, tz);
+      group.add(bowl);
+      const tikiFlame = new THREE.Mesh(tikiFlameGeo, tikiFlameMat);
+      tikiFlame.position.set(tx, 2.0, tz);
+      group.add(tikiFlame);
+      flickers.push(tikiFlame);
+    }
+  }
+
   // ---- Thor volcano embers: the caldera map is never still — hot motes
   // drift and swirl over the ground day and night ----
   if (mapId === "thor") {
