@@ -464,6 +464,29 @@ export function buildScenery(mapId: string): Scenery {
       board.rotation.y = Math.atan2(-5.8, -3.4); // face the fountain
       group.add(board);
     }
+
+    // directional signpost where the path leaves the plaza: a weathered post
+    // with two finger boards pointing opposite ways (fields vs. town centre)
+    {
+      const signWood = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(0.9), roughness: 1 });
+      const [sPostGeo] = track(new THREE.CylinderGeometry(0.07, 0.09, 1.9, 6), signWood);
+      const [fingerGeo] = track(new THREE.BoxGeometry(0.95, 0.2, 0.05), signWood);
+      const signpost = new THREE.Group();
+      const sPost = new THREE.Mesh(sPostGeo, signWood);
+      sPost.position.y = 0.95;
+      sPost.castShadow = true;
+      signpost.add(sPost);
+      for (const [fy, rot] of [[1.62, 0.5], [1.34, -2.2]] as const) {
+        const finger = new THREE.Mesh(fingerGeo, signWood);
+        finger.position.set(0, fy, 0);
+        finger.rotation.y = rot;
+        // shift outward so the board hangs off one side of the post
+        finger.translateX(0.42);
+        signpost.add(finger);
+      }
+      signpost.position.set(-2.4, 0, 8.2);
+      group.add(signpost);
+    }
   }
 
   // ---- Kafra shop stall: a counter with a pink-striped awning behind each
@@ -820,6 +843,36 @@ export function buildScenery(mapId: string): Scenery {
     ship.scale.setScalar(2.2);
     group.add(ship);
     cruisers.push({ obj: ship, r: MAP_HALF * 1.2, y: 27, speed: 0.02, phase: rng() * Math.PI * 2 });
+  }
+
+  // ---- ground mist: on haunted and crystalline maps, broad soft wisps hug
+  // the ground after dark and drift in slow local circles ----
+  if (theme.tree === "dead" || theme.tree === "crystal") {
+    const mistMat = new THREE.SpriteMaterial({
+      map: makeSpark(),
+      color: new THREE.Color(theme.tuft).lerp(new THREE.Color(0xcccccc), 0.6),
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+    });
+    mats.push(mistMat);
+    nightFades.push({ mat: mistMat, max: 0.14 });
+    for (let i = 0; i < 8; i++) {
+      const wisp = new THREE.Sprite(mistMat);
+      wisp.scale.set(5.5 + rng() * 3, 2.2 + rng() * 1, 1);
+      group.add(wisp);
+      const a = rng() * Math.PI * 2;
+      const r = 8 + rng() * 18;
+      orbiters.push({
+        sprite: wisp,
+        cx: Math.cos(a) * r,
+        cz: Math.sin(a) * r,
+        y: 0.7 + rng() * 0.5,
+        r: 1.6 + rng() * 1.4,
+        speed: 0.03 + rng() * 0.04,
+        phase: rng() * Math.PI * 2,
+      });
+    }
   }
 
   // ---- seabirds: a small wheeling flock over the water on coastal maps ----
