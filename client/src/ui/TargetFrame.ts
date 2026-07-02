@@ -14,6 +14,8 @@ export class TargetFrame {
   private root = document.getElementById("target-frame")!;
   private nameEl = document.getElementById("tf-name")!;
   private fill = document.getElementById("tf-fill")!;
+  private chip = document.getElementById("tf-chip")!;
+  private lastTargetName: string | null = null;
 
   show(info: TargetInfo): void {
     this.root.classList.remove("hidden");
@@ -23,10 +25,22 @@ export class TargetFrame {
       el && el !== Element.Neutral ? `  ${ELEMENT_ICON[el] ?? ""}${ELEMENT_LABEL[el] ?? ""}` : "";
     this.nameEl.textContent = `${info.name}  Lv${info.level}${elemTag}`;
     const pct = info.maxHp ? Math.max(0, Math.min(1, info.hp / info.maxHp)) : 0;
-    this.fill.style.width = `${pct * 100}%`;
+    const widthPct = `${pct * 100}%`;
+    // a fresh target snaps both bars instantly instead of "chipping" from
+    // whatever the previous target's health happened to be
+    if (info.name !== this.lastTargetName) {
+      this.lastTargetName = info.name;
+      this.chip.style.transition = "none";
+      this.chip.style.width = widthPct;
+      void this.chip.offsetWidth; // force reflow before re-enabling the transition
+      this.chip.style.transition = "";
+    }
+    this.fill.style.width = widthPct;
+    this.chip.style.width = widthPct;
   }
 
   hide(): void {
     this.root.classList.add("hidden");
+    this.lastTargetName = null;
   }
 }

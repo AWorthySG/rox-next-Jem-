@@ -525,6 +525,20 @@ body {
   background: linear-gradient(180deg, #ff7b7b, #c0392b);
   transition: width 0.15s linear;
 }
+/* chip-damage ghost: a lighter bar that sits behind the real fill and lags
+   behind on a slower transition, so a hit reads as a visible "bite" out of
+   the bar rather than the fill just snapping straight down */
+#tf-chip {
+  position: absolute;
+  inset: 0;
+  background: #f0c8a0;
+  transition: width 0.6s ease-out 0.1s;
+  z-index: 0;
+}
+#tf-fill {
+  position: relative;
+  z-index: 1;
+}
 
 /* world-boss raid bar (server-wide) */
 .worldboss-bar {
