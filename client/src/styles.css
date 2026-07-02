@@ -1028,7 +1028,11 @@ body {
   color: #1a1430;
   background: linear-gradient(180deg, #9be88f, #4cae3e);
   border-color: #4cae3e;
-  box-shadow: 0 0 16px rgba(120, 230, 140, 0.5);
+  animation: auto-pulse 1.8s ease-in-out infinite;
+}
+@keyframes auto-pulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(120, 230, 140, 0.4); }
+  50% { box-shadow: 0 0 20px rgba(120, 230, 140, 0.7); }
 }
 .market-btn {
   position: absolute;
