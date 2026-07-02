@@ -263,6 +263,10 @@ export function buildScenery(mapId: string): Scenery {
   const nightLights: NightLight[] = [];
   // materials whose opacity fades in with night (lamp light-pools on the ground)
   const nightFades: { mat: THREE.Material & { opacity: number }; max: number }[] = [];
+  // meshes that flicker like flame (brazier embers) — scale-pulsed in tick()
+  const flickers: THREE.Mesh[] = [];
+  // small sprites that orbit a point (fireflies around lamps at night)
+  const orbiters: { sprite: THREE.Sprite; cx: number; cz: number; y: number; r: number; speed: number; phase: number }[] = [];
   let animated: CenterpieceAnim = null;
   let animPhase = 0;
   if (mapId !== "arena") {
@@ -313,6 +317,12 @@ export function buildScenery(mapId: string): Scenery {
         new THREE.BoxGeometry(2.0, 0.06, 0.22),
         new THREE.MeshStandardMaterial({ color: 0xf4efe6, roughness: 0.9 }),
       );
+      const [bottleGeo] = track(new THREE.CylinderGeometry(0.06, 0.07, 0.18, 8), counterMat);
+      const potionMats = [0xe0455a, 0x4a90e0, 0x58c060].map((c) => {
+        const m = new THREE.MeshStandardMaterial({ color: c, roughness: 0.3 });
+        mats.push(m);
+        return m;
+      });
       for (const n of shopNpcs) {
         const facing = n.facing ?? 0;
         const stall = new THREE.Group();
@@ -320,6 +330,12 @@ export function buildScenery(mapId: string): Scenery {
         counter.position.y = 0.42;
         counter.castShadow = true;
         stall.add(counter);
+        // a row of potion bottles for sale on the countertop
+        for (let b = 0; b < 3; b++) {
+          const bottle = new THREE.Mesh(bottleGeo, potionMats[b]);
+          bottle.position.set((b - 1) * 0.35, 0.94, 0.05);
+          stall.add(bottle);
+        }
         for (const s of [-1, 1]) {
           const post = new THREE.Mesh(postGeo, counterMat);
           post.position.set(s * 0.9, 0.95, -0.35);
@@ -368,6 +384,7 @@ export function buildScenery(mapId: string): Scenery {
           bowl.position.set(bx, 1.05, bz);
           const ember = new THREE.Mesh(emberGeo, emberMat);
           ember.position.set(bx, 1.16, bz);
+          flickers.push(ember); // flame flicker via tick()
           group.add(pillar, bowl, ember);
         }
       }
@@ -423,6 +440,10 @@ export function buildScenery(mapId: string): Scenery {
     const lampMat = new THREE.MeshBasicMaterial({ color: 0xffd9a0 });
     track(lampHeadGeo, lampMat);
     nightLights.push({ mat: lampMat, day: new THREE.Color(0x9a8468), night: new THREE.Color(0xffd9a0) });
+    // shared firefly material — fades in with night alongside the light pools
+    const fireflyMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0xffe27a, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
+    mats.push(fireflyMat);
+    nightFades.push({ mat: fireflyMat, max: 0.85 });
     // a warm pool of light on the ground under each lamp, fading in at night
     const [poolGeo, poolMat] = track(
       new THREE.PlaneGeometry(4.6, 4.6),
@@ -441,6 +462,13 @@ export function buildScenery(mapId: string): Scenery {
       pool.rotation.x = -Math.PI / 2;
       pool.position.set(lx, 0.03, lz);
       group.add(pool);
+      // a few fireflies drawn to each lamp after dark
+      for (let f = 0; f < 3; f++) {
+        const fly = new THREE.Sprite(fireflyMat);
+        fly.scale.setScalar(0.14);
+        group.add(fly);
+        orbiters.push({ sprite: fly, cx: lx, cz: lz, y: 1.9 + rng() * 0.7, r: 0.45 + rng() * 0.4, speed: 0.8 + rng() * 0.8, phase: rng() * Math.PI * 2 });
+      }
     }
   }
 
@@ -454,8 +482,18 @@ export function buildScenery(mapId: string): Scenery {
       for (const f of nightFades) f.mat.opacity = f.max * n;
     },
     tick(dt: number) {
-      if (!animated) return;
       animPhase += dt;
+      // brazier embers flicker like flame (per-mesh offset so they desync)
+      for (let i = 0; i < flickers.length; i++) {
+        const s = 1 + Math.sin(animPhase * 7 + i * 1.7) * 0.12 + Math.sin(animPhase * 13 + i) * 0.06;
+        flickers[i].scale.setScalar(s);
+      }
+      // fireflies orbit their lamp with a gentle vertical wander
+      for (const o of orbiters) {
+        const a = o.phase + animPhase * o.speed;
+        o.sprite.position.set(o.cx + Math.cos(a) * o.r, o.y + Math.sin(a * 1.7) * 0.2, o.cz + Math.sin(a) * o.r);
+      }
+      if (!animated) return;
       if (animated.jet) {
         // fountain jet pulses; the pool shimmers faintly
         animated.jet.scale.y = 1 + Math.sin(animPhase * 3) * 0.16;
