@@ -1275,6 +1275,73 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Supertrees: Gardens by the Bay grows three lattice supertrees whose
+  // canopies pulse violet after dark ----
+  if (mapId === "gardens_bay") {
+    const latticeMat = new THREE.MeshStandardMaterial({ color: 0x5a4a6a, roughness: 0.8 });
+    mats.push(latticeMat);
+    const [superTrunkGeo] = track(new THREE.CylinderGeometry(0.55, 1.15, 6.5, 9), latticeMat);
+    const [superCupGeo] = track(new THREE.CylinderGeometry(2.3, 0.6, 1.5, 9, 1, true), latticeMat);
+    const [superGlowGeo, superGlowMat] = track(
+      new THREE.CylinderGeometry(2.1, 0.7, 1.2, 9),
+      new THREE.MeshBasicMaterial({ color: 0xb070e0, transparent: true, opacity: 0.55 }),
+    );
+    nightLights.push({
+      mat: superGlowMat,
+      day: new THREE.Color(0xb070e0).multiplyScalar(0.45),
+      night: new THREE.Color(0xd090ff),
+    });
+    for (const [sx, sz, sc] of [[-14, -12, 1], [-10, -16, 0.8], [-17.5, -16.5, 0.7]] as const) {
+      const superTree = new THREE.Group();
+      const trunk = new THREE.Mesh(superTrunkGeo, latticeMat);
+      trunk.position.y = 3.25;
+      trunk.castShadow = true;
+      superTree.add(trunk);
+      const cup = new THREE.Mesh(superCupGeo, latticeMat);
+      cup.position.y = 7.0;
+      superTree.add(cup);
+      const glow = new THREE.Mesh(superGlowGeo, superGlowMat);
+      glow.position.y = 7.0;
+      superTree.add(glow);
+      superTree.scale.setScalar(sc);
+      superTree.position.set(sx, 0, sz);
+      group.add(superTree);
+    }
+  }
+
+  // ---- bandstand: the Botanic Gardens' white octagonal gazebo on the lawn ----
+  if (mapId === "botanic_gardens") {
+    const gazeboMat = new THREE.MeshStandardMaterial({ color: 0xf4f2ec, roughness: 0.85 });
+    mats.push(gazeboMat);
+    const [gStepGeo] = track(new THREE.CylinderGeometry(2.4, 2.6, 0.3, 8), gazeboMat);
+    const [gPostGeo] = track(new THREE.CylinderGeometry(0.09, 0.09, 2.2, 6), gazeboMat);
+    const [gRoofGeo, gRoofMat] = track(
+      new THREE.ConeGeometry(2.6, 1.2, 8),
+      new THREE.MeshStandardMaterial({ color: 0x8a4a3a, roughness: 0.9, flatShading: true }),
+    );
+    const [gFinialGeo] = track(new THREE.SphereGeometry(0.14, 8, 6), gazeboMat);
+    const bandstand = new THREE.Group();
+    const step = new THREE.Mesh(gStepGeo, gazeboMat);
+    step.position.y = 0.15;
+    step.receiveShadow = true;
+    bandstand.add(step);
+    for (let p = 0; p < 8; p++) {
+      const a = (p / 8) * Math.PI * 2 + Math.PI / 8;
+      const post = new THREE.Mesh(gPostGeo, gazeboMat);
+      post.position.set(Math.cos(a) * 2.1, 1.4, Math.sin(a) * 2.1);
+      bandstand.add(post);
+    }
+    const gRoof = new THREE.Mesh(gRoofGeo, gRoofMat);
+    gRoof.position.y = 3.05;
+    gRoof.castShadow = true;
+    bandstand.add(gRoof);
+    const finial = new THREE.Mesh(gFinialGeo, gazeboMat);
+    finial.position.y = 3.72;
+    bandstand.add(finial);
+    bandstand.position.set(13, 0, -11);
+    group.add(bandstand);
+  }
+
   // ---- Merlion: the bay's icon — a white lion-headed fish on a pedestal,
   // spouting a thin arc of water with a looping splash at its base ----
   if (mapId === "merlion_bay") {
