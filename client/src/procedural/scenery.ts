@@ -1275,6 +1275,57 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- turtle statue: the turtle islands honour their namesake with a stone
+  // turtle — shell dome, head and four flippers ----
+  if (mapId === "kusu_island" || mapId === "turtle") {
+    const turtleStone = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(0.95), roughness: 1, flatShading: true });
+    mats.push(turtleStone);
+    const [shellGeo] = track(new THREE.SphereGeometry(1.1, 12, 10), turtleStone);
+    const [tHeadGeo] = track(new THREE.SphereGeometry(0.38, 10, 8), turtleStone);
+    const [flipperGeo] = track(new THREE.BoxGeometry(0.7, 0.16, 0.45), turtleStone);
+    const turtle = new THREE.Group();
+    const shell = new THREE.Mesh(shellGeo, turtleStone);
+    shell.scale.y = 0.55;
+    shell.position.y = 0.62;
+    shell.castShadow = true;
+    turtle.add(shell);
+    const tHead = new THREE.Mesh(tHeadGeo, turtleStone);
+    tHead.position.set(0, 0.5, 1.25);
+    turtle.add(tHead);
+    for (const [fx, fz] of [[-0.9, 0.6], [0.9, 0.6], [-0.9, -0.6], [0.9, -0.6]] as const) {
+      const flipper = new THREE.Mesh(flipperGeo, turtleStone);
+      flipper.position.set(fx, 0.18, fz);
+      flipper.rotation.y = Math.sign(fx) * 0.5;
+      turtle.add(flipper);
+    }
+    turtle.position.set(11.5, 0, -12);
+    turtle.rotation.y = Math.atan2(-11.5, 12);
+    group.add(turtle);
+  }
+
+  // ---- mangrove roots: Sungei Buloh's shoreline sprouts arched prop-root
+  // cages leaning out of the mudflats ----
+  if (mapId === "sungei_buloh") {
+    const [mRootGeo, mRootMat] = track(
+      new THREE.CylinderGeometry(0.05, 0.07, 1.5, 5),
+      new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(0.85), roughness: 1 }),
+    );
+    for (let c = 0; c < 6; c++) {
+      const a = rng() * Math.PI * 2;
+      const r = MAP_HALF * (0.8 + rng() * 0.1);
+      const cx = Math.cos(a) * r;
+      const cz = Math.sin(a) * r;
+      for (let s = 0; s < 5; s++) {
+        const sa = (s / 5) * Math.PI * 2 + rng() * 0.5;
+        const root = new THREE.Mesh(mRootGeo, mRootMat);
+        root.position.set(cx + Math.cos(sa) * 0.45, 0.6, cz + Math.sin(sa) * 0.45);
+        // lean each root outward so the cluster reads as an arched root cage
+        root.rotation.set(Math.sin(sa) * 0.45, 0, -Math.cos(sa) * 0.45);
+        group.add(root);
+      }
+    }
+  }
+
   // ---- Supertrees: Gardens by the Bay grows three lattice supertrees whose
   // canopies pulse violet after dark ----
   if (mapId === "gardens_bay") {
