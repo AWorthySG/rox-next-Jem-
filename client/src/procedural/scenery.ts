@@ -279,6 +279,8 @@ export function buildScenery(mapId: string): Scenery {
   const cruisers: { obj: THREE.Object3D; r: number; y: number; speed: number; phase: number; wings?: THREE.Object3D[]; cx?: number; cz?: number; flapRate?: number }[] = [];
   // leaves that tumble down around the plaza on living maps, looping forever
   const leaves: { m: THREE.Mesh; x: number; z: number; offset: number; spin: number }[] = [];
+  // fish that periodically leap out of the sea in a little arc near the pier
+  const jumpers: { obj: THREE.Object3D; x: number; z: number; offset: number }[] = [];
   let animated: CenterpieceAnim = null;
   let animPhase = 0;
   // current darkness level (0 day → 1 night), mirrored from setNight so tick()
@@ -671,6 +673,25 @@ export function buildScenery(mapId: string): Scenery {
     group.add(boat);
     bobbers.push({ obj: boat, baseY: -0.18, phase: rng() * Math.PI * 2 });
 
+    // a couple of fish leap in silvery arcs off the pier every few seconds
+    const [fishGeo, fishMat] = track(
+      new THREE.ConeGeometry(0.09, 0.42, 6),
+      new THREE.MeshStandardMaterial({ color: 0xc8d4dc, roughness: 0.35, metalness: 0.4 }),
+    );
+    const [tailGeo] = track(new THREE.ConeGeometry(0.09, 0.16, 4), fishMat);
+    for (let f = 0; f < 2; f++) {
+      const fish = new THREE.Group();
+      const bodyF = new THREE.Mesh(fishGeo, fishMat);
+      bodyF.rotation.x = Math.PI / 2; // nose along +z
+      fish.add(bodyF);
+      const tail = new THREE.Mesh(tailGeo, fishMat);
+      tail.rotation.x = -Math.PI / 2;
+      tail.position.z = -0.27;
+      fish.add(tail);
+      group.add(fish);
+      jumpers.push({ obj: fish, x: MAP_HALF * 0.94 + 4.5 + f * 3.5, z: pierZ - 3 - f * 2, offset: f * 3.7 });
+    }
+
     // a distant sailing ship rides the horizon swell, deep in the haze
     const ship = new THREE.Group();
     const shipMat = new THREE.MeshStandardMaterial({ color: 0x4a3a30, roughness: 0.95 });
@@ -921,6 +942,40 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- night bats: on haunted maps a few bats wheel overhead after dark,
+  // fading in with the night level like the ground mist ----
+  if (theme.tree === "dead") {
+    const batMat = new THREE.MeshBasicMaterial({ color: 0x201824, side: THREE.DoubleSide, transparent: true, opacity: 0 });
+    mats.push(batMat);
+    nightFades.push({ mat: batMat, max: 0.95 });
+    const [batBodyGeo] = track(new THREE.SphereGeometry(0.09, 8, 6), batMat);
+    const [batWingGeo] = track(new THREE.PlaneGeometry(0.5, 0.2), batMat);
+    for (let b = 0; b < 3; b++) {
+      const bat = new THREE.Group();
+      bat.add(new THREE.Mesh(batBodyGeo, batMat));
+      const wings: THREE.Object3D[] = [];
+      for (const s of [-1, 1]) {
+        const pivot = new THREE.Group();
+        if (s < 0) pivot.rotation.y = Math.PI;
+        const wing = new THREE.Mesh(batWingGeo, batMat);
+        wing.position.x = 0.28;
+        pivot.add(wing);
+        bat.add(pivot);
+        wings.push(pivot);
+      }
+      group.add(bat);
+      cruisers.push({
+        obj: bat,
+        r: 6 + rng() * 8,
+        y: 5 + rng() * 3,
+        speed: (0.5 + rng() * 0.4) * (b % 2 === 0 ? 1 : -1),
+        phase: rng() * Math.PI * 2,
+        wings,
+        flapRate: 13,
+      });
+    }
+  }
+
   // ---- crystal outcrops: on crystal maps, clusters of tilted shards catch
   // the theme's hue by day and glow from within after dark ----
   if (theme.tree === "crystal") {
@@ -1053,6 +1108,17 @@ export function buildScenery(mapId: string): Scenery {
           l.z + Math.cos(animPhase * 0.7 + l.offset * 14) * 0.8,
         );
         l.m.rotation.set(animPhase * l.spin, l.offset * 6, animPhase * l.spin * 0.7);
+      }
+      // fish leap: a quick parabolic arc out of the sea, nose tracing the path
+      for (const j of jumpers) {
+        const t = ((animPhase + j.offset) % 7) / 1.1; // first 1.1 s of a 7 s cycle
+        if (t < 1) {
+          j.obj.visible = true;
+          j.obj.position.set(j.x + t * 1.4, -0.35 + Math.sin(Math.PI * t) * 1.5, j.z);
+          j.obj.rotation.x = (t - 0.5) * 2.1; // nose up on the rise, down on the dive
+        } else {
+          j.obj.visible = false;
+        }
       }
       // cruisers fly their ring route, nose along the tangent, wings flapping
       for (const c of cruisers) {
