@@ -1275,6 +1275,64 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Pyramid landmark: a weathered sandstone pyramid flanked by twin
+  // gold-tipped obelisks ----
+  if (mapId === "pyramid") {
+    const sandstone = new THREE.MeshStandardMaterial({ color: 0xc9a86a, roughness: 1, flatShading: true });
+    mats.push(sandstone);
+    const [pyramidGeo] = track(new THREE.ConeGeometry(4.4, 4.2, 4), sandstone);
+    const pyramid = new THREE.Mesh(pyramidGeo, sandstone);
+    pyramid.position.set(-15, 2.05, -13);
+    pyramid.rotation.y = Math.PI / 4 + 0.2;
+    pyramid.castShadow = true;
+    group.add(pyramid);
+    const [obeliskGeo] = track(new THREE.BoxGeometry(0.5, 3.2, 0.5), sandstone);
+    const [obeliskTipGeo, obeliskTipMat] = track(
+      new THREE.ConeGeometry(0.36, 0.5, 4),
+      new THREE.MeshStandardMaterial({ color: 0xd8a83a, roughness: 0.35, metalness: 0.6 }),
+    );
+    for (const s of [-1, 1]) {
+      const obelisk = new THREE.Mesh(obeliskGeo, sandstone);
+      obelisk.position.set(-15 + s * 5.4, 1.6, -8.5);
+      obelisk.castShadow = true;
+      group.add(obelisk);
+      const tip = new THREE.Mesh(obeliskTipGeo, obeliskTipMat);
+      tip.position.set(-15 + s * 5.4, 3.45, -8.5);
+      tip.rotation.y = Math.PI / 4;
+      group.add(tip);
+    }
+  }
+
+  // ---- Ice Cave spires: translucent ice spikes rise from the floor with a
+  // pair of glitter motes circling each cluster ----
+  if (mapId === "ice_cave") {
+    const iceMat = new THREE.MeshStandardMaterial({ color: 0xbfe4f4, roughness: 0.15, transparent: true, opacity: 0.8, flatShading: true });
+    mats.push(iceMat);
+    const [spireGeo] = track(new THREE.ConeGeometry(0.34, 2.0, 6), iceMat);
+    const glitterMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0xdff4ff, transparent: true, opacity: 0.7, depthWrite: false, blending: THREE.AdditiveBlending });
+    mats.push(glitterMat);
+    for (let c = 0; c < 5; c++) {
+      const a = rng() * Math.PI * 2;
+      const r = 9 + rng() * 18;
+      const cx = Math.cos(a) * r;
+      const cz = Math.sin(a) * r;
+      for (let s = 0; s < 3; s++) {
+        const sc = 0.5 + rng() * 1.1;
+        const spire = new THREE.Mesh(spireGeo, iceMat);
+        spire.scale.setScalar(sc);
+        spire.position.set(cx + (rng() - 0.5) * 1.2, sc, cz + (rng() - 0.5) * 1.2);
+        spire.rotation.set((rng() - 0.5) * 0.25, rng() * Math.PI, (rng() - 0.5) * 0.25);
+        group.add(spire);
+      }
+      for (let g = 0; g < 2; g++) {
+        const glitter = new THREE.Sprite(glitterMat);
+        glitter.scale.setScalar(0.07);
+        group.add(glitter);
+        orbiters.push({ sprite: glitter, cx, cz, y: 1.2 + rng() * 1.2, r: 0.7 + rng() * 0.6, speed: 0.5 + rng() * 0.5, phase: rng() * Math.PI * 2 });
+      }
+    }
+  }
+
   // ---- beach day: sandy resort coasts plant a striped parasol with a towel
   // laid out beside it ----
   if (mapId === "comodo" || mapId === "sentosa" || mapId === "east_coast" || mapId === "pasir_ris") {
