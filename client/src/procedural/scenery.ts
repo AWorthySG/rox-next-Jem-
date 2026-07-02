@@ -742,6 +742,25 @@ export function buildScenery(mapId: string): Scenery {
       wtTorch.position.set(0.7, 4.6, 0.7);
       watchtower.add(wtTorch);
       flickers.push(wtTorch);
+
+      // a windsock flutters from the rail, showing which way the breeze blows
+      const [sockGeo, sockMat] = track(
+        new THREE.ConeGeometry(0.12, 0.55, 8, 1, true),
+        new THREE.MeshStandardMaterial({ color: 0xe86a3a, roughness: 0.85, side: THREE.DoubleSide }),
+      );
+      const [sockPoleGeo] = track(new THREE.CylinderGeometry(0.02, 0.02, 0.5, 5), towerWood);
+      const windsock = new THREE.Group();
+      const sockPole = new THREE.Mesh(sockPoleGeo, towerWood);
+      sockPole.rotation.x = Math.PI / 2;
+      windsock.add(sockPole);
+      const sock = new THREE.Mesh(sockGeo, sockMat);
+      sock.rotation.z = Math.PI / 2;
+      sock.position.x = 0.4;
+      windsock.add(sock);
+      windsock.position.set(-0.9, 4.6, 0);
+      watchtower.add(windsock);
+      bobbers.push({ obj: sock, baseY: 0, phase: 1.9 });
+
       watchtower.position.set(3.6, 0, 22.5); // beside the south gate arch
       group.add(watchtower);
     }
@@ -1014,6 +1033,46 @@ export function buildScenery(mapId: string): Scenery {
       hopscotch.position.set(2.5, 0, -3.2);
       hopscotch.rotation.y = 0.3;
       group.add(hopscotch);
+    }
+
+    // haberdashery stall: a counter of hats on display stands, a nod to
+    // the headgear shop every ROX town seems to have
+    {
+      const hatStallWood = new THREE.MeshStandardMaterial({ color: 0x8a6a42, roughness: 0.95 });
+      mats.push(hatStallWood);
+      const [hatCounterGeo] = track(new THREE.BoxGeometry(1.7, 0.85, 0.55), hatStallWood);
+      const [hatAwningGeo, hatAwningMat] = track(new THREE.BoxGeometry(2.0, 0.06, 1.0), new THREE.MeshStandardMaterial({ color: 0x4a90d0, roughness: 0.9 }));
+      const [hatStandGeo] = track(new THREE.CylinderGeometry(0.015, 0.02, 0.4, 5), hatStallWood);
+      const hatMats = [0x8a4a3a, 0x3a5a8a, 0x5a8a3a].map((c) => {
+        const m = new THREE.MeshStandardMaterial({ color: c, roughness: 0.85 });
+        mats.push(m);
+        return m;
+      });
+      const [hatBrimGeo] = track(new THREE.CylinderGeometry(0.14, 0.16, 0.02, 10), hatMats[0]);
+      const [hatCrownGeo] = track(new THREE.CylinderGeometry(0.09, 0.1, 0.13, 10), hatMats[0]);
+      const hatStall = new THREE.Group();
+      const hatCounter = new THREE.Mesh(hatCounterGeo, hatStallWood);
+      hatCounter.position.y = 0.42;
+      hatCounter.castShadow = true;
+      hatStall.add(hatCounter);
+      const hatAwning = new THREE.Mesh(hatAwningGeo, hatAwningMat);
+      hatAwning.position.set(0, 1.55, 0.1);
+      hatAwning.rotation.x = 0.28;
+      hatStall.add(hatAwning);
+      for (let h = 0; h < 3; h++) {
+        const stand = new THREE.Mesh(hatStandGeo, hatStallWood);
+        stand.position.set((h - 1) * 0.5, 1.05, 0);
+        hatStall.add(stand);
+        const brim = new THREE.Mesh(hatBrimGeo, hatMats[h]);
+        brim.position.set((h - 1) * 0.5, 1.26, 0);
+        hatStall.add(brim);
+        const crown = new THREE.Mesh(hatCrownGeo, hatMats[h]);
+        crown.position.set((h - 1) * 0.5, 1.34, 0);
+        hatStall.add(crown);
+      }
+      hatStall.position.set(-4.6, 0, 3.0);
+      hatStall.rotation.y = Math.atan2(4.6, -3.0);
+      group.add(hatStall);
     }
 
     // street-food cart: a skewer grill on wheels beside the plaza, coals
