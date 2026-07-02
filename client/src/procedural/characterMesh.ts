@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { makeBlobShadow, makeToonGradient } from "./textures.js";
+import { makeBlobShadow, makeSpark, makeToonGradient } from "./textures.js";
 import { applyRimLight } from "./rimLight.js";
 
 export interface CharacterMesh {
@@ -13,6 +13,8 @@ export interface CharacterMesh {
   headgear: THREE.Object3D | null; // currently-worn hat mesh, if any
   cape: THREE.Object3D | null; // swordsman cape pivot (sways with movement), if any
   eyeParts: { mesh: THREE.Object3D; baseY: number }[]; // eye meshes, for blinking
+  // a hidden spark that the view sweeps along the weapon for a periodic glint
+  weaponGlint: { sprite: THREE.Sprite; x: number; z: number; y0: number; y1: number };
 }
 
 // Squash/restore the eyes for an anime blink: f=1 open, f≈0.08 closed.
@@ -283,6 +285,20 @@ export function buildCharacter(
     group.add(hilt);
   }
 
+  // weapon glint: a hidden spark the view sweeps along the weapon periodically
+  const glintPath =
+    weapon === "staff" ? { x: 0.5, z: 0.1, y0: 0.3, y1: 1.14 } :
+    weapon === "bow" ? { x: 0.48, z: 0.12, y0: 0.36, y1: 0.94 } :
+    weapon === "mace" ? { x: 0.48, z: 0.12, y0: 0.35, y1: 0.93 } :
+    { x: 0.46, z: 0.12, y0: 0.36, y1: 0.92 };
+  const glintSprite = new THREE.Sprite(
+    new THREE.SpriteMaterial({ map: makeSpark(), color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }),
+  );
+  glintSprite.scale.setScalar(0.22);
+  glintSprite.position.set(glintPath.x, glintPath.y0, glintPath.z);
+  group.add(glintSprite);
+  const weaponGlint = { sprite: glintSprite, ...glintPath };
+
   // advanced-job back wings: a fan of feather cones per side; 4th-job wings are
   // larger with glowing tips (a status symbol, like ROX's high-tier looks)
   if (tier >= 3) {
@@ -319,7 +335,7 @@ export function buildCharacter(
     if (o instanceof THREE.Mesh && o.material !== OUTLINE_MAT) o.castShadow = true;
   });
 
-  return { group, leftArm, rightArm, leftLeg, rightLeg, head, headgear: null, cape, eyeParts };
+  return { group, leftArm, rightArm, leftLeg, rightLeg, head, headgear: null, cape, eyeParts, weaponGlint };
 }
 
 function limb(

@@ -170,6 +170,10 @@ const BUILDERS: Record<string, () => Built> = {
   holo_serpent: () => serpent(0x40d0e0, 0x0a4a6a),
   mecha_dino: () => mech(0xc0c8d0, 0xff6030),
   war_machine: () => mech(0xc08060, 0xff4020),
+  sentinel: () => mech(0xa0b0c0, 0x80d0ff),
+  drone: () => orbMech(0xc0c0a0, 0xffd060),
+  overlord_core: () => orbMech(0xc060a0, 0xff4090),
+  neon_phantom: () => elemental(0xc060f0, 0x3a0a5a),
 };
 
 const outDir = fileURLToPath(new URL("../client/public/models/", import.meta.url));

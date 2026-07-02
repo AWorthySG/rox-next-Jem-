@@ -21,6 +21,8 @@ export class PlayerView extends EntityView {
   private auraPhase = 0;
   private blinkIn = 1.5 + Math.random() * 3; // seconds until the next blink
   private blinkT = 0; // remaining blink duration
+  private glintIn = 3 + Math.random() * 5; // seconds until the next weapon glint
+  private glintT = 0; // remaining glint sweep time
 
   isSelf = false;
   // server-authoritative position (used for self correction / remote idle)
@@ -51,6 +53,27 @@ export class PlayerView extends EntityView {
     this.px = entity.x;
     this.pz = entity.z;
     this.pfacing = entity.facing;
+
+    // Guild members wear a small crest on the back, tinted from the guild name
+    // so guildmates share a colour (readable in a crowd, like ROX guild capes).
+    if (entity.guildName) {
+      let h = 0;
+      for (let i = 0; i < entity.guildName.length; i++) h = (h * 31 + entity.guildName.charCodeAt(i)) >>> 0;
+      const crestColor = new THREE.Color().setHSL((h % 360) / 360, 0.6, 0.5);
+      const crest = new THREE.Mesh(
+        new THREE.CircleGeometry(0.13, 12),
+        new THREE.MeshToonMaterial({ color: crestColor }),
+      );
+      crest.position.set(0, 0.72, -0.27);
+      crest.rotation.y = Math.PI;
+      this.char.group.add(crest);
+      const rim = new THREE.Mesh(
+        new THREE.TorusGeometry(0.13, 0.02, 6, 16),
+        new THREE.MeshBasicMaterial({ color: 0xf0c25a }),
+      );
+      rim.position.copy(crest.position);
+      this.char.group.add(rim);
+    }
 
     // Optional mid-poly avatar by job: char_<job>.glb (e.g. char_swordsman.glb).
     this.rig = new ModelRig(this.group, entity.id);
@@ -262,6 +285,21 @@ export class PlayerView extends EntityView {
     if (this.blinkT > 0) {
       this.blinkT -= dt;
       setEyeBlink(this.char, this.blinkT > 0 ? 0.08 : 1);
+    }
+    // weapon glint: a spark sweeps base→tip every few seconds
+    this.glintIn -= dt;
+    if (this.glintIn <= 0) {
+      this.glintIn = 3 + Math.random() * 5;
+      this.glintT = 0.45;
+    }
+    const wg = this.char.weaponGlint;
+    if (this.glintT > 0) {
+      this.glintT -= dt;
+      const t = 1 - Math.max(0, this.glintT) / 0.45;
+      wg.sprite.position.set(wg.x, wg.y0 + (wg.y1 - wg.y0) * t, wg.z);
+      (wg.sprite.material as THREE.SpriteMaterial).opacity = Math.sin(t * Math.PI) * 0.9;
+    } else {
+      (wg.sprite.material as THREE.SpriteMaterial).opacity = 0;
     }
     // cape: flow back while moving, gentle drift at rest (framerate-independent)
     if (this.char.cape) {
