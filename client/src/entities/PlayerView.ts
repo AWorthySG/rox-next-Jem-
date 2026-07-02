@@ -2,8 +2,16 @@ import type { EntityFull } from "@rox/shared";
 import { isMagicJob, jobFamilyOf, jobTierOf, MOUNT_SPEED_MULT, PLAYER_SPEED } from "@rox/shared";
 import * as THREE from "three";
 import { applyHeadgear, buildCharacter, setEyeBlink, type CharacterMesh, type WeaponStyle } from "../procedural/characterMesh.js";
+import { makeSpark } from "../procedural/textures.js";
 import { EntityView } from "./EntityView.js";
 import { ModelRig } from "./ModelRig.js";
+
+// Shared across every PlayerView so the texture is generated once, not per avatar.
+let dustTexture: THREE.Texture | null = null;
+function getDustTexture(): THREE.Texture {
+  if (!dustTexture) dustTexture = makeSpark();
+  return dustTexture;
+}
 
 // A player avatar. The local player ("self") is client-predicted; remote players
 // are interpolated from snapshots like any other entity.
@@ -23,6 +31,8 @@ export class PlayerView extends EntityView {
   private blinkT = 0; // remaining blink duration
   private glintIn = 3 + Math.random() * 5; // seconds until the next weapon glint
   private glintT = 0; // remaining glint sweep time
+  private dustPuffs: { sprite: THREE.Sprite; t: number }[] = []; // pool, recycled while walking
+  private dustEmitIn = 0; // seconds until the next puff spawns
 
   isSelf = false;
   // server-authoritative position (used for self correction / remote idle)
@@ -73,6 +83,17 @@ export class PlayerView extends EntityView {
       );
       rim.position.copy(crest.position);
       this.char.group.add(rim);
+    }
+
+    // footstep dust: a small pool of puffs recycled while walking, rising and
+    // fading (see animate())
+    const dustMat = new THREE.SpriteMaterial({ map: getDustTexture(), color: 0xc8b898, transparent: true, opacity: 0, depthWrite: false });
+    for (let i = 0; i < 3; i++) {
+      const sprite = new THREE.Sprite(dustMat.clone());
+      sprite.scale.setScalar(0.01);
+      sprite.position.y = 0.05;
+      this.group.add(sprite);
+      this.dustPuffs.push({ sprite, t: 1 });
     }
 
     // Optional mid-poly avatar by job: char_<job>.glb (e.g. char_swordsman.glb).
@@ -270,6 +291,7 @@ export class PlayerView extends EntityView {
       (this.buffAura.material as THREE.MeshBasicMaterial).opacity = 0.35 + t * 0.28;
       this.buffAura.scale.setScalar(1 + t * 0.08);
     }
+    this.updateDustPuffs(dt);
     if (this.modelBacked) {
       // the loaded model drives its own idle/walk + attack/hit clips
       this.rig.setMoving(this.moving);
@@ -345,7 +367,33 @@ export class PlayerView extends EntityView {
     }
   }
 
+  // Footstep dust: spawns a puff at roughly footstep cadence while walking,
+  // then lets any already-spawned puffs finish rising and fading regardless
+  // of whether the character is still moving. Works for both the procedural
+  // chibi and any loaded model, since it only touches the shared group.
+  private updateDustPuffs(dt: number): void {
+    if (this.moving) {
+      this.dustEmitIn -= dt;
+      if (this.dustEmitIn <= 0) {
+        this.dustEmitIn = 0.22;
+        const free = this.dustPuffs.find((p) => p.t >= 1);
+        if (free) {
+          free.t = 0;
+          free.sprite.position.set((Math.random() - 0.5) * 0.2, 0.04, (Math.random() - 0.5) * 0.2);
+        }
+      }
+    }
+    for (const p of this.dustPuffs) {
+      if (p.t >= 1) continue;
+      p.t = Math.min(1, p.t + dt / 0.5);
+      p.sprite.position.y = 0.04 + p.t * 0.3;
+      p.sprite.scale.setScalar(0.14 + p.t * 0.3);
+      (p.sprite.material as THREE.SpriteMaterial).opacity = (1 - p.t) * 0.4;
+    }
+  }
+
   override dispose(scene: THREE.Scene): void {
+    for (const p of this.dustPuffs) (p.sprite.material as THREE.Material).dispose();
     this.rig.dispose();
     super.dispose(scene);
   }
