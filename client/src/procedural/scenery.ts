@@ -1275,6 +1275,62 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Bifrost rainbow: three nested translucent arcs span the sky over
+  // the rainbow bridge, fog-exempt so they read from anywhere ----
+  if (mapId === "bifrost") {
+    const rainbowColors = [0xff8a9a, 0xffe08a, 0x8ad0ff];
+    for (let band = 0; band < 3; band++) {
+      const [arcGeo, arcMat] = track(
+        new THREE.TorusGeometry(30 - band * 1.6, 0.55, 6, 40, Math.PI),
+        new THREE.MeshBasicMaterial({ color: rainbowColors[band], transparent: true, opacity: 0.35, depthWrite: false, fog: false, side: THREE.DoubleSide }),
+      );
+      const arc = new THREE.Mesh(arcGeo, arcMat);
+      arc.position.set(0, 0, -34);
+      arc.rotation.y = 0.35;
+      group.add(arc);
+    }
+  }
+
+  // ---- fairy blooms: the fae forests grow oversized flowers on tall stalks
+  // whose heads glow softly after dark ----
+  if (mapId === "splendide" || mapId === "eclage") {
+    const [stalkGeo, stalkMat] = track(
+      new THREE.CylinderGeometry(0.07, 0.1, 2.4, 6),
+      new THREE.MeshStandardMaterial({ color: 0x4a8a5a, roughness: 1 }),
+    );
+    const [headGeo, headMat] = track(new THREE.IcosahedronGeometry(0.42, 0), new THREE.MeshBasicMaterial({ color: 0xf090c8 }));
+    nightLights.push({
+      mat: headMat,
+      day: new THREE.Color(0xf090c8).multiplyScalar(0.75),
+      night: new THREE.Color(0xffb8e0),
+    });
+    const [petalGeo] = track(new THREE.ConeGeometry(0.16, 0.5, 5), stalkMat);
+    for (let f = 0; f < 6; f++) {
+      const a = rng() * Math.PI * 2;
+      const r = 8 + rng() * 18;
+      const bloom = new THREE.Group();
+      const stalk = new THREE.Mesh(stalkGeo, stalkMat);
+      stalk.position.y = 1.2;
+      bloom.add(stalk);
+      const head = new THREE.Mesh(headGeo, headMat);
+      head.position.y = 2.55;
+      bloom.add(head);
+      for (let p = 0; p < 5; p++) {
+        const pa = (p / 5) * Math.PI * 2;
+        const petal = new THREE.Mesh(petalGeo, stalkMat);
+        petal.position.set(Math.cos(pa) * 0.42, 2.35, Math.sin(pa) * 0.42);
+        petal.rotation.z = Math.PI / 2.4;
+        petal.rotation.y = -pa;
+        bloom.add(petal);
+      }
+      const sc = 0.7 + rng() * 0.6;
+      bloom.scale.setScalar(sc);
+      bloom.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
+      bloom.rotation.z = (rng() - 0.5) * 0.12;
+      group.add(bloom);
+    }
+  }
+
   // ---- guardian lions: the East-Asian towns sit a pair of stone shishi on
   // plinths just inside the torii gate ----
   if (mapId === "amatsu" || mapId === "louyang" || mapId === "gonryun" || mapId === "chinatown") {
