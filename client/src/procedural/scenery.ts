@@ -344,6 +344,17 @@ export function buildScenery(mapId: string): Scenery {
         group.add(koi);
         cruisers.push({ obj: koi, r: 0.75 + k * 0.25, y: 0.32, speed: (0.5 + k * 0.15) * (k % 2 === 0 ? 1 : -1), phase: (k / 3) * Math.PI * 2, bob: 0.02 });
       }
+      // lily pads drift lazily on the surface between the koi
+      const [padGeo, padMat] = track(
+        new THREE.CircleGeometry(0.24, 8),
+        new THREE.MeshStandardMaterial({ color: 0x3a8a4a, roughness: 0.7, side: THREE.DoubleSide }),
+      );
+      for (let p = 0; p < 4; p++) {
+        const pad = new THREE.Mesh(padGeo, padMat);
+        pad.rotation.x = -Math.PI / 2;
+        group.add(pad);
+        cruisers.push({ obj: pad, r: 0.4 + p * 0.18, y: 0.31, speed: 0.08 * (p % 2 === 0 ? 1 : -1), phase: (p / 4) * Math.PI * 2, bob: 0.005 });
+      }
     }
     addHouses(group, theme, track, nightLights, smokes, spinners);
     addPlazaProps(group, theme, track);
@@ -1397,6 +1408,43 @@ export function buildScenery(mapId: string): Scenery {
       finger.rotation.x = (rng() - 0.5) * 0.3;
       finger.castShadow = true;
       group.add(finger);
+    }
+  }
+
+  // ---- cherry blossom trees: East-Asian towns flank the plaza with two
+  // pink-canopied trees, petals drifting down in a lazy spiral ----
+  if (mapId === "amatsu" || mapId === "louyang" || mapId === "gonryun") {
+    const [blossomTrunkGeo, blossomTrunkMat] = track(
+      new THREE.CylinderGeometry(0.16, 0.24, 2.6, 7),
+      new THREE.MeshStandardMaterial({ color: 0x4a3628, roughness: 1 }),
+    );
+    const [blossomCanopyGeo, blossomCanopyMat] = track(
+      new THREE.SphereGeometry(1.4, 10, 8),
+      new THREE.MeshStandardMaterial({ color: 0xf4a0c0, roughness: 0.9, flatShading: true }),
+    );
+    applyWind(blossomCanopyMat, 0.05);
+    const [petalGeo, petalMat] = track(
+      new THREE.PlaneGeometry(0.1, 0.1),
+      new THREE.MeshBasicMaterial({ color: 0xffc0d8, side: THREE.DoubleSide, transparent: true, opacity: 0.85 }),
+    );
+    for (const [tx, tz] of [[-7.5, 8.5], [7.5, 8.5]] as const) {
+      const tree = new THREE.Group();
+      const trunk = new THREE.Mesh(blossomTrunkGeo, blossomTrunkMat);
+      trunk.position.y = 1.3;
+      trunk.castShadow = true;
+      tree.add(trunk);
+      const canopy = new THREE.Mesh(blossomCanopyGeo, blossomCanopyMat);
+      canopy.scale.y = 0.8;
+      canopy.position.y = 3.0;
+      canopy.castShadow = true;
+      tree.add(canopy);
+      tree.position.set(tx, 0, tz);
+      group.add(tree);
+      for (let p = 0; p < 5; p++) {
+        const petal = new THREE.Mesh(petalGeo, petalMat);
+        group.add(petal);
+        leaves.push({ m: petal, x: tx, z: tz, offset: rng(), spin: 1.0 + rng() * 1.5 });
+      }
     }
   }
 
