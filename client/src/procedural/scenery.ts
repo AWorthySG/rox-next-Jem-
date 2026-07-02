@@ -844,6 +844,17 @@ export function buildScenery(mapId: string): Scenery {
       bucket.position.y = 1.02;
       well.add(bucket);
       bobbers.push({ obj: bucket, baseY: 1.02, phase: 2.6 });
+      // wishing coins glint faintly at the bottom of the well
+      const coinMat = new THREE.MeshStandardMaterial({ color: 0xd8b040, roughness: 0.25, metalness: 0.7 });
+      mats.push(coinMat);
+      const [coinGeo] = track(new THREE.CylinderGeometry(0.045, 0.045, 0.01, 8), coinMat);
+      for (let c = 0; c < 4; c++) {
+        const coin = new THREE.Mesh(coinGeo, coinMat);
+        coin.rotation.x = Math.PI / 2 + (rng() - 0.5) * 0.5;
+        coin.position.set((rng() - 0.5) * 0.5, 0.05, (rng() - 0.5) * 0.5);
+        well.add(coin);
+        flickers.push(coin);
+      }
       // a village cat sits on the rim, tail swaying off the edge
       const catMat = new THREE.MeshStandardMaterial({ color: 0x8a7050, roughness: 0.9 });
       mats.push(catMat);
@@ -925,6 +936,60 @@ export function buildScenery(mapId: string): Scenery {
       hopscotch.position.set(2.5, 0, -3.2);
       hopscotch.rotation.y = 0.3;
       group.add(hopscotch);
+    }
+
+    // street-food cart: a skewer grill on wheels beside the plaza, coals
+    // glowing under a few roasting skewers, a thin curl of smoke rising
+    {
+      const cartWood = new THREE.MeshStandardMaterial({ color: 0x6a4a30, roughness: 1 });
+      mats.push(cartWood);
+      const [cartBedGeo] = track(new THREE.BoxGeometry(1.2, 0.5, 0.6), cartWood);
+      const [cartWheelGeo, cartWheelMat] = track(new THREE.CylinderGeometry(0.22, 0.22, 0.08, 10), new THREE.MeshStandardMaterial({ color: 0x3a2c1e, roughness: 1 }));
+      const [grillGeo, grillMat] = track(new THREE.BoxGeometry(0.9, 0.12, 0.4), new THREE.MeshStandardMaterial({ color: 0x2a2c30, roughness: 0.7, metalness: 0.4 }));
+      const [coalStripGeo, coalStripMat] = track(new THREE.PlaneGeometry(0.8, 0.3), new THREE.MeshBasicMaterial({ color: 0xff6a20 }));
+      nightLights.push({ mat: coalStripMat, day: new THREE.Color(0xff6a20), night: new THREE.Color(0xffb050) });
+      const [skewerGeo, skewerMat] = track(new THREE.CylinderGeometry(0.012, 0.012, 0.7, 4), new THREE.MeshStandardMaterial({ color: 0xc8a060, roughness: 1 }));
+      const [meatGeo, meatMat] = track(new THREE.SphereGeometry(0.05, 6, 5), new THREE.MeshStandardMaterial({ color: 0xa85a3a, roughness: 0.8 }));
+      const cart = new THREE.Group();
+      const cartBed = new THREE.Mesh(cartBedGeo, cartWood);
+      cartBed.position.y = 0.55;
+      cartBed.castShadow = true;
+      cart.add(cartBed);
+      for (const s of [-1, 1]) {
+        const wheel = new THREE.Mesh(cartWheelGeo, cartWheelMat);
+        wheel.rotation.z = Math.PI / 2;
+        wheel.position.set(s * 0.55, 0.24, 0);
+        cart.add(wheel);
+      }
+      const grill = new THREE.Mesh(grillGeo, grillMat);
+      grill.position.y = 0.87;
+      cart.add(grill);
+      const coalStrip = new THREE.Mesh(coalStripGeo, coalStripMat);
+      coalStrip.rotation.x = -Math.PI / 2;
+      coalStrip.position.y = 0.94;
+      cart.add(coalStrip);
+      flickers.push(coalStrip);
+      for (let sk = 0; sk < 3; sk++) {
+        const skewer = new THREE.Mesh(skewerGeo, skewerMat);
+        skewer.rotation.z = Math.PI / 2;
+        skewer.position.set(0, 1.0, -0.12 + sk * 0.12);
+        cart.add(skewer);
+        for (let m = 0; m < 3; m++) {
+          const meat = new THREE.Mesh(meatGeo, meatMat);
+          meat.position.set(-0.2 + m * 0.2, 1.0, -0.12 + sk * 0.12);
+          cart.add(meat);
+        }
+      }
+      const cartSmokeMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0xb9bcc4, transparent: true, opacity: 0.2, depthWrite: false });
+      mats.push(cartSmokeMat);
+      const cartSmoke = new THREE.Sprite(cartSmokeMat);
+      cartSmoke.position.set(0, 1.1, 0);
+      cartSmoke.scale.setScalar(0.2);
+      cart.add(cartSmoke);
+      smokes.push({ sprite: cartSmoke, baseY: 1.1, offset: rng() });
+      cart.position.set(4.9, 0, 2.7);
+      cart.rotation.y = Math.atan2(-4.9, -2.7);
+      group.add(cart);
     }
 
     // parked wagon: a farmer's cart with two spoked wheels, resting near the
