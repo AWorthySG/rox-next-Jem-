@@ -1275,6 +1275,78 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Scaraba monument: a giant stone scarab on a plinth, rolling its
+  // boulder — the desert cult's idol ----
+  if (mapId === "scaraba") {
+    const scarabStone = new THREE.MeshStandardMaterial({ color: 0x6a5a3a, roughness: 1, flatShading: true });
+    mats.push(scarabStone);
+    const [scPlinthGeo] = track(new THREE.BoxGeometry(3.2, 0.6, 2.2), scarabStone);
+    const [scBodyGeo] = track(new THREE.SphereGeometry(0.9, 10, 8), scarabStone);
+    const [scLegGeo] = track(new THREE.CylinderGeometry(0.08, 0.11, 0.9, 5), scarabStone);
+    const [scBallGeo] = track(new THREE.SphereGeometry(0.75, 10, 8), scarabStone);
+    const scarab = new THREE.Group();
+    const scPlinth = new THREE.Mesh(scPlinthGeo, scarabStone);
+    scPlinth.position.y = 0.3;
+    scPlinth.receiveShadow = true;
+    scarab.add(scPlinth);
+    const scBody = new THREE.Mesh(scBodyGeo, scarabStone);
+    scBody.scale.set(1, 0.7, 1.25);
+    scBody.position.set(-0.55, 1.05, 0);
+    scBody.castShadow = true;
+    scarab.add(scBody);
+    const scHead = new THREE.Mesh(scBodyGeo, scarabStone);
+    scHead.scale.setScalar(0.45);
+    scHead.position.set(0.35, 1.0, 0);
+    scarab.add(scHead);
+    for (const [lx, lz, rot] of [[-0.8, 0.7, 0.5], [-0.3, 0.8, 0.2], [-0.8, -0.7, -0.5], [-0.3, -0.8, -0.2]] as const) {
+      const leg = new THREE.Mesh(scLegGeo, scarabStone);
+      leg.position.set(lx, 0.85, lz);
+      leg.rotation.x = rot;
+      scarab.add(leg);
+    }
+    const scBall = new THREE.Mesh(scBallGeo, scarabStone);
+    scBall.position.set(1.15, 1.35, 0);
+    scBall.castShadow = true;
+    scarab.add(scBall);
+    scarab.position.set(12.5, 0, -11.5);
+    scarab.rotation.y = Math.atan2(-12.5, 11.5);
+    group.add(scarab);
+  }
+
+  // ---- Brasilis waterfall: a rock wall at the jungle's edge sheds a
+  // translucent water sheet with mist churning at its base ----
+  if (mapId === "brasilis") {
+    const falls = new THREE.Group();
+    const [cliffGeo, cliffMat] = track(
+      new THREE.BoxGeometry(5.0, 6.5, 1.4),
+      new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(0.85), roughness: 1, flatShading: true }),
+    );
+    const cliff = new THREE.Mesh(cliffGeo, cliffMat);
+    cliff.position.y = 3.25;
+    cliff.castShadow = true;
+    falls.add(cliff);
+    const [sheetGeo, sheetMat] = track(
+      new THREE.PlaneGeometry(2.6, 6.2),
+      new THREE.MeshBasicMaterial({ color: 0xbfe8ff, transparent: true, opacity: 0.55, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }),
+    );
+    const sheet = new THREE.Mesh(sheetGeo, sheetMat);
+    sheet.position.set(0, 3.15, 0.78);
+    falls.add(sheet);
+    // plunge-pool mist churns on the looping puff channel
+    const fallsMistMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0xd8f0ff, transparent: true, opacity: 0.45, depthWrite: false, blending: THREE.AdditiveBlending });
+    mats.push(fallsMistMat);
+    for (let puff = 0; puff < 3; puff++) {
+      const mist = new THREE.Sprite(fallsMistMat);
+      mist.position.set((puff - 1) * 0.8, 0.25, 1.1);
+      mist.scale.setScalar(0.4);
+      falls.add(mist);
+      smokes.push({ sprite: mist, baseY: 0.25, offset: puff / 3 });
+    }
+    falls.position.set(-14, 0, -14);
+    falls.rotation.y = Math.PI / 4;
+    group.add(falls);
+  }
+
   // ---- Veins hoodoos: wind-carved rock spires stacked in wobbly columns
   // around the canyon floor ----
   if (mapId === "veins") {
