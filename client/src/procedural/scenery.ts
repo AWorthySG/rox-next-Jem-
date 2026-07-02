@@ -514,6 +514,75 @@ export function buildScenery(mapId: string): Scenery {
       group.add(dummy);
     }
 
+    // archery target: a straw butt with painted rings, standing near the
+    // training dummy for ranged classes to practice against
+    {
+      const [targetBackGeo, targetBackMat] = track(
+        new THREE.CylinderGeometry(0.55, 0.55, 0.22, 16),
+        new THREE.MeshStandardMaterial({ color: 0xd8c088, roughness: 1 }),
+      );
+      const ringMats = [0xf0f0e8, 0x2a2430, 0x4a90d0, 0xd83030, 0xf0d040].map((c) => {
+        const m = new THREE.MeshBasicMaterial({ color: c });
+        mats.push(m);
+        return m;
+      });
+      const [ringGeo] = track(new THREE.CircleGeometry(1, 16), ringMats[0]);
+      const [legGeo, legMat] = track(new THREE.CylinderGeometry(0.04, 0.05, 1.0, 5), new THREE.MeshStandardMaterial({ color: 0x6a5238, roughness: 1 }));
+      const target = new THREE.Group();
+      const targetBack = new THREE.Mesh(targetBackGeo, targetBackMat);
+      targetBack.rotation.x = Math.PI / 2;
+      targetBack.position.y = 1.15;
+      targetBack.castShadow = true;
+      target.add(targetBack);
+      for (let r = 0; r < 5; r++) {
+        const ring = new THREE.Mesh(ringGeo, ringMats[r]);
+        ring.scale.setScalar(0.52 - r * 0.09);
+        ring.rotation.x = Math.PI / 2;
+        ring.position.set(0, 1.15, 0.12);
+        target.add(ring);
+      }
+      for (const s of [-1, 1]) {
+        const leg = new THREE.Mesh(legGeo, legMat);
+        leg.position.set(s * 0.3, 0.5, -0.35);
+        leg.rotation.x = s * 0.25;
+        target.add(leg);
+      }
+      target.position.set(-9.8, 0, 7.6);
+      target.rotation.y = Math.atan2(9.8, -7.6);
+      group.add(target);
+    }
+
+    // beehive: a woven hive box on a stump, a small ring of bees looping
+    // around it endlessly
+    {
+      const [hiveGeo, hiveMat] = track(
+        new THREE.CylinderGeometry(0.28, 0.34, 0.55, 8),
+        new THREE.MeshStandardMaterial({ color: 0xd8b060, roughness: 1 }),
+      );
+      const [stumpGeo, stumpMat] = track(
+        new THREE.CylinderGeometry(0.22, 0.26, 0.4, 8),
+        new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(0.8), roughness: 1 }),
+      );
+      const hive = new THREE.Group();
+      const stump = new THREE.Mesh(stumpGeo, stumpMat);
+      stump.position.y = 0.2;
+      hive.add(stump);
+      const hiveBox = new THREE.Mesh(hiveGeo, hiveMat);
+      hiveBox.position.y = 0.68;
+      hiveBox.castShadow = true;
+      hive.add(hiveBox);
+      hive.position.set(6.6, 0, 10.5);
+      group.add(hive);
+      const beeMat = new THREE.MeshStandardMaterial({ color: 0x3a3020, roughness: 0.7 });
+      mats.push(beeMat);
+      const [beeGeo] = track(new THREE.SphereGeometry(0.045, 6, 5), beeMat);
+      for (let b = 0; b < 4; b++) {
+        const bee = new THREE.Mesh(beeGeo, beeMat);
+        group.add(bee);
+        orbiters.push({ sprite: bee as unknown as THREE.Sprite, cx: 6.6, cz: 10.5, y: 0.95 + rng() * 0.3, r: 0.4 + rng() * 0.25, speed: 2.2 + rng() * 1.4, phase: rng() * Math.PI * 2 });
+      }
+    }
+
     // village smithy: an anvil under a lean-to roof beside a glowing forge,
     // embers drifting up from the coals ----
     {
