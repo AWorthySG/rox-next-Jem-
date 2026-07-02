@@ -1275,6 +1275,56 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Veins hoodoos: wind-carved rock spires stacked in wobbly columns
+  // around the canyon floor ----
+  if (mapId === "veins") {
+    const [hoodooGeo, hoodooMat] = track(
+      new THREE.CylinderGeometry(0.5, 0.7, 1, 8),
+      new THREE.MeshStandardMaterial({ color: 0xa87850, roughness: 1, flatShading: true }),
+    );
+    for (let h = 0; h < 4; h++) {
+      const a = rng() * Math.PI * 2;
+      const r = 12 + rng() * 16;
+      const cx = Math.cos(a) * r;
+      const cz = Math.sin(a) * r;
+      let hy = 0;
+      const tiers = 3 + Math.floor(rng() * 2);
+      for (let t = 0; t < tiers; t++) {
+        const th = 0.9 + rng() * 0.7;
+        const tw = 1.1 - t * 0.22 + rng() * 0.15;
+        const tier = new THREE.Mesh(hoodooGeo, hoodooMat);
+        tier.scale.set(tw, th, tw);
+        tier.position.set(cx + (rng() - 0.5) * 0.2, hy + th / 2, cz + (rng() - 0.5) * 0.2);
+        tier.rotation.y = rng() * Math.PI;
+        tier.castShadow = true;
+        group.add(tier);
+        hy += th;
+      }
+    }
+  }
+
+  // ---- Manuk relic: a half-buried giant's stone head and reaching hand,
+  // remnants of something that fell here long ago ----
+  if (mapId === "manuk") {
+    const relicStone = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(1.1), roughness: 1, flatShading: true });
+    mats.push(relicStone);
+    const [relicHeadGeo] = track(new THREE.SphereGeometry(1.6, 10, 8), relicStone);
+    const relicHead = new THREE.Mesh(relicHeadGeo, relicStone);
+    relicHead.position.set(-13, 0.35, -12); // mostly swallowed by the ground
+    relicHead.rotation.set(0.4, 0.6, 0.25);
+    relicHead.castShadow = true;
+    group.add(relicHead);
+    const [fingerGeo] = track(new THREE.CylinderGeometry(0.22, 0.3, 1.8, 6), relicStone);
+    for (const [fx, fz, tilt] of [[-9.5, -9, 0.2], [-8.9, -9.6, 0.35], [-8.4, -8.9, 0.5]] as const) {
+      const finger = new THREE.Mesh(fingerGeo, relicStone);
+      finger.position.set(fx, 0.7, fz);
+      finger.rotation.z = tilt;
+      finger.rotation.x = (rng() - 0.5) * 0.3;
+      finger.castShadow = true;
+      group.add(finger);
+    }
+  }
+
   // ---- MacRitchie treetop walk: two lattice towers with a gently sagging
   // suspension walkway strung between them at canopy height ----
   if (mapId === "macritchie") {
