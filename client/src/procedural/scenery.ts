@@ -9,6 +9,8 @@ export interface Scenery {
   // Blend emissive props (lamp heads, house windows) between a dim daytime
   // tone and a bright night glow (0 = day, 1 = night).
   setNight(n: number): void;
+  // Advance centerpiece animation (fountain jet pulse, crystal spin).
+  tick(dt: number): void;
   dispose(): void;
 }
 
@@ -256,6 +258,8 @@ export function buildScenery(mapId: string): Scenery {
   // gives every map a readable landmark; lamps ring it and glow at night
   // (MeshBasicMaterial heads are exempt from setShade, so they stay lit).
   const nightLights: NightLight[] = [];
+  let animated: CenterpieceAnim = null;
+  let animPhase = 0;
   if (mapId !== "arena") {
     // stone plaza under the fountain + a paved path south toward the spawn row,
     // so the town centre reads as constructed ground rather than bare grass
@@ -281,7 +285,7 @@ export function buildScenery(mapId: string): Scenery {
     path.receiveShadow = true;
     group.add(path);
 
-    addCenterpiece(group, theme, track);
+    animated = addCenterpiece(group, theme, track);
     addHouses(group, theme, track, nightLights);
     addPlazaProps(group, theme, track);
   }
@@ -330,6 +334,23 @@ export function buildScenery(mapId: string): Scenery {
     },
     setNight(n: number) {
       for (const l of nightLights) l.mat.color.copy(l.day).lerp(l.night, n);
+    },
+    tick(dt: number) {
+      if (!animated) return;
+      animPhase += dt;
+      if (animated.jet) {
+        // fountain jet pulses; the pool shimmers faintly
+        animated.jet.scale.y = 1 + Math.sin(animPhase * 3) * 0.16;
+        animated.jet.scale.x = animated.jet.scale.z = 1 - Math.sin(animPhase * 3) * 0.06;
+      }
+      if (animated.water) {
+        (animated.water.material as THREE.MeshBasicMaterial).opacity = 0.8 + Math.sin(animPhase * 2.2) * 0.06;
+      }
+      if (animated.shard) {
+        // crystal monolith slowly spins and bobs
+        animated.shard.rotation.y += dt * 0.4;
+        animated.shard.position.y = 2.0 + Math.sin(animPhase * 0.8) * 0.12;
+      }
     },
     dispose() {
       for (const g of geos) g.dispose();
@@ -442,13 +463,17 @@ function addPlazaProps(
   group.add(barrel);
 }
 
+// Animatable parts of the centerpiece (fountain jet/pool or crystal shard).
+type CenterpieceAnim = { jet?: THREE.Mesh; water?: THREE.Mesh; shard?: THREE.Mesh } | null;
+
 // A themed monument at the map centre: a tiered fountain on living maps, a
 // glowing crystal monolith on crystal maps, a weathered obelisk on dead ones.
+// Returns the parts that Scenery.tick animates.
 function addCenterpiece(
   group: THREE.Group,
   theme: Theme,
   track: <T extends THREE.BufferGeometry, M extends THREE.Material>(g: T, m: M) => [T, M],
-): void {
+): CenterpieceAnim {
   const stoneMat = new THREE.MeshStandardMaterial({ color: theme.rock, roughness: 0.95 });
   if (theme.tree === "crystal") {
     // crystal monolith with a soft inner glow
@@ -464,6 +489,7 @@ function addCenterpiece(
     const base = new THREE.Mesh(baseGeo, stoneMat);
     base.position.y = 0.25;
     group.add(base, shard);
+    return { shard };
   } else if (theme.tree === "dead") {
     // weathered obelisk
     const [geo] = track(new THREE.CylinderGeometry(0.35, 0.6, 3.4, 4), stoneMat);
@@ -479,6 +505,7 @@ function addCenterpiece(
     const base = new THREE.Mesh(baseGeo2, stoneMat);
     base.position.y = 0.25;
     group.add(base, obelisk, tip);
+    return null; // the obelisk stands still
   } else {
     // tiered plaza fountain with a glowing water disc + centre jet
     const [basinGeo] = track(new THREE.CylinderGeometry(2.2, 2.4, 0.7, 14, 1, false), stoneMat);
@@ -502,6 +529,7 @@ function addCenterpiece(
     const jet = new THREE.Mesh(jetGeo, jetMat);
     jet.position.y = 2.4;
     group.add(basin, water, column, top, jet);
+    return { jet, water };
   }
 }
 

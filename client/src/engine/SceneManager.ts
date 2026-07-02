@@ -606,6 +606,7 @@ export class SceneManager {
     }
 
     if (this.water) this.water.material.uniforms.time.value += dt;
+    this.scenery?.tick(dt); // fountain jet pulse / crystal spin
     windTime.value += dt;
     this.grade.uniforms.time.value += dt;
     (this.composer.passes[0] as RenderPass).camera = camera;
