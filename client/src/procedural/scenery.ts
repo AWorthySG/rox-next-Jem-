@@ -1400,6 +1400,67 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- lighthouse: coastal maps raise a striped tower whose lamp sweeps a
+  // slow rotating beam after dark ----
+  if (WATER_MAPS[mapId] && mapId !== "byalan" && mapId !== "abyss") {
+    const [lhBaseGeo, lhBaseMat] = track(
+      new THREE.CylinderGeometry(0.9, 1.3, 6.5, 10),
+      new THREE.MeshStandardMaterial({ color: 0xf0ece0, roughness: 0.9 }),
+    );
+    const [stripeGeo, stripeMat] = track(
+      new THREE.CylinderGeometry(0.95, 1.0, 1.1, 10),
+      new THREE.MeshStandardMaterial({ color: 0xc0392a, roughness: 0.9 }),
+    );
+    const [lampRoomGeo, lampRoomMat] = track(new THREE.CylinderGeometry(0.7, 0.8, 1.0, 10), new THREE.MeshStandardMaterial({ color: 0x3a3430, roughness: 0.7 }));
+    const [beamGeo, lhBeamMat] = track(
+      new THREE.ConeGeometry(0.5, 14, 8, 1, true),
+      new THREE.MeshBasicMaterial({ color: 0xfff2c0, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide, fog: false }),
+    );
+    nightFades.push({ mat: lhBeamMat, max: 0.28 });
+    const lighthouse = new THREE.Group();
+    const lhBase = new THREE.Mesh(lhBaseGeo, lhBaseMat);
+    lhBase.position.y = 3.25;
+    lhBase.castShadow = true;
+    lighthouse.add(lhBase);
+    for (const sy of [2.0, 4.6]) {
+      const stripe = new THREE.Mesh(stripeGeo, stripeMat);
+      stripe.scale.setScalar(1 - (sy - 2.0) * 0.03);
+      stripe.position.y = sy;
+      lighthouse.add(stripe);
+    }
+    const lampRoom = new THREE.Mesh(lampRoomGeo, lampRoomMat);
+    lampRoom.position.y = 7.0;
+    lighthouse.add(lampRoom);
+    // the beam is a rotating child so its cone always points radially outward
+    const beamPivot = new THREE.Group();
+    beamPivot.position.y = 7.0;
+    const beam = new THREE.Mesh(beamGeo, lhBeamMat);
+    beam.rotation.z = Math.PI / 2;
+    beam.position.z = 7;
+    beamPivot.add(beam);
+    lighthouse.add(beamPivot);
+    spinners.push({ obj: beamPivot, speed: 0.6, axis: "y" });
+    lighthouse.position.set(MAP_HALF * 0.92, 0, MAP_HALF * 0.6);
+    group.add(lighthouse);
+  }
+
+  // ---- hanging vines: jungle canopies drop wind-swayed vine curtains from
+  // above, reaching almost to the ground ----
+  if (theme.tree === "jungle") {
+    const vineMat = new THREE.MeshStandardMaterial({ color: 0x3a6a3a, roughness: 1 });
+    applyWind(vineMat, 0.07);
+    mats.push(vineMat);
+    const [vineGeo] = track(new THREE.CylinderGeometry(0.025, 0.035, 3.2, 5), vineMat);
+    for (let v = 0; v < 8; v++) {
+      const a = rng() * Math.PI * 2;
+      const r = 7 + rng() * 20;
+      const vine = new THREE.Mesh(vineGeo, vineMat);
+      vine.scale.y = 0.7 + rng() * 0.7;
+      vine.position.set(Math.cos(a) * r, 3.2, Math.sin(a) * r);
+      group.add(vine);
+    }
+  }
+
   // ---- MacRitchie treetop walk: two lattice towers with a gently sagging
   // suspension walkway strung between them at canopy height ----
   if (mapId === "macritchie") {
