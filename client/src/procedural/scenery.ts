@@ -424,15 +424,17 @@ export function buildScenery(mapId: string): Scenery {
     }
 
     // gate arch where the south path meets the spawn row: two stone pillars, a
-    // wooden crossbeam and lantern caps that warm up after dark
+    // wooden crossbeam and lantern caps that warm up after dark. East-Asian
+    // towns get a vermilion torii treatment with a second, upswept top lintel.
     {
+      const torii = mapId === "amatsu" || mapId === "louyang" || mapId === "gonryun" || mapId === "chinatown";
       const [pillarGeo, pillarMat] = track(
         new THREE.BoxGeometry(0.7, 3.0, 0.7),
-        new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(0.85), roughness: 0.95 }),
+        new THREE.MeshStandardMaterial({ color: torii ? 0xc23a28 : new THREE.Color(theme.rock).multiplyScalar(0.85).getHex(), roughness: 0.95 }),
       );
       const [beamGeo, beamMat] = track(
         new THREE.BoxGeometry(5.4, 0.5, 0.8),
-        new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(0.95), roughness: 0.9 }),
+        new THREE.MeshStandardMaterial({ color: torii ? 0xc23a28 : new THREE.Color(theme.trunk).multiplyScalar(0.95).getHex(), roughness: 0.9 }),
       );
       const [capGeo, capMat] = track(new THREE.SphereGeometry(0.2, 10, 8), new THREE.MeshBasicMaterial({ color: 0xffd9a0 }));
       nightLights.push({ mat: capMat, day: new THREE.Color(0x9a8468), night: new THREE.Color(0xffd9a0) });
@@ -449,6 +451,24 @@ export function buildScenery(mapId: string): Scenery {
       beam.position.set(0, 3.15, 24);
       beam.castShadow = true;
       group.add(beam);
+      if (torii) {
+        // kasagi: the wider top lintel with gently upswept ends
+        const [kasagiGeo, kasagiMat] = track(
+          new THREE.BoxGeometry(6.4, 0.4, 0.9),
+          new THREE.MeshStandardMaterial({ color: 0x2a2430, roughness: 0.9 }),
+        );
+        const kasagi = new THREE.Mesh(kasagiGeo, kasagiMat);
+        kasagi.position.set(0, 3.62, 24);
+        kasagi.castShadow = true;
+        group.add(kasagi);
+        const [tipGeo] = track(new THREE.BoxGeometry(0.7, 0.4, 0.9), kasagiMat);
+        for (const s of [-1, 1]) {
+          const tip = new THREE.Mesh(tipGeo, kasagiMat);
+          tip.position.set(s * 3.5, 3.76, 24);
+          tip.rotation.z = s * 0.18;
+          group.add(tip);
+        }
+      }
     }
 
     // adventurer quest board beside the plaza: a roofed notice board with a
@@ -1252,6 +1272,29 @@ export function buildScenery(mapId: string): Scenery {
       group.add(carrier);
       spinners.push({ obj: weed, speed: -2.2 - w }); // rolls about local x/z as it travels
       cruisers.push({ obj: carrier, r: 20 + w * 7, y: 0, speed: 0.09 * (w % 2 === 0 ? -1 : 1), phase: rng() * Math.PI * 2 });
+    }
+  }
+
+  // ---- Thor volcano embers: the caldera map is never still — hot motes
+  // drift and swirl over the ground day and night ----
+  if (mapId === "thor") {
+    const thorEmberMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0xff7a30, transparent: true, opacity: 0.75, depthWrite: false, blending: THREE.AdditiveBlending });
+    mats.push(thorEmberMat);
+    for (let i = 0; i < 14; i++) {
+      const ember = new THREE.Sprite(thorEmberMat);
+      ember.scale.setScalar(0.08 + rng() * 0.07);
+      group.add(ember);
+      const a = rng() * Math.PI * 2;
+      const r = 6 + rng() * 24;
+      orbiters.push({
+        sprite: ember,
+        cx: Math.cos(a) * r,
+        cz: Math.sin(a) * r,
+        y: 0.6 + rng() * 2.4,
+        r: 0.8 + rng() * 1.6,
+        speed: 0.4 + rng() * 0.6,
+        phase: rng() * Math.PI * 2,
+      });
     }
   }
 
