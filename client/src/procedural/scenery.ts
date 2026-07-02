@@ -289,6 +289,8 @@ export function buildScenery(mapId: string): Scenery {
   // soft cloud shadows drifting in a straight line across the ground, wrapping
   // around once they clear the map
   const drifters: { obj: THREE.Object3D; vx: number; vz: number }[] = [];
+  // materials whose opacity shimmers gently around a base value (puddles)
+  const shimmers: { mat: THREE.Material & { opacity: number }; base: number; amp: number; phase: number }[] = [];
   let animated: CenterpieceAnim = null;
   let animPhase = 0;
   // current darkness level (0 day → 1 night), mirrored from setNight so tick()
@@ -849,6 +851,20 @@ export function buildScenery(mapId: string): Scenery {
       well.add(cat);
       well.position.set(-5.6, 0, -8.8);
       group.add(well);
+
+      // a couple of shallow puddles near the well and path, catching the sky
+      const [puddleGeo, puddleMat] = track(
+        new THREE.CircleGeometry(0.6, 12),
+        new THREE.MeshStandardMaterial({ color: 0x4a6a7a, roughness: 0.15, metalness: 0.3, transparent: true, opacity: 0.5 }),
+      );
+      for (const [px, pz, sc] of [[-4.6, -7.2, 1], [-6.4, -6.5, 0.65], [0.6, 18.5, 0.8]] as const) {
+        const puddle = new THREE.Mesh(puddleGeo, puddleMat);
+        puddle.rotation.x = -Math.PI / 2;
+        puddle.scale.setScalar(sc);
+        puddle.position.set(px, 0.018, pz);
+        group.add(puddle);
+      }
+      shimmers.push({ mat: puddleMat, base: 0.5, amp: 0.12, phase: rng() * Math.PI * 2 });
     }
 
     // chalk hopscotch grid: a child's game scratched onto the flagstones,
@@ -1418,6 +1434,37 @@ export function buildScenery(mapId: string): Scenery {
         speed: 0.03 + rng() * 0.04,
         phase: rng() * Math.PI * 2,
       });
+    }
+  }
+
+  // ---- rabbits: small critters resting low in the meadow grass, ears
+  // twitching now and then on the flicker channel ----
+  if (theme.tree === "leafy" && mapId !== "arena") {
+    const rabbitMat = new THREE.MeshStandardMaterial({ color: 0xd8d0c0, roughness: 1 });
+    mats.push(rabbitMat);
+    const [rabbitBodyGeo] = track(new THREE.SphereGeometry(0.13, 8, 6), rabbitMat);
+    const [rabbitEarGeo, rabbitEarMat] = track(new THREE.CapsuleGeometry(0.025, 0.14, 3, 6), new THREE.MeshStandardMaterial({ color: 0xf0d8c8, roughness: 1 }));
+    for (let r = 0; r < 4; r++) {
+      const rabbit = new THREE.Group();
+      const body = new THREE.Mesh(rabbitBodyGeo, rabbitMat);
+      body.scale.set(1.2, 0.9, 1.5);
+      rabbit.add(body);
+      const head = new THREE.Mesh(rabbitBodyGeo, rabbitMat);
+      head.scale.setScalar(0.6);
+      head.position.set(0, 0.08, 0.16);
+      rabbit.add(head);
+      for (const s of [-1, 1]) {
+        const ear = new THREE.Mesh(rabbitEarGeo, rabbitEarMat);
+        ear.position.set(s * 0.04, 0.24, 0.14);
+        ear.rotation.x = -0.2;
+        rabbit.add(ear);
+        flickers.push(ear);
+      }
+      const a = rng() * Math.PI * 2;
+      const rr = 8 + rng() * 20;
+      rabbit.position.set(Math.cos(a) * rr, 0.13, Math.sin(a) * rr);
+      rabbit.rotation.y = rng() * Math.PI * 2;
+      group.add(rabbit);
     }
   }
 
@@ -3201,6 +3248,8 @@ export function buildScenery(mapId: string): Scenery {
           fireworkMat.opacity = 0;
         }
       }
+      // puddles shimmer gently around their base opacity, like light on water
+      for (const s of shimmers) s.mat.opacity = s.base + Math.sin(animPhase * 1.6 + s.phase) * s.amp;
       // cloud shadows drift in a straight line, wrapping around the map edge
       for (const d of drifters) {
         d.obj.position.x += d.vx * dt;
