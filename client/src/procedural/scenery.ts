@@ -265,8 +265,10 @@ export function buildScenery(mapId: string): Scenery {
   const nightFades: { mat: THREE.Material & { opacity: number }; max: number }[] = [];
   // meshes that flicker like flame (brazier embers) — scale-pulsed in tick()
   const flickers: THREE.Mesh[] = [];
-  // objects that bob on the water (the moored rowboat)
+  // objects that bob on the water (the moored rowboat, the distant ship)
   const bobbers: { obj: THREE.Object3D; baseY: number; phase: number }[] = [];
+  // objects that spin in place (windmill hubs)
+  const spinners: { obj: THREE.Object3D; speed: number }[] = [];
   // small sprites that orbit a point (fireflies around lamps at night)
   const orbiters: { sprite: THREE.Sprite; cx: number; cz: number; y: number; r: number; speed: number; phase: number }[] = [];
   let animated: CenterpieceAnim = null;
@@ -464,6 +466,67 @@ export function buildScenery(mapId: string): Scenery {
     boat.rotation.y = 0.4;
     group.add(boat);
     bobbers.push({ obj: boat, baseY: -0.18, phase: rng() * Math.PI * 2 });
+
+    // a distant sailing ship rides the horizon swell, deep in the haze
+    const ship = new THREE.Group();
+    const shipMat = new THREE.MeshStandardMaterial({ color: 0x4a3a30, roughness: 0.95 });
+    mats.push(shipMat);
+    const [shipHullGeo] = track(new THREE.BoxGeometry(3.2, 1.4, 9.0), shipMat);
+    const shipHull = new THREE.Mesh(shipHullGeo, shipMat);
+    shipHull.position.y = 0.4;
+    ship.add(shipHull);
+    const [mastGeo] = track(new THREE.CylinderGeometry(0.14, 0.18, 7.0, 6), shipMat);
+    const mast = new THREE.Mesh(mastGeo, shipMat);
+    mast.position.y = 4.4;
+    ship.add(mast);
+    const [sailGeo, sailMat] = track(
+      new THREE.PlaneGeometry(3.6, 4.2),
+      new THREE.MeshStandardMaterial({ color: 0xe9e2d2, roughness: 0.9, side: THREE.DoubleSide }),
+    );
+    const sail = new THREE.Mesh(sailGeo, sailMat);
+    sail.position.set(0, 4.6, 0.4);
+    ship.add(sail);
+    const shipAngle = rng() * Math.PI * 2;
+    ship.position.set(Math.cos(shipAngle) * MAP_HALF * 1.55, -0.3, Math.sin(shipAngle) * MAP_HALF * 1.55);
+    ship.rotation.y = shipAngle + Math.PI / 2;
+    group.add(ship);
+    bobbers.push({ obj: ship, baseY: -0.3, phase: rng() * Math.PI * 2 });
+  }
+
+  // ---- windmill on classic leafy field maps: a tall tower with slowly turning
+  // sails, the signature RO farmland landmark ----
+  if (theme.tree === "leafy" && mapId !== "arena") {
+    const mill = new THREE.Group();
+    const millStone = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).lerp(new THREE.Color(0xffffff), 0.25), roughness: 0.95 });
+    mats.push(millStone);
+    const [towerGeo] = track(new THREE.CylinderGeometry(1.2, 1.8, 5.5, 10), millStone);
+    const tower = new THREE.Mesh(towerGeo, millStone);
+    tower.position.y = 2.75;
+    tower.castShadow = true;
+    mill.add(tower);
+    const [capGeo] = track(new THREE.ConeGeometry(1.5, 1.4, 10), millStone);
+    const cap = new THREE.Mesh(capGeo, millStone);
+    cap.position.y = 6.2;
+    mill.add(cap);
+    const hub = new THREE.Group();
+    hub.position.set(0, 5.4, 1.55);
+    const [bladeGeo, bladeMat] = track(
+      new THREE.BoxGeometry(0.5, 3.4, 0.08),
+      new THREE.MeshStandardMaterial({ color: 0xd9cdb4, roughness: 0.9 }),
+    );
+    for (let b = 0; b < 4; b++) {
+      const blade = new THREE.Mesh(bladeGeo, bladeMat);
+      blade.position.y = 1.75;
+      const arm = new THREE.Group();
+      arm.rotation.z = (b / 4) * Math.PI * 2;
+      arm.add(blade);
+      hub.add(arm);
+    }
+    mill.add(hub);
+    spinners.push({ obj: hub, speed: 0.35 });
+    mill.position.set(20, 0, -22);
+    mill.rotation.y = Math.atan2(-20, 22); // sails face the plaza
+    group.add(mill);
   }
 
   // ---- horizon mountains: a ring of hazy peaks outside the playfield so the
@@ -545,11 +608,13 @@ export function buildScenery(mapId: string): Scenery {
         const a = o.phase + animPhase * o.speed;
         o.sprite.position.set(o.cx + Math.cos(a) * o.r, o.y + Math.sin(a * 1.7) * 0.2, o.cz + Math.sin(a) * o.r);
       }
-      // the moored boat bobs and rolls on the swell
+      // the moored boat + distant ship bob and roll on the swell
       for (const b of bobbers) {
         b.obj.position.y = b.baseY + Math.sin(animPhase * 1.3 + b.phase) * 0.06;
         b.obj.rotation.z = Math.sin(animPhase * 1.1 + b.phase) * 0.05;
       }
+      // windmill sails turn slowly
+      for (const s of spinners) s.obj.rotation.z += dt * s.speed;
       if (!animated) return;
       if (animated.jet) {
         // fountain jet pulses; the pool shimmers faintly
