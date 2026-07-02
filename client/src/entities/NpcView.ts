@@ -31,6 +31,9 @@ export class NpcView extends EntityView {
   private blinkIn = 1.5 + Math.random() * 3;
   private blinkT = 0;
   private portalRing: THREE.Mesh | null = null;
+  private glanceIn = 3 + Math.random() * 5; // seconds until the next glance
+  private glanceT = 0; // remaining glance duration (turn out, hold, turn back)
+  private glanceDir = 1;
 
   constructor(entity: EntityFull) {
     super(entity, "nameplate npc", 2.2);
@@ -118,6 +121,23 @@ export class NpcView extends EntityView {
       if (this.blinkT > 0) {
         this.blinkT -= dt;
         setEyeBlink(this.char, this.blinkT > 0 ? 0.08 : 1);
+      }
+      // idle glance: turn the head to one side and back, so a standing NPC
+      // reads as alert rather than a frozen mannequin
+      this.glanceIn -= dt;
+      if (this.glanceIn <= 0) {
+        this.glanceIn = 3 + Math.random() * 5;
+        this.glanceT = 1.4;
+        this.glanceDir = Math.random() < 0.5 ? -1 : 1;
+      }
+      if (this.glanceT > 0) {
+        this.glanceT -= dt;
+        const u = 1 - Math.max(0, this.glanceT) / 1.4; // 0→1 over the glance
+        // turn out through the first third, hold, then ease back over the rest
+        const turn = u < 0.3 ? u / 0.3 : u < 0.6 ? 1 : 1 - (u - 0.6) / 0.4;
+        this.char.head.rotation.y = this.glanceDir * turn * 0.55;
+      } else if (this.char.head.rotation.y !== 0) {
+        this.char.head.rotation.y = 0;
       }
     }
     // portal swirl: slow spin + gentle pulse

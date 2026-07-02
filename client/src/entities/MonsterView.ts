@@ -15,6 +15,9 @@ export class MonsterView extends EntityView {
   private visual: THREE.Object3D; // current visual root (procedural group or model)
   private rig: ModelRig;
   private phase = Math.random() * Math.PI * 2;
+  private idleTurnIn = 2 + Math.random() * 4; // seconds until the next idle glance
+  private idleTurnT = 0; // remaining glance duration
+  private idleTurnDir = 1;
   private readonly scale: number;
   readonly boss: boolean;
   readonly element: string;
@@ -194,6 +197,27 @@ export class MonsterView extends EntityView {
       this.visual.position.y = this.moving
         ? Math.abs(Math.sin(this.phase)) * bobAmp * this.scale
         : Math.sin(this.phase) * 0.03 * this.scale;
+    }
+
+    // idle glance: an occasional small yaw wobble while standing still, so
+    // wandering/aggro-waiting monsters read as alert rather than statues
+    if (!this.moving) {
+      this.idleTurnIn -= dt;
+      if (this.idleTurnIn <= 0) {
+        this.idleTurnIn = 2 + Math.random() * 4;
+        this.idleTurnT = 1.1;
+        this.idleTurnDir = Math.random() < 0.5 ? -1 : 1;
+      }
+      if (this.idleTurnT > 0) {
+        this.idleTurnT -= dt;
+        const u = 1 - Math.max(0, this.idleTurnT) / 1.1;
+        const turn = u < 0.35 ? u / 0.35 : u < 0.6 ? 1 : 1 - (u - 0.6) / 0.4;
+        this.visual.rotation.y = this.idleTurnDir * turn * 0.4;
+      } else if (this.visual.rotation.y !== 0) {
+        this.visual.rotation.y = 0;
+      }
+    } else if (this.visual.rotation.y !== 0) {
+      this.visual.rotation.y = 0;
     }
 
     if (this.aura) this.aura.rotation.z += dt * 3;
