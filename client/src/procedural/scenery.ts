@@ -269,9 +269,11 @@ export function buildScenery(mapId: string): Scenery {
   // objects that bob on the water (the moored rowboat, the distant ship)
   const bobbers: { obj: THREE.Object3D; baseY: number; phase: number }[] = [];
   // objects that spin in place (windmill hubs)
-  const spinners: { obj: THREE.Object3D; speed: number }[] = [];
+  const spinners: { obj: THREE.Object3D; speed: number; axis?: "y" }[] = [];
   // small sprites that orbit a point (fireflies around lamps at night)
   const orbiters: { sprite: THREE.Sprite; cx: number; cz: number; y: number; r: number; speed: number; phase: number }[] = [];
+  // looping chimney-smoke puffs (rise, swell and thin out above house roofs)
+  const smokes: { sprite: THREE.Sprite; baseY: number; offset: number }[] = [];
   let animated: CenterpieceAnim = null;
   let animPhase = 0;
   if (mapId !== "arena") {
@@ -300,7 +302,7 @@ export function buildScenery(mapId: string): Scenery {
     group.add(path);
 
     animated = addCenterpiece(group, theme, track);
-    addHouses(group, theme, track, nightLights);
+    addHouses(group, theme, track, nightLights, smokes);
     addPlazaProps(group, theme, track);
 
     // flower beds around the plaza rim on living maps (the south path stays clear)
@@ -551,6 +553,30 @@ export function buildScenery(mapId: string): Scenery {
       peaks.setMatrixAt(i, m);
     }
     group.add(peaks);
+    if (theme.snowy) {
+      // aurora over the snowfields: two translucent curtain bands high in the
+      // night sky (fog-exempt, additive) that fade in after dark and drift
+      const [auroraGeo, auroraLo] = track(
+        new THREE.CylinderGeometry(MAP_HALF * 1.25, MAP_HALF * 1.35, 16, 48, 1, true, 0, Math.PI * 0.9),
+        new THREE.MeshBasicMaterial({ color: 0x66ffc0, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending, fog: false }),
+      );
+      const [, auroraHi] = track(
+        auroraGeo,
+        new THREE.MeshBasicMaterial({ color: 0x8a9aff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending, fog: false }),
+      );
+      const bands: [THREE.MeshBasicMaterial, number, number, number, number][] = [
+        [auroraLo, 34, 0.8, 0.22, 0.012], // [mat, y, rotY, night opacity, drift speed]
+        [auroraHi, 40, 2.9, 0.14, -0.008],
+      ];
+      for (const [mat, y, rotY, max, speed] of bands) {
+        const band = new THREE.Mesh(auroraGeo, mat);
+        band.position.y = y;
+        band.rotation.y = rotY;
+        group.add(band);
+        nightFades.push({ mat, max });
+        spinners.push({ obj: band, speed, axis: "y" });
+      }
+    }
     const lampPost = track(new THREE.CylinderGeometry(0.07, 0.09, 2.2, 6), new THREE.MeshStandardMaterial({ color: 0x3a3430, roughness: 0.9 }));
     const lampHeadGeo = new THREE.SphereGeometry(0.16, 10, 8);
     const lampMat = new THREE.MeshBasicMaterial({ color: 0xffd9a0 });
@@ -614,8 +640,14 @@ export function buildScenery(mapId: string): Scenery {
         b.obj.position.y = b.baseY + Math.sin(animPhase * 1.3 + b.phase) * 0.06;
         b.obj.rotation.z = Math.sin(animPhase * 1.1 + b.phase) * 0.05;
       }
-      // windmill sails turn slowly
-      for (const s of spinners) s.obj.rotation.z += dt * s.speed;
+      // windmill sails turn slowly; the aurora band drifts around the sky
+      for (const s of spinners) s.obj.rotation[s.axis ?? "z"] += dt * s.speed;
+      // chimney puffs rise, swell mid-climb, then shrink away and loop
+      for (const s of smokes) {
+        const t = (animPhase * 0.22 + s.offset) % 1;
+        s.sprite.position.y = s.baseY + t * 1.5;
+        s.sprite.scale.setScalar(0.2 + Math.sin(Math.PI * t) * 0.55);
+      }
       if (!animated) return;
       if (animated.jet) {
         // fountain jet pulses; the pool shimmers faintly
@@ -647,6 +679,7 @@ function addHouses(
   theme: Theme,
   track: <T extends THREE.BufferGeometry, M extends THREE.Material>(g: T, m: M) => [T, M],
   nightLights: NightLight[],
+  smokes: { sprite: THREE.Sprite; baseY: number; offset: number }[],
 ): void {
   const [wallGeo, wallMat] = track(
     new THREE.BoxGeometry(2.6, 1.8, 2.2),
@@ -659,6 +692,16 @@ function addHouses(
   const [doorGeo, doorMat] = track(new THREE.BoxGeometry(0.6, 1.0, 0.08), new THREE.MeshStandardMaterial({ color: 0x4a3220, roughness: 1 }));
   const [winGeo, winMat] = track(new THREE.BoxGeometry(0.42, 0.42, 0.06), new THREE.MeshBasicMaterial({ color: 0xffd9a0 }));
   nightLights.push({ mat: winMat, day: new THREE.Color(0x8a7a62), night: new THREE.Color(0xffd9a0) });
+  const [chimneyGeo, chimneyMat] = track(
+    new THREE.BoxGeometry(0.34, 0.7, 0.34),
+    new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(0.7), roughness: 1 }),
+  );
+  // shared puff material; riding track() with the chimney geo keeps it in the
+  // dispose list (a re-disposed geometry is a safe no-op in three.js)
+  const [, smokeMat] = track(
+    chimneyGeo,
+    new THREE.SpriteMaterial({ map: makeSpark(), color: 0xb9bcc4, transparent: true, opacity: 0.28, depthWrite: false }),
+  );
 
   const placements = [
     { x: -9.5, z: -7 },
@@ -683,6 +726,17 @@ function addHouses(
       const win = new THREE.Mesh(winGeo, winMat);
       win.position.set(s * 0.85, 1.1, 1.12);
       house.add(win);
+    }
+    // a squat chimney off the roof's back corner, with looping smoke puffs
+    const chimney = new THREE.Mesh(chimneyGeo, chimneyMat);
+    chimney.position.set(0.7, 2.55, -0.4);
+    house.add(chimney);
+    for (let puff = 0; puff < 3; puff++) {
+      const sprite = new THREE.Sprite(smokeMat);
+      sprite.position.set(0.7, 2.95, -0.4);
+      sprite.scale.setScalar(0.25);
+      house.add(sprite);
+      smokes.push({ sprite, baseY: 2.95, offset: puff / 3 });
     }
     house.position.set(p.x, 0, p.z);
     house.rotation.y = Math.atan2(-p.x, -p.z); // door side (+z) faces the fountain
