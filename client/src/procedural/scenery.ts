@@ -485,6 +485,60 @@ export function buildScenery(mapId: string): Scenery {
       }
     }
 
+    // village smithy: an anvil under a lean-to roof beside a glowing forge,
+    // embers drifting up from the coals ----
+    {
+      const smithyWood = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(0.9), roughness: 1 });
+      mats.push(smithyWood);
+      const [smPostGeo] = track(new THREE.CylinderGeometry(0.09, 0.09, 2.0, 6), smithyWood);
+      const [smRoofGeo] = track(new THREE.BoxGeometry(2.4, 0.1, 1.6), smithyWood);
+      const [forgeGeo, forgeMat] = track(
+        new THREE.CylinderGeometry(0.55, 0.65, 0.6, 8),
+        new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(0.75), roughness: 1 }),
+      );
+      const [coalGlowGeo, coalGlowMat] = track(new THREE.CircleGeometry(0.4, 8), new THREE.MeshBasicMaterial({ color: 0xff6a20 }));
+      nightLights.push({ mat: coalGlowMat, day: new THREE.Color(0xff6a20), night: new THREE.Color(0xffb050) });
+      const [anvilGeo, anvilMat] = track(new THREE.BoxGeometry(0.55, 0.32, 0.22), new THREE.MeshStandardMaterial({ color: 0x2a2c30, roughness: 0.5, metalness: 0.6 }));
+      const [anvilBaseGeo] = track(new THREE.CylinderGeometry(0.12, 0.16, 0.42, 6), anvilMat);
+      const smithy = new THREE.Group();
+      for (const [px, pz] of [[-1.1, -0.7], [1.1, -0.7], [-1.1, 0.7], [1.1, 0.7]] as const) {
+        const post = new THREE.Mesh(smPostGeo, smithyWood);
+        post.position.set(px, 1.0, pz);
+        smithy.add(post);
+      }
+      const smRoof = new THREE.Mesh(smRoofGeo, smithyWood);
+      smRoof.position.y = 2.05;
+      smRoof.castShadow = true;
+      smithy.add(smRoof);
+      const forge = new THREE.Mesh(forgeGeo, forgeMat);
+      forge.position.set(-0.6, 0.3, 0);
+      smithy.add(forge);
+      const coalGlow = new THREE.Mesh(coalGlowGeo, coalGlowMat);
+      coalGlow.rotation.x = -Math.PI / 2;
+      coalGlow.position.set(-0.6, 0.61, 0);
+      smithy.add(coalGlow);
+      flickers.push(coalGlow);
+      const anvilBase = new THREE.Mesh(anvilBaseGeo, anvilMat);
+      anvilBase.position.set(0.7, 0.21, 0.2);
+      smithy.add(anvilBase);
+      const anvil = new THREE.Mesh(anvilGeo, anvilMat);
+      anvil.position.set(0.7, 0.58, 0.2);
+      smithy.add(anvil);
+      // sparks drift up from the coals on the chimney-puff channel
+      const sparkMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0xffb050, transparent: true, opacity: 0.5, depthWrite: false, blending: THREE.AdditiveBlending });
+      mats.push(sparkMat);
+      for (let s = 0; s < 2; s++) {
+        const sprite = new THREE.Sprite(sparkMat);
+        sprite.position.set(-0.6, 0.7, 0);
+        sprite.scale.setScalar(0.12);
+        smithy.add(sprite);
+        smokes.push({ sprite, baseY: 0.7, offset: s / 2 });
+      }
+      smithy.position.set(-7.0, 0, 4.2);
+      smithy.rotation.y = Math.atan2(7.0, -4.2);
+      group.add(smithy);
+    }
+
     // adventurer quest board beside the plaza: a roofed notice board with a
     // scatter of pinned job postings, angled to face the fountain
     {
@@ -2630,6 +2684,31 @@ export function buildScenery(mapId: string): Scenery {
         cap.position.set(mx, 0.25 * sc, mz);
         group.add(cap);
       }
+    }
+  }
+
+  // ---- drifting jellyfish: the abyssal maps have a few translucent jellies
+  // pulsing slowly as they wander at mid-depth ----
+  if (mapId === "byalan" || mapId === "abyss") {
+    const jellyMat = new THREE.MeshBasicMaterial({ color: 0x8ad0e0, transparent: true, opacity: 0.35, depthWrite: false, blending: THREE.AdditiveBlending });
+    mats.push(jellyMat);
+    const [jellyCapGeo] = track(new THREE.SphereGeometry(0.3, 10, 6, 0, Math.PI * 2, 0, Math.PI / 2), jellyMat);
+    const [tentacleGeo] = track(new THREE.CylinderGeometry(0.02, 0.01, 0.7, 4), jellyMat);
+    for (let j = 0; j < 4; j++) {
+      const jelly = new THREE.Group();
+      const cap = new THREE.Mesh(jellyCapGeo, jellyMat);
+      jelly.add(cap);
+      for (let t = 0; t < 5; t++) {
+        const ta = (t / 5) * Math.PI * 2;
+        const tentacle = new THREE.Mesh(tentacleGeo, jellyMat);
+        tentacle.position.set(Math.cos(ta) * 0.18, -0.35, Math.sin(ta) * 0.18);
+        jelly.add(tentacle);
+      }
+      group.add(jelly);
+      flickers.push(cap); // pulse the bell like a slow heartbeat
+      const a = rng() * Math.PI * 2;
+      const r = 6 + rng() * 20;
+      cruisers.push({ obj: jelly, cx: Math.cos(a) * r, cz: Math.sin(a) * r, r: 1.5 + rng() * 2, y: 1.5 + rng() * 1.5, speed: 0.06 + rng() * 0.06, phase: rng() * Math.PI * 2, bob: 0.3 });
     }
   }
 
