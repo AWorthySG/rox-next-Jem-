@@ -3284,6 +3284,17 @@ export function buildScenery(mapId: string): Scenery {
     bridge.position.set(-16 - 2.4 * Math.sin(0.15), 0.15, -2.4 * (1 - Math.cos(0.15)));
     bridge.rotation.y = Math.PI / 2 - 0.15;
     group.add(bridge);
+
+    // fireflies drift low over the stream, only showing themselves at night
+    const streamFireflyMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0x9af0c0, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
+    mats.push(streamFireflyMat);
+    nightFades.push({ mat: streamFireflyMat, max: 0.8 });
+    for (let f = 0; f < 6; f++) {
+      const fly = new THREE.Sprite(streamFireflyMat);
+      fly.scale.setScalar(0.12);
+      group.add(fly);
+      orbiters.push({ sprite: fly, cx: -16, cz: -14 + rng() * 28, y: 0.4 + rng() * 0.5, r: 0.6 + rng() * 0.8, speed: 0.5 + rng() * 0.6, phase: rng() * Math.PI * 2 });
+    }
   }
 
   // ---- gravestones: a small forgotten cluster of weathered markers on
@@ -3715,6 +3726,30 @@ function addHouses(
     const chimney = new THREE.Mesh(chimneyGeo, chimneyMat);
     chimney.position.set(0.7, 2.55, -0.4);
     house.add(chimney);
+    // a wooden ladder leans against the wall, left out from roof repairs
+    if (p.x !== 0) {
+      const [ladderRailGeo, ladderMat] = track(
+        new THREE.CylinderGeometry(0.03, 0.03, 2.2, 5),
+        new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(0.95), roughness: 1 }),
+      );
+      const [rungGeo] = track(new THREE.CylinderGeometry(0.02, 0.02, 0.4, 4), ladderMat);
+      const ladder = new THREE.Group();
+      for (const s of [-1, 1]) {
+        const rail = new THREE.Mesh(ladderRailGeo, ladderMat);
+        rail.position.x = s * 0.2;
+        ladder.add(rail);
+      }
+      for (let r = 0; r < 6; r++) {
+        const rung = new THREE.Mesh(rungGeo, ladderMat);
+        rung.rotation.z = Math.PI / 2;
+        rung.position.y = -0.95 + r * 0.36;
+        ladder.add(rung);
+      }
+      ladder.position.set(Math.sign(p.x) * -1.25, 1.15, 1.05);
+      ladder.rotation.x = 0.22; // leans up against the wall
+      house.add(ladder);
+    }
+
     // windchimes hang beside the door: a small hanger with a few metal tubes
     // that sway and glint gently in the breeze
     {
