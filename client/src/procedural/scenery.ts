@@ -3,6 +3,7 @@ import { MAP_HALF } from "@rox/shared";
 import { MAPS, MONSTER_TEMPLATES } from "@rox/engine";
 import { applyWind } from "./wind.js";
 import { makeSpark } from "./textures.js";
+import { WATER_MAPS } from "./waterMaps.js";
 
 export interface Scenery {
   group: THREE.Group;
@@ -369,6 +370,29 @@ export function buildScenery(mapId: string): Scenery {
           ember.position.set(bx, 1.16, bz);
           group.add(pillar, bowl, ember);
         }
+      }
+    }
+  }
+
+  // ---- wooden pier on coastal maps: planks running off the island's east
+  // edge over the ocean, with posts sunk into the water ----
+  if (WATER_MAPS[mapId]) {
+    const [plankGeo, woodMat] = track(
+      new THREE.BoxGeometry(1.5, 0.1, 2.2),
+      new THREE.MeshStandardMaterial({ color: 0x7a5a38, roughness: 0.95 }),
+    );
+    const [postGeo] = track(new THREE.CylinderGeometry(0.08, 0.09, 1.1, 6), woodMat);
+    const pierZ = 10;
+    for (let i = 0; i < 5; i++) {
+      const px = MAP_HALF * 0.94 + i * 1.55;
+      const plank = new THREE.Mesh(plankGeo, woodMat);
+      plank.position.set(px, 0.3, pierZ);
+      plank.castShadow = true;
+      group.add(plank);
+      for (const s of [-1, 1]) {
+        const post = new THREE.Mesh(postGeo, woodMat);
+        post.position.set(px + 0.6, -0.2, pierZ + s * 0.95);
+        group.add(post);
       }
     }
   }
