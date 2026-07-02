@@ -942,6 +942,38 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- desert life: dust devils spin across the dunes and tumbleweeds roll
+  // an endless lap of the outskirts on arid maps ----
+  if (mapId === "morocc" || mapId === "pyramid" || mapId === "veins" || mapId === "scaraba") {
+    const [devilGeo, devilMat] = track(
+      new THREE.ConeGeometry(0.9, 3.2, 8, 1, true),
+      new THREE.MeshBasicMaterial({ color: new THREE.Color(theme.rock).lerp(new THREE.Color(0xffffff), 0.2), transparent: true, opacity: 0.16, side: THREE.DoubleSide, depthWrite: false }),
+    );
+    for (let d = 0; d < 2; d++) {
+      const carrier = new THREE.Group();
+      const funnel = new THREE.Mesh(devilGeo, devilMat);
+      funnel.rotation.x = Math.PI; // wide end up
+      funnel.position.y = 1.6;
+      carrier.add(funnel);
+      group.add(carrier);
+      spinners.push({ obj: funnel, speed: 6 + d * 2, axis: "y" });
+      cruisers.push({ obj: carrier, r: 16 + d * 9, y: 0, speed: 0.05 * (d % 2 === 0 ? 1 : -1), phase: rng() * Math.PI * 2 });
+    }
+    const [weedGeo, weedMat] = track(
+      new THREE.IcosahedronGeometry(0.42, 0),
+      new THREE.MeshStandardMaterial({ color: 0x9a7b4a, roughness: 1, flatShading: true, wireframe: true }),
+    );
+    for (let w = 0; w < 2; w++) {
+      const carrier = new THREE.Group();
+      const weed = new THREE.Mesh(weedGeo, weedMat);
+      weed.position.y = 0.42;
+      carrier.add(weed);
+      group.add(carrier);
+      spinners.push({ obj: weed, speed: -2.2 - w }); // rolls about local x/z as it travels
+      cruisers.push({ obj: carrier, r: 20 + w * 7, y: 0, speed: 0.09 * (w % 2 === 0 ? -1 : 1), phase: rng() * Math.PI * 2 });
+    }
+  }
+
   // ---- stone lanterns: East-Asian-themed towns line the south path with
   // squat toro lanterns whose windows warm up after dark ----
   if (mapId === "amatsu" || mapId === "louyang" || mapId === "gonryun" || mapId === "chinatown") {
