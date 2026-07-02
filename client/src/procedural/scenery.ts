@@ -666,6 +666,28 @@ export function buildScenery(mapId: string): Scenery {
       smithy.position.set(-7.0, 0, 4.2);
       smithy.rotation.y = Math.atan2(7.0, -4.2);
       group.add(smithy);
+
+      // a foot-pedal grindstone stands beside the smithy for sharpening
+      const [wheelStoneGeo, wheelStoneMat] = track(
+        new THREE.CylinderGeometry(0.32, 0.32, 0.09, 14),
+        new THREE.MeshStandardMaterial({ color: 0x9a9a92, roughness: 1 }),
+      );
+      const [frameLegGeo] = track(new THREE.CylinderGeometry(0.03, 0.03, 0.55, 5), smithyWood);
+      const grindstone = new THREE.Group();
+      const wheelStone = new THREE.Mesh(wheelStoneGeo, wheelStoneMat);
+      wheelStone.rotation.z = Math.PI / 2;
+      wheelStone.position.y = 0.55;
+      wheelStone.castShadow = true;
+      grindstone.add(wheelStone);
+      spinners.push({ obj: wheelStone, speed: 1.4 });
+      for (const [lx, lz] of [[-0.18, -0.12], [0.18, -0.12], [0, 0.16]] as const) {
+        const leg = new THREE.Mesh(frameLegGeo, smithyWood);
+        leg.rotation.x = 0.15;
+        leg.position.set(lx, 0.28, lz);
+        grindstone.add(leg);
+      }
+      grindstone.position.set(-8.6, 0, 5.0);
+      group.add(grindstone);
     }
 
     // adventurer quest board beside the plaza: a roofed notice board with a
@@ -2931,6 +2953,33 @@ export function buildScenery(mapId: string): Scenery {
     chapel.position.set(12.5, 0, -9.5);
     chapel.rotation.y = Math.atan2(-12.5, 9.5);
     group.add(chapel);
+  }
+
+  // ---- hammock: a relaxed rope hammock strung between two posts on
+  // tropical palm maps, sagging gently ----
+  if (theme.tree === "palm") {
+    const hammockPostMat = new THREE.MeshStandardMaterial({ color: 0x8a6a42, roughness: 1 });
+    mats.push(hammockPostMat);
+    const [hPostGeo2] = track(new THREE.CylinderGeometry(0.07, 0.09, 1.6, 6), hammockPostMat);
+    const [hammockClothGeo, hammockClothMat] = track(
+      new THREE.PlaneGeometry(2.6, 0.9),
+      new THREE.MeshStandardMaterial({ color: 0xe8d090, roughness: 1, side: THREE.DoubleSide }),
+    );
+    const hammock = new THREE.Group();
+    for (const s of [-1, 1]) {
+      const post = new THREE.Mesh(hPostGeo2, hammockPostMat);
+      post.position.set(s * 1.4, 0.8, 0);
+      post.rotation.z = -s * 0.1;
+      hammock.add(post);
+    }
+    const cloth = new THREE.Mesh(hammockClothGeo, hammockClothMat);
+    cloth.rotation.x = Math.PI / 2.6; // sags into a shallow curve
+    cloth.position.y = 0.85;
+    hammock.add(cloth);
+    hammock.position.set(9.5, 0, -4.5);
+    hammock.rotation.y = 1.1;
+    group.add(hammock);
+    bobbers.push({ obj: cloth, baseY: 0.85, phase: rng() * Math.PI * 2 });
   }
 
   // ---- tiki torches: tropical palm maps ring the plaza with bamboo torches
