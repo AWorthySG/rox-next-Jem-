@@ -264,6 +264,8 @@ export function buildScenery(mapId: string): Scenery {
   const nightLights: NightLight[] = [];
   // materials whose opacity fades in with night (lamp light-pools on the ground)
   const nightFades: { mat: THREE.Material & { opacity: number }; max: number }[] = [];
+  // materials that do the opposite — visible by day, gone after dark (pollen)
+  const dayFades: { mat: THREE.Material & { opacity: number }; max: number }[] = [];
   // meshes that flicker like flame (brazier embers) — scale-pulsed in tick()
   const flickers: THREE.Mesh[] = [];
   // objects that bob on the water (the moored rowboat, the distant ship)
@@ -1066,6 +1068,65 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- countryside dressing: a scarecrow watching the grass, and golden
+  // pollen motes that sparkle in the daylight and settle at dusk ----
+  if (theme.tree === "leafy" && mapId !== "arena") {
+    const strawMat = new THREE.MeshStandardMaterial({ color: 0xc8a84a, roughness: 1, flatShading: true });
+    mats.push(strawMat);
+    const [scPostGeo] = track(new THREE.CylinderGeometry(0.06, 0.08, 2.0, 6), strawMat);
+    const [scArmGeo] = track(new THREE.CylinderGeometry(0.045, 0.045, 1.5, 6), strawMat);
+    const [scHeadGeo] = track(new THREE.SphereGeometry(0.24, 10, 8), strawMat);
+    const [scHatGeo, scHatMat] = track(
+      new THREE.ConeGeometry(0.4, 0.28, 8),
+      new THREE.MeshStandardMaterial({ color: 0x8a6a3a, roughness: 1 }),
+    );
+    const [scShirtGeo, scShirtMat] = track(
+      new THREE.BoxGeometry(0.55, 0.7, 0.3),
+      new THREE.MeshStandardMaterial({ color: 0xa85040, roughness: 1 }),
+    );
+    const scarecrow = new THREE.Group();
+    const scPost = new THREE.Mesh(scPostGeo, strawMat);
+    scPost.position.y = 1.0;
+    scarecrow.add(scPost);
+    const scArm = new THREE.Mesh(scArmGeo, strawMat);
+    scArm.rotation.z = Math.PI / 2;
+    scArm.position.y = 1.45;
+    scarecrow.add(scArm);
+    const scShirt = new THREE.Mesh(scShirtGeo, scShirtMat);
+    scShirt.position.y = 1.25;
+    scarecrow.add(scShirt);
+    const scHead = new THREE.Mesh(scHeadGeo, strawMat);
+    scHead.position.y = 1.85;
+    scarecrow.add(scHead);
+    const scHat = new THREE.Mesh(scHatGeo, scHatMat);
+    scHat.position.y = 2.08;
+    scHat.rotation.z = 0.12;
+    scarecrow.add(scHat);
+    scarecrow.position.set(-16, 0, 14);
+    scarecrow.rotation.y = 0.7;
+    group.add(scarecrow);
+
+    const pollenMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0xffe9a0, transparent: true, opacity: 0.5, depthWrite: false, blending: THREE.AdditiveBlending });
+    mats.push(pollenMat);
+    dayFades.push({ mat: pollenMat, max: 0.5 });
+    for (let i = 0; i < 10; i++) {
+      const mote = new THREE.Sprite(pollenMat);
+      mote.scale.setScalar(0.07 + rng() * 0.05);
+      group.add(mote);
+      const a = rng() * Math.PI * 2;
+      const r = 7 + rng() * 20;
+      orbiters.push({
+        sprite: mote,
+        cx: Math.cos(a) * r,
+        cz: Math.sin(a) * r,
+        y: 0.8 + rng() * 1.4,
+        r: 0.9 + rng() * 1.2,
+        speed: 0.25 + rng() * 0.3,
+        phase: rng() * Math.PI * 2,
+      });
+    }
+  }
+
   // ---- desert life: dust devils spin across the dunes and tumbleweeds roll
   // an endless lap of the outskirts on arid maps ----
   if (mapId === "morocc" || mapId === "pyramid" || mapId === "veins" || mapId === "scaraba") {
@@ -1266,6 +1327,7 @@ export function buildScenery(mapId: string): Scenery {
       nightNow = n;
       for (const l of nightLights) l.mat.color.copy(l.day).lerp(l.night, n);
       for (const f of nightFades) f.mat.opacity = f.max * n;
+      for (const f of dayFades) f.mat.opacity = f.max * (1 - n);
     },
     tick(dt: number) {
       animPhase += dt;
