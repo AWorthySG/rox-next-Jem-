@@ -578,6 +578,19 @@ body {
   background: linear-gradient(180deg, #ff8aa0, #d11a3a);
   transition: width 0.18s linear;
 }
+/* chip-damage ghost, same idea as the target frame: a lighter layer that
+   lags behind the real fill so a raid-wide hit reads as a visible bite */
+#wb-chip {
+  position: absolute;
+  inset: 0;
+  background: #f8c8b0;
+  transition: width 0.7s ease-out 0.1s;
+  z-index: 0;
+}
+#wb-fill {
+  position: relative;
+  z-index: 1;
+}
 .wb-sub {
   margin-top: 4px;
   font-size: 11px;
