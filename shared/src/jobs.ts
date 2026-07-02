@@ -97,3 +97,11 @@ export function jobFamilyOf(job: JobId): JobFamily | null {
   return JOB_TO_FAMILY[job] ?? null;
 }
 
+// Advancement tier of a job: 0 = Novice, 1 = 1st job … 4 = 4th job. The family
+// arrays are ordered by tier, so the index gives the tier directly.
+export function jobTierOf(job: JobId): number {
+  const fam = JOB_TO_FAMILY[job];
+  if (!fam) return 0;
+  return FAMILY_JOBS[fam].indexOf(job) + 1;
+}
+

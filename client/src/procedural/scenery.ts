@@ -1,12 +1,27 @@
 import * as THREE from "three";
 import { MAP_HALF } from "@rox/shared";
+import { MAPS, MONSTER_TEMPLATES } from "@rox/engine";
 import { applyWind } from "./wind.js";
+import { makeSpark } from "./textures.js";
+import { WATER_MAPS } from "./waterMaps.js";
 
 export interface Scenery {
   group: THREE.Group;
   // Multiply all prop albedos by `mul` (day/night + weather dimming, base*mul).
   setShade(mul: number): void;
+  // Blend emissive props (lamp heads, house windows) between a dim daytime
+  // tone and a bright night glow (0 = day, 1 = night).
+  setNight(n: number): void;
+  // Advance centerpiece animation (fountain jet pulse, crystal spin).
+  tick(dt: number): void;
   dispose(): void;
+}
+
+// An emissive prop material that changes with the day/night cycle.
+interface NightLight {
+  mat: THREE.MeshBasicMaterial;
+  day: THREE.Color;
+  night: THREE.Color;
 }
 
 // Deterministic small PRNG so each map's scenery layout is stable across visits.
@@ -41,6 +56,7 @@ interface Theme {
   rocks: number;
   tufts: number;
   tuft: number;
+  snowy?: boolean; // pines carry snow caps (Lutie / Rachel)
 }
 
 const DEFAULT: Theme = { trunk: 0x6b4a2b, foliage: [0x3f8f3a, 0x4fa044, 0x357a30], rock: 0x8a8d92, tree: "leafy", trees: 64, rocks: 34, tufts: 140, tuft: 0x4f9a3f };
@@ -55,7 +71,7 @@ const THEMES: Record<string, Partial<Theme>> = {
   umbala: { trunk: 0x5a3f28, foliage: [0x2f7a3a, 0x3f9a4a, 0x256b30], rock: 0x6b6f5a, tree: "jungle", trees: 90, rocks: 26, tufts: 160, tuft: 0x3f8f3f },
   juno: { rock: 0x9a8d9a, tree: "leafy", trees: 40, rocks: 44 },
   einbroch: { trunk: 0x4a4438, foliage: [0x55613a], rock: 0x7a756a, tree: "dead", trees: 28, rocks: 60, tufts: 50, tuft: 0x6a6a44 },
-  rachel: { trunk: 0x6a5a4a, foliage: [0xbfe0e8], rock: 0xc8d2da, tree: "pine", trees: 44, rocks: 50, tufts: 70, tuft: 0xa9c8c0 },
+  rachel: { trunk: 0x6a5a4a, foliage: [0xbfe0e8], rock: 0xc8d2da, tree: "pine", trees: 44, rocks: 50, tufts: 70, tuft: 0xa9c8c0, snowy: true },
   thanatos: { trunk: 0x3a2f3a, foliage: [0x6a4fb0], rock: 0x5a4f6a, tree: "crystal", trees: 30, rocks: 60, tufts: 30, tuft: 0x6a4faa },
   tower: { trunk: 0x3a2f3a, foliage: [0x6a4fb0], rock: 0x5a4f6a, tree: "crystal", trees: 24, rocks: 56, tufts: 24, tuft: 0x6a4faa },
   morocc: { rock: 0xc9a86a, tree: "palm", trunk: 0x9a7b4a, foliage: [0x6cae54], trees: 18, rocks: 64, tufts: 30, tuft: 0xc7b576 },
@@ -64,7 +80,7 @@ const THEMES: Record<string, Partial<Theme>> = {
   geffen: { trunk: 0x3a3458, foliage: [0x6a5fb0], rock: 0x4a4470, tree: "crystal", trees: 26, rocks: 50, tufts: 40, tuft: 0x6a5fb0 },
   niflheim: { trunk: 0x3a3338, foliage: [0x2a3230], rock: 0x4a505a, tree: "dead", trees: 40, rocks: 60, tufts: 24, tuft: 0x3a4a42 },
   amatsu: { trunk: 0x6a4a3a, foliage: [0xf0a0c0, 0x4fae54, 0x6cc35f], rock: 0x7a8270, tree: "leafy", trees: 70, rocks: 30, tufts: 120, tuft: 0x4f9a3f },
-  lutie: { trunk: 0x7a6a5a, foliage: [0xe8f0f8], rock: 0xd8e4ee, tree: "pine", trees: 60, rocks: 44, tufts: 50, tuft: 0xeaf2fa },
+  lutie: { trunk: 0x7a6a5a, foliage: [0xe8f0f8], rock: 0xd8e4ee, tree: "pine", trees: 60, rocks: 44, tufts: 50, tuft: 0xeaf2fa, snowy: true },
   ayothaya: { trunk: 0x5a3f28, foliage: [0x2f7a3a, 0x3f9a4a], rock: 0x8a8260, tree: "jungle", trees: 80, rocks: 40, tufts: 130, tuft: 0x3f8f3f },
   moscovia: { trunk: 0x4a3a2a, foliage: [0x2f6b2c, 0x3a7a38], rock: 0x5a6a4a, tree: "pine", trees: 90, rocks: 36, tufts: 90, tuft: 0x3a6a30 },
   thor: { trunk: 0x3a1810, foliage: [0xc0401a], rock: 0x4a241a, tree: "dead", trees: 20, rocks: 70, tufts: 40, tuft: 0xc0501a },
@@ -245,13 +261,685 @@ export function buildScenery(mapId: string): Scenery {
   // The map centre is kept clear of scatter props, so a themed monument there
   // gives every map a readable landmark; lamps ring it and glow at night
   // (MeshBasicMaterial heads are exempt from setShade, so they stay lit).
+  const nightLights: NightLight[] = [];
+  // materials whose opacity fades in with night (lamp light-pools on the ground)
+  const nightFades: { mat: THREE.Material & { opacity: number }; max: number }[] = [];
+  // materials that do the opposite — visible by day, gone after dark (pollen)
+  const dayFades: { mat: THREE.Material & { opacity: number }; max: number }[] = [];
+  // meshes that flicker like flame (brazier embers) — scale-pulsed in tick()
+  const flickers: THREE.Mesh[] = [];
+  // objects that bob on the water (the moored rowboat, the distant ship)
+  const bobbers: { obj: THREE.Object3D; baseY: number; phase: number }[] = [];
+  // objects that spin in place (windmill hubs)
+  const spinners: { obj: THREE.Object3D; speed: number; axis?: "y" }[] = [];
+  // small sprites that orbit a point (fireflies around lamps at night)
+  const orbiters: { sprite: THREE.Sprite; cx: number; cz: number; y: number; r: number; speed: number; phase: number }[] = [];
+  // looping chimney-smoke puffs (rise, swell and thin out above house roofs)
+  const smokes: { sprite: THREE.Sprite; baseY: number; offset: number }[] = [];
+  // things that fly a circular route around the map (airship, seabirds); they
+  // face along the flight path and optionally flap wing pivots as they go
+  const cruisers: { obj: THREE.Object3D; r: number; y: number; speed: number; phase: number; wings?: THREE.Object3D[]; cx?: number; cz?: number; flapRate?: number }[] = [];
+  // leaves that tumble down around the plaza on living maps, looping forever
+  const leaves: { m: THREE.Mesh; x: number; z: number; offset: number; spin: number }[] = [];
+  // fish that periodically leap out of the sea in a little arc near the pier
+  const jumpers: { obj: THREE.Object3D; x: number; z: number; offset: number }[] = [];
+  let animated: CenterpieceAnim = null;
+  let animPhase = 0;
+  // current darkness level (0 day → 1 night), mirrored from setNight so tick()
+  // can gate effects that only belong in the night sky (shooting stars)
+  let nightNow = 0;
+  // one recycled shooting star: an elongated additive streak that dashes
+  // across the sky for the first moments of each ~9 s cycle, then hides
+  const starMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0xeaf4ff, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, fog: false });
+  mats.push(starMat);
+  const star = new THREE.Sprite(starMat);
+  star.scale.set(3.2, 0.18, 1);
+  group.add(star);
   if (mapId !== "arena") {
-    addCenterpiece(group, theme, track);
-    addHouses(group, theme, track);
+    // stone plaza under the fountain + a paved path south toward the spawn row,
+    // so the town centre reads as constructed ground rather than bare grass
+    const paveMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).lerp(new THREE.Color(0xffffff), 0.18), roughness: 0.9 });
+    const [plazaGeo] = track(new THREE.CircleGeometry(4.4, 24), paveMat);
+    const plaza = new THREE.Mesh(plazaGeo, paveMat);
+    plaza.rotation.x = -Math.PI / 2;
+    plaza.position.y = 0.015;
+    plaza.receiveShadow = true;
+    group.add(plaza);
+    const [rimGeo, rimMat] = track(
+      new THREE.RingGeometry(4.4, 4.75, 24),
+      new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(0.75), roughness: 0.95 }),
+    );
+    const rim = new THREE.Mesh(rimGeo, rimMat);
+    rim.rotation.x = -Math.PI / 2;
+    rim.position.y = 0.014;
+    group.add(rim);
+    const [pathGeo] = track(new THREE.PlaneGeometry(2.4, 22), rimMat);
+    const path = new THREE.Mesh(pathGeo, rimMat);
+    path.rotation.x = -Math.PI / 2;
+    path.position.set(0, 0.012, 15);
+    path.receiveShadow = true;
+    group.add(path);
+
+    animated = addCenterpiece(group, theme, track);
+    addHouses(group, theme, track, nightLights, smokes);
+    addPlazaProps(group, theme, track);
+
+    // flower beds around the plaza rim on living maps (the south path stays clear)
+    if (theme.tree === "leafy" || theme.tree === "jungle" || theme.tree === "palm") {
+      const [soilGeo, soilMat] = track(
+        new THREE.CylinderGeometry(0.75, 0.85, 0.14, 10),
+        new THREE.MeshStandardMaterial({ color: 0x4a3624, roughness: 1 }),
+      );
+      const bloomMats = [0xff6b8a, 0xffd24a, 0xf4f0f0, 0xc080e0].map((c) => {
+        const m = new THREE.MeshStandardMaterial({ color: c, roughness: 0.85, flatShading: true });
+        applyWind(m, 0.05);
+        mats.push(m);
+        return m;
+      });
+      const [bloomGeo] = track(new THREE.IcosahedronGeometry(0.16, 0), bloomMats[0]);
+      for (const deg of [150, 195, 240, 285, 330, 15]) {
+        const a = (deg / 180) * Math.PI;
+        const bx = Math.cos(a) * 5.6;
+        const bz = Math.sin(a) * 5.6;
+        const soil = new THREE.Mesh(soilGeo, soilMat);
+        soil.position.set(bx, 0.07, bz);
+        group.add(soil);
+        for (let b = 0; b < 4; b++) {
+          const bloom = new THREE.Mesh(bloomGeo, bloomMats[(deg + b) % bloomMats.length]);
+          bloom.position.set(bx + (rng() - 0.5) * 0.8, 0.28, bz + (rng() - 0.5) * 0.8);
+          group.add(bloom);
+        }
+      }
+
+      // butterflies flit in tight circles above the beds, wings beating fast
+      const [flutterGeo, flutterMat] = track(
+        new THREE.PlaneGeometry(0.16, 0.12),
+        new THREE.MeshBasicMaterial({ color: 0xffb0d0, side: THREE.DoubleSide }),
+      );
+      const flutterMat2 = new THREE.MeshBasicMaterial({ color: 0x9ad0ff, side: THREE.DoubleSide });
+      mats.push(flutterMat2);
+      for (let b = 0; b < 3; b++) {
+        const deg = [150, 240, 330][b];
+        const a = (deg / 180) * Math.PI;
+        const butterfly = new THREE.Group();
+        const wings: THREE.Object3D[] = [];
+        for (const s of [-1, 1]) {
+          const pivot = new THREE.Group();
+          if (s < 0) pivot.rotation.y = Math.PI;
+          const wing = new THREE.Mesh(flutterGeo, b % 2 ? flutterMat2 : flutterMat);
+          wing.position.x = 0.09;
+          pivot.add(wing);
+          butterfly.add(pivot);
+          wings.push(pivot);
+        }
+        group.add(butterfly);
+        cruisers.push({
+          obj: butterfly,
+          cx: Math.cos(a) * 5.6,
+          cz: Math.sin(a) * 5.6,
+          r: 0.7 + rng() * 0.5,
+          y: 0.7 + rng() * 0.5,
+          speed: (0.9 + rng() * 0.5) * (b % 2 === 0 ? 1 : -1),
+          phase: rng() * Math.PI * 2,
+          wings,
+          flapRate: 18,
+        });
+      }
+    }
+
+    // falling leaves tumbling down around the town on leafy/jungle maps
+    if (theme.tree === "leafy" || theme.tree === "jungle") {
+      const [leafGeo, leafMat] = track(
+        new THREE.PlaneGeometry(0.16, 0.16),
+        new THREE.MeshBasicMaterial({ color: new THREE.Color(theme.foliage[0]).multiplyScalar(0.9), side: THREE.DoubleSide, transparent: true, opacity: 0.85 }),
+      );
+      for (let i = 0; i < 22; i++) {
+        const m = new THREE.Mesh(leafGeo, leafMat);
+        group.add(m);
+        const a = rng() * Math.PI * 2;
+        const r = 6 + rng() * 22;
+        leaves.push({ m, x: Math.cos(a) * r, z: Math.sin(a) * r, offset: rng(), spin: 1.5 + rng() * 2.5 });
+      }
+    }
+
+    // gate arch where the south path meets the spawn row: two stone pillars, a
+    // wooden crossbeam and lantern caps that warm up after dark
+    {
+      const [pillarGeo, pillarMat] = track(
+        new THREE.BoxGeometry(0.7, 3.0, 0.7),
+        new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(0.85), roughness: 0.95 }),
+      );
+      const [beamGeo, beamMat] = track(
+        new THREE.BoxGeometry(5.4, 0.5, 0.8),
+        new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(0.95), roughness: 0.9 }),
+      );
+      const [capGeo, capMat] = track(new THREE.SphereGeometry(0.2, 10, 8), new THREE.MeshBasicMaterial({ color: 0xffd9a0 }));
+      nightLights.push({ mat: capMat, day: new THREE.Color(0x9a8468), night: new THREE.Color(0xffd9a0) });
+      for (const s of [-1, 1]) {
+        const pillar = new THREE.Mesh(pillarGeo, pillarMat);
+        pillar.position.set(s * 2.1, 1.5, 24);
+        pillar.castShadow = true;
+        group.add(pillar);
+        const cap = new THREE.Mesh(capGeo, capMat);
+        cap.position.set(s * 2.1, 3.35, 24);
+        group.add(cap);
+      }
+      const beam = new THREE.Mesh(beamGeo, beamMat);
+      beam.position.set(0, 3.15, 24);
+      beam.castShadow = true;
+      group.add(beam);
+    }
+
+    // adventurer quest board beside the plaza: a roofed notice board with a
+    // scatter of pinned job postings, angled to face the fountain
+    {
+      const boardWood = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(1.05), roughness: 0.95 });
+      const [bPostGeo] = track(new THREE.BoxGeometry(0.14, 1.9, 0.14), boardWood);
+      const [panelGeo, panelMat] = track(
+        new THREE.BoxGeometry(2.0, 1.15, 0.08),
+        new THREE.MeshStandardMaterial({ color: 0x5a4530, roughness: 1 }),
+      );
+      const [bRoofGeo] = track(new THREE.BoxGeometry(2.3, 0.08, 0.5), boardWood);
+      const [noteGeo, noteMat] = track(
+        new THREE.PlaneGeometry(0.26, 0.32),
+        new THREE.MeshStandardMaterial({ color: 0xf2ecd8, roughness: 1 }),
+      );
+      const board = new THREE.Group();
+      for (const s of [-1, 1]) {
+        const post = new THREE.Mesh(bPostGeo, boardWood);
+        post.position.set(s * 0.95, 0.95, 0);
+        board.add(post);
+      }
+      const panel = new THREE.Mesh(panelGeo, panelMat);
+      panel.position.y = 1.25;
+      panel.castShadow = true;
+      board.add(panel);
+      const roofSlat = new THREE.Mesh(bRoofGeo, boardWood);
+      roofSlat.position.y = 1.95;
+      roofSlat.rotation.x = 0.18;
+      board.add(roofSlat);
+      for (let i = 0; i < 5; i++) {
+        const note = new THREE.Mesh(noteGeo, noteMat);
+        note.position.set(-0.7 + i * 0.35 + (rng() - 0.5) * 0.08, 1.2 + (rng() - 0.5) * 0.3, 0.05);
+        note.rotation.z = (rng() - 0.5) * 0.25;
+        board.add(note);
+      }
+      board.position.set(5.8, 0, 3.4);
+      board.rotation.y = Math.atan2(-5.8, -3.4); // face the fountain
+      group.add(board);
+    }
+
+    // directional signpost where the path leaves the plaza: a weathered post
+    // with two finger boards pointing opposite ways (fields vs. town centre)
+    {
+      const signWood = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(0.9), roughness: 1 });
+      const [sPostGeo] = track(new THREE.CylinderGeometry(0.07, 0.09, 1.9, 6), signWood);
+      const [fingerGeo] = track(new THREE.BoxGeometry(0.95, 0.2, 0.05), signWood);
+      const signpost = new THREE.Group();
+      const sPost = new THREE.Mesh(sPostGeo, signWood);
+      sPost.position.y = 0.95;
+      sPost.castShadow = true;
+      signpost.add(sPost);
+      for (const [fy, rot] of [[1.62, 0.5], [1.34, -2.2]] as const) {
+        const finger = new THREE.Mesh(fingerGeo, signWood);
+        finger.position.set(0, fy, 0);
+        finger.rotation.y = rot;
+        // shift outward so the board hangs off one side of the post
+        finger.translateX(0.42);
+        signpost.add(finger);
+      }
+      signpost.position.set(-2.4, 0, 8.2);
+      group.add(signpost);
+    }
+
+    // traveller's campfire off the path near spawn: a log ring, a flickering
+    // flame and a warm pool of light that carries through the night
+    {
+      const [logGeo, logMat] = track(
+        new THREE.CylinderGeometry(0.09, 0.09, 0.9, 6),
+        new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(0.8), roughness: 1 }),
+      );
+      const [stoneGeo, stoneMat] = track(
+        new THREE.DodecahedronGeometry(0.14, 0),
+        new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(0.8), roughness: 1, flatShading: true }),
+      );
+      const [flameGeo, flameMat] = track(
+        new THREE.ConeGeometry(0.22, 0.55, 7),
+        new THREE.MeshBasicMaterial({ color: 0xff9a3a }),
+      );
+      nightLights.push({ mat: flameMat, day: new THREE.Color(0xff9a3a), night: new THREE.Color(0xffc060) });
+      const camp = new THREE.Group();
+      for (const [lx, lz, ry] of [[-0.25, 0.1, 0.5], [0.25, -0.05, -0.9], [0, 0.25, 1.9]] as const) {
+        const log = new THREE.Mesh(logGeo, logMat);
+        log.position.set(lx, 0.1, lz);
+        log.rotation.set(Math.PI / 2, 0, ry);
+        camp.add(log);
+      }
+      for (let i = 0; i < 7; i++) {
+        const a = (i / 7) * Math.PI * 2;
+        const stone = new THREE.Mesh(stoneGeo, stoneMat);
+        stone.position.set(Math.cos(a) * 0.55, 0.08, Math.sin(a) * 0.55);
+        camp.add(stone);
+      }
+      const flame = new THREE.Mesh(flameGeo, flameMat);
+      flame.position.y = 0.42;
+      camp.add(flame);
+      flickers.push(flame);
+      // wood smoke drifting off the flame, on the chimney-puff channel
+      const campSmokeMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0x8a8f98, transparent: true, opacity: 0.24, depthWrite: false });
+      mats.push(campSmokeMat);
+      for (let puff = 0; puff < 2; puff++) {
+        const sprite = new THREE.Sprite(campSmokeMat);
+        sprite.position.set(0, 0.75, 0);
+        sprite.scale.setScalar(0.2);
+        camp.add(sprite);
+        smokes.push({ sprite, baseY: 0.75, offset: puff / 2 });
+      }
+      // embers dance in a tight swirl just above the fire after dark
+      const emberSparkMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0xffb060, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
+      mats.push(emberSparkMat);
+      nightFades.push({ mat: emberSparkMat, max: 0.9 });
+      for (let e = 0; e < 3; e++) {
+        const spark = new THREE.Sprite(emberSparkMat);
+        spark.scale.setScalar(0.09);
+        group.add(spark);
+        orbiters.push({ sprite: spark, cx: 4.6, cz: 17.5, y: 0.9 + rng() * 0.5, r: 0.16 + rng() * 0.2, speed: 1.6 + rng() * 1.2, phase: rng() * Math.PI * 2 });
+      }
+      const [glowGeo, glowMat] = track(
+        new THREE.PlaneGeometry(3.6, 3.6),
+        new THREE.MeshBasicMaterial({ map: makeSpark(), color: 0xff9a4a, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }),
+      );
+      nightFades.push({ mat: glowMat, max: 0.4 });
+      const glow = new THREE.Mesh(glowGeo, glowMat);
+      glow.rotation.x = -Math.PI / 2;
+      glow.position.y = 0.04;
+      camp.add(glow);
+      camp.position.set(4.6, 0, 17.5);
+      group.add(camp);
+    }
+
+    // village well between the houses: a stone ring, twin posts holding a
+    // little pyramid roof, and a bucket hanging from the crossbar
+    {
+      const [wellGeo, wellMat] = track(
+        new THREE.CylinderGeometry(0.62, 0.68, 0.55, 10, 1, true),
+        new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(0.9), roughness: 1, side: THREE.DoubleSide }),
+      );
+      const [wellRimGeo] = track(new THREE.TorusGeometry(0.62, 0.07, 6, 12), wellMat);
+      const wellWood = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(0.95), roughness: 1 });
+      mats.push(wellWood);
+      const [wPostGeo] = track(new THREE.BoxGeometry(0.1, 1.35, 0.1), wellWood);
+      const [wBarGeo] = track(new THREE.CylinderGeometry(0.045, 0.045, 1.5, 6), wellWood);
+      const [wRoofGeo] = track(new THREE.ConeGeometry(0.95, 0.5, 4), wellWood);
+      const [ropeGeo2] = track(new THREE.CylinderGeometry(0.015, 0.015, 0.45, 4), wellWood);
+      const [bucketGeo, bucketMat] = track(
+        new THREE.CylinderGeometry(0.13, 0.11, 0.18, 8, 1, true),
+        new THREE.MeshStandardMaterial({ color: 0x6a5238, roughness: 1, side: THREE.DoubleSide }),
+      );
+      const well = new THREE.Group();
+      const ring = new THREE.Mesh(wellGeo, wellMat);
+      ring.position.y = 0.28;
+      ring.castShadow = true;
+      well.add(ring);
+      const rim = new THREE.Mesh(wellRimGeo, wellMat);
+      rim.rotation.x = Math.PI / 2;
+      rim.position.y = 0.56;
+      well.add(rim);
+      for (const s of [-1, 1]) {
+        const post = new THREE.Mesh(wPostGeo, wellWood);
+        post.position.set(s * 0.62, 0.95, 0);
+        well.add(post);
+      }
+      const bar = new THREE.Mesh(wBarGeo, wellWood);
+      bar.rotation.z = Math.PI / 2;
+      bar.position.y = 1.55;
+      well.add(bar);
+      const wroof = new THREE.Mesh(wRoofGeo, wellWood);
+      wroof.position.y = 1.95;
+      wroof.rotation.y = Math.PI / 4;
+      wroof.castShadow = true;
+      well.add(wroof);
+      const rope2 = new THREE.Mesh(ropeGeo2, wellWood);
+      rope2.position.y = 1.32;
+      well.add(rope2);
+      const bucket = new THREE.Mesh(bucketGeo, bucketMat);
+      bucket.position.y = 1.02;
+      well.add(bucket);
+      bobbers.push({ obj: bucket, baseY: 1.02, phase: 2.6 });
+      well.position.set(-5.6, 0, -8.8);
+      group.add(well);
+    }
+
+    // laundry line between the west and north houses: a taut rope with a few
+    // pastel cloths that sway on the same breeze as the pennants
+    {
+      const [x1, z1, x2, z2] = [-8.4, -7.6, -1.2, -11.1];
+      const dx = x2 - x1;
+      const dz = z2 - z1;
+      const [lineGeo, lineMat] = track(
+        new THREE.CylinderGeometry(0.012, 0.012, Math.hypot(dx, dz), 4),
+        new THREE.MeshStandardMaterial({ color: 0xd8d0c0, roughness: 1 }),
+      );
+      const line = new THREE.Mesh(lineGeo, lineMat);
+      line.position.set((x1 + x2) / 2, 1.72, (z1 + z2) / 2);
+      line.rotation.z = Math.PI / 2;
+      line.rotation.y = -Math.atan2(dz, dx);
+      group.add(line);
+      const [clothGeo] = track(new THREE.PlaneGeometry(0.55, 0.42), lineMat);
+      const clothMats = [0xa8d0e8, 0xf0e0c0, 0xe8b0c0].map((c) => {
+        const m = new THREE.MeshStandardMaterial({ color: c, roughness: 1, side: THREE.DoubleSide });
+        mats.push(m);
+        return m;
+      });
+      for (let i = 0; i < 3; i++) {
+        const t = 0.28 + i * 0.22;
+        const cloth = new THREE.Mesh(clothGeo, clothMats[i]);
+        const sag = Math.sin(Math.PI * t) * 0.08;
+        cloth.position.set(x1 + dx * t, 1.72 - sag - 0.22, z1 + dz * t);
+        cloth.rotation.y = -Math.atan2(dz, dx) + Math.PI / 2; // hang across the rope
+        group.add(cloth);
+        bobbers.push({ obj: cloth, baseY: cloth.position.y, phase: i * 1.9 });
+      }
+    }
+  }
+
+  // ---- Kafra shop stall: a counter with a pink-striped awning behind each
+  // shop NPC, so the shop reads as a market stand rather than a lone villager ----
+  {
+    const shopNpcs = (MAPS[mapId]?.npcs ?? []).filter((n) => n.role === "shop");
+    if (shopNpcs.length > 0) {
+      const [counterGeo, counterMat] = track(
+        new THREE.BoxGeometry(1.7, 0.85, 0.55),
+        new THREE.MeshStandardMaterial({ color: 0x8a6a42, roughness: 0.95 }),
+      );
+      const [postGeo] = track(new THREE.CylinderGeometry(0.05, 0.05, 1.9, 6), counterMat);
+      const [awningGeo, awningMat] = track(
+        new THREE.BoxGeometry(2.0, 0.06, 1.0),
+        new THREE.MeshStandardMaterial({ color: 0xe86a9a, roughness: 0.9 }),
+      );
+      const [trimGeo, trimMat] = track(
+        new THREE.BoxGeometry(2.0, 0.06, 0.22),
+        new THREE.MeshStandardMaterial({ color: 0xf4efe6, roughness: 0.9 }),
+      );
+      const [bottleGeo] = track(new THREE.CylinderGeometry(0.06, 0.07, 0.18, 8), counterMat);
+      const potionMats = [0xe0455a, 0x4a90e0, 0x58c060].map((c) => {
+        const m = new THREE.MeshStandardMaterial({ color: c, roughness: 0.3 });
+        mats.push(m);
+        return m;
+      });
+      for (const n of shopNpcs) {
+        const facing = n.facing ?? 0;
+        const stall = new THREE.Group();
+        const counter = new THREE.Mesh(counterGeo, counterMat);
+        counter.position.y = 0.42;
+        counter.castShadow = true;
+        stall.add(counter);
+        // a row of potion bottles for sale on the countertop
+        for (let b = 0; b < 3; b++) {
+          const bottle = new THREE.Mesh(bottleGeo, potionMats[b]);
+          bottle.position.set((b - 1) * 0.35, 0.94, 0.05);
+          stall.add(bottle);
+        }
+        for (const s of [-1, 1]) {
+          const post = new THREE.Mesh(postGeo, counterMat);
+          post.position.set(s * 0.9, 0.95, -0.35);
+          stall.add(post);
+        }
+        const awning = new THREE.Mesh(awningGeo, awningMat);
+        awning.position.set(0, 1.9, 0.1);
+        awning.rotation.x = 0.28;
+        awning.castShadow = true;
+        stall.add(awning);
+        const trim = new THREE.Mesh(trimGeo, trimMat);
+        trim.position.set(0, 1.76, 0.56);
+        trim.rotation.x = 0.28;
+        stall.add(trim);
+        // sit just behind the NPC, opening toward wherever they face
+        stall.position.set(n.x - Math.sin(facing) * 1.1, 0, n.z - Math.cos(facing) * 1.1);
+        stall.rotation.y = facing;
+        group.add(stall);
+      }
+    }
+  }
+
+  // ---- boss-arena braziers: a ring of ever-burning fire bowls around each
+  // boss spawn, so arenas read as dangerous set-pieces from a distance ----
+  {
+    const bossZones = (MAPS[mapId]?.zones ?? []).filter((z) => MONSTER_TEMPLATES[z.templateId]?.boss);
+    if (bossZones.length > 0) {
+      const [pillarGeo, pillarMat] = track(
+        new THREE.CylinderGeometry(0.12, 0.16, 1.0, 6),
+        new THREE.MeshStandardMaterial({ color: 0x35302c, roughness: 0.95 }),
+      );
+      const [bowlGeo] = track(new THREE.CylinderGeometry(0.24, 0.16, 0.16, 8), pillarMat);
+      const [emberGeo, emberMat] = track(
+        new THREE.SphereGeometry(0.15, 10, 8),
+        new THREE.MeshBasicMaterial({ color: 0xff9a40 }),
+      );
+      for (const z of bossZones) {
+        for (let i = 0; i < 4; i++) {
+          const a = (i / 4) * Math.PI * 2 + Math.PI / 4;
+          const bx = z.cx + Math.cos(a) * (z.radius + 2.5);
+          const bz = z.cz + Math.sin(a) * (z.radius + 2.5);
+          const pillar = new THREE.Mesh(pillarGeo, pillarMat);
+          pillar.position.set(bx, 0.5, bz);
+          pillar.castShadow = true;
+          const bowl = new THREE.Mesh(bowlGeo, pillarMat);
+          bowl.position.set(bx, 1.05, bz);
+          const ember = new THREE.Mesh(emberGeo, emberMat);
+          ember.position.set(bx, 1.16, bz);
+          flickers.push(ember); // flame flicker via tick()
+          group.add(pillar, bowl, ember);
+        }
+      }
+    }
+  }
+
+  // ---- wooden pier on coastal maps: planks running off the island's east
+  // edge over the ocean, with posts sunk into the water ----
+  if (WATER_MAPS[mapId]) {
+    const [plankGeo, woodMat] = track(
+      new THREE.BoxGeometry(1.5, 0.1, 2.2),
+      new THREE.MeshStandardMaterial({ color: 0x7a5a38, roughness: 0.95 }),
+    );
+    const [postGeo] = track(new THREE.CylinderGeometry(0.08, 0.09, 1.1, 6), woodMat);
+    const pierZ = 10;
+    for (let i = 0; i < 5; i++) {
+      const px = MAP_HALF * 0.94 + i * 1.55;
+      const plank = new THREE.Mesh(plankGeo, woodMat);
+      plank.position.set(px, 0.3, pierZ);
+      plank.castShadow = true;
+      group.add(plank);
+      for (const s of [-1, 1]) {
+        const post = new THREE.Mesh(postGeo, woodMat);
+        post.position.set(px + 0.6, -0.2, pierZ + s * 0.95);
+        group.add(post);
+      }
+    }
+    // a little rowboat moored beside the pier, bobbing on the swell
+    const boat = new THREE.Group();
+    const [hullGeo] = track(new THREE.BoxGeometry(0.95, 0.35, 2.0), woodMat);
+    const hull = new THREE.Mesh(hullGeo, woodMat);
+    boat.add(hull);
+    const [bowGeo] = track(new THREE.ConeGeometry(0.48, 0.7, 4), woodMat);
+    const bow = new THREE.Mesh(bowGeo, woodMat);
+    bow.rotation.x = -Math.PI / 2;
+    bow.rotation.y = Math.PI / 4;
+    bow.scale.set(1, 1, 0.5);
+    bow.position.set(0, 0.02, 1.3);
+    boat.add(bow);
+    const [benchGeo] = track(new THREE.BoxGeometry(0.85, 0.06, 0.25), woodMat);
+    for (const bz of [-0.5, 0.35]) {
+      const bench = new THREE.Mesh(benchGeo, woodMat);
+      bench.position.set(0, 0.14, bz);
+      boat.add(bench);
+    }
+    boat.position.set(MAP_HALF * 0.94 + 6.6, -0.18, pierZ + 2.2);
+    boat.rotation.y = 0.4;
+    group.add(boat);
+    bobbers.push({ obj: boat, baseY: -0.18, phase: rng() * Math.PI * 2 });
+
+    // shoreline reeds: a wind-swayed fringe of thin cattails near the coast
+    const reedMat = new THREE.MeshStandardMaterial({ color: 0x5a7a3a, roughness: 1 });
+    applyWind(reedMat, 0.1);
+    mats.push(reedMat);
+    const [reedGeo] = track(new THREE.ConeGeometry(0.035, 1.0, 5), reedMat);
+    const reedCount = 90;
+    const reeds = new THREE.InstancedMesh(reedGeo, reedMat, reedCount);
+    const rm = new THREE.Matrix4();
+    const rq = new THREE.Quaternion();
+    const rup = new THREE.Vector3(0, 1, 0);
+    for (let i = 0; i < reedCount; i++) {
+      const a = rng() * Math.PI * 2;
+      const r = MAP_HALF * (0.86 + rng() * 0.07);
+      const s = 0.8 + rng() * 0.7;
+      rq.setFromAxisAngle(rup, rng() * Math.PI);
+      rm.compose(new THREE.Vector3(Math.cos(a) * r, 0.5 * s, Math.sin(a) * r), rq, new THREE.Vector3(1, s, 1));
+      reeds.setMatrixAt(i, rm);
+    }
+    group.add(reeds);
+
+    // a couple of fish leap in silvery arcs off the pier every few seconds
+    const [fishGeo, fishMat] = track(
+      new THREE.ConeGeometry(0.09, 0.42, 6),
+      new THREE.MeshStandardMaterial({ color: 0xc8d4dc, roughness: 0.35, metalness: 0.4 }),
+    );
+    const [tailGeo] = track(new THREE.ConeGeometry(0.09, 0.16, 4), fishMat);
+    for (let f = 0; f < 2; f++) {
+      const fish = new THREE.Group();
+      const bodyF = new THREE.Mesh(fishGeo, fishMat);
+      bodyF.rotation.x = Math.PI / 2; // nose along +z
+      fish.add(bodyF);
+      const tail = new THREE.Mesh(tailGeo, fishMat);
+      tail.rotation.x = -Math.PI / 2;
+      tail.position.z = -0.27;
+      fish.add(tail);
+      group.add(fish);
+      jumpers.push({ obj: fish, x: MAP_HALF * 0.94 + 4.5 + f * 3.5, z: pierZ - 3 - f * 2, offset: f * 3.7 });
+    }
+
+    // a distant sailing ship rides the horizon swell, deep in the haze
+    const ship = new THREE.Group();
+    const shipMat = new THREE.MeshStandardMaterial({ color: 0x4a3a30, roughness: 0.95 });
+    mats.push(shipMat);
+    const [shipHullGeo] = track(new THREE.BoxGeometry(3.2, 1.4, 9.0), shipMat);
+    const shipHull = new THREE.Mesh(shipHullGeo, shipMat);
+    shipHull.position.y = 0.4;
+    ship.add(shipHull);
+    const [mastGeo] = track(new THREE.CylinderGeometry(0.14, 0.18, 7.0, 6), shipMat);
+    const mast = new THREE.Mesh(mastGeo, shipMat);
+    mast.position.y = 4.4;
+    ship.add(mast);
+    const [sailGeo, sailMat] = track(
+      new THREE.PlaneGeometry(3.6, 4.2),
+      new THREE.MeshStandardMaterial({ color: 0xe9e2d2, roughness: 0.9, side: THREE.DoubleSide }),
+    );
+    const sail = new THREE.Mesh(sailGeo, sailMat);
+    sail.position.set(0, 4.6, 0.4);
+    ship.add(sail);
+    const shipAngle = rng() * Math.PI * 2;
+    ship.position.set(Math.cos(shipAngle) * MAP_HALF * 1.55, -0.3, Math.sin(shipAngle) * MAP_HALF * 1.55);
+    ship.rotation.y = shipAngle + Math.PI / 2;
+    group.add(ship);
+    bobbers.push({ obj: ship, baseY: -0.3, phase: rng() * Math.PI * 2 });
+  }
+
+  // ---- windmill on classic leafy field maps: a tall tower with slowly turning
+  // sails, the signature RO farmland landmark ----
+  if (theme.tree === "leafy" && mapId !== "arena") {
+    const mill = new THREE.Group();
+    const millStone = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).lerp(new THREE.Color(0xffffff), 0.25), roughness: 0.95 });
+    mats.push(millStone);
+    const [towerGeo] = track(new THREE.CylinderGeometry(1.2, 1.8, 5.5, 10), millStone);
+    const tower = new THREE.Mesh(towerGeo, millStone);
+    tower.position.y = 2.75;
+    tower.castShadow = true;
+    mill.add(tower);
+    const [capGeo] = track(new THREE.ConeGeometry(1.5, 1.4, 10), millStone);
+    const cap = new THREE.Mesh(capGeo, millStone);
+    cap.position.y = 6.2;
+    mill.add(cap);
+    const hub = new THREE.Group();
+    hub.position.set(0, 5.4, 1.55);
+    const [bladeGeo, bladeMat] = track(
+      new THREE.BoxGeometry(0.5, 3.4, 0.08),
+      new THREE.MeshStandardMaterial({ color: 0xd9cdb4, roughness: 0.9 }),
+    );
+    for (let b = 0; b < 4; b++) {
+      const blade = new THREE.Mesh(bladeGeo, bladeMat);
+      blade.position.y = 1.75;
+      const arm = new THREE.Group();
+      arm.rotation.z = (b / 4) * Math.PI * 2;
+      arm.add(blade);
+      hub.add(arm);
+    }
+    mill.add(hub);
+    spinners.push({ obj: hub, speed: 0.35 });
+    mill.position.set(20, 0, -22);
+    mill.rotation.y = Math.atan2(-20, 22); // sails face the plaza
+    group.add(mill);
+  }
+
+  // ---- horizon mountains: a ring of hazy peaks outside the playfield so the
+  // world doesn't end at the map border (they sit deep in the fog) ----
+  {
+    const [peakGeo, peakMat] = track(
+      new THREE.ConeGeometry(1, 1, 5),
+      new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).lerp(new THREE.Color(theme.foliage[0]), 0.35), roughness: 1, flatShading: true }),
+    );
+    const peaks = new THREE.InstancedMesh(peakGeo, peakMat, 16);
+    const m = new THREE.Matrix4();
+    const q = new THREE.Quaternion();
+    const up = new THREE.Vector3(0, 1, 0);
+    for (let i = 0; i < 16; i++) {
+      const a = (i / 16) * Math.PI * 2 + rng() * 0.25;
+      const r = MAP_HALF * (1.5 + rng() * 0.4); // inside the fog falloff → hazy peaks
+      const h = 16 + rng() * 22;
+      const w = 14 + rng() * 14;
+      q.setFromAxisAngle(up, rng() * Math.PI);
+      m.compose(new THREE.Vector3(Math.cos(a) * r, h / 2 - 1, Math.sin(a) * r), q, new THREE.Vector3(w, h, w));
+      peaks.setMatrixAt(i, m);
+    }
+    group.add(peaks);
+    if (theme.snowy) {
+      // aurora over the snowfields: two translucent curtain bands high in the
+      // night sky (fog-exempt, additive) that fade in after dark and drift
+      const [auroraGeo, auroraLo] = track(
+        new THREE.CylinderGeometry(MAP_HALF * 1.25, MAP_HALF * 1.35, 16, 48, 1, true, 0, Math.PI * 0.9),
+        new THREE.MeshBasicMaterial({ color: 0x66ffc0, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending, fog: false }),
+      );
+      const [, auroraHi] = track(
+        auroraGeo,
+        new THREE.MeshBasicMaterial({ color: 0x8a9aff, transparent: true, opacity: 0, side: THREE.DoubleSide, depthWrite: false, blending: THREE.AdditiveBlending, fog: false }),
+      );
+      const bands: [THREE.MeshBasicMaterial, number, number, number, number][] = [
+        [auroraLo, 34, 0.8, 0.22, 0.012], // [mat, y, rotY, night opacity, drift speed]
+        [auroraHi, 40, 2.9, 0.14, -0.008],
+      ];
+      for (const [mat, y, rotY, max, speed] of bands) {
+        const band = new THREE.Mesh(auroraGeo, mat);
+        band.position.y = y;
+        band.rotation.y = rotY;
+        group.add(band);
+        nightFades.push({ mat, max });
+        spinners.push({ obj: band, speed, axis: "y" });
+      }
+    }
     const lampPost = track(new THREE.CylinderGeometry(0.07, 0.09, 2.2, 6), new THREE.MeshStandardMaterial({ color: 0x3a3430, roughness: 0.9 }));
     const lampHeadGeo = new THREE.SphereGeometry(0.16, 10, 8);
     const lampMat = new THREE.MeshBasicMaterial({ color: 0xffd9a0 });
     track(lampHeadGeo, lampMat);
+    nightLights.push({ mat: lampMat, day: new THREE.Color(0x9a8468), night: new THREE.Color(0xffd9a0) });
+    // shared firefly material — fades in with night alongside the light pools
+    const fireflyMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0xffe27a, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
+    mats.push(fireflyMat);
+    nightFades.push({ mat: fireflyMat, max: 0.85 });
+    // a warm pool of light on the ground under each lamp, fading in at night
+    const [poolGeo, poolMat] = track(
+      new THREE.PlaneGeometry(4.6, 4.6),
+      new THREE.MeshBasicMaterial({ map: makeSpark(), color: 0xffc27a, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }),
+    );
+    nightFades.push({ mat: poolMat, max: 0.3 });
     for (const [lx, lz] of [[-5.5, -5.5], [5.5, -5.5], [-5.5, 5.5], [5.5, 5.5]] as const) {
       const post = new THREE.Mesh(lampPost[0], lampPost[1]);
       post.position.set(lx, 1.1, lz);
@@ -260,6 +948,438 @@ export function buildScenery(mapId: string): Scenery {
       const head = new THREE.Mesh(lampHeadGeo, lampMat);
       head.position.set(lx, 2.3, lz);
       group.add(head);
+      const pool = new THREE.Mesh(poolGeo, poolMat);
+      pool.rotation.x = -Math.PI / 2;
+      pool.position.set(lx, 0.03, lz);
+      group.add(pool);
+      // a few fireflies drawn to each lamp after dark
+      for (let f = 0; f < 3; f++) {
+        const fly = new THREE.Sprite(fireflyMat);
+        fly.scale.setScalar(0.14);
+        group.add(fly);
+        orbiters.push({ sprite: fly, cx: lx, cz: lz, y: 1.9 + rng() * 0.7, r: 0.45 + rng() * 0.4, speed: 0.8 + rng() * 0.8, phase: rng() * Math.PI * 2 });
+      }
+    }
+
+    // festival pennant garlands strung between the lamp heads: a rope along
+    // each side of the lamp square with little flags that sway on the breeze
+    const [ropeGeo, ropeMat] = track(
+      new THREE.CylinderGeometry(0.015, 0.015, 11, 4),
+      new THREE.MeshStandardMaterial({ color: 0x6a5a48, roughness: 1 }),
+    );
+    const flagMats = [0xe86a9a, 0xffd24a, 0x6ac0e8].map((c) => {
+      const m = new THREE.MeshStandardMaterial({ color: c, roughness: 0.9, side: THREE.DoubleSide });
+      mats.push(m);
+      return m;
+    });
+    const [flagGeo] = track(new THREE.ConeGeometry(0.11, 0.3, 4), flagMats[0]);
+    const sides: [number, number, number, number][] = [
+      [-5.5, -5.5, 5.5, -5.5],
+      [5.5, -5.5, 5.5, 5.5],
+      [5.5, 5.5, -5.5, 5.5],
+      [-5.5, 5.5, -5.5, -5.5],
+    ];
+    for (let si = 0; si < sides.length; si++) {
+      const [x1, z1, x2, z2] = sides[si];
+      const rope = new THREE.Mesh(ropeGeo, ropeMat);
+      rope.position.set((x1 + x2) / 2, 2.28, (z1 + z2) / 2);
+      rope.rotation.z = Math.PI / 2;
+      rope.rotation.y = Math.atan2(z2 - z1, x2 - x1);
+      group.add(rope);
+      for (let f = 1; f <= 5; f++) {
+        const t = f / 6;
+        const flag = new THREE.Mesh(flagGeo, flagMats[(si + f) % flagMats.length]);
+        flag.rotation.x = Math.PI; // point down off the rope
+        const sag = Math.sin(Math.PI * t) * 0.12; // rope dips toward the middle
+        flag.position.set(x1 + (x2 - x1) * t, 2.28 - sag - 0.17, z1 + (z2 - z1) * t);
+        group.add(flag);
+        bobbers.push({ obj: flag, baseY: flag.position.y, phase: si * 2 + f });
+      }
+    }
+  }
+
+  // ---- horizon airship: a little dirigible on a slow sky lane above the
+  // peaks — a nod to Juno's airships. Cabin windows warm up after dark. ----
+  if (mapId !== "arena") {
+    const ship = new THREE.Group();
+    const [hullGeo, hullMat] = track(
+      new THREE.CapsuleGeometry(1.5, 4.6, 6, 12),
+      new THREE.MeshStandardMaterial({ color: 0xd8cfc0, roughness: 0.8 }),
+    );
+    const hull = new THREE.Mesh(hullGeo, hullMat);
+    hull.rotation.x = Math.PI / 2; // capsule axis along +z = direction of travel
+    ship.add(hull);
+    const [cabinGeo, cabinMat] = track(
+      new THREE.BoxGeometry(0.9, 0.7, 2.6),
+      new THREE.MeshStandardMaterial({ color: 0x6a5238, roughness: 0.9 }),
+    );
+    const cabin = new THREE.Mesh(cabinGeo, cabinMat);
+    cabin.position.y = -1.75;
+    ship.add(cabin);
+    const [winGeo, winMat] = track(new THREE.BoxGeometry(0.94, 0.2, 1.8), new THREE.MeshBasicMaterial({ color: 0xffd9a0 }));
+    nightLights.push({ mat: winMat, day: new THREE.Color(0x8a7a62), night: new THREE.Color(0xffd9a0) });
+    const win = new THREE.Mesh(winGeo, winMat);
+    win.position.y = -1.72;
+    ship.add(win);
+    const [finGeo] = track(new THREE.BoxGeometry(0.1, 1.3, 1.1), cabinMat);
+    for (const tilt of [0, Math.PI / 2]) {
+      const fin = new THREE.Mesh(finGeo, cabinMat);
+      fin.position.z = -3.1;
+      fin.rotation.z = tilt;
+      ship.add(fin);
+    }
+    const [propGeo] = track(new THREE.BoxGeometry(0.16, 1.6, 0.06), cabinMat);
+    const prop = new THREE.Mesh(propGeo, cabinMat);
+    prop.position.z = -3.8;
+    ship.add(prop);
+    spinners.push({ obj: prop, speed: 9 });
+    ship.scale.setScalar(2.2);
+    group.add(ship);
+    cruisers.push({ obj: ship, r: MAP_HALF * 1.2, y: 27, speed: 0.02, phase: rng() * Math.PI * 2 });
+  }
+
+  // ---- ground mist: on haunted and crystalline maps, broad soft wisps hug
+  // the ground after dark and drift in slow local circles ----
+  if (theme.tree === "dead" || theme.tree === "crystal") {
+    const mistMat = new THREE.SpriteMaterial({
+      map: makeSpark(),
+      color: new THREE.Color(theme.tuft).lerp(new THREE.Color(0xcccccc), 0.6),
+      transparent: true,
+      opacity: 0,
+      depthWrite: false,
+    });
+    mats.push(mistMat);
+    nightFades.push({ mat: mistMat, max: 0.14 });
+    for (let i = 0; i < 8; i++) {
+      const wisp = new THREE.Sprite(mistMat);
+      wisp.scale.set(5.5 + rng() * 3, 2.2 + rng() * 1, 1);
+      group.add(wisp);
+      const a = rng() * Math.PI * 2;
+      const r = 8 + rng() * 18;
+      orbiters.push({
+        sprite: wisp,
+        cx: Math.cos(a) * r,
+        cz: Math.sin(a) * r,
+        y: 0.7 + rng() * 0.5,
+        r: 1.6 + rng() * 1.4,
+        speed: 0.03 + rng() * 0.04,
+        phase: rng() * Math.PI * 2,
+      });
+    }
+  }
+
+  // ---- countryside dressing: a scarecrow watching the grass, and golden
+  // pollen motes that sparkle in the daylight and settle at dusk ----
+  if (theme.tree === "leafy" && mapId !== "arena") {
+    const strawMat = new THREE.MeshStandardMaterial({ color: 0xc8a84a, roughness: 1, flatShading: true });
+    mats.push(strawMat);
+    const [scPostGeo] = track(new THREE.CylinderGeometry(0.06, 0.08, 2.0, 6), strawMat);
+    const [scArmGeo] = track(new THREE.CylinderGeometry(0.045, 0.045, 1.5, 6), strawMat);
+    const [scHeadGeo] = track(new THREE.SphereGeometry(0.24, 10, 8), strawMat);
+    const [scHatGeo, scHatMat] = track(
+      new THREE.ConeGeometry(0.4, 0.28, 8),
+      new THREE.MeshStandardMaterial({ color: 0x8a6a3a, roughness: 1 }),
+    );
+    const [scShirtGeo, scShirtMat] = track(
+      new THREE.BoxGeometry(0.55, 0.7, 0.3),
+      new THREE.MeshStandardMaterial({ color: 0xa85040, roughness: 1 }),
+    );
+    const scarecrow = new THREE.Group();
+    const scPost = new THREE.Mesh(scPostGeo, strawMat);
+    scPost.position.y = 1.0;
+    scarecrow.add(scPost);
+    const scArm = new THREE.Mesh(scArmGeo, strawMat);
+    scArm.rotation.z = Math.PI / 2;
+    scArm.position.y = 1.45;
+    scarecrow.add(scArm);
+    const scShirt = new THREE.Mesh(scShirtGeo, scShirtMat);
+    scShirt.position.y = 1.25;
+    scarecrow.add(scShirt);
+    const scHead = new THREE.Mesh(scHeadGeo, strawMat);
+    scHead.position.y = 1.85;
+    scarecrow.add(scHead);
+    const scHat = new THREE.Mesh(scHatGeo, scHatMat);
+    scHat.position.y = 2.08;
+    scHat.rotation.z = 0.12;
+    scarecrow.add(scHat);
+    scarecrow.position.set(-16, 0, 14);
+    scarecrow.rotation.y = 0.7;
+    group.add(scarecrow);
+
+    const pollenMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0xffe9a0, transparent: true, opacity: 0.5, depthWrite: false, blending: THREE.AdditiveBlending });
+    mats.push(pollenMat);
+    dayFades.push({ mat: pollenMat, max: 0.5 });
+    for (let i = 0; i < 10; i++) {
+      const mote = new THREE.Sprite(pollenMat);
+      mote.scale.setScalar(0.07 + rng() * 0.05);
+      group.add(mote);
+      const a = rng() * Math.PI * 2;
+      const r = 7 + rng() * 20;
+      orbiters.push({
+        sprite: mote,
+        cx: Math.cos(a) * r,
+        cz: Math.sin(a) * r,
+        y: 0.8 + rng() * 1.4,
+        r: 0.9 + rng() * 1.2,
+        speed: 0.25 + rng() * 0.3,
+        phase: rng() * Math.PI * 2,
+      });
+    }
+  }
+
+  // ---- desert life: dust devils spin across the dunes and tumbleweeds roll
+  // an endless lap of the outskirts on arid maps ----
+  if (mapId === "morocc" || mapId === "pyramid" || mapId === "veins" || mapId === "scaraba") {
+    const [devilGeo, devilMat] = track(
+      new THREE.ConeGeometry(0.9, 3.2, 8, 1, true),
+      new THREE.MeshBasicMaterial({ color: new THREE.Color(theme.rock).lerp(new THREE.Color(0xffffff), 0.2), transparent: true, opacity: 0.16, side: THREE.DoubleSide, depthWrite: false }),
+    );
+    for (let d = 0; d < 2; d++) {
+      const carrier = new THREE.Group();
+      const funnel = new THREE.Mesh(devilGeo, devilMat);
+      funnel.rotation.x = Math.PI; // wide end up
+      funnel.position.y = 1.6;
+      carrier.add(funnel);
+      group.add(carrier);
+      spinners.push({ obj: funnel, speed: 6 + d * 2, axis: "y" });
+      cruisers.push({ obj: carrier, r: 16 + d * 9, y: 0, speed: 0.05 * (d % 2 === 0 ? 1 : -1), phase: rng() * Math.PI * 2 });
+    }
+    const [weedGeo, weedMat] = track(
+      new THREE.IcosahedronGeometry(0.42, 0),
+      new THREE.MeshStandardMaterial({ color: 0x9a7b4a, roughness: 1, flatShading: true, wireframe: true }),
+    );
+    for (let w = 0; w < 2; w++) {
+      const carrier = new THREE.Group();
+      const weed = new THREE.Mesh(weedGeo, weedMat);
+      weed.position.y = 0.42;
+      carrier.add(weed);
+      group.add(carrier);
+      spinners.push({ obj: weed, speed: -2.2 - w }); // rolls about local x/z as it travels
+      cruisers.push({ obj: carrier, r: 20 + w * 7, y: 0, speed: 0.09 * (w % 2 === 0 ? -1 : 1), phase: rng() * Math.PI * 2 });
+    }
+  }
+
+  // ---- snowman: snowy towns get a lopsided snowman by the plaza with a
+  // carrot nose, coal eyes and twig arms ----
+  if (theme.snowy) {
+    const snowMat = new THREE.MeshStandardMaterial({ color: 0xf4f8fc, roughness: 0.9 });
+    mats.push(snowMat);
+    const [snowBallGeo] = track(new THREE.SphereGeometry(0.55, 12, 10), snowMat);
+    const [coalGeo, coalMat] = track(new THREE.SphereGeometry(0.045, 6, 5), new THREE.MeshStandardMaterial({ color: 0x18141a, roughness: 1 }));
+    const [carrotGeo, carrotMat] = track(new THREE.ConeGeometry(0.06, 0.3, 6), new THREE.MeshStandardMaterial({ color: 0xe07a2a, roughness: 1 }));
+    const [twigGeo, twigMat] = track(new THREE.CylinderGeometry(0.02, 0.03, 0.8, 4), new THREE.MeshStandardMaterial({ color: 0x4a3220, roughness: 1 }));
+    const snowman = new THREE.Group();
+    const base = new THREE.Mesh(snowBallGeo, snowMat);
+    base.position.y = 0.5;
+    base.castShadow = true;
+    snowman.add(base);
+    const torso = new THREE.Mesh(snowBallGeo, snowMat);
+    torso.scale.setScalar(0.72);
+    torso.position.y = 1.18;
+    snowman.add(torso);
+    const noggin = new THREE.Mesh(snowBallGeo, snowMat);
+    noggin.scale.setScalar(0.5);
+    noggin.position.y = 1.78;
+    snowman.add(noggin);
+    for (const s of [-1, 1]) {
+      const eye = new THREE.Mesh(coalGeo, coalMat);
+      eye.position.set(s * 0.11, 1.86, 0.24);
+      snowman.add(eye);
+      const twig = new THREE.Mesh(twigGeo, twigMat);
+      twig.position.set(s * 0.62, 1.3, 0);
+      twig.rotation.z = s * (Math.PI / 2 - 0.35);
+      snowman.add(twig);
+    }
+    for (let b = 0; b < 3; b++) {
+      const button = new THREE.Mesh(coalGeo, coalMat);
+      button.position.set(0, 1.0 + b * 0.19, 0.36 - b * 0.02);
+      snowman.add(button);
+    }
+    const carrot = new THREE.Mesh(carrotGeo, carrotMat);
+    carrot.rotation.x = Math.PI / 2;
+    carrot.position.set(0, 1.78, 0.38);
+    snowman.add(carrot);
+    snowman.position.set(7.2, 0, 2.6);
+    snowman.rotation.y = Math.atan2(-7.2, -2.6);
+    group.add(snowman);
+  }
+
+  // ---- stone lanterns: East-Asian-themed towns line the south path with
+  // squat toro lanterns whose windows warm up after dark ----
+  if (mapId === "amatsu" || mapId === "louyang" || mapId === "gonryun" || mapId === "chinatown") {
+    const [toroGeo, toroMat] = track(
+      new THREE.CylinderGeometry(0.22, 0.3, 0.5, 6),
+      new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(0.9), roughness: 1, flatShading: true }),
+    );
+    const [toroCapGeo] = track(new THREE.ConeGeometry(0.42, 0.3, 6), toroMat);
+    const [toroLightGeo, toroLightMat] = track(new THREE.BoxGeometry(0.2, 0.16, 0.2), new THREE.MeshBasicMaterial({ color: 0xffd9a0 }));
+    nightLights.push({ mat: toroLightMat, day: new THREE.Color(0x9a8468), night: new THREE.Color(0xffd9a0) });
+    for (const [sx, tz] of [[-1, 12], [1, 15], [-1, 18], [1, 21]] as const) {
+      const toro = new THREE.Group();
+      const base = new THREE.Mesh(toroGeo, toroMat);
+      base.position.y = 0.25;
+      toro.add(base);
+      const light = new THREE.Mesh(toroLightGeo, toroLightMat);
+      light.position.y = 0.6;
+      toro.add(light);
+      const cap = new THREE.Mesh(toroCapGeo, toroMat);
+      cap.position.y = 0.84;
+      toro.add(cap);
+      toro.position.set(sx * 2.2, 0, tz);
+      group.add(toro);
+    }
+
+    // red paper lanterns swing beneath the gate-arch beam, glowing after dark
+    const [redLanternGeo, redLanternMat] = track(
+      new THREE.SphereGeometry(0.19, 10, 8),
+      new THREE.MeshBasicMaterial({ color: 0xc03028 }),
+    );
+    nightLights.push({ mat: redLanternMat, day: new THREE.Color(0xc03028), night: new THREE.Color(0xff6a4a) });
+    const [tasselGeo, tasselMat] = track(new THREE.CylinderGeometry(0.02, 0.02, 0.14, 4), new THREE.MeshStandardMaterial({ color: 0xd8a850, roughness: 0.8 }));
+    for (const lxp of [-1.4, 0, 1.4]) {
+      const lantern = new THREE.Group();
+      const bulb = new THREE.Mesh(redLanternGeo, redLanternMat);
+      bulb.scale.y = 0.85;
+      lantern.add(bulb);
+      const tassel = new THREE.Mesh(tasselGeo, tasselMat);
+      tassel.position.y = -0.24;
+      lantern.add(tassel);
+      lantern.position.set(lxp, 2.72, 24);
+      group.add(lantern);
+      bobbers.push({ obj: lantern, baseY: 2.72, phase: lxp * 1.7 });
+    }
+  }
+
+  // ---- glowing mushrooms: jungle maps sprout tiny fungus clusters on the
+  // forest floor that shine teal once the sun goes down ----
+  if (theme.tree === "jungle") {
+    const [stemGeo, stemMat] = track(
+      new THREE.CylinderGeometry(0.04, 0.06, 0.22, 6),
+      new THREE.MeshStandardMaterial({ color: 0xd8d0c0, roughness: 1 }),
+    );
+    const [capGeo, capMat] = track(new THREE.ConeGeometry(0.16, 0.14, 8), new THREE.MeshBasicMaterial({ color: 0x58c0a8 }));
+    nightLights.push({
+      mat: capMat,
+      day: new THREE.Color(0x58c0a8).multiplyScalar(0.5),
+      night: new THREE.Color(0x7af0cc),
+    });
+    for (let c = 0; c < 7; c++) {
+      const a = rng() * Math.PI * 2;
+      const r = 9 + rng() * 20;
+      const cx = Math.cos(a) * r;
+      const cz = Math.sin(a) * r;
+      for (let s = 0; s < 3; s++) {
+        const sc = 0.7 + rng() * 0.8;
+        const mx = cx + (rng() - 0.5) * 0.7;
+        const mz = cz + (rng() - 0.5) * 0.7;
+        const stem = new THREE.Mesh(stemGeo, stemMat);
+        stem.scale.setScalar(sc);
+        stem.position.set(mx, 0.11 * sc, mz);
+        group.add(stem);
+        const cap = new THREE.Mesh(capGeo, capMat);
+        cap.scale.setScalar(sc);
+        cap.position.set(mx, 0.25 * sc, mz);
+        group.add(cap);
+      }
+    }
+  }
+
+  // ---- night bats: on haunted maps a few bats wheel overhead after dark,
+  // fading in with the night level like the ground mist ----
+  if (theme.tree === "dead") {
+    const batMat = new THREE.MeshBasicMaterial({ color: 0x201824, side: THREE.DoubleSide, transparent: true, opacity: 0 });
+    mats.push(batMat);
+    nightFades.push({ mat: batMat, max: 0.95 });
+    const [batBodyGeo] = track(new THREE.SphereGeometry(0.09, 8, 6), batMat);
+    const [batWingGeo] = track(new THREE.PlaneGeometry(0.5, 0.2), batMat);
+    for (let b = 0; b < 3; b++) {
+      const bat = new THREE.Group();
+      bat.add(new THREE.Mesh(batBodyGeo, batMat));
+      const wings: THREE.Object3D[] = [];
+      for (const s of [-1, 1]) {
+        const pivot = new THREE.Group();
+        if (s < 0) pivot.rotation.y = Math.PI;
+        const wing = new THREE.Mesh(batWingGeo, batMat);
+        wing.position.x = 0.28;
+        pivot.add(wing);
+        bat.add(pivot);
+        wings.push(pivot);
+      }
+      group.add(bat);
+      cruisers.push({
+        obj: bat,
+        r: 6 + rng() * 8,
+        y: 5 + rng() * 3,
+        speed: (0.5 + rng() * 0.4) * (b % 2 === 0 ? 1 : -1),
+        phase: rng() * Math.PI * 2,
+        wings,
+        flapRate: 13,
+      });
+    }
+  }
+
+  // ---- crystal outcrops: on crystal maps, clusters of tilted shards catch
+  // the theme's hue by day and glow from within after dark ----
+  if (theme.tree === "crystal") {
+    const [shardGeo, shardMat] = track(
+      new THREE.ConeGeometry(0.22, 1.1, 5),
+      new THREE.MeshBasicMaterial({ color: theme.foliage[0] }),
+    );
+    nightLights.push({
+      mat: shardMat,
+      day: new THREE.Color(theme.foliage[0]).multiplyScalar(0.55),
+      night: new THREE.Color(theme.foliage[0]).lerp(new THREE.Color(0xffffff), 0.35),
+    });
+    for (let c = 0; c < 6; c++) {
+      const a = rng() * Math.PI * 2;
+      const r = 10 + rng() * 20;
+      const cx = Math.cos(a) * r;
+      const cz = Math.sin(a) * r;
+      for (let s = 0; s < 3; s++) {
+        const shard = new THREE.Mesh(shardGeo, shardMat);
+        const sc = 0.6 + rng() * 0.9;
+        shard.scale.setScalar(sc);
+        shard.position.set(cx + (rng() - 0.5) * 0.9, 0.4 * sc, cz + (rng() - 0.5) * 0.9);
+        shard.rotation.set((rng() - 0.5) * 0.6, rng() * Math.PI, (rng() - 0.5) * 0.6);
+        group.add(shard);
+      }
+    }
+  }
+
+  // ---- seabirds: a small wheeling flock over the water on coastal maps ----
+  if (WATER_MAPS[mapId]) {
+    const [birdBodyGeo, birdMat] = track(
+      new THREE.ConeGeometry(0.11, 0.55, 6),
+      new THREE.MeshStandardMaterial({ color: 0xf2f4f6, roughness: 0.8 }),
+    );
+    const [wingGeo] = track(new THREE.BoxGeometry(0.85, 0.03, 0.26), birdMat);
+    for (let b = 0; b < 4; b++) {
+      const bird = new THREE.Group();
+      const body = new THREE.Mesh(birdBodyGeo, birdMat);
+      body.rotation.x = Math.PI / 2; // cone nose points +z = direction of travel
+      bird.add(body);
+      const wings: THREE.Object3D[] = [];
+      for (const s of [-1, 1]) {
+        // pivot at the shoulder; the left pivot is mirrored so one shared
+        // rotation.z flaps both wings up and down together
+        const pivot = new THREE.Group();
+        pivot.position.x = s * 0.08;
+        if (s < 0) pivot.rotation.y = Math.PI;
+        const wing = new THREE.Mesh(wingGeo, birdMat);
+        wing.position.x = 0.42;
+        pivot.add(wing);
+        bird.add(pivot);
+        wings.push(pivot);
+      }
+      group.add(bird);
+      cruisers.push({
+        obj: bird,
+        r: MAP_HALF * (1.02 + rng() * 0.08),
+        y: 11 + rng() * 5,
+        speed: (0.16 + rng() * 0.08) * (b % 2 === 0 ? 1 : -1),
+        phase: rng() * Math.PI * 2,
+        wings,
+      });
     }
   }
 
@@ -267,6 +1387,106 @@ export function buildScenery(mapId: string): Scenery {
     group,
     setShade(mul: number) {
       for (const s of shadeList) s.mat.color.copy(s.base).multiplyScalar(mul);
+    },
+    setNight(n: number) {
+      nightNow = n;
+      for (const l of nightLights) l.mat.color.copy(l.day).lerp(l.night, n);
+      for (const f of nightFades) f.mat.opacity = f.max * n;
+      for (const f of dayFades) f.mat.opacity = f.max * (1 - n);
+    },
+    tick(dt: number) {
+      animPhase += dt;
+      // brazier embers flicker like flame (per-mesh offset so they desync)
+      for (let i = 0; i < flickers.length; i++) {
+        const s = 1 + Math.sin(animPhase * 7 + i * 1.7) * 0.12 + Math.sin(animPhase * 13 + i) * 0.06;
+        flickers[i].scale.setScalar(s);
+      }
+      // fireflies orbit their lamp with a gentle vertical wander
+      for (const o of orbiters) {
+        const a = o.phase + animPhase * o.speed;
+        o.sprite.position.set(o.cx + Math.cos(a) * o.r, o.y + Math.sin(a * 1.7) * 0.2, o.cz + Math.sin(a) * o.r);
+      }
+      // the moored boat + distant ship bob and roll on the swell
+      for (const b of bobbers) {
+        b.obj.position.y = b.baseY + Math.sin(animPhase * 1.3 + b.phase) * 0.06;
+        b.obj.rotation.z = Math.sin(animPhase * 1.1 + b.phase) * 0.05;
+      }
+      // windmill sails turn slowly; the aurora band drifts around the sky
+      for (const s of spinners) s.obj.rotation[s.axis ?? "z"] += dt * s.speed;
+      // chimney puffs rise, swell mid-climb, then shrink away and loop
+      for (const s of smokes) {
+        const t = (animPhase * 0.22 + s.offset) % 1;
+        s.sprite.position.y = s.baseY + t * 1.5;
+        s.sprite.scale.setScalar(0.2 + Math.sin(Math.PI * t) * 0.55);
+      }
+      // a shooting star dashes across the first beat of each cycle at night
+      {
+        const CYCLE = 9;
+        const idx = Math.floor(animPhase / CYCLE);
+        const t = (animPhase % CYCLE) / 0.9; // 0→1 over the first 0.9 s
+        // cheap deterministic per-cycle randoms (fractional-sine hash)
+        const h1 = Math.abs(Math.sin(idx * 127.1) * 43758.5) % 1;
+        const h2 = Math.abs(Math.sin(idx * 311.7) * 26951.3) % 1;
+        if (t < 1) {
+          const a0 = h1 * Math.PI * 2;
+          const dir = a0 + 2.3 + h2 * 1.6; // streak heading, roughly crosswise
+          const r0 = 60 + h2 * 30;
+          star.position.set(
+            Math.cos(a0) * r0 + Math.cos(dir) * t * 34,
+            36 + h2 * 10 - t * 7,
+            Math.sin(a0) * r0 + Math.sin(dir) * t * 34,
+          );
+          starMat.rotation = -dir;
+          starMat.opacity = nightNow * Math.sin(Math.PI * t) * 0.9;
+        } else {
+          starMat.opacity = 0;
+        }
+      }
+      // leaves tumble down from canopy height, swaying sideways as they fall
+      for (const l of leaves) {
+        const t = (animPhase * 0.06 + l.offset) % 1;
+        l.m.position.set(
+          l.x + Math.sin(animPhase * 0.9 + l.offset * 20) * 1.1,
+          6.5 * (1 - t),
+          l.z + Math.cos(animPhase * 0.7 + l.offset * 14) * 0.8,
+        );
+        l.m.rotation.set(animPhase * l.spin, l.offset * 6, animPhase * l.spin * 0.7);
+      }
+      // fish leap: a quick parabolic arc out of the sea, nose tracing the path
+      for (const j of jumpers) {
+        const t = ((animPhase + j.offset) % 7) / 1.1; // first 1.1 s of a 7 s cycle
+        if (t < 1) {
+          j.obj.visible = true;
+          j.obj.position.set(j.x + t * 1.4, -0.35 + Math.sin(Math.PI * t) * 1.5, j.z);
+          j.obj.rotation.x = (t - 0.5) * 2.1; // nose up on the rise, down on the dive
+        } else {
+          j.obj.visible = false;
+        }
+      }
+      // cruisers fly their ring route, nose along the tangent, wings flapping
+      for (const c of cruisers) {
+        const a = c.phase + animPhase * c.speed;
+        c.obj.position.set((c.cx ?? 0) + Math.cos(a) * c.r, c.y + Math.sin(a * 3 + c.phase) * 0.4, (c.cz ?? 0) + Math.sin(a) * c.r);
+        c.obj.rotation.y = -a + (c.speed < 0 ? Math.PI : 0);
+        if (c.wings) {
+          const flap = Math.sin(animPhase * (c.flapRate ?? 9) + c.phase * 7) * 0.55;
+          for (const w of c.wings) w.rotation.z = flap;
+        }
+      }
+      if (!animated) return;
+      if (animated.jet) {
+        // fountain jet pulses; the pool shimmers faintly
+        animated.jet.scale.y = 1 + Math.sin(animPhase * 3) * 0.16;
+        animated.jet.scale.x = animated.jet.scale.z = 1 - Math.sin(animPhase * 3) * 0.06;
+      }
+      if (animated.water) {
+        (animated.water.material as THREE.MeshBasicMaterial).opacity = 0.8 + Math.sin(animPhase * 2.2) * 0.06;
+      }
+      if (animated.shard) {
+        // crystal monolith slowly spins and bobs
+        animated.shard.rotation.y += dt * 0.4;
+        animated.shard.position.y = 2.0 + Math.sin(animPhase * 0.8) * 0.12;
+      }
     },
     dispose() {
       for (const g of geos) g.dispose();
@@ -283,6 +1503,8 @@ function addHouses(
   group: THREE.Group,
   theme: Theme,
   track: <T extends THREE.BufferGeometry, M extends THREE.Material>(g: T, m: M) => [T, M],
+  nightLights: NightLight[],
+  smokes: { sprite: THREE.Sprite; baseY: number; offset: number }[],
 ): void {
   const [wallGeo, wallMat] = track(
     new THREE.BoxGeometry(2.6, 1.8, 2.2),
@@ -294,6 +1516,17 @@ function addHouses(
   );
   const [doorGeo, doorMat] = track(new THREE.BoxGeometry(0.6, 1.0, 0.08), new THREE.MeshStandardMaterial({ color: 0x4a3220, roughness: 1 }));
   const [winGeo, winMat] = track(new THREE.BoxGeometry(0.42, 0.42, 0.06), new THREE.MeshBasicMaterial({ color: 0xffd9a0 }));
+  nightLights.push({ mat: winMat, day: new THREE.Color(0x8a7a62), night: new THREE.Color(0xffd9a0) });
+  const [chimneyGeo, chimneyMat] = track(
+    new THREE.BoxGeometry(0.34, 0.7, 0.34),
+    new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(0.7), roughness: 1 }),
+  );
+  // shared puff material; riding track() with the chimney geo keeps it in the
+  // dispose list (a re-disposed geometry is a safe no-op in three.js)
+  const [, smokeMat] = track(
+    chimneyGeo,
+    new THREE.SpriteMaterial({ map: makeSpark(), color: 0xb9bcc4, transparent: true, opacity: 0.28, depthWrite: false }),
+  );
 
   const placements = [
     { x: -9.5, z: -7 },
@@ -319,19 +1552,86 @@ function addHouses(
       win.position.set(s * 0.85, 1.1, 1.12);
       house.add(win);
     }
+    // a squat chimney off the roof's back corner, with looping smoke puffs
+    const chimney = new THREE.Mesh(chimneyGeo, chimneyMat);
+    chimney.position.set(0.7, 2.55, -0.4);
+    house.add(chimney);
+    for (let puff = 0; puff < 3; puff++) {
+      const sprite = new THREE.Sprite(smokeMat);
+      sprite.position.set(0.7, 2.95, -0.4);
+      sprite.scale.setScalar(0.25);
+      house.add(sprite);
+      smokes.push({ sprite, baseY: 2.95, offset: puff / 3 });
+    }
     house.position.set(p.x, 0, p.z);
     house.rotation.y = Math.atan2(-p.x, -p.z); // door side (+z) faces the fountain
     group.add(house);
   }
 }
 
-// A themed monument at the map centre: a tiered fountain on living maps, a
-// glowing crystal monolith on crystal maps, a weathered obelisk on dead ones.
-function addCenterpiece(
+// Plaza furniture: two benches facing the fountain, plus a crate stack and a
+// barrel by the houses — small props that make the square feel inhabited.
+function addPlazaProps(
   group: THREE.Group,
   theme: Theme,
   track: <T extends THREE.BufferGeometry, M extends THREE.Material>(g: T, m: M) => [T, M],
 ): void {
+  const wood = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(1.1), roughness: 0.95 });
+  const [seatGeo] = track(new THREE.BoxGeometry(1.4, 0.08, 0.4), wood);
+  const [backGeo] = track(new THREE.BoxGeometry(1.4, 0.34, 0.06), wood);
+  const [legGeo] = track(new THREE.BoxGeometry(0.08, 0.42, 0.4), wood);
+  for (const s of [-1, 1]) {
+    const bench = new THREE.Group();
+    const seat = new THREE.Mesh(seatGeo, wood);
+    seat.position.y = 0.42;
+    seat.castShadow = true;
+    const back = new THREE.Mesh(backGeo, wood);
+    back.position.set(0, 0.62, -0.2);
+    const legL = new THREE.Mesh(legGeo, wood);
+    legL.position.set(-0.6, 0.21, 0);
+    const legR = new THREE.Mesh(legGeo, wood);
+    legR.position.set(0.6, 0.21, 0);
+    bench.add(seat, back, legL, legR);
+    bench.position.set(s * 6.2, 0, 0.6);
+    bench.rotation.y = s * Math.PI / 2; // face the fountain
+    group.add(bench);
+  }
+  // crate stack beside the east house
+  const [crateGeo] = track(new THREE.BoxGeometry(0.62, 0.62, 0.62), wood);
+  const crates = [
+    { x: 7.6, y: 0.31, z: -5.2, rot: 0.2 },
+    { x: 8.3, y: 0.31, z: -5.5, rot: -0.35 },
+    { x: 7.9, y: 0.93, z: -5.3, rot: 0.55 },
+  ];
+  for (const cfg of crates) {
+    const crate = new THREE.Mesh(crateGeo, wood);
+    crate.position.set(cfg.x, cfg.y, cfg.z);
+    crate.rotation.y = cfg.rot;
+    crate.castShadow = true;
+    group.add(crate);
+  }
+  // barrel by the west house
+  const [barrelGeo, barrelMat] = track(
+    new THREE.CylinderGeometry(0.3, 0.34, 0.72, 10),
+    new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(0.85), roughness: 0.95 }),
+  );
+  const barrel = new THREE.Mesh(barrelGeo, barrelMat);
+  barrel.position.set(-7.8, 0.36, -5.3);
+  barrel.castShadow = true;
+  group.add(barrel);
+}
+
+// Animatable parts of the centerpiece (fountain jet/pool or crystal shard).
+type CenterpieceAnim = { jet?: THREE.Mesh; water?: THREE.Mesh; shard?: THREE.Mesh } | null;
+
+// A themed monument at the map centre: a tiered fountain on living maps, a
+// glowing crystal monolith on crystal maps, a weathered obelisk on dead ones.
+// Returns the parts that Scenery.tick animates.
+function addCenterpiece(
+  group: THREE.Group,
+  theme: Theme,
+  track: <T extends THREE.BufferGeometry, M extends THREE.Material>(g: T, m: M) => [T, M],
+): CenterpieceAnim {
   const stoneMat = new THREE.MeshStandardMaterial({ color: theme.rock, roughness: 0.95 });
   if (theme.tree === "crystal") {
     // crystal monolith with a soft inner glow
@@ -347,6 +1647,7 @@ function addCenterpiece(
     const base = new THREE.Mesh(baseGeo, stoneMat);
     base.position.y = 0.25;
     group.add(base, shard);
+    return { shard };
   } else if (theme.tree === "dead") {
     // weathered obelisk
     const [geo] = track(new THREE.CylinderGeometry(0.35, 0.6, 3.4, 4), stoneMat);
@@ -362,6 +1663,7 @@ function addCenterpiece(
     const base = new THREE.Mesh(baseGeo2, stoneMat);
     base.position.y = 0.25;
     group.add(base, obelisk, tip);
+    return null; // the obelisk stands still
   } else {
     // tiered plaza fountain with a glowing water disc + centre jet
     const [basinGeo] = track(new THREE.CylinderGeometry(2.2, 2.4, 0.7, 14, 1, false), stoneMat);
@@ -385,6 +1687,7 @@ function addCenterpiece(
     const jet = new THREE.Mesh(jetGeo, jetMat);
     jet.position.y = 2.4;
     group.add(basin, water, column, top, jet);
+    return { jet, water };
   }
 }
 
@@ -460,6 +1763,16 @@ function addTrees(
   const foliage2 = new THREE.InstancedMesh(foliageGeo, foliageMat2, n);
   foliage2.castShadow = true;
 
+  // snow caps on snowy pines: a small white cone perched on each canopy
+  let snowCaps: THREE.InstancedMesh | null = null;
+  if (theme.snowy) {
+    const [snowGeo, snowMat] = track(
+      new THREE.ConeGeometry(0.72, 0.9, 7),
+      new THREE.MeshStandardMaterial({ color: 0xf4f8fc, roughness: 0.9, flatShading: true }),
+    );
+    snowCaps = new THREE.InstancedMesh(snowGeo, snowMat, n);
+  }
+
   const fCol = new THREE.Color(foliageColor);
   const fCol2 = new THREE.Color(foliageColor2);
   const c = new THREE.Color();
@@ -486,8 +1799,13 @@ function addTrees(
     const fs2 = fs * 0.62;
     m.compose(new THREE.Vector3(p.x, (foliageY + 0.7) * p.s, p.z), q, new THREE.Vector3(fs2, fs2, fs2));
     foliage2.setMatrixAt(i, m);
+    if (snowCaps) {
+      m.compose(new THREE.Vector3(p.x, (foliageY + 1.15) * p.s, p.z), q, new THREE.Vector3(fs, fs, fs));
+      snowCaps.setMatrixAt(i, m);
+    }
   }
   if (foliage.instanceColor) foliage.instanceColor.needsUpdate = true;
   if (foliage2.instanceColor) foliage2.instanceColor.needsUpdate = true;
   group.add(trunks, foliage, foliage2);
+  if (snowCaps) group.add(snowCaps);
 }

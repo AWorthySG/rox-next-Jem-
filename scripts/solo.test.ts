@@ -5,6 +5,7 @@
 import {
   DamageKind,
   Element,
+  jobTierOf,
   effectiveCastMs,
   elementMultiplier,
   environmentMultiplier,
@@ -137,6 +138,12 @@ async function main(): Promise<void> {
   rk.level = 70;
   check(rk.advanceJob(JobId.DragonKnight) && rk.job === JobId.DragonKnight, "4th job: Rune Knight -> Dragon Knight at Lv70");
   check(rk.skillLevel("storm_slash") === 1, "4th job: Dragon Knight learns Storm Slash");
+
+  // ---- job tier helper (drives back-wing visuals) ----
+  check(jobTierOf(JobId.Novice) === 0, "tier: Novice is tier 0");
+  check(jobTierOf(JobId.Swordsman) === 1, "tier: Swordsman is tier 1");
+  check(jobTierOf(JobId.RuneKnight) === 3, "tier: Rune Knight is tier 3");
+  check(jobTierOf(JobId.Cardinal) === 4, "tier: Cardinal is tier 4");
 
   // ---- every combat map has at least two bosses ----
   for (const m of Object.values(MAPS)) {

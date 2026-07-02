@@ -1,7 +1,7 @@
 import type { EntityFull } from "@rox/shared";
-import { isMagicJob, jobFamilyOf, MOUNT_SPEED_MULT, PLAYER_SPEED } from "@rox/shared";
+import { isMagicJob, jobFamilyOf, jobTierOf, MOUNT_SPEED_MULT, PLAYER_SPEED } from "@rox/shared";
 import * as THREE from "three";
-import { applyHeadgear, buildCharacter, type CharacterMesh, type WeaponStyle } from "../procedural/characterMesh.js";
+import { applyHeadgear, buildCharacter, setEyeBlink, type CharacterMesh, type WeaponStyle } from "../procedural/characterMesh.js";
 import { EntityView } from "./EntityView.js";
 import { ModelRig } from "./ModelRig.js";
 
@@ -11,7 +11,7 @@ export class PlayerView extends EntityView {
   private char: CharacterMesh;
   private walkPhase = 0;
   private speedMul = 1;
-  private mount: THREE.Mesh | null = null;
+  private mount: THREE.Object3D | null = null;
   private bodyBaseY = 0;
   private headgearId: string | null = null;
   private swingT = 0; // attack-swing animation timer (1→0)
@@ -19,6 +19,10 @@ export class PlayerView extends EntityView {
   private rig: ModelRig;
   private buffAura: THREE.Mesh | null = null;
   private auraPhase = 0;
+  private blinkIn = 1.5 + Math.random() * 3; // seconds until the next blink
+  private blinkT = 0; // remaining blink duration
+  private glintIn = 3 + Math.random() * 5; // seconds until the next weapon glint
+  private glintT = 0; // remaining glint sweep time
 
   isSelf = false;
   // server-authoritative position (used for self correction / remote idle)
@@ -37,7 +41,7 @@ export class PlayerView extends EntityView {
     const magic = entity.job ? isMagicJob(entity.job) : false;
     const fam = entity.job ? jobFamilyOf(entity.job) : null;
     const weapon: WeaponStyle = fam === "mage" ? "staff" : fam === "archer" ? "bow" : fam === "acolyte" ? "mace" : "blade";
-    this.char = buildCharacter(entity.colorSeed ?? 0, magic, weapon);
+    this.char = buildCharacter(entity.colorSeed ?? 0, magic, weapon, entity.job ? jobTierOf(entity.job) : 0);
     this.char.group.userData.entityId = entity.id;
     applyHeadgear(this.char, entity.headgear);
     this.headgearId = entity.headgear ?? null;
@@ -49,6 +53,27 @@ export class PlayerView extends EntityView {
     this.px = entity.x;
     this.pz = entity.z;
     this.pfacing = entity.facing;
+
+    // Guild members wear a small crest on the back, tinted from the guild name
+    // so guildmates share a colour (readable in a crowd, like ROX guild capes).
+    if (entity.guildName) {
+      let h = 0;
+      for (let i = 0; i < entity.guildName.length; i++) h = (h * 31 + entity.guildName.charCodeAt(i)) >>> 0;
+      const crestColor = new THREE.Color().setHSL((h % 360) / 360, 0.6, 0.5);
+      const crest = new THREE.Mesh(
+        new THREE.CircleGeometry(0.13, 12),
+        new THREE.MeshToonMaterial({ color: crestColor }),
+      );
+      crest.position.set(0, 0.72, -0.27);
+      crest.rotation.y = Math.PI;
+      this.char.group.add(crest);
+      const rim = new THREE.Mesh(
+        new THREE.TorusGeometry(0.13, 0.02, 6, 16),
+        new THREE.MeshBasicMaterial({ color: 0xf0c25a }),
+      );
+      rim.position.copy(crest.position);
+      this.char.group.add(rim);
+    }
 
     // Optional mid-poly avatar by job: char_<job>.glb (e.g. char_swordsman.glb).
     this.rig = new ModelRig(this.group, entity.id);
@@ -70,17 +95,58 @@ export class PlayerView extends EntityView {
     this.predTarget = { x, z };
   }
 
-  // Toggle the Peco Peco mount: a faster move speed + a simple steed under the rider.
+  // Toggle the Peco Peco mount: a faster move speed + a big yellow bird under
+  // the rider (round body, craning neck, orange beak, tail feathers and legs).
   setMounted(mounted: boolean): void {
     this.speedMul = mounted ? MOUNT_SPEED_MULT : 1;
     if (mounted && !this.mount) {
-      this.mount = new THREE.Mesh(
-        new THREE.CapsuleGeometry(0.45, 0.9, 6, 10),
-        new THREE.MeshLambertMaterial({ color: 0xf4c542 }),
-      );
-      this.mount.rotation.z = Math.PI / 2;
-      this.mount.position.y = 0.5;
-      this.char.group.add(this.mount);
+      const bird = new THREE.Group();
+      const feather = new THREE.MeshLambertMaterial({ color: 0xf4c542 });
+      const featherDark = new THREE.MeshLambertMaterial({ color: 0xd9a52e });
+      const orange = new THREE.MeshLambertMaterial({ color: 0xe07a2a });
+
+      const body = new THREE.Mesh(new THREE.SphereGeometry(0.5, 14, 12), feather);
+      body.position.y = 0.55;
+      body.scale.set(0.9, 0.85, 1.15);
+      bird.add(body);
+      const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.18, 0.5, 8), feather);
+      neck.position.set(0, 0.95, 0.42);
+      neck.rotation.x = 0.35;
+      bird.add(neck);
+      const headM = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 10), feather);
+      headM.position.set(0, 1.2, 0.55);
+      bird.add(headM);
+      const beak = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.3, 8), orange);
+      beak.position.set(0, 1.18, 0.82);
+      beak.rotation.x = Math.PI / 2;
+      bird.add(beak);
+      for (const s of [-1, 1]) {
+        const eye = new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 8), new THREE.MeshBasicMaterial({ color: 0x241c2c }));
+        eye.position.set(s * 0.13, 1.26, 0.68);
+        bird.add(eye);
+        // folded wing
+        const wing = new THREE.Mesh(new THREE.SphereGeometry(0.3, 10, 8), featherDark);
+        wing.position.set(s * 0.42, 0.6, -0.05);
+        wing.scale.set(0.35, 0.6, 0.95);
+        bird.add(wing);
+        // stubby leg
+        const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 0.5, 6), orange);
+        leg.position.set(s * 0.2, 0.2, 0.05);
+        bird.add(leg);
+      }
+      // tail feathers
+      for (let i = -1; i <= 1; i++) {
+        const tail = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.5, 6), featherDark);
+        tail.position.set(i * 0.14, 0.72, -0.62);
+        tail.rotation.x = -2.2;
+        tail.rotation.z = i * 0.2;
+        bird.add(tail);
+      }
+      bird.traverse((o) => {
+        if (o instanceof THREE.Mesh) o.castShadow = true;
+      });
+      this.mount = bird;
+      this.char.group.add(bird);
       this.bodyBaseY = 0.7; // sit the rider up
     } else if (!mounted && this.mount) {
       this.char.group.remove(this.mount);
@@ -209,6 +275,31 @@ export class PlayerView extends EntityView {
       this.rig.setMoving(this.moving);
       this.rig.update(dt);
       return;
+    }
+    // anime blink: eyes squash shut for a beat every few seconds
+    this.blinkIn -= dt;
+    if (this.blinkIn <= 0) {
+      this.blinkIn = 1.5 + Math.random() * 3.5;
+      this.blinkT = 0.13;
+    }
+    if (this.blinkT > 0) {
+      this.blinkT -= dt;
+      setEyeBlink(this.char, this.blinkT > 0 ? 0.08 : 1);
+    }
+    // weapon glint: a spark sweeps base→tip every few seconds
+    this.glintIn -= dt;
+    if (this.glintIn <= 0) {
+      this.glintIn = 3 + Math.random() * 5;
+      this.glintT = 0.45;
+    }
+    const wg = this.char.weaponGlint;
+    if (this.glintT > 0) {
+      this.glintT -= dt;
+      const t = 1 - Math.max(0, this.glintT) / 0.45;
+      wg.sprite.position.set(wg.x, wg.y0 + (wg.y1 - wg.y0) * t, wg.z);
+      (wg.sprite.material as THREE.SpriteMaterial).opacity = Math.sin(t * Math.PI) * 0.9;
+    } else {
+      (wg.sprite.material as THREE.SpriteMaterial).opacity = 0;
     }
     // cape: flow back while moving, gentle drift at rest (framerate-independent)
     if (this.char.cape) {
