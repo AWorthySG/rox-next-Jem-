@@ -1275,6 +1275,67 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- guardian lions: the East-Asian towns sit a pair of stone shishi on
+  // plinths just inside the torii gate ----
+  if (mapId === "amatsu" || mapId === "louyang" || mapId === "gonryun" || mapId === "chinatown") {
+    const lionStone = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(1.1), roughness: 1, flatShading: true });
+    mats.push(lionStone);
+    const [plinthGeo] = track(new THREE.BoxGeometry(0.7, 0.45, 0.9), lionStone);
+    const [lionBodyGeo] = track(new THREE.SphereGeometry(0.3, 10, 8), lionStone);
+    const [maneGeo] = track(new THREE.TorusGeometry(0.22, 0.09, 6, 10), lionStone);
+    const [lionEarGeo] = track(new THREE.ConeGeometry(0.07, 0.12, 4), lionStone);
+    for (const s of [-1, 1]) {
+      const lion = new THREE.Group();
+      const plinth = new THREE.Mesh(plinthGeo, lionStone);
+      plinth.position.y = 0.22;
+      lion.add(plinth);
+      const lionBody = new THREE.Mesh(lionBodyGeo, lionStone);
+      lionBody.scale.set(0.9, 1, 1.3);
+      lionBody.position.y = 0.72;
+      lion.add(lionBody);
+      const lionHead = new THREE.Mesh(lionBodyGeo, lionStone);
+      lionHead.scale.setScalar(0.72);
+      lionHead.position.set(0, 1.12, 0.22);
+      lion.add(lionHead);
+      const mane = new THREE.Mesh(maneGeo, lionStone);
+      mane.position.set(0, 1.12, 0.1);
+      lion.add(mane);
+      for (const e of [-1, 1]) {
+        const ear = new THREE.Mesh(lionEarGeo, lionStone);
+        ear.position.set(e * 0.14, 1.36, 0.16);
+        lion.add(ear);
+      }
+      lion.position.set(s * 3.4, 0, 22.4);
+      lion.rotation.y = Math.PI; // face arriving travellers
+      lion.castShadow = true;
+      group.add(lion);
+    }
+  }
+
+  // ---- cave stalagmites: the underground maps grow clusters of rock spikes
+  // rising from the floor ----
+  if (mapId === "cave" || mapId === "orc_dungeon") {
+    const [stalagGeo, stalagMat] = track(
+      new THREE.ConeGeometry(0.4, 2.2, 7),
+      new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(0.9), roughness: 1, flatShading: true }),
+    );
+    for (let c = 0; c < 6; c++) {
+      const a = rng() * Math.PI * 2;
+      const r = 9 + rng() * 19;
+      const cx = Math.cos(a) * r;
+      const cz = Math.sin(a) * r;
+      for (let s = 0; s < 3; s++) {
+        const sc = 0.4 + rng() * 1.2;
+        const stalag = new THREE.Mesh(stalagGeo, stalagMat);
+        stalag.scale.setScalar(sc);
+        stalag.position.set(cx + (rng() - 0.5) * 1.4, 1.1 * sc, cz + (rng() - 0.5) * 1.4);
+        stalag.rotation.set((rng() - 0.5) * 0.2, rng() * Math.PI, (rng() - 0.5) * 0.2);
+        stalag.castShadow = true;
+        group.add(stalag);
+      }
+    }
+  }
+
   // ---- Pyramid landmark: a weathered sandstone pyramid flanked by twin
   // gold-tipped obelisks ----
   if (mapId === "pyramid") {
