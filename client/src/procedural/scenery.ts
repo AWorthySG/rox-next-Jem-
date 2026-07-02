@@ -2903,6 +2903,36 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Eclage lantern grove: floating fae lanterns bob among the trees,
+  // distinct from Splendide's plain blooms ----
+  if (mapId === "eclage") {
+    const lanternMat = new THREE.MeshBasicMaterial({ color: 0x8affc0, transparent: true, opacity: 0.75 });
+    mats.push(lanternMat);
+    nightLights.push({
+      mat: lanternMat,
+      day: new THREE.Color(0x8affc0).multiplyScalar(0.6),
+      night: new THREE.Color(0xc0ffe0),
+    });
+    const [lanternGeo] = track(new THREE.IcosahedronGeometry(0.13, 1), lanternMat);
+    for (let l = 0; l < 6; l++) {
+      const lantern = new THREE.Mesh(lanternGeo, lanternMat);
+      const a = rng() * Math.PI * 2;
+      const r = 9 + rng() * 19;
+      group.add(lantern);
+      // drifts a slow tight loop around a fixed point while bobbing gently up and down
+      cruisers.push({
+        obj: lantern,
+        cx: Math.cos(a) * r,
+        cz: Math.sin(a) * r,
+        r: 0.5 + rng() * 0.4,
+        y: 1.4 + rng() * 1.2,
+        speed: 0.15 * (l % 2 === 0 ? 1 : -1),
+        phase: rng() * Math.PI * 2,
+        bob: 0.3,
+      });
+    }
+  }
+
   // ---- guardian lions: the East-Asian towns sit a pair of stone shishi on
   // plinths just inside the torii gate ----
   if (mapId === "amatsu" || mapId === "louyang" || mapId === "gonryun" || mapId === "chinatown") {
@@ -3544,6 +3574,32 @@ export function buildScenery(mapId: string): Scenery {
     clockTower.position.set(-14, 0, -14);
     clockTower.rotation.y = Math.PI / 4; // face turned toward the plaza
     group.add(clockTower);
+
+    // a scholar's observatory: a squat drum with a slowly rotating dome and
+    // a telescope slit, honoring Aldebaran's astronomy-guild reputation
+    const [drumGeo, drumMat] = track(new THREE.CylinderGeometry(1.5, 1.7, 3.0, 16), towerMat);
+    const [domeGeo, domeMat] = track(
+      new THREE.SphereGeometry(1.55, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2),
+      new THREE.MeshStandardMaterial({ color: 0x8a9aa8, roughness: 0.3, metalness: 0.4 }),
+    );
+    const [slitGeo, slitMat] = track(new THREE.BoxGeometry(0.4, 1.1, 0.15), new THREE.MeshStandardMaterial({ color: 0x2a2c30, roughness: 0.5 }));
+    const observatory = new THREE.Group();
+    const drum = new THREE.Mesh(drumGeo, drumMat);
+    drum.position.y = 1.5;
+    drum.castShadow = true;
+    observatory.add(drum);
+    const domeGroup = new THREE.Group();
+    const dome = new THREE.Mesh(domeGeo, domeMat);
+    dome.position.y = 3.0;
+    dome.castShadow = true;
+    domeGroup.add(dome);
+    const slit = new THREE.Mesh(slitGeo, slitMat);
+    slit.position.set(0, 3.5, 1.4);
+    domeGroup.add(slit);
+    observatory.add(domeGroup);
+    spinners.push({ obj: domeGroup, speed: 0.12, axis: "y" });
+    observatory.position.set(9.5, 0, -13);
+    group.add(observatory);
   }
 
   // ---- snowman: snowy towns get a lopsided snowman by the plaza with a
