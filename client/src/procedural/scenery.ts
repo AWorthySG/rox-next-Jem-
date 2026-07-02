@@ -294,6 +294,53 @@ export function buildScenery(mapId: string): Scenery {
     addPlazaProps(group, theme, track);
   }
 
+  // ---- Kafra shop stall: a counter with a pink-striped awning behind each
+  // shop NPC, so the shop reads as a market stand rather than a lone villager ----
+  {
+    const shopNpcs = (MAPS[mapId]?.npcs ?? []).filter((n) => n.role === "shop");
+    if (shopNpcs.length > 0) {
+      const [counterGeo, counterMat] = track(
+        new THREE.BoxGeometry(1.7, 0.85, 0.55),
+        new THREE.MeshStandardMaterial({ color: 0x8a6a42, roughness: 0.95 }),
+      );
+      const [postGeo] = track(new THREE.CylinderGeometry(0.05, 0.05, 1.9, 6), counterMat);
+      const [awningGeo, awningMat] = track(
+        new THREE.BoxGeometry(2.0, 0.06, 1.0),
+        new THREE.MeshStandardMaterial({ color: 0xe86a9a, roughness: 0.9 }),
+      );
+      const [trimGeo, trimMat] = track(
+        new THREE.BoxGeometry(2.0, 0.06, 0.22),
+        new THREE.MeshStandardMaterial({ color: 0xf4efe6, roughness: 0.9 }),
+      );
+      for (const n of shopNpcs) {
+        const facing = n.facing ?? 0;
+        const stall = new THREE.Group();
+        const counter = new THREE.Mesh(counterGeo, counterMat);
+        counter.position.y = 0.42;
+        counter.castShadow = true;
+        stall.add(counter);
+        for (const s of [-1, 1]) {
+          const post = new THREE.Mesh(postGeo, counterMat);
+          post.position.set(s * 0.9, 0.95, -0.35);
+          stall.add(post);
+        }
+        const awning = new THREE.Mesh(awningGeo, awningMat);
+        awning.position.set(0, 1.9, 0.1);
+        awning.rotation.x = 0.28;
+        awning.castShadow = true;
+        stall.add(awning);
+        const trim = new THREE.Mesh(trimGeo, trimMat);
+        trim.position.set(0, 1.76, 0.56);
+        trim.rotation.x = 0.28;
+        stall.add(trim);
+        // sit just behind the NPC, opening toward wherever they face
+        stall.position.set(n.x - Math.sin(facing) * 1.1, 0, n.z - Math.cos(facing) * 1.1);
+        stall.rotation.y = facing;
+        group.add(stall);
+      }
+    }
+  }
+
   // ---- boss-arena braziers: a ring of ever-burning fire bowls around each
   // boss spawn, so arenas read as dangerous set-pieces from a distance ----
   {
