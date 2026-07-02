@@ -360,6 +360,32 @@ export function buildScenery(mapId: string): Scenery {
         group.add(pad);
         cruisers.push({ obj: pad, r: 0.4 + p * 0.18, y: 0.31, speed: 0.08 * (p % 2 === 0 ? 1 : -1), phase: (p / 4) * Math.PI * 2, bob: 0.005 });
       }
+      // dragonflies zip erratically low over the fountain, wings a blur
+      const dragonMat = new THREE.MeshBasicMaterial({ color: 0x3ac0a0 });
+      mats.push(dragonMat);
+      const [dragonBodyGeo] = track(new THREE.CylinderGeometry(0.015, 0.02, 0.28, 5), dragonMat);
+      const [dragonWingGeo, dragonWingMat] = track(
+        new THREE.PlaneGeometry(0.3, 0.06),
+        new THREE.MeshBasicMaterial({ color: 0xd0f0e8, transparent: true, opacity: 0.5, side: THREE.DoubleSide }),
+      );
+      for (let d = 0; d < 2; d++) {
+        const dragonfly = new THREE.Group();
+        const body = new THREE.Mesh(dragonBodyGeo, dragonMat);
+        body.rotation.x = Math.PI / 2;
+        dragonfly.add(body);
+        const wings: THREE.Object3D[] = [];
+        for (const s of [-1, 1]) {
+          const pivot = new THREE.Group();
+          if (s < 0) pivot.rotation.y = Math.PI;
+          const wing = new THREE.Mesh(dragonWingGeo, dragonWingMat);
+          wing.position.x = 0.15;
+          pivot.add(wing);
+          dragonfly.add(pivot);
+          wings.push(pivot);
+        }
+        group.add(dragonfly);
+        cruisers.push({ obj: dragonfly, r: 1.2 + d * 0.5, y: 0.55 + d * 0.1, speed: 3.2 + d * 0.6, phase: rng() * Math.PI * 2, wings, flapRate: 30 });
+      }
     }
     addHouses(group, theme, track, nightLights, smokes, spinners);
     addPlazaProps(group, theme, track);
@@ -3044,6 +3070,39 @@ export function buildScenery(mapId: string): Scenery {
         smokes.push({ sprite: bubble, baseY: 0.2, offset: b / 3 + v * 0.17 });
       }
     }
+  }
+
+  // ---- woodland stream + footbridge: a thin winding brook cuts across
+  // leafy/jungle maps with a small plank bridge over it ----
+  if ((theme.tree === "leafy" || theme.tree === "jungle") && mapId !== "arena") {
+    const [streamGeo, streamMat] = track(
+      new THREE.PlaneGeometry(2.4, 34),
+      new THREE.MeshStandardMaterial({ color: 0x3a7a90, roughness: 0.15, metalness: 0.2, transparent: true, opacity: 0.75 }),
+    );
+    const stream = new THREE.Mesh(streamGeo, streamMat);
+    stream.rotation.x = -Math.PI / 2;
+    stream.position.set(-16, 0.02, 0);
+    stream.rotation.z = 0.15; // gentle diagonal course
+    group.add(stream);
+    const bridgeWood = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(0.95), roughness: 1 });
+    mats.push(bridgeWood);
+    const [plankGeo] = track(new THREE.BoxGeometry(3.2, 0.1, 0.3), bridgeWood);
+    const [railGeo] = track(new THREE.CylinderGeometry(0.03, 0.03, 3.2, 5), bridgeWood);
+    const bridge = new THREE.Group();
+    for (let p = 0; p < 6; p++) {
+      const plank = new THREE.Mesh(plankGeo, bridgeWood);
+      plank.position.z = -0.75 + p * 0.3;
+      bridge.add(plank);
+    }
+    for (const s of [-1, 1]) {
+      const rail = new THREE.Mesh(railGeo, bridgeWood);
+      rail.rotation.z = Math.PI / 2;
+      rail.position.set(0, 0.35, s * 0.75);
+      bridge.add(rail);
+    }
+    bridge.position.set(-16 - 2.4 * Math.sin(0.15), 0.15, -2.4 * (1 - Math.cos(0.15)));
+    bridge.rotation.y = Math.PI / 2 - 0.15;
+    group.add(bridge);
   }
 
   // ---- spiderwebs: dead and cave maps string a few webs between rocks, dew
