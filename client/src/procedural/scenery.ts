@@ -1275,6 +1275,67 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Umbala totem: the tree village carves a three-face totem pole whose
+  // eyes catch fire-light after dark ----
+  if (mapId === "umbala") {
+    const totemWood = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(1.1), roughness: 1, flatShading: true });
+    mats.push(totemWood);
+    const [totemGeo] = track(new THREE.CylinderGeometry(0.55, 0.65, 1.2, 8), totemWood);
+    const [totemNoseGeo] = track(new THREE.ConeGeometry(0.16, 0.4, 4), totemWood);
+    const [totemEyeGeo, totemEyeMat] = track(new THREE.SphereGeometry(0.09, 8, 6), new THREE.MeshBasicMaterial({ color: 0xffb060 }));
+    nightLights.push({ mat: totemEyeMat, day: new THREE.Color(0x6a4a30), night: new THREE.Color(0xffb060) });
+    const [totemWingGeo] = track(new THREE.BoxGeometry(1.9, 0.18, 0.4), totemWood);
+    const totem = new THREE.Group();
+    for (let t = 0; t < 3; t++) {
+      const segment = new THREE.Mesh(totemGeo, totemWood);
+      segment.position.y = 0.6 + t * 1.2;
+      segment.rotation.y = t * 0.5;
+      segment.castShadow = true;
+      totem.add(segment);
+      for (const s of [-1, 1]) {
+        const eye = new THREE.Mesh(totemEyeGeo, totemEyeMat);
+        eye.position.set(s * 0.2, 0.75 + t * 1.2, 0.5);
+        totem.add(eye);
+      }
+      const nose = new THREE.Mesh(totemNoseGeo, totemWood);
+      nose.rotation.x = Math.PI / 2;
+      nose.position.set(0, 0.55 + t * 1.2, 0.62);
+      totem.add(nose);
+    }
+    const totemWings = new THREE.Mesh(totemWingGeo, totemWood);
+    totemWings.position.y = 3.75;
+    totemWings.rotation.z = 0.06;
+    totem.add(totemWings);
+    totem.position.set(10.5, 0, -11);
+    totem.rotation.y = Math.atan2(-10.5, 11);
+    group.add(totem);
+  }
+
+  // ---- Glast Heim ruins: broken column stumps and one leaning survivor
+  // scattered around the haunted keep's approach ----
+  if (mapId === "glast_heim" || mapId === "gh_church") {
+    const [columnGeo, columnMat] = track(
+      new THREE.CylinderGeometry(0.42, 0.48, 1, 9),
+      new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(1.05), roughness: 1, flatShading: true }),
+    );
+    const stumps: [number, number, number, number][] = [
+      [-13, -8, 1.1, 0.3], // [x, z, height, tilt]
+      [-10.5, -12, 2.3, -0.1],
+      [12, -9, 0.8, 0.5],
+      [14.5, -13, 3.4, 0.22],
+      [9, 13.5, 1.6, -0.35],
+    ];
+    for (const [cx, cz, h, tilt] of stumps) {
+      const column = new THREE.Mesh(columnGeo, columnMat);
+      column.scale.y = h;
+      column.position.set(cx, h / 2 - 0.05, cz);
+      column.rotation.z = tilt * 0.3;
+      column.rotation.y = rng() * Math.PI;
+      column.castShadow = true;
+      group.add(column);
+    }
+  }
+
   // ---- Payon pagoda: a three-tier timber pagoda rises over the pine town,
   // its top window kept lit through the night ----
   if (mapId === "payon") {
