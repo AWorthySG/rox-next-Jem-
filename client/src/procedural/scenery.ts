@@ -1123,6 +1123,31 @@ export function buildScenery(mapId: string): Scenery {
     scHat.position.y = 2.08;
     scHat.rotation.z = 0.12;
     scarecrow.add(scHat);
+    // a crow perched on the crossbar, bobbing as the wind rocks the post
+    const crowMat = new THREE.MeshStandardMaterial({ color: 0x1a1a22, roughness: 0.9 });
+    mats.push(crowMat);
+    const [crowBodyGeo] = track(new THREE.SphereGeometry(0.11, 8, 6), crowMat);
+    const [crowBeakGeo, crowBeakMat] = track(new THREE.ConeGeometry(0.03, 0.09, 5), new THREE.MeshStandardMaterial({ color: 0xd8a850, roughness: 0.8 }));
+    const [crowTailGeo] = track(new THREE.BoxGeometry(0.05, 0.02, 0.14), crowMat);
+    const crow = new THREE.Group();
+    const crowBody = new THREE.Mesh(crowBodyGeo, crowMat);
+    crowBody.scale.set(0.9, 1, 1.25);
+    crow.add(crowBody);
+    const crowHead = new THREE.Mesh(crowBodyGeo, crowMat);
+    crowHead.scale.setScalar(0.62);
+    crowHead.position.set(0, 0.11, 0.11);
+    crow.add(crowHead);
+    const beak = new THREE.Mesh(crowBeakGeo, crowBeakMat);
+    beak.rotation.x = Math.PI / 2;
+    beak.position.set(0, 0.11, 0.22);
+    crow.add(beak);
+    const crowTail = new THREE.Mesh(crowTailGeo, crowMat);
+    crowTail.position.set(0, 0.03, -0.17);
+    crowTail.rotation.x = -0.35;
+    crow.add(crowTail);
+    crow.position.set(0.58, 1.58, 0);
+    scarecrow.add(crow);
+    bobbers.push({ obj: crow, baseY: 1.58, phase: 4.1 });
     scarecrow.position.set(-16, 0, 14);
     scarecrow.rotation.y = 0.7;
     group.add(scarecrow);
@@ -1301,6 +1326,26 @@ export function buildScenery(mapId: string): Scenery {
         cap.scale.setScalar(sc);
         cap.position.set(mx, 0.25 * sc, mz);
         group.add(cap);
+      }
+    }
+  }
+
+  // ---- sea-floor bubbles: the sunken maps vent columns of bubbles that ride
+  // the chimney-puff channel (rise, swell, thin out, loop) ----
+  if (mapId === "byalan" || mapId === "abyss") {
+    const bubbleMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0x9adcf0, transparent: true, opacity: 0.4, depthWrite: false, blending: THREE.AdditiveBlending });
+    mats.push(bubbleMat);
+    for (let v = 0; v < 4; v++) {
+      const a = rng() * Math.PI * 2;
+      const r = 8 + rng() * 18;
+      const vx = Math.cos(a) * r;
+      const vz = Math.sin(a) * r;
+      for (let b = 0; b < 3; b++) {
+        const bubble = new THREE.Sprite(bubbleMat);
+        bubble.position.set(vx + (rng() - 0.5) * 0.4, 0.2, vz + (rng() - 0.5) * 0.4);
+        bubble.scale.setScalar(0.12);
+        group.add(bubble);
+        smokes.push({ sprite: bubble, baseY: 0.2, offset: b / 3 + v * 0.17 });
       }
     }
   }
