@@ -277,6 +277,8 @@ export function buildScenery(mapId: string): Scenery {
   // things that fly a circular route around the map (airship, seabirds); they
   // face along the flight path and optionally flap wing pivots as they go
   const cruisers: { obj: THREE.Object3D; r: number; y: number; speed: number; phase: number; wings?: THREE.Object3D[] }[] = [];
+  // leaves that tumble down around the plaza on living maps, looping forever
+  const leaves: { m: THREE.Mesh; x: number; z: number; offset: number; spin: number }[] = [];
   let animated: CenterpieceAnim = null;
   let animPhase = 0;
   if (mapId !== "arena") {
@@ -334,6 +336,49 @@ export function buildScenery(mapId: string): Scenery {
           group.add(bloom);
         }
       }
+    }
+
+    // falling leaves tumbling down around the town on leafy/jungle maps
+    if (theme.tree === "leafy" || theme.tree === "jungle") {
+      const [leafGeo, leafMat] = track(
+        new THREE.PlaneGeometry(0.16, 0.16),
+        new THREE.MeshBasicMaterial({ color: new THREE.Color(theme.foliage[0]).multiplyScalar(0.9), side: THREE.DoubleSide, transparent: true, opacity: 0.85 }),
+      );
+      for (let i = 0; i < 22; i++) {
+        const m = new THREE.Mesh(leafGeo, leafMat);
+        group.add(m);
+        const a = rng() * Math.PI * 2;
+        const r = 6 + rng() * 22;
+        leaves.push({ m, x: Math.cos(a) * r, z: Math.sin(a) * r, offset: rng(), spin: 1.5 + rng() * 2.5 });
+      }
+    }
+
+    // gate arch where the south path meets the spawn row: two stone pillars, a
+    // wooden crossbeam and lantern caps that warm up after dark
+    {
+      const [pillarGeo, pillarMat] = track(
+        new THREE.BoxGeometry(0.7, 3.0, 0.7),
+        new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(0.85), roughness: 0.95 }),
+      );
+      const [beamGeo, beamMat] = track(
+        new THREE.BoxGeometry(5.4, 0.5, 0.8),
+        new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(0.95), roughness: 0.9 }),
+      );
+      const [capGeo, capMat] = track(new THREE.SphereGeometry(0.2, 10, 8), new THREE.MeshBasicMaterial({ color: 0xffd9a0 }));
+      nightLights.push({ mat: capMat, day: new THREE.Color(0x9a8468), night: new THREE.Color(0xffd9a0) });
+      for (const s of [-1, 1]) {
+        const pillar = new THREE.Mesh(pillarGeo, pillarMat);
+        pillar.position.set(s * 2.1, 1.5, 24);
+        pillar.castShadow = true;
+        group.add(pillar);
+        const cap = new THREE.Mesh(capGeo, capMat);
+        cap.position.set(s * 2.1, 3.35, 24);
+        group.add(cap);
+      }
+      const beam = new THREE.Mesh(beamGeo, beamMat);
+      beam.position.set(0, 3.15, 24);
+      beam.castShadow = true;
+      group.add(beam);
     }
   }
 
@@ -727,6 +772,16 @@ export function buildScenery(mapId: string): Scenery {
         const t = (animPhase * 0.22 + s.offset) % 1;
         s.sprite.position.y = s.baseY + t * 1.5;
         s.sprite.scale.setScalar(0.2 + Math.sin(Math.PI * t) * 0.55);
+      }
+      // leaves tumble down from canopy height, swaying sideways as they fall
+      for (const l of leaves) {
+        const t = (animPhase * 0.06 + l.offset) % 1;
+        l.m.position.set(
+          l.x + Math.sin(animPhase * 0.9 + l.offset * 20) * 1.1,
+          6.5 * (1 - t),
+          l.z + Math.cos(animPhase * 0.7 + l.offset * 14) * 0.8,
+        );
+        l.m.rotation.set(animPhase * l.spin, l.offset * 6, animPhase * l.spin * 0.7);
       }
       // cruisers fly their ring route, nose along the tangent, wings flapping
       for (const c of cruisers) {
