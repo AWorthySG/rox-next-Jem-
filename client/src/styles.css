@@ -1211,6 +1211,13 @@ body {
   background: linear-gradient(180deg, #7CFC7C, #2faf4a);
   transition: width 0.2s linear;
 }
+/* a party member in danger pulses red, mirroring the player's own low-HP bar */
+.pm-bar.low {
+  animation: hp-danger 0.9s ease-in-out infinite;
+}
+.pm-bar.low > i {
+  background: linear-gradient(180deg, #ff6b5a, #d11a2a);
+}
 
 /* ---- party invite prompt ---- */
 .invite-prompt {

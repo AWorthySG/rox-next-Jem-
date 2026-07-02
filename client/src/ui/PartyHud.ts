@@ -3,6 +3,7 @@ import { JOB_NAME, type PartyInfo } from "@rox/shared";
 interface MemberRow {
   id: number;
   fill: HTMLElement;
+  bar: HTMLElement;
 }
 
 // Shows the current party roster with live HP bars. HP is read each frame from a
@@ -44,8 +45,9 @@ export class PartyHud {
         `<span class="pm-job">Lv${m.level} ${JOB_NAME[m.job]}</span></div>` +
         `<div class="pm-bar"><i></i></div>`;
       const fill = row.querySelector(".pm-bar > i") as HTMLElement;
+      const bar = row.querySelector(".pm-bar") as HTMLElement;
       this.list.appendChild(row);
-      this.rows.push({ id: m.id, fill });
+      this.rows.push({ id: m.id, fill, bar });
     }
   }
 
@@ -54,6 +56,8 @@ export class PartyHud {
       const hp = this.hpOf(r.id);
       const pct = hp && hp.maxHp ? Math.max(0, Math.min(1, hp.hp / hp.maxHp)) : 1;
       r.fill.style.width = `${pct * 100}%`;
+      // a party member in danger should be obvious at a glance, same as your own HUD
+      r.bar.classList.toggle("low", pct > 0 && pct <= 0.3);
     }
   }
 }
