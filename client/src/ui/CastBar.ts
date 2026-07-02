@@ -5,6 +5,7 @@ export class CastBar {
   private label = document.getElementById("cast-bar-label")!;
   private fill = document.getElementById("cast-bar-fill") as HTMLElement;
   private hideTimer: number | null = null;
+  private flashTimer: number | null = null;
 
   show(name: string, durationMs: number): void {
     this.label.textContent = name;
@@ -15,12 +16,24 @@ export class CastBar {
     void this.fill.offsetWidth; // force reflow so the next transition takes
     this.fill.style.transition = `width ${durationMs}ms linear`;
     this.fill.style.width = "100%";
-    if (this.hideTimer != null) window.clearTimeout(this.hideTimer);
-    this.hideTimer = window.setTimeout(() => this.root.classList.add("hidden"), durationMs + 80);
+    this.clearTimers();
+    this.fill.classList.remove("cast-complete");
+    this.hideTimer = window.setTimeout(() => {
+      // a bright flash the instant the bar fills, then hide once it's played out
+      this.fill.classList.add("cast-complete");
+      this.flashTimer = window.setTimeout(() => this.root.classList.add("hidden"), 250);
+    }, durationMs);
   }
 
   hide(): void {
-    if (this.hideTimer != null) window.clearTimeout(this.hideTimer);
+    this.clearTimers();
     this.root.classList.add("hidden");
+  }
+
+  private clearTimers(): void {
+    if (this.hideTimer != null) window.clearTimeout(this.hideTimer);
+    if (this.flashTimer != null) window.clearTimeout(this.flashTimer);
+    this.hideTimer = null;
+    this.flashTimer = null;
   }
 }
