@@ -1275,6 +1275,80 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Punggol arc bridge: the waterway's red jewel — an arched span with
+  // a plank deck crossing toward the water's edge ----
+  if (mapId === "punggol_waterway") {
+    const bridgeRed = new THREE.MeshStandardMaterial({ color: 0xc0392a, roughness: 0.7 });
+    mats.push(bridgeRed);
+    const [archGeo] = track(new THREE.TorusGeometry(4.2, 0.16, 6, 24, Math.PI), bridgeRed);
+    const [deckGeo, deckMat] = track(
+      new THREE.BoxGeometry(8.4, 0.18, 1.6),
+      new THREE.MeshStandardMaterial({ color: 0x8a6a42, roughness: 0.95 }),
+    );
+    const [hangerGeo] = track(new THREE.CylinderGeometry(0.035, 0.035, 1, 4), bridgeRed);
+    const bridge = new THREE.Group();
+    for (const s of [-1, 1]) {
+      const arch = new THREE.Mesh(archGeo, bridgeRed);
+      arch.position.set(0, 0.4, s * 0.85);
+      bridge.add(arch);
+    }
+    const deck = new THREE.Mesh(deckGeo, deckMat);
+    deck.position.y = 0.5;
+    deck.receiveShadow = true;
+    bridge.add(deck);
+    for (const hx of [-2.8, -1.4, 1.4, 2.8]) {
+      const drop = Math.sqrt(Math.max(0, 4.2 * 4.2 - hx * hx)); // arch height above the deck
+      for (const s of [-1, 1]) {
+        const hanger = new THREE.Mesh(hangerGeo, bridgeRed);
+        hanger.scale.y = Math.max(0.2, drop - 0.1);
+        hanger.position.set(hx, 0.5 + (drop - 0.1) / 2, s * 0.85);
+        bridge.add(hanger);
+      }
+    }
+    bridge.position.set(MAP_HALF * 0.55, 0, -6);
+    bridge.rotation.y = 0.5;
+    group.add(bridge);
+  }
+
+  // ---- Bukit Timah summit: the famous marker stone beside a small timber
+  // rest shelter at the hill's crown ----
+  if (mapId === "bukit_timah") {
+    const [markerGeo, markerMat] = track(
+      new THREE.CylinderGeometry(0.55, 0.7, 1.1, 8),
+      new THREE.MeshStandardMaterial({ color: 0x9a4a3a, roughness: 1, flatShading: true }),
+    );
+    const [plaqueGeo, plaqueMat] = track(new THREE.BoxGeometry(0.6, 0.35, 0.04), new THREE.MeshStandardMaterial({ color: 0xf0ead8, roughness: 0.9 }));
+    const marker = new THREE.Group();
+    const stone = new THREE.Mesh(markerGeo, markerMat);
+    stone.position.y = 0.55;
+    stone.castShadow = true;
+    marker.add(stone);
+    const plaque = new THREE.Mesh(plaqueGeo, plaqueMat);
+    plaque.position.set(0, 0.75, 0.62);
+    plaque.rotation.x = -0.15;
+    marker.add(plaque);
+    marker.position.set(-11, 0, -12.5);
+    marker.rotation.y = Math.atan2(11, 12.5);
+    group.add(marker);
+    const shelterWood = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(1.05), roughness: 1 });
+    mats.push(shelterWood);
+    const [shPostGeo] = track(new THREE.CylinderGeometry(0.08, 0.08, 2.2, 6), shelterWood);
+    const [shRoofGeo] = track(new THREE.ConeGeometry(2.0, 0.9, 4), shelterWood);
+    const shelter = new THREE.Group();
+    for (const [px, pz] of [[-1, -1], [1, -1], [-1, 1], [1, 1]] as const) {
+      const post = new THREE.Mesh(shPostGeo, shelterWood);
+      post.position.set(px, 1.1, pz);
+      shelter.add(post);
+    }
+    const shRoof = new THREE.Mesh(shRoofGeo, shelterWood);
+    shRoof.position.y = 2.6;
+    shRoof.rotation.y = Math.PI / 4;
+    shRoof.castShadow = true;
+    shelter.add(shRoof);
+    shelter.position.set(-13.5, 0, -9.5);
+    group.add(shelter);
+  }
+
   // ---- Labrador cannon: the park's preserved coastal gun on a stone mount,
   // barrel raised toward the sea ----
   if (mapId === "labrador_park") {
