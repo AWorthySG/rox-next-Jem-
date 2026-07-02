@@ -3534,6 +3534,70 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Geffen wizard spire: a twisted stone tower crowned with a glowing
+  // crystal ball, honoring the mage guild's home town ----
+  if (mapId === "geffen") {
+    const spireStone = new THREE.MeshStandardMaterial({ color: 0x4a4470, roughness: 0.9, flatShading: true });
+    mats.push(spireStone);
+    const [tierGeo2] = track(new THREE.CylinderGeometry(0.75, 0.95, 1.6, 8), spireStone);
+    const [orbGeo2, orbMat2] = track(
+      new THREE.SphereGeometry(0.5, 16, 12),
+      new THREE.MeshBasicMaterial({ color: 0x8a6ae0, transparent: true, opacity: 0.85 }),
+    );
+    nightLights.push({
+      mat: orbMat2,
+      day: new THREE.Color(0x8a6ae0).multiplyScalar(0.6),
+      night: new THREE.Color(0xc0a0ff),
+    });
+    const spire = new THREE.Group();
+    for (let t = 0; t < 4; t++) {
+      const shrink = 1 - t * 0.16;
+      const tier = new THREE.Mesh(tierGeo2, spireStone);
+      tier.scale.setScalar(shrink);
+      tier.position.y = 0.8 + t * 1.5;
+      tier.rotation.y = t * 0.6; // each tier twists slightly from the last
+      tier.castShadow = true;
+      spire.add(tier);
+    }
+    const crystalBall = new THREE.Mesh(orbGeo2, orbMat2);
+    crystalBall.position.y = 7.1;
+    spire.add(crystalBall);
+    spinners.push({ obj: crystalBall, speed: 0.5 });
+    spire.position.set(-12, 0, 12);
+    group.add(spire);
+  }
+
+  // ---- GH Abyss rift: a jagged crack in the ground glows with the void
+  // below, pulsing slowly — this map's own identity apart from the shards
+  // it shares with Geffen and Tower ----
+  if (mapId === "gh_abyss") {
+    const [riftGeo, riftMat] = track(
+      new THREE.PlaneGeometry(1.0, 6.5),
+      new THREE.MeshBasicMaterial({ color: 0x6a4fb0, transparent: true, opacity: 0.6 }),
+    );
+    nightLights.push({
+      mat: riftMat,
+      day: new THREE.Color(0x6a4fb0).multiplyScalar(0.65),
+      night: new THREE.Color(0x9a7ae0),
+    });
+    const rift = new THREE.Mesh(riftGeo, riftMat);
+    rift.rotation.x = -Math.PI / 2;
+    rift.position.set(10, 0.03, 8);
+    rift.rotation.z = 0.5;
+    group.add(rift);
+    flickers.push(rift); // slow pulse via the flicker channel's scale wobble
+    // wisps of void-purple mist seep from the crack
+    const riftMistMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0x9a7ae0, transparent: true, opacity: 0.35, depthWrite: false, blending: THREE.AdditiveBlending });
+    mats.push(riftMistMat);
+    for (let m = 0; m < 3; m++) {
+      const mist = new THREE.Sprite(riftMistMat);
+      mist.position.set(10 + (rng() - 0.5) * 2, 0.3, 8 + (rng() - 0.5) * 4);
+      mist.scale.setScalar(0.5);
+      group.add(mist);
+      smokes.push({ sprite: mist, baseY: 0.3, offset: m / 3 });
+    }
+  }
+
   // ---- Aldebaran clock tower: the town's landmark — a tall stone tower with
   // a white clock face whose hands really turn ----
   if (mapId === "aldebaran") {
