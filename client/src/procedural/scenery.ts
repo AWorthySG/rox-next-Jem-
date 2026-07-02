@@ -380,6 +380,45 @@ export function buildScenery(mapId: string): Scenery {
       beam.castShadow = true;
       group.add(beam);
     }
+
+    // adventurer quest board beside the plaza: a roofed notice board with a
+    // scatter of pinned job postings, angled to face the fountain
+    {
+      const boardWood = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(1.05), roughness: 0.95 });
+      const [bPostGeo] = track(new THREE.BoxGeometry(0.14, 1.9, 0.14), boardWood);
+      const [panelGeo, panelMat] = track(
+        new THREE.BoxGeometry(2.0, 1.15, 0.08),
+        new THREE.MeshStandardMaterial({ color: 0x5a4530, roughness: 1 }),
+      );
+      const [bRoofGeo] = track(new THREE.BoxGeometry(2.3, 0.08, 0.5), boardWood);
+      const [noteGeo, noteMat] = track(
+        new THREE.PlaneGeometry(0.26, 0.32),
+        new THREE.MeshStandardMaterial({ color: 0xf2ecd8, roughness: 1 }),
+      );
+      const board = new THREE.Group();
+      for (const s of [-1, 1]) {
+        const post = new THREE.Mesh(bPostGeo, boardWood);
+        post.position.set(s * 0.95, 0.95, 0);
+        board.add(post);
+      }
+      const panel = new THREE.Mesh(panelGeo, panelMat);
+      panel.position.y = 1.25;
+      panel.castShadow = true;
+      board.add(panel);
+      const roofSlat = new THREE.Mesh(bRoofGeo, boardWood);
+      roofSlat.position.y = 1.95;
+      roofSlat.rotation.x = 0.18;
+      board.add(roofSlat);
+      for (let i = 0; i < 5; i++) {
+        const note = new THREE.Mesh(noteGeo, noteMat);
+        note.position.set(-0.7 + i * 0.35 + (rng() - 0.5) * 0.08, 1.2 + (rng() - 0.5) * 0.3, 0.05);
+        note.rotation.z = (rng() - 0.5) * 0.25;
+        board.add(note);
+      }
+      board.position.set(5.8, 0, 3.4);
+      board.rotation.y = Math.atan2(-5.8, -3.4); // face the fountain
+      group.add(board);
+    }
   }
 
   // ---- Kafra shop stall: a counter with a pink-striped awning behind each
@@ -658,6 +697,42 @@ export function buildScenery(mapId: string): Scenery {
         fly.scale.setScalar(0.14);
         group.add(fly);
         orbiters.push({ sprite: fly, cx: lx, cz: lz, y: 1.9 + rng() * 0.7, r: 0.45 + rng() * 0.4, speed: 0.8 + rng() * 0.8, phase: rng() * Math.PI * 2 });
+      }
+    }
+
+    // festival pennant garlands strung between the lamp heads: a rope along
+    // each side of the lamp square with little flags that sway on the breeze
+    const [ropeGeo, ropeMat] = track(
+      new THREE.CylinderGeometry(0.015, 0.015, 11, 4),
+      new THREE.MeshStandardMaterial({ color: 0x6a5a48, roughness: 1 }),
+    );
+    const flagMats = [0xe86a9a, 0xffd24a, 0x6ac0e8].map((c) => {
+      const m = new THREE.MeshStandardMaterial({ color: c, roughness: 0.9, side: THREE.DoubleSide });
+      mats.push(m);
+      return m;
+    });
+    const [flagGeo] = track(new THREE.ConeGeometry(0.11, 0.3, 4), flagMats[0]);
+    const sides: [number, number, number, number][] = [
+      [-5.5, -5.5, 5.5, -5.5],
+      [5.5, -5.5, 5.5, 5.5],
+      [5.5, 5.5, -5.5, 5.5],
+      [-5.5, 5.5, -5.5, -5.5],
+    ];
+    for (let si = 0; si < sides.length; si++) {
+      const [x1, z1, x2, z2] = sides[si];
+      const rope = new THREE.Mesh(ropeGeo, ropeMat);
+      rope.position.set((x1 + x2) / 2, 2.28, (z1 + z2) / 2);
+      rope.rotation.z = Math.PI / 2;
+      rope.rotation.y = Math.atan2(z2 - z1, x2 - x1);
+      group.add(rope);
+      for (let f = 1; f <= 5; f++) {
+        const t = f / 6;
+        const flag = new THREE.Mesh(flagGeo, flagMats[(si + f) % flagMats.length]);
+        flag.rotation.x = Math.PI; // point down off the rope
+        const sag = Math.sin(Math.PI * t) * 0.12; // rope dips toward the middle
+        flag.position.set(x1 + (x2 - x1) * t, 2.28 - sag - 0.17, z1 + (z2 - z1) * t);
+        group.add(flag);
+        bobbers.push({ obj: flag, baseY: flag.position.y, phase: si * 2 + f });
       }
     }
   }
