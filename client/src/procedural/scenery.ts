@@ -2238,6 +2238,34 @@ export function buildScenery(mapId: string): Scenery {
     group.add(bandstand);
   }
 
+  // ---- fishmonger stall: coastal towns set up a counter of fish laid on
+  // ice near the pier, a nod to the day's catch ----
+  if (WATER_MAPS[mapId] && mapId !== "byalan" && mapId !== "abyss") {
+    const fishStallWood = new THREE.MeshStandardMaterial({ color: 0x8a6a42, roughness: 0.95 });
+    mats.push(fishStallWood);
+    const [fCounterGeo] = track(new THREE.BoxGeometry(1.9, 0.7, 0.7), fishStallWood);
+    const [iceGeo, iceMat] = track(new THREE.BoxGeometry(1.7, 0.12, 0.5), new THREE.MeshStandardMaterial({ color: 0xd8f0f8, roughness: 0.2, transparent: true, opacity: 0.85 }));
+    const [fFishGeo, fFishMat] = track(new THREE.ConeGeometry(0.09, 0.4, 6), new THREE.MeshStandardMaterial({ color: 0x9ab0c0, roughness: 0.4, metalness: 0.3 }));
+    const fishStall = new THREE.Group();
+    const fCounter = new THREE.Mesh(fCounterGeo, fishStallWood);
+    fCounter.position.y = 0.35;
+    fCounter.castShadow = true;
+    fishStall.add(fCounter);
+    const ice = new THREE.Mesh(iceGeo, iceMat);
+    ice.position.y = 0.76;
+    fishStall.add(ice);
+    for (let f = 0; f < 4; f++) {
+      const fish = new THREE.Mesh(fFishGeo, fFishMat);
+      fish.rotation.z = Math.PI / 2;
+      fish.rotation.y = rng() * 0.6 - 0.3;
+      fish.position.set(-0.6 + f * 0.4, 0.85, (rng() - 0.5) * 0.15);
+      fishStall.add(fish);
+    }
+    fishStall.position.set(-MAP_HALF * 0.7, 0, MAP_HALF * 0.55);
+    fishStall.rotation.y = rng() * Math.PI * 2;
+    group.add(fishStall);
+  }
+
   // ---- Merlion: the bay's icon — a white lion-headed fish on a pedestal,
   // spouting a thin arc of water with a looping splash at its base ----
   if (mapId === "merlion_bay") {
@@ -3015,6 +3043,29 @@ export function buildScenery(mapId: string): Scenery {
         group.add(bubble);
         smokes.push({ sprite: bubble, baseY: 0.2, offset: b / 3 + v * 0.17 });
       }
+    }
+  }
+
+  // ---- spiderwebs: dead and cave maps string a few webs between rocks, dew
+  // drops catching a faint glint via the flicker channel ----
+  if (theme.tree === "dead" || mapId === "cave" || mapId === "orc_dungeon") {
+    const webMat = new THREE.MeshBasicMaterial({ color: 0xd8dce0, transparent: true, opacity: 0.35, side: THREE.DoubleSide, depthWrite: false });
+    mats.push(webMat);
+    const [webGeo] = track(new THREE.RingGeometry(0.05, 0.55, 8, 4), webMat);
+    const dewMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.6 });
+    mats.push(dewMat);
+    const [dewGeo] = track(new THREE.SphereGeometry(0.02, 6, 5), dewMat);
+    for (let w = 0; w < 5; w++) {
+      const a = rng() * Math.PI * 2;
+      const r = 8 + rng() * 18;
+      const web = new THREE.Mesh(webGeo, webMat);
+      web.position.set(Math.cos(a) * r, 0.7 + rng() * 0.8, Math.sin(a) * r);
+      web.rotation.set(rng() * Math.PI, rng() * Math.PI, rng() * Math.PI);
+      group.add(web);
+      const dew = new THREE.Mesh(dewGeo, dewMat);
+      dew.position.copy(web.position);
+      group.add(dew);
+      flickers.push(dew);
     }
   }
 
