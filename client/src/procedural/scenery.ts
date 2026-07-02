@@ -942,6 +942,66 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- stone lanterns: East-Asian-themed towns line the south path with
+  // squat toro lanterns whose windows warm up after dark ----
+  if (mapId === "amatsu" || mapId === "louyang" || mapId === "gonryun" || mapId === "chinatown") {
+    const [toroGeo, toroMat] = track(
+      new THREE.CylinderGeometry(0.22, 0.3, 0.5, 6),
+      new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(0.9), roughness: 1, flatShading: true }),
+    );
+    const [toroCapGeo] = track(new THREE.ConeGeometry(0.42, 0.3, 6), toroMat);
+    const [toroLightGeo, toroLightMat] = track(new THREE.BoxGeometry(0.2, 0.16, 0.2), new THREE.MeshBasicMaterial({ color: 0xffd9a0 }));
+    nightLights.push({ mat: toroLightMat, day: new THREE.Color(0x9a8468), night: new THREE.Color(0xffd9a0) });
+    for (const [sx, tz] of [[-1, 12], [1, 15], [-1, 18], [1, 21]] as const) {
+      const toro = new THREE.Group();
+      const base = new THREE.Mesh(toroGeo, toroMat);
+      base.position.y = 0.25;
+      toro.add(base);
+      const light = new THREE.Mesh(toroLightGeo, toroLightMat);
+      light.position.y = 0.6;
+      toro.add(light);
+      const cap = new THREE.Mesh(toroCapGeo, toroMat);
+      cap.position.y = 0.84;
+      toro.add(cap);
+      toro.position.set(sx * 2.2, 0, tz);
+      group.add(toro);
+    }
+  }
+
+  // ---- glowing mushrooms: jungle maps sprout tiny fungus clusters on the
+  // forest floor that shine teal once the sun goes down ----
+  if (theme.tree === "jungle") {
+    const [stemGeo, stemMat] = track(
+      new THREE.CylinderGeometry(0.04, 0.06, 0.22, 6),
+      new THREE.MeshStandardMaterial({ color: 0xd8d0c0, roughness: 1 }),
+    );
+    const [capGeo, capMat] = track(new THREE.ConeGeometry(0.16, 0.14, 8), new THREE.MeshBasicMaterial({ color: 0x58c0a8 }));
+    nightLights.push({
+      mat: capMat,
+      day: new THREE.Color(0x58c0a8).multiplyScalar(0.5),
+      night: new THREE.Color(0x7af0cc),
+    });
+    for (let c = 0; c < 7; c++) {
+      const a = rng() * Math.PI * 2;
+      const r = 9 + rng() * 20;
+      const cx = Math.cos(a) * r;
+      const cz = Math.sin(a) * r;
+      for (let s = 0; s < 3; s++) {
+        const sc = 0.7 + rng() * 0.8;
+        const mx = cx + (rng() - 0.5) * 0.7;
+        const mz = cz + (rng() - 0.5) * 0.7;
+        const stem = new THREE.Mesh(stemGeo, stemMat);
+        stem.scale.setScalar(sc);
+        stem.position.set(mx, 0.11 * sc, mz);
+        group.add(stem);
+        const cap = new THREE.Mesh(capGeo, capMat);
+        cap.scale.setScalar(sc);
+        cap.position.set(mx, 0.25 * sc, mz);
+        group.add(cap);
+      }
+    }
+  }
+
   // ---- night bats: on haunted maps a few bats wheel overhead after dark,
   // fading in with the night level like the ground mist ----
   if (theme.tree === "dead") {
