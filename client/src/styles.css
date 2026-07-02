@@ -226,6 +226,16 @@ body {
 .qt-count { opacity: 0.8; margin-top: 2px; font-size: 10px; }
 .qt-row.ready .qt-count { color: #8fe0a0; opacity: 1; }
 .qt-row.ready .qt-bar > i { background: linear-gradient(180deg, #9be88f, #4cae3e); }
+/* one-shot flash the moment a quest first becomes turn-in ready, so hitting
+   the objective count reads as a small reward rather than a quiet color swap */
+.qt-row.just-completed {
+  animation: qt-complete-flash 0.7s ease-out;
+  border-radius: 4px;
+}
+@keyframes qt-complete-flash {
+  0% { background: rgba(140, 230, 140, 0.35); box-shadow: 0 0 10px rgba(140, 230, 140, 0.5); }
+  100% { background: transparent; box-shadow: none; }
+}
 
 /* ---- mounted speed lines (radial streaks at the screen edges) ---- */
 #speed-lines {
