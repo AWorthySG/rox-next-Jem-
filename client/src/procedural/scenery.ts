@@ -1275,6 +1275,59 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- beach day: sandy resort coasts plant a striped parasol with a towel
+  // laid out beside it ----
+  if (mapId === "comodo" || mapId === "sentosa" || mapId === "east_coast" || mapId === "pasir_ris") {
+    const [parasolPoleGeo, parasolPoleMat] = track(
+      new THREE.CylinderGeometry(0.035, 0.035, 1.9, 6),
+      new THREE.MeshStandardMaterial({ color: 0xd8d0c0, roughness: 0.9 }),
+    );
+    const [canopyGeo, canopyMat] = track(
+      new THREE.ConeGeometry(1.15, 0.5, 10),
+      new THREE.MeshStandardMaterial({ color: 0xe86a5a, roughness: 0.85, side: THREE.DoubleSide }),
+    );
+    const [towelGeo, towelMat] = track(
+      new THREE.PlaneGeometry(0.8, 1.7),
+      new THREE.MeshStandardMaterial({ color: 0x6ac0e8, roughness: 1 }),
+    );
+    const beach = new THREE.Group();
+    const parasolPole = new THREE.Mesh(parasolPoleGeo, parasolPoleMat);
+    parasolPole.position.y = 0.95;
+    parasolPole.rotation.z = 0.12;
+    beach.add(parasolPole);
+    const canopy = new THREE.Mesh(canopyGeo, canopyMat);
+    canopy.position.set(-0.22, 1.85, 0);
+    canopy.rotation.z = 0.12;
+    canopy.castShadow = true;
+    beach.add(canopy);
+    const towel = new THREE.Mesh(towelGeo, towelMat);
+    towel.rotation.x = -Math.PI / 2;
+    towel.rotation.z = 0.4;
+    towel.position.set(0.9, 0.02, 0.5);
+    beach.add(towel);
+    const beachAngle = rng() * Math.PI * 2;
+    beach.position.set(Math.cos(beachAngle) * MAP_HALF * 0.78, 0, Math.sin(beachAngle) * MAP_HALF * 0.78);
+    group.add(beach);
+  }
+
+  // ---- will-o'-wisps: the ghost maps float pale flames that pulse on the
+  // flicker channel and only show themselves after dark ----
+  if (mapId === "niflheim" || mapId === "pulau_hantu") {
+    const wispMat = new THREE.MeshBasicMaterial({ color: 0x9adcc8, transparent: true, opacity: 0 });
+    mats.push(wispMat);
+    nightFades.push({ mat: wispMat, max: 0.85 });
+    const [wispGeo] = track(new THREE.IcosahedronGeometry(0.14, 0), wispMat);
+    for (let w = 0; w < 6; w++) {
+      const wisp = new THREE.Mesh(wispGeo, wispMat);
+      const a = rng() * Math.PI * 2;
+      const r = 7 + rng() * 20;
+      wisp.position.set(Math.cos(a) * r, 1.1 + rng() * 1.2, Math.sin(a) * r);
+      group.add(wisp);
+      flickers.push(wisp);
+      spinners.push({ obj: wisp, speed: 0.8 + rng(), axis: "y" });
+    }
+  }
+
   // ---- Umbala totem: the tree village carves a three-face totem pole whose
   // eyes catch fire-light after dark ----
   if (mapId === "umbala") {
