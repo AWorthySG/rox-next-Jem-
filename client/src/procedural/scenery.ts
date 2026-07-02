@@ -535,6 +535,38 @@ export function buildScenery(mapId: string): Scenery {
       camp.position.set(4.6, 0, 17.5);
       group.add(camp);
     }
+
+    // laundry line between the west and north houses: a taut rope with a few
+    // pastel cloths that sway on the same breeze as the pennants
+    {
+      const [x1, z1, x2, z2] = [-8.4, -7.6, -1.2, -11.1];
+      const dx = x2 - x1;
+      const dz = z2 - z1;
+      const [lineGeo, lineMat] = track(
+        new THREE.CylinderGeometry(0.012, 0.012, Math.hypot(dx, dz), 4),
+        new THREE.MeshStandardMaterial({ color: 0xd8d0c0, roughness: 1 }),
+      );
+      const line = new THREE.Mesh(lineGeo, lineMat);
+      line.position.set((x1 + x2) / 2, 1.72, (z1 + z2) / 2);
+      line.rotation.z = Math.PI / 2;
+      line.rotation.y = -Math.atan2(dz, dx);
+      group.add(line);
+      const [clothGeo] = track(new THREE.PlaneGeometry(0.55, 0.42), lineMat);
+      const clothMats = [0xa8d0e8, 0xf0e0c0, 0xe8b0c0].map((c) => {
+        const m = new THREE.MeshStandardMaterial({ color: c, roughness: 1, side: THREE.DoubleSide });
+        mats.push(m);
+        return m;
+      });
+      for (let i = 0; i < 3; i++) {
+        const t = 0.28 + i * 0.22;
+        const cloth = new THREE.Mesh(clothGeo, clothMats[i]);
+        const sag = Math.sin(Math.PI * t) * 0.08;
+        cloth.position.set(x1 + dx * t, 1.72 - sag - 0.22, z1 + dz * t);
+        cloth.rotation.y = -Math.atan2(dz, dx) + Math.PI / 2; // hang across the rope
+        group.add(cloth);
+        bobbers.push({ obj: cloth, baseY: cloth.position.y, phase: i * 1.9 });
+      }
+    }
   }
 
   // ---- Kafra shop stall: a counter with a pink-striped awning behind each
@@ -672,6 +704,26 @@ export function buildScenery(mapId: string): Scenery {
     boat.rotation.y = 0.4;
     group.add(boat);
     bobbers.push({ obj: boat, baseY: -0.18, phase: rng() * Math.PI * 2 });
+
+    // shoreline reeds: a wind-swayed fringe of thin cattails near the coast
+    const reedMat = new THREE.MeshStandardMaterial({ color: 0x5a7a3a, roughness: 1 });
+    applyWind(reedMat, 0.1);
+    mats.push(reedMat);
+    const [reedGeo] = track(new THREE.ConeGeometry(0.035, 1.0, 5), reedMat);
+    const reedCount = 90;
+    const reeds = new THREE.InstancedMesh(reedGeo, reedMat, reedCount);
+    const rm = new THREE.Matrix4();
+    const rq = new THREE.Quaternion();
+    const rup = new THREE.Vector3(0, 1, 0);
+    for (let i = 0; i < reedCount; i++) {
+      const a = rng() * Math.PI * 2;
+      const r = MAP_HALF * (0.86 + rng() * 0.07);
+      const s = 0.8 + rng() * 0.7;
+      rq.setFromAxisAngle(rup, rng() * Math.PI);
+      rm.compose(new THREE.Vector3(Math.cos(a) * r, 0.5 * s, Math.sin(a) * r), rq, new THREE.Vector3(1, s, 1));
+      reeds.setMatrixAt(i, rm);
+    }
+    group.add(reeds);
 
     // a couple of fish leap in silvery arcs off the pier every few seconds
     const [fishGeo, fishMat] = track(
