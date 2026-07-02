@@ -1275,6 +1275,81 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Merlion: the bay's icon — a white lion-headed fish on a pedestal,
+  // spouting a thin arc of water with a looping splash at its base ----
+  if (mapId === "merlion_bay") {
+    const merlionMat = new THREE.MeshStandardMaterial({ color: 0xf2f4f0, roughness: 0.8 });
+    mats.push(merlionMat);
+    const [pedGeo] = track(new THREE.CylinderGeometry(1.0, 1.2, 0.6, 10), merlionMat);
+    const [merBodyGeo] = track(new THREE.ConeGeometry(0.65, 2.6, 10), merlionMat);
+    const [merHeadGeo] = track(new THREE.SphereGeometry(0.55, 12, 10), merlionMat);
+    const [merManeGeo] = track(new THREE.TorusGeometry(0.5, 0.16, 6, 12), merlionMat);
+    const [jetGeo, jetMat] = track(
+      new THREE.CylinderGeometry(0.05, 0.09, 1.9, 6),
+      new THREE.MeshBasicMaterial({ color: 0xbfe8ff, transparent: true, opacity: 0.7, depthWrite: false, blending: THREE.AdditiveBlending }),
+    );
+    const merlion = new THREE.Group();
+    const ped = new THREE.Mesh(pedGeo, merlionMat);
+    ped.position.y = 0.3;
+    merlion.add(ped);
+    const merBody = new THREE.Mesh(merBodyGeo, merlionMat);
+    merBody.position.y = 1.9;
+    merBody.rotation.x = -0.12; // fish tail curls back
+    merBody.castShadow = true;
+    merlion.add(merBody);
+    const merHead = new THREE.Mesh(merHeadGeo, merlionMat);
+    merHead.position.set(0, 3.25, 0.18);
+    merHead.castShadow = true;
+    merlion.add(merHead);
+    const mane = new THREE.Mesh(merManeGeo, merlionMat);
+    mane.position.set(0, 3.25, 0.05);
+    mane.rotation.x = 0.15;
+    merlion.add(mane);
+    const jet = new THREE.Mesh(jetGeo, jetMat);
+    jet.position.set(0, 2.9, 1.45);
+    jet.rotation.x = 1.15; // arcs out and down from the mouth
+    merlion.add(jet);
+    flickers.push(jet);
+    // splash where the jet lands, looping on the puff channel
+    const splashMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0xd8f0ff, transparent: true, opacity: 0.5, depthWrite: false, blending: THREE.AdditiveBlending });
+    mats.push(splashMat);
+    for (let puff = 0; puff < 2; puff++) {
+      const splash = new THREE.Sprite(splashMat);
+      splash.position.set(0, 0.15, 2.4);
+      splash.scale.setScalar(0.25);
+      merlion.add(splash);
+      smokes.push({ sprite: splash, baseY: 0.15, offset: puff / 2 });
+    }
+    merlion.position.set(13, 0, -10);
+    merlion.rotation.y = Math.atan2(-13, 10);
+    group.add(merlion);
+  }
+
+  // ---- floodlight pylons: the modern waterfront maps raise angled stadium
+  // lights that blaze after dark ----
+  if (mapId === "the_float" || mapId === "marina_barrage") {
+    const pylonMat = new THREE.MeshStandardMaterial({ color: 0x8a9098, roughness: 0.6, metalness: 0.5 });
+    mats.push(pylonMat);
+    const [pylonGeo] = track(new THREE.CylinderGeometry(0.12, 0.18, 5.2, 6), pylonMat);
+    const [panelGeo, panelMat] = track(new THREE.BoxGeometry(1.3, 0.7, 0.12), new THREE.MeshBasicMaterial({ color: 0xdfe8f0 }));
+    nightLights.push({ mat: panelMat, day: new THREE.Color(0x9aa2ac), night: new THREE.Color(0xffffff) });
+    for (const deg of [45, 135, 225, 315]) {
+      const a = (deg / 180) * Math.PI;
+      const px = Math.cos(a) * 13;
+      const pz = Math.sin(a) * 13;
+      const pylon = new THREE.Mesh(pylonGeo, pylonMat);
+      pylon.position.set(px, 2.6, pz);
+      pylon.rotation.z = 0.06;
+      pylon.castShadow = true;
+      group.add(pylon);
+      const panel = new THREE.Mesh(panelGeo, panelMat);
+      panel.position.set(px, 5.1, pz);
+      panel.rotation.y = Math.atan2(-px, -pz); // face the plaza
+      panel.rotation.x = 0.35; // tilt down onto the field
+      group.add(panel);
+    }
+  }
+
   // ---- Bifrost rainbow: three nested translucent arcs span the sky over
   // the rainbow bridge, fog-exempt so they read from anywhere ----
   if (mapId === "bifrost") {
