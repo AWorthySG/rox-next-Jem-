@@ -3105,6 +3105,33 @@ export function buildScenery(mapId: string): Scenery {
     group.add(bridge);
   }
 
+  // ---- gravestones: a small forgotten cluster of weathered markers on
+  // haunted maps, leaning at odd angles ----
+  if (mapId === "niflheim" || mapId === "gh_church" || mapId === "glast_heim" || mapId === "pulau_hantu") {
+    const graveStone = new THREE.MeshStandardMaterial({ color: 0x6a6e72, roughness: 1, flatShading: true });
+    mats.push(graveStone);
+    const [slabGeo] = track(new THREE.BoxGeometry(0.5, 0.7, 0.12), graveStone);
+    const [archTopGeo] = track(new THREE.CylinderGeometry(0.25, 0.25, 0.12, 10, 1, false, 0, Math.PI), graveStone);
+    for (let g = 0; g < 5; g++) {
+      const a = rng() * Math.PI * 2;
+      const r = 10 + rng() * 16;
+      const grave = new THREE.Group();
+      const slab = new THREE.Mesh(slabGeo, graveStone);
+      slab.position.y = 0.35;
+      slab.castShadow = true;
+      grave.add(slab);
+      const archTop = new THREE.Mesh(archTopGeo, graveStone);
+      archTop.rotation.z = Math.PI / 2;
+      archTop.rotation.y = Math.PI / 2;
+      archTop.position.y = 0.7;
+      grave.add(archTop);
+      grave.position.set(Math.cos(a) * r, 0, Math.sin(a) * r);
+      grave.rotation.y = rng() * Math.PI * 2;
+      grave.rotation.z = (rng() - 0.5) * 0.35; // leaning, weathered
+      group.add(grave);
+    }
+  }
+
   // ---- spiderwebs: dead and cave maps string a few webs between rocks, dew
   // drops catching a faint glint via the flicker channel ----
   if (theme.tree === "dead" || mapId === "cave" || mapId === "orc_dungeon") {
@@ -3507,6 +3534,27 @@ function addHouses(
     const chimney = new THREE.Mesh(chimneyGeo, chimneyMat);
     chimney.position.set(0.7, 2.55, -0.4);
     house.add(chimney);
+    // windchimes hang beside the door: a small hanger with a few metal tubes
+    // that sway and glint gently in the breeze
+    {
+      const chimeMat = new THREE.MeshStandardMaterial({ color: 0xd8b060, roughness: 0.4, metalness: 0.6 });
+      mats.push(chimeMat);
+      const [hangerGeo] = track(new THREE.CylinderGeometry(0.015, 0.015, 0.36, 4), chimeMat);
+      const [tubeGeo] = track(new THREE.CylinderGeometry(0.018, 0.018, 0.28, 6), chimeMat);
+      const chimes = new THREE.Group();
+      const hanger = new THREE.Mesh(hangerGeo, chimeMat);
+      hanger.rotation.z = Math.PI / 2;
+      chimes.add(hanger);
+      for (let t = 0; t < 4; t++) {
+        const tube = new THREE.Mesh(tubeGeo, chimeMat);
+        tube.position.set(-0.15 + t * 0.1, -0.2, 0);
+        chimes.add(tube);
+      }
+      chimes.position.set(p.x === 0 ? 0.9 : Math.sign(p.x) * -0.9, 1.6, 1.15);
+      house.add(chimes);
+      bobbers.push({ obj: chimes, baseY: 1.6, phase: rng() * Math.PI * 2 });
+    }
+
     // the north house carries a weather vane that swings slowly with the wind
     if (p.x === 0) {
       const vaneMat = new THREE.MeshStandardMaterial({ color: 0x3a3430, roughness: 0.7, metalness: 0.4 });
