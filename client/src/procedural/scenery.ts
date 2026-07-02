@@ -1159,6 +1159,51 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- snowman: snowy towns get a lopsided snowman by the plaza with a
+  // carrot nose, coal eyes and twig arms ----
+  if (theme.snowy) {
+    const snowMat = new THREE.MeshStandardMaterial({ color: 0xf4f8fc, roughness: 0.9 });
+    mats.push(snowMat);
+    const [snowBallGeo] = track(new THREE.SphereGeometry(0.55, 12, 10), snowMat);
+    const [coalGeo, coalMat] = track(new THREE.SphereGeometry(0.045, 6, 5), new THREE.MeshStandardMaterial({ color: 0x18141a, roughness: 1 }));
+    const [carrotGeo, carrotMat] = track(new THREE.ConeGeometry(0.06, 0.3, 6), new THREE.MeshStandardMaterial({ color: 0xe07a2a, roughness: 1 }));
+    const [twigGeo, twigMat] = track(new THREE.CylinderGeometry(0.02, 0.03, 0.8, 4), new THREE.MeshStandardMaterial({ color: 0x4a3220, roughness: 1 }));
+    const snowman = new THREE.Group();
+    const base = new THREE.Mesh(snowBallGeo, snowMat);
+    base.position.y = 0.5;
+    base.castShadow = true;
+    snowman.add(base);
+    const torso = new THREE.Mesh(snowBallGeo, snowMat);
+    torso.scale.setScalar(0.72);
+    torso.position.y = 1.18;
+    snowman.add(torso);
+    const noggin = new THREE.Mesh(snowBallGeo, snowMat);
+    noggin.scale.setScalar(0.5);
+    noggin.position.y = 1.78;
+    snowman.add(noggin);
+    for (const s of [-1, 1]) {
+      const eye = new THREE.Mesh(coalGeo, coalMat);
+      eye.position.set(s * 0.11, 1.86, 0.24);
+      snowman.add(eye);
+      const twig = new THREE.Mesh(twigGeo, twigMat);
+      twig.position.set(s * 0.62, 1.3, 0);
+      twig.rotation.z = s * (Math.PI / 2 - 0.35);
+      snowman.add(twig);
+    }
+    for (let b = 0; b < 3; b++) {
+      const button = new THREE.Mesh(coalGeo, coalMat);
+      button.position.set(0, 1.0 + b * 0.19, 0.36 - b * 0.02);
+      snowman.add(button);
+    }
+    const carrot = new THREE.Mesh(carrotGeo, carrotMat);
+    carrot.rotation.x = Math.PI / 2;
+    carrot.position.set(0, 1.78, 0.38);
+    snowman.add(carrot);
+    snowman.position.set(7.2, 0, 2.6);
+    snowman.rotation.y = Math.atan2(-7.2, -2.6);
+    group.add(snowman);
+  }
+
   // ---- stone lanterns: East-Asian-themed towns line the south path with
   // squat toro lanterns whose windows warm up after dark ----
   if (mapId === "amatsu" || mapId === "louyang" || mapId === "gonryun" || mapId === "chinatown") {
@@ -1182,6 +1227,26 @@ export function buildScenery(mapId: string): Scenery {
       toro.add(cap);
       toro.position.set(sx * 2.2, 0, tz);
       group.add(toro);
+    }
+
+    // red paper lanterns swing beneath the gate-arch beam, glowing after dark
+    const [redLanternGeo, redLanternMat] = track(
+      new THREE.SphereGeometry(0.19, 10, 8),
+      new THREE.MeshBasicMaterial({ color: 0xc03028 }),
+    );
+    nightLights.push({ mat: redLanternMat, day: new THREE.Color(0xc03028), night: new THREE.Color(0xff6a4a) });
+    const [tasselGeo, tasselMat] = track(new THREE.CylinderGeometry(0.02, 0.02, 0.14, 4), new THREE.MeshStandardMaterial({ color: 0xd8a850, roughness: 0.8 }));
+    for (const lxp of [-1.4, 0, 1.4]) {
+      const lantern = new THREE.Group();
+      const bulb = new THREE.Mesh(redLanternGeo, redLanternMat);
+      bulb.scale.y = 0.85;
+      lantern.add(bulb);
+      const tassel = new THREE.Mesh(tasselGeo, tasselMat);
+      tassel.position.y = -0.24;
+      lantern.add(tassel);
+      lantern.position.set(lxp, 2.72, 24);
+      group.add(lantern);
+      bobbers.push({ obj: lantern, baseY: 2.72, phase: lxp * 1.7 });
     }
   }
 
