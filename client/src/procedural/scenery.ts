@@ -1,6 +1,8 @@
 import * as THREE from "three";
 import { MAP_HALF } from "@rox/shared";
+import { MAPS, MONSTER_TEMPLATES } from "@rox/engine";
 import { applyWind } from "./wind.js";
+import { makeSpark } from "./textures.js";
 
 export interface Scenery {
   group: THREE.Group;
@@ -258,6 +260,8 @@ export function buildScenery(mapId: string): Scenery {
   // gives every map a readable landmark; lamps ring it and glow at night
   // (MeshBasicMaterial heads are exempt from setShade, so they stay lit).
   const nightLights: NightLight[] = [];
+  // materials whose opacity fades in with night (lamp light-pools on the ground)
+  const nightFades: { mat: THREE.Material & { opacity: number }; max: number }[] = [];
   let animated: CenterpieceAnim = null;
   let animPhase = 0;
   if (mapId !== "arena") {
@@ -290,6 +294,38 @@ export function buildScenery(mapId: string): Scenery {
     addPlazaProps(group, theme, track);
   }
 
+  // ---- boss-arena braziers: a ring of ever-burning fire bowls around each
+  // boss spawn, so arenas read as dangerous set-pieces from a distance ----
+  {
+    const bossZones = (MAPS[mapId]?.zones ?? []).filter((z) => MONSTER_TEMPLATES[z.templateId]?.boss);
+    if (bossZones.length > 0) {
+      const [pillarGeo, pillarMat] = track(
+        new THREE.CylinderGeometry(0.12, 0.16, 1.0, 6),
+        new THREE.MeshStandardMaterial({ color: 0x35302c, roughness: 0.95 }),
+      );
+      const [bowlGeo] = track(new THREE.CylinderGeometry(0.24, 0.16, 0.16, 8), pillarMat);
+      const [emberGeo, emberMat] = track(
+        new THREE.SphereGeometry(0.15, 10, 8),
+        new THREE.MeshBasicMaterial({ color: 0xff9a40 }),
+      );
+      for (const z of bossZones) {
+        for (let i = 0; i < 4; i++) {
+          const a = (i / 4) * Math.PI * 2 + Math.PI / 4;
+          const bx = z.cx + Math.cos(a) * (z.radius + 2.5);
+          const bz = z.cz + Math.sin(a) * (z.radius + 2.5);
+          const pillar = new THREE.Mesh(pillarGeo, pillarMat);
+          pillar.position.set(bx, 0.5, bz);
+          pillar.castShadow = true;
+          const bowl = new THREE.Mesh(bowlGeo, pillarMat);
+          bowl.position.set(bx, 1.05, bz);
+          const ember = new THREE.Mesh(emberGeo, emberMat);
+          ember.position.set(bx, 1.16, bz);
+          group.add(pillar, bowl, ember);
+        }
+      }
+    }
+  }
+
   // ---- horizon mountains: a ring of hazy peaks outside the playfield so the
   // world doesn't end at the map border (they sit deep in the fog) ----
   {
@@ -316,6 +352,12 @@ export function buildScenery(mapId: string): Scenery {
     const lampMat = new THREE.MeshBasicMaterial({ color: 0xffd9a0 });
     track(lampHeadGeo, lampMat);
     nightLights.push({ mat: lampMat, day: new THREE.Color(0x9a8468), night: new THREE.Color(0xffd9a0) });
+    // a warm pool of light on the ground under each lamp, fading in at night
+    const [poolGeo, poolMat] = track(
+      new THREE.PlaneGeometry(4.6, 4.6),
+      new THREE.MeshBasicMaterial({ map: makeSpark(), color: 0xffc27a, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }),
+    );
+    nightFades.push({ mat: poolMat, max: 0.3 });
     for (const [lx, lz] of [[-5.5, -5.5], [5.5, -5.5], [-5.5, 5.5], [5.5, 5.5]] as const) {
       const post = new THREE.Mesh(lampPost[0], lampPost[1]);
       post.position.set(lx, 1.1, lz);
@@ -324,6 +366,10 @@ export function buildScenery(mapId: string): Scenery {
       const head = new THREE.Mesh(lampHeadGeo, lampMat);
       head.position.set(lx, 2.3, lz);
       group.add(head);
+      const pool = new THREE.Mesh(poolGeo, poolMat);
+      pool.rotation.x = -Math.PI / 2;
+      pool.position.set(lx, 0.03, lz);
+      group.add(pool);
     }
   }
 
@@ -334,6 +380,7 @@ export function buildScenery(mapId: string): Scenery {
     },
     setNight(n: number) {
       for (const l of nightLights) l.mat.color.copy(l.day).lerp(l.night, n);
+      for (const f of nightFades) f.mat.opacity = f.max * n;
     },
     tick(dt: number) {
       if (!animated) return;
