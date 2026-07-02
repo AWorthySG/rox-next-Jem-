@@ -281,6 +281,9 @@ export function buildScenery(mapId: string): Scenery {
   const cruisers: { obj: THREE.Object3D; r: number; y: number; speed: number; phase: number; wings?: THREE.Object3D[]; cx?: number; cz?: number; flapRate?: number; bob?: number }[] = [];
   // leaves that tumble down around the plaza on living maps, looping forever
   const leaves: { m: THREE.Mesh; x: number; z: number; offset: number; spin: number }[] = [];
+  // a migratory V of birds that crosses the whole sky once per long cycle
+  let flock: THREE.Group | null = null;
+  const flockWings: THREE.Object3D[] = [];
   // fish that periodically leap out of the sea in a little arc near the pier
   const jumpers: { obj: THREE.Object3D; x: number; z: number; offset: number }[] = [];
   let animated: CenterpieceAnim = null;
@@ -2603,6 +2606,39 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- migratory flock: on every open map, a V of seven birds crosses the
+  // whole sky once per ~26 s cycle on a hashed heading ----
+  if (mapId !== "arena") {
+    const [migBodyGeo, migMat] = track(
+      new THREE.ConeGeometry(0.13, 0.6, 6),
+      new THREE.MeshStandardMaterial({ color: 0xe8ecf0, roughness: 0.8 }),
+    );
+    const [migWingGeo] = track(new THREE.BoxGeometry(0.95, 0.04, 0.3), migMat);
+    flock = new THREE.Group();
+    for (let b = 0; b < 7; b++) {
+      const rank = Math.ceil(b / 2); // 0, 1, 1, 2, 2, 3, 3
+      const side = b === 0 ? 0 : b % 2 === 1 ? -1 : 1;
+      const bird = new THREE.Group();
+      const body = new THREE.Mesh(migBodyGeo, migMat);
+      body.rotation.x = Math.PI / 2; // nose along +z
+      bird.add(body);
+      for (const s of [-1, 1]) {
+        const pivot = new THREE.Group();
+        pivot.position.x = s * 0.09;
+        if (s < 0) pivot.rotation.y = Math.PI;
+        const wing = new THREE.Mesh(migWingGeo, migMat);
+        wing.position.x = 0.45;
+        pivot.add(wing);
+        bird.add(pivot);
+        flockWings.push(pivot);
+      }
+      bird.position.set(side * rank * 1.1, (b % 2) * 0.15, -rank * 1.3);
+      flock.add(bird);
+    }
+    flock.visible = false;
+    group.add(flock);
+  }
+
   // ---- seabirds: a small wheeling flock over the water on coastal maps ----
   if (WATER_MAPS[mapId]) {
     const [birdBodyGeo, birdMat] = track(
@@ -2735,6 +2771,28 @@ export function buildScenery(mapId: string): Scenery {
           j.obj.rotation.x = (t - 0.5) * 2.1; // nose up on the rise, down on the dive
         } else {
           j.obj.visible = false;
+        }
+      }
+      // the migratory V crosses the sky in the first 11 s of each 26 s cycle
+      if (flock) {
+        const CYCLE = 26;
+        const idx = Math.floor(animPhase / CYCLE);
+        const t = (animPhase % CYCLE) / 11;
+        if (t < 1) {
+          const h = Math.abs(Math.sin(idx * 73.3) * 39217.7) % 1;
+          const a = h * Math.PI * 2;
+          const span = MAP_HALF * 1.4;
+          flock.visible = true;
+          flock.position.set(
+            Math.cos(a) * span * (1 - 2 * t),
+            21 + Math.sin(Math.PI * t) * 2,
+            Math.sin(a) * span * (1 - 2 * t),
+          );
+          flock.rotation.y = Math.atan2(-Math.cos(a), -Math.sin(a)); // nose along travel
+          const flap = Math.sin(animPhase * 8) * 0.5;
+          for (const w of flockWings) w.rotation.z = flap;
+        } else {
+          flock.visible = false;
         }
       }
       // cruisers fly their ring route, nose along the tangent, wings flapping
