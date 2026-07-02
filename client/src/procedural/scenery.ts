@@ -276,11 +276,21 @@ export function buildScenery(mapId: string): Scenery {
   const smokes: { sprite: THREE.Sprite; baseY: number; offset: number }[] = [];
   // things that fly a circular route around the map (airship, seabirds); they
   // face along the flight path and optionally flap wing pivots as they go
-  const cruisers: { obj: THREE.Object3D; r: number; y: number; speed: number; phase: number; wings?: THREE.Object3D[] }[] = [];
+  const cruisers: { obj: THREE.Object3D; r: number; y: number; speed: number; phase: number; wings?: THREE.Object3D[]; cx?: number; cz?: number; flapRate?: number }[] = [];
   // leaves that tumble down around the plaza on living maps, looping forever
   const leaves: { m: THREE.Mesh; x: number; z: number; offset: number; spin: number }[] = [];
   let animated: CenterpieceAnim = null;
   let animPhase = 0;
+  // current darkness level (0 day → 1 night), mirrored from setNight so tick()
+  // can gate effects that only belong in the night sky (shooting stars)
+  let nightNow = 0;
+  // one recycled shooting star: an elongated additive streak that dashes
+  // across the sky for the first moments of each ~9 s cycle, then hides
+  const starMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0xeaf4ff, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending, fog: false });
+  mats.push(starMat);
+  const star = new THREE.Sprite(starMat);
+  star.scale.set(3.2, 0.18, 1);
+  group.add(star);
   if (mapId !== "arena") {
     // stone plaza under the fountain + a paved path south toward the spawn row,
     // so the town centre reads as constructed ground rather than bare grass
@@ -335,6 +345,41 @@ export function buildScenery(mapId: string): Scenery {
           bloom.position.set(bx + (rng() - 0.5) * 0.8, 0.28, bz + (rng() - 0.5) * 0.8);
           group.add(bloom);
         }
+      }
+
+      // butterflies flit in tight circles above the beds, wings beating fast
+      const [flutterGeo, flutterMat] = track(
+        new THREE.PlaneGeometry(0.16, 0.12),
+        new THREE.MeshBasicMaterial({ color: 0xffb0d0, side: THREE.DoubleSide }),
+      );
+      const flutterMat2 = new THREE.MeshBasicMaterial({ color: 0x9ad0ff, side: THREE.DoubleSide });
+      mats.push(flutterMat2);
+      for (let b = 0; b < 3; b++) {
+        const deg = [150, 240, 330][b];
+        const a = (deg / 180) * Math.PI;
+        const butterfly = new THREE.Group();
+        const wings: THREE.Object3D[] = [];
+        for (const s of [-1, 1]) {
+          const pivot = new THREE.Group();
+          if (s < 0) pivot.rotation.y = Math.PI;
+          const wing = new THREE.Mesh(flutterGeo, b % 2 ? flutterMat2 : flutterMat);
+          wing.position.x = 0.09;
+          pivot.add(wing);
+          butterfly.add(pivot);
+          wings.push(pivot);
+        }
+        group.add(butterfly);
+        cruisers.push({
+          obj: butterfly,
+          cx: Math.cos(a) * 5.6,
+          cz: Math.sin(a) * 5.6,
+          r: 0.7 + rng() * 0.5,
+          y: 0.7 + rng() * 0.5,
+          speed: (0.9 + rng() * 0.5) * (b % 2 === 0 ? 1 : -1),
+          phase: rng() * Math.PI * 2,
+          wings,
+          flapRate: 18,
+        });
       }
     }
 
@@ -820,6 +865,7 @@ export function buildScenery(mapId: string): Scenery {
       for (const s of shadeList) s.mat.color.copy(s.base).multiplyScalar(mul);
     },
     setNight(n: number) {
+      nightNow = n;
       for (const l of nightLights) l.mat.color.copy(l.day).lerp(l.night, n);
       for (const f of nightFades) f.mat.opacity = f.max * n;
     },
@@ -848,6 +894,29 @@ export function buildScenery(mapId: string): Scenery {
         s.sprite.position.y = s.baseY + t * 1.5;
         s.sprite.scale.setScalar(0.2 + Math.sin(Math.PI * t) * 0.55);
       }
+      // a shooting star dashes across the first beat of each cycle at night
+      {
+        const CYCLE = 9;
+        const idx = Math.floor(animPhase / CYCLE);
+        const t = (animPhase % CYCLE) / 0.9; // 0→1 over the first 0.9 s
+        // cheap deterministic per-cycle randoms (fractional-sine hash)
+        const h1 = Math.abs(Math.sin(idx * 127.1) * 43758.5) % 1;
+        const h2 = Math.abs(Math.sin(idx * 311.7) * 26951.3) % 1;
+        if (t < 1) {
+          const a0 = h1 * Math.PI * 2;
+          const dir = a0 + 2.3 + h2 * 1.6; // streak heading, roughly crosswise
+          const r0 = 60 + h2 * 30;
+          star.position.set(
+            Math.cos(a0) * r0 + Math.cos(dir) * t * 34,
+            36 + h2 * 10 - t * 7,
+            Math.sin(a0) * r0 + Math.sin(dir) * t * 34,
+          );
+          starMat.rotation = -dir;
+          starMat.opacity = nightNow * Math.sin(Math.PI * t) * 0.9;
+        } else {
+          starMat.opacity = 0;
+        }
+      }
       // leaves tumble down from canopy height, swaying sideways as they fall
       for (const l of leaves) {
         const t = (animPhase * 0.06 + l.offset) % 1;
@@ -861,10 +930,10 @@ export function buildScenery(mapId: string): Scenery {
       // cruisers fly their ring route, nose along the tangent, wings flapping
       for (const c of cruisers) {
         const a = c.phase + animPhase * c.speed;
-        c.obj.position.set(Math.cos(a) * c.r, c.y + Math.sin(a * 3 + c.phase) * 0.4, Math.sin(a) * c.r);
+        c.obj.position.set((c.cx ?? 0) + Math.cos(a) * c.r, c.y + Math.sin(a * 3 + c.phase) * 0.4, (c.cz ?? 0) + Math.sin(a) * c.r);
         c.obj.rotation.y = -a + (c.speed < 0 ? Math.PI : 0);
         if (c.wings) {
-          const flap = Math.sin(animPhase * 9 + c.phase * 7) * 0.55;
+          const flap = Math.sin(animPhase * (c.flapRate ?? 9) + c.phase * 7) * 0.55;
           for (const w of c.wings) w.rotation.z = flap;
         }
       }
