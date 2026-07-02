@@ -1275,6 +1275,68 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Ayothaya chedi: a golden bell-shaped stupa rising over the temple
+  // town, its spire catching light after dark ----
+  if (mapId === "ayothaya") {
+    const chediGold = new THREE.MeshStandardMaterial({ color: 0xd8a83a, roughness: 0.4, metalness: 0.5 });
+    mats.push(chediGold);
+    const [chediBaseGeo, chediBaseMat] = track(
+      new THREE.CylinderGeometry(2.0, 2.3, 0.9, 10),
+      new THREE.MeshStandardMaterial({ color: 0xc9b490, roughness: 1 }),
+    );
+    const [bellGeo] = track(new THREE.SphereGeometry(1.35, 12, 10), chediGold);
+    const [chediSpireGeo] = track(new THREE.ConeGeometry(0.5, 2.6, 8), chediGold);
+    const [spireTipGeo, spireTipMat] = track(new THREE.SphereGeometry(0.12, 8, 6), new THREE.MeshBasicMaterial({ color: 0xffe9a0 }));
+    nightLights.push({ mat: spireTipMat, day: new THREE.Color(0xc9a850), night: new THREE.Color(0xffe9a0) });
+    const chedi = new THREE.Group();
+    const chediBase = new THREE.Mesh(chediBaseGeo, chediBaseMat);
+    chediBase.position.y = 0.45;
+    chediBase.receiveShadow = true;
+    chedi.add(chediBase);
+    const bell = new THREE.Mesh(bellGeo, chediGold);
+    bell.scale.y = 1.2;
+    bell.position.y = 2.1;
+    bell.castShadow = true;
+    chedi.add(bell);
+    const chediSpire = new THREE.Mesh(chediSpireGeo, chediGold);
+    chediSpire.position.y = 4.35;
+    chedi.add(chediSpire);
+    const spireTip = new THREE.Mesh(spireTipGeo, spireTipMat);
+    spireTip.position.y = 5.7;
+    chedi.add(spireTip);
+    chedi.position.set(-13.5, 0, -12);
+    group.add(chedi);
+  }
+
+  // ---- Dewata candi bentar: the Balinese split gateway — two mirrored
+  // stepped towers flanking the south path ----
+  if (mapId === "dewata") {
+    const candiStone = new THREE.MeshStandardMaterial({ color: 0x8a5a44, roughness: 1, flatShading: true });
+    mats.push(candiStone);
+    const [candiTierGeo] = track(new THREE.BoxGeometry(1, 1, 1), candiStone);
+    for (const s of [-1, 1]) {
+      const tower = new THREE.Group();
+      const tiers: [number, number, number][] = [
+        [1.3, 1.4, 1.1], // [width, height, depth] stacked bottom-up
+        [1.0, 1.0, 0.9],
+        [0.7, 0.8, 0.7],
+        [0.4, 0.7, 0.5],
+      ];
+      let ty = 0;
+      for (const [tw, th, td] of tiers) {
+        const tier = new THREE.Mesh(candiTierGeo, candiStone);
+        tier.scale.set(tw, th, td);
+        // hug the path edge: the flat inner face lines up on both towers
+        tier.position.set(s * (0.9 + tw / 2 - 0.65), ty + th / 2, 0);
+        tier.castShadow = true;
+        tower.add(tier);
+        ty += th;
+      }
+      tower.position.set(s * 1.55, 0, 24);
+      group.add(tower);
+    }
+  }
+
   // ---- turtle statue: the turtle islands honour their namesake with a stone
   // turtle — shell dome, head and four flippers ----
   if (mapId === "kusu_island" || mapId === "turtle") {
