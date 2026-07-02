@@ -265,6 +265,8 @@ export function buildScenery(mapId: string): Scenery {
   const nightFades: { mat: THREE.Material & { opacity: number }; max: number }[] = [];
   // meshes that flicker like flame (brazier embers) — scale-pulsed in tick()
   const flickers: THREE.Mesh[] = [];
+  // objects that bob on the water (the moored rowboat)
+  const bobbers: { obj: THREE.Object3D; baseY: number; phase: number }[] = [];
   // small sprites that orbit a point (fireflies around lamps at night)
   const orbiters: { sprite: THREE.Sprite; cx: number; cz: number; y: number; r: number; speed: number; phase: number }[] = [];
   let animated: CenterpieceAnim = null;
@@ -297,6 +299,34 @@ export function buildScenery(mapId: string): Scenery {
     animated = addCenterpiece(group, theme, track);
     addHouses(group, theme, track, nightLights);
     addPlazaProps(group, theme, track);
+
+    // flower beds around the plaza rim on living maps (the south path stays clear)
+    if (theme.tree === "leafy" || theme.tree === "jungle" || theme.tree === "palm") {
+      const [soilGeo, soilMat] = track(
+        new THREE.CylinderGeometry(0.75, 0.85, 0.14, 10),
+        new THREE.MeshStandardMaterial({ color: 0x4a3624, roughness: 1 }),
+      );
+      const bloomMats = [0xff6b8a, 0xffd24a, 0xf4f0f0, 0xc080e0].map((c) => {
+        const m = new THREE.MeshStandardMaterial({ color: c, roughness: 0.85, flatShading: true });
+        applyWind(m, 0.05);
+        mats.push(m);
+        return m;
+      });
+      const [bloomGeo] = track(new THREE.IcosahedronGeometry(0.16, 0), bloomMats[0]);
+      for (const deg of [150, 195, 240, 285, 330, 15]) {
+        const a = (deg / 180) * Math.PI;
+        const bx = Math.cos(a) * 5.6;
+        const bz = Math.sin(a) * 5.6;
+        const soil = new THREE.Mesh(soilGeo, soilMat);
+        soil.position.set(bx, 0.07, bz);
+        group.add(soil);
+        for (let b = 0; b < 4; b++) {
+          const bloom = new THREE.Mesh(bloomGeo, bloomMats[(deg + b) % bloomMats.length]);
+          bloom.position.set(bx + (rng() - 0.5) * 0.8, 0.28, bz + (rng() - 0.5) * 0.8);
+          group.add(bloom);
+        }
+      }
+    }
   }
 
   // ---- Kafra shop stall: a counter with a pink-striped awning behind each
@@ -412,6 +442,28 @@ export function buildScenery(mapId: string): Scenery {
         group.add(post);
       }
     }
+    // a little rowboat moored beside the pier, bobbing on the swell
+    const boat = new THREE.Group();
+    const [hullGeo] = track(new THREE.BoxGeometry(0.95, 0.35, 2.0), woodMat);
+    const hull = new THREE.Mesh(hullGeo, woodMat);
+    boat.add(hull);
+    const [bowGeo] = track(new THREE.ConeGeometry(0.48, 0.7, 4), woodMat);
+    const bow = new THREE.Mesh(bowGeo, woodMat);
+    bow.rotation.x = -Math.PI / 2;
+    bow.rotation.y = Math.PI / 4;
+    bow.scale.set(1, 1, 0.5);
+    bow.position.set(0, 0.02, 1.3);
+    boat.add(bow);
+    const [benchGeo] = track(new THREE.BoxGeometry(0.85, 0.06, 0.25), woodMat);
+    for (const bz of [-0.5, 0.35]) {
+      const bench = new THREE.Mesh(benchGeo, woodMat);
+      bench.position.set(0, 0.14, bz);
+      boat.add(bench);
+    }
+    boat.position.set(MAP_HALF * 0.94 + 6.6, -0.18, pierZ + 2.2);
+    boat.rotation.y = 0.4;
+    group.add(boat);
+    bobbers.push({ obj: boat, baseY: -0.18, phase: rng() * Math.PI * 2 });
   }
 
   // ---- horizon mountains: a ring of hazy peaks outside the playfield so the
@@ -492,6 +544,11 @@ export function buildScenery(mapId: string): Scenery {
       for (const o of orbiters) {
         const a = o.phase + animPhase * o.speed;
         o.sprite.position.set(o.cx + Math.cos(a) * o.r, o.y + Math.sin(a * 1.7) * 0.2, o.cz + Math.sin(a) * o.r);
+      }
+      // the moored boat bobs and rolls on the swell
+      for (const b of bobbers) {
+        b.obj.position.y = b.baseY + Math.sin(animPhase * 1.3 + b.phase) * 0.06;
+        b.obj.rotation.z = Math.sin(animPhase * 1.1 + b.phase) * 0.05;
       }
       if (!animated) return;
       if (animated.jet) {
