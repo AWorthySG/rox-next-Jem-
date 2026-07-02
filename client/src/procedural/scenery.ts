@@ -487,6 +487,52 @@ export function buildScenery(mapId: string): Scenery {
       signpost.position.set(-2.4, 0, 8.2);
       group.add(signpost);
     }
+
+    // traveller's campfire off the path near spawn: a log ring, a flickering
+    // flame and a warm pool of light that carries through the night
+    {
+      const [logGeo, logMat] = track(
+        new THREE.CylinderGeometry(0.09, 0.09, 0.9, 6),
+        new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.trunk).multiplyScalar(0.8), roughness: 1 }),
+      );
+      const [stoneGeo, stoneMat] = track(
+        new THREE.DodecahedronGeometry(0.14, 0),
+        new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(0.8), roughness: 1, flatShading: true }),
+      );
+      const [flameGeo, flameMat] = track(
+        new THREE.ConeGeometry(0.22, 0.55, 7),
+        new THREE.MeshBasicMaterial({ color: 0xff9a3a }),
+      );
+      nightLights.push({ mat: flameMat, day: new THREE.Color(0xff9a3a), night: new THREE.Color(0xffc060) });
+      const camp = new THREE.Group();
+      for (const [lx, lz, ry] of [[-0.25, 0.1, 0.5], [0.25, -0.05, -0.9], [0, 0.25, 1.9]] as const) {
+        const log = new THREE.Mesh(logGeo, logMat);
+        log.position.set(lx, 0.1, lz);
+        log.rotation.set(Math.PI / 2, 0, ry);
+        camp.add(log);
+      }
+      for (let i = 0; i < 7; i++) {
+        const a = (i / 7) * Math.PI * 2;
+        const stone = new THREE.Mesh(stoneGeo, stoneMat);
+        stone.position.set(Math.cos(a) * 0.55, 0.08, Math.sin(a) * 0.55);
+        camp.add(stone);
+      }
+      const flame = new THREE.Mesh(flameGeo, flameMat);
+      flame.position.y = 0.42;
+      camp.add(flame);
+      flickers.push(flame);
+      const [glowGeo, glowMat] = track(
+        new THREE.PlaneGeometry(3.6, 3.6),
+        new THREE.MeshBasicMaterial({ map: makeSpark(), color: 0xff9a4a, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }),
+      );
+      nightFades.push({ mat: glowMat, max: 0.4 });
+      const glow = new THREE.Mesh(glowGeo, glowMat);
+      glow.rotation.x = -Math.PI / 2;
+      glow.position.y = 0.04;
+      camp.add(glow);
+      camp.position.set(4.6, 0, 17.5);
+      group.add(camp);
+    }
   }
 
   // ---- Kafra shop stall: a counter with a pink-striped awning behind each
@@ -872,6 +918,34 @@ export function buildScenery(mapId: string): Scenery {
         speed: 0.03 + rng() * 0.04,
         phase: rng() * Math.PI * 2,
       });
+    }
+  }
+
+  // ---- crystal outcrops: on crystal maps, clusters of tilted shards catch
+  // the theme's hue by day and glow from within after dark ----
+  if (theme.tree === "crystal") {
+    const [shardGeo, shardMat] = track(
+      new THREE.ConeGeometry(0.22, 1.1, 5),
+      new THREE.MeshBasicMaterial({ color: theme.foliage[0] }),
+    );
+    nightLights.push({
+      mat: shardMat,
+      day: new THREE.Color(theme.foliage[0]).multiplyScalar(0.55),
+      night: new THREE.Color(theme.foliage[0]).lerp(new THREE.Color(0xffffff), 0.35),
+    });
+    for (let c = 0; c < 6; c++) {
+      const a = rng() * Math.PI * 2;
+      const r = 10 + rng() * 20;
+      const cx = Math.cos(a) * r;
+      const cz = Math.sin(a) * r;
+      for (let s = 0; s < 3; s++) {
+        const shard = new THREE.Mesh(shardGeo, shardMat);
+        const sc = 0.6 + rng() * 0.9;
+        shard.scale.setScalar(sc);
+        shard.position.set(cx + (rng() - 0.5) * 0.9, 0.4 * sc, cz + (rng() - 0.5) * 0.9);
+        shard.rotation.set((rng() - 0.5) * 0.6, rng() * Math.PI, (rng() - 0.5) * 0.6);
+        group.add(shard);
+      }
     }
   }
 
