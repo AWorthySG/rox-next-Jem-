@@ -51,7 +51,10 @@ export class ShopPanel {
       row.className = `shop-row${afford ? "" : " dim"}`;
       row.title = item.desc;
       row.innerHTML = `<span class="sr-name">${item.name}</span><span class="sr-price">${item.price}z</span>`;
-      row.addEventListener("click", () => this.handlers.onBuy(id));
+      row.addEventListener("click", () => {
+        this.flash(row);
+        this.handlers.onBuy(id);
+      });
       this.buyList.appendChild(row);
     }
 
@@ -70,8 +73,19 @@ export class ShopPanel {
       row.title = item.desc;
       row.innerHTML =
         `<span class="sr-name">${item.name} ×${entry.qty}</span><span class="sr-price">${item.sellPrice}z</span>`;
-      row.addEventListener("click", () => this.handlers.onSell(entry.id));
+      row.addEventListener("click", () => {
+        this.flash(row);
+        this.handlers.onSell(entry.id);
+      });
       this.sellList.appendChild(row);
     }
+  }
+
+  // Immediate tactile feedback on click, since the row itself gets torn down
+  // and rebuilt on the next SelfSync after the server confirms the trade —
+  // without this, a click reads as unresponsive until that round-trip lands.
+  private flash(row: HTMLElement): void {
+    row.classList.add("shop-row-flash");
+    setTimeout(() => row.classList.remove("shop-row-flash"), 300);
   }
 }

@@ -1617,6 +1617,14 @@ body {
 .shop-row.dim {
   opacity: 0.45;
 }
+/* immediate click feedback while the trade round-trips to the server */
+.shop-row-flash {
+  animation: shop-row-flash-anim 0.3s ease-out;
+}
+@keyframes shop-row-flash-anim {
+  0% { background: rgba(230, 200, 120, 0.35); }
+  100% { background: rgba(0, 0, 0, 0.3); }
+}
 .shop-row .sr-name {
   flex: 1;
   font-size: 12px;
