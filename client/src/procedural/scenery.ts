@@ -4273,6 +4273,157 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Rachel windmill: a snow-dusted farmland windmill, the town's iconic
+  // landmark, distinct from the generic leafy-field windmill ----
+  if (mapId === "rachel") {
+    const millStone2 = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).lerp(new THREE.Color(0xffffff), 0.4), roughness: 0.9 });
+    mats.push(millStone2);
+    const [towerGeo3] = track(new THREE.CylinderGeometry(1.0, 1.5, 4.8, 10), millStone2);
+    const [capGeo3, capMat3] = track(new THREE.ConeGeometry(1.3, 1.2, 10), new THREE.MeshStandardMaterial({ color: 0xe8ecf4, roughness: 0.85 }));
+    const [bladeGeo3, bladeMat3] = track(new THREE.BoxGeometry(0.4, 2.8, 0.07), new THREE.MeshStandardMaterial({ color: 0xe0dccc, roughness: 0.9 }));
+    const mill2 = new THREE.Group();
+    const tower3 = new THREE.Mesh(towerGeo3, millStone2);
+    tower3.position.y = 2.4;
+    tower3.castShadow = true;
+    mill2.add(tower3);
+    const cap3 = new THREE.Mesh(capGeo3, capMat3);
+    cap3.position.y = 5.4;
+    mill2.add(cap3);
+    const hub2 = new THREE.Group();
+    hub2.position.set(0, 4.5, 1.3);
+    for (let b = 0; b < 4; b++) {
+      const blade = new THREE.Mesh(bladeGeo3, bladeMat3);
+      blade.position.y = 1.45;
+      const arm2 = new THREE.Group();
+      arm2.rotation.z = (b / 4) * Math.PI * 2;
+      arm2.add(blade);
+      hub2.add(arm2);
+    }
+    mill2.add(hub2);
+    spinners.push({ obj: hub2, speed: 0.45 });
+    mill2.position.set(-12, 0, 11);
+    mill2.rotation.y = Math.atan2(-11, 12); // sails face the plaza
+    group.add(mill2);
+  }
+
+  // ---- Lutie Christmas tree: a towering decorated fir strung with lights,
+  // gift boxes piled at its base, the town's festive centerpiece ----
+  if (mapId === "lutie") {
+    const trunkMat2 = new THREE.MeshStandardMaterial({ color: 0x4a3020, roughness: 1 });
+    mats.push(trunkMat2);
+    const [trunkGeo2] = track(new THREE.CylinderGeometry(0.3, 0.4, 1.2, 8), trunkMat2);
+    const [tierGeo3, tierMat3] = track(new THREE.ConeGeometry(1.0, 1.6, 9), new THREE.MeshStandardMaterial({ color: 0x1e5a30, roughness: 0.95, flatShading: true }));
+    const [bulbGeo, bulbMat] = track(new THREE.SphereGeometry(0.08, 6, 5), new THREE.MeshBasicMaterial({ color: 0xffd070 }));
+    nightLights.push({ mat: bulbMat, day: new THREE.Color(0xffd070).multiplyScalar(0.6), night: new THREE.Color(0xffe6a0) });
+    const [starGeo, starMat] = track(new THREE.OctahedronGeometry(0.22, 0), new THREE.MeshBasicMaterial({ color: 0xffe27a }));
+    nightLights.push({ mat: starMat, day: new THREE.Color(0xffe27a).multiplyScalar(0.7), night: new THREE.Color(0xfff2c0) });
+    const tree = new THREE.Group();
+    const trunk2 = new THREE.Mesh(trunkGeo2, trunkMat2);
+    trunk2.position.y = 0.6;
+    tree.add(trunk2);
+    for (let t = 0; t < 4; t++) {
+      const shrink = 1 - t * 0.18;
+      const tier2 = new THREE.Mesh(tierGeo3, tierMat3);
+      tier2.scale.setScalar(shrink);
+      tier2.position.y = 1.6 + t * 1.1;
+      tier2.castShadow = true;
+      tree.add(tier2);
+    }
+    const star = new THREE.Mesh(starGeo, starMat);
+    star.position.y = 6.3;
+    tree.add(star);
+    spinners.push({ obj: star, speed: 0.4 });
+    for (let i = 0; i < 10; i++) {
+      const bulb = new THREE.Mesh(bulbGeo, bulbMat);
+      const tt = 1.9 + rng() * 3.6;
+      const ang = rng() * Math.PI * 2;
+      const rad = 0.15 + (1 - (tt - 1.9) / 3.6) * 0.85;
+      bulb.position.set(Math.cos(ang) * rad, tt, Math.sin(ang) * rad);
+      tree.add(bulb);
+    }
+    // gift boxes piled at the base, each its own color
+    const giftMats = [0xd04050, 0x4070c0, 0x50a060].map((c) => {
+      const m = new THREE.MeshStandardMaterial({ color: c, roughness: 0.7 });
+      mats.push(m);
+      return m;
+    });
+    const [giftGeo] = track(new THREE.BoxGeometry(0.5, 0.5, 0.5), giftMats[0]);
+    for (let g = 0; g < 4; g++) {
+      const gift = new THREE.Mesh(giftGeo, giftMats[g % giftMats.length]);
+      const ga = rng() * Math.PI * 2;
+      const gr = 1.1 + rng() * 0.6;
+      gift.position.set(Math.cos(ga) * gr, 0.25, Math.sin(ga) * gr);
+      gift.rotation.y = rng() * Math.PI;
+      gift.scale.setScalar(0.7 + rng() * 0.5);
+      tree.add(gift);
+    }
+    tree.position.set(11, 0, -11);
+    group.add(tree);
+  }
+
+  // ---- Kampong Glam mosque dome: a golden dome and slender minaret,
+  // honoring the district's Malay heritage and the Sultan Mosque nearby ----
+  if (mapId === "kampong_glam") {
+    const domeStone = new THREE.MeshStandardMaterial({ color: 0xe8e0c8, roughness: 0.85 });
+    mats.push(domeStone);
+    const [baseGeo2] = track(new THREE.CylinderGeometry(1.6, 1.8, 2.2, 16), domeStone);
+    const [domeGeo2, domeGoldMat] = track(
+      new THREE.SphereGeometry(1.6, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2.1),
+      new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.3, metalness: 0.6 }),
+    );
+    const [finialGeo, finialMat] = track(new THREE.ConeGeometry(0.18, 0.6, 8), new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.3, metalness: 0.6 }));
+    nightLights.push({ mat: finialMat, day: new THREE.Color(0xd4af37).multiplyScalar(0.8), night: new THREE.Color(0xffe27a) });
+    const [minaretGeo] = track(new THREE.CylinderGeometry(0.4, 0.55, 4.4, 10), domeStone);
+    const mosque = new THREE.Group();
+    const base2 = new THREE.Mesh(baseGeo2, domeStone);
+    base2.position.y = 1.1;
+    base2.castShadow = true;
+    mosque.add(base2);
+    const dome2 = new THREE.Mesh(domeGeo2, domeGoldMat);
+    dome2.position.y = 2.2;
+    mosque.add(dome2);
+    const finial = new THREE.Mesh(finialGeo, finialMat);
+    finial.position.y = 3.9;
+    mosque.add(finial);
+    const minaret = new THREE.Mesh(minaretGeo, domeStone);
+    minaret.position.set(2.6, 2.2, 0);
+    minaret.castShadow = true;
+    mosque.add(minaret);
+    const minaretCap = new THREE.Mesh(finialGeo, domeGoldMat);
+    minaretCap.scale.setScalar(3.0);
+    minaretCap.position.set(2.6, 4.9, 0);
+    mosque.add(minaretCap);
+    mosque.position.set(-10, 0, -10);
+    group.add(mosque);
+  }
+
+  // ---- Marina Bay towers: a trio of glass skyscrapers joined by a raised
+  // sky platform, evoking the bay's iconic skyline ----
+  if (mapId === "marina_bay") {
+    const glassMat = new THREE.MeshStandardMaterial({ color: 0x3a5a7a, roughness: 0.25, metalness: 0.5 });
+    mats.push(glassMat);
+    const [towerGeo4] = track(new THREE.BoxGeometry(1.1, 6.5, 1.1), glassMat);
+    const [deckGeo, deckMat] = track(new THREE.BoxGeometry(4.4, 0.35, 1.4), new THREE.MeshStandardMaterial({ color: 0x8a95a0, roughness: 0.6, metalness: 0.3 }));
+    const [winGeo, winMat] = track(new THREE.PlaneGeometry(0.7, 0.9), new THREE.MeshBasicMaterial({ color: 0x9adcf0 }));
+    nightLights.push({ mat: winMat, day: new THREE.Color(0x9adcf0).multiplyScalar(0.5), night: new THREE.Color(0xfff2b0) });
+    const towers = new THREE.Group();
+    for (let t = 0; t < 3; t++) {
+      const tower4 = new THREE.Mesh(towerGeo4, glassMat);
+      tower4.position.set((t - 1) * 1.6, 3.25, 0);
+      tower4.castShadow = true;
+      towers.add(tower4);
+      const win = new THREE.Mesh(winGeo, winMat);
+      win.position.set((t - 1) * 1.6, 5.0, 0.56);
+      towers.add(win);
+    }
+    const deck = new THREE.Mesh(deckGeo, deckMat);
+    deck.position.y = 6.6;
+    deck.rotation.z = 0.03; // the deck tilts slightly, RO's version of the SkyPark
+    towers.add(deck);
+    towers.position.set(12, 0, -12);
+    group.add(towers);
+  }
+
   // ---- Aldebaran clock tower: the town's landmark — a tall stone tower with
   // a white clock face whose hands really turn ----
   if (mapId === "aldebaran") {
