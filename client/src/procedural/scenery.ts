@@ -4736,6 +4736,89 @@ export function buildScenery(mapId: string): Scenery {
     group.add(tower);
   }
 
+  // ---- Tiong Bahru bird corner: a row of hanging birdcages on tall poles,
+  // the estate's old-school bird-singing tradition ----
+  if (mapId === "tiong_bahru") {
+    const poleMat2 = new THREE.MeshStandardMaterial({ color: 0x5a5a54, roughness: 0.6, metalness: 0.3 });
+    mats.push(poleMat2);
+    const [poleGeo2] = track(new THREE.CylinderGeometry(0.05, 0.06, 3.0, 6), poleMat2);
+    const [hookGeo, hookMat] = track(new THREE.TorusGeometry(0.1, 0.02, 5, 8), poleMat2);
+    const [cageGeo, cageMat] = track(
+      new THREE.CylinderGeometry(0.22, 0.22, 0.4, 10, 1, true),
+      new THREE.MeshStandardMaterial({ color: 0xc8a860, roughness: 0.7, wireframe: true }),
+    );
+    const [birdGeo2] = track(new THREE.ConeGeometry(0.08, 0.2, 6), poleMat2);
+    const birdColors2 = [0xd05030, 0xe0c040, 0x50a0c0];
+    const corner = new THREE.Group();
+    for (let p = 0; p < 3; p++) {
+      const px = p * 1.0 - 1.0;
+      const pole = new THREE.Mesh(poleGeo2, poleMat2);
+      pole.position.set(px, 1.5, 0);
+      pole.castShadow = true;
+      corner.add(pole);
+      const hook = new THREE.Mesh(hookGeo, hookMat);
+      hook.position.set(px, 2.95, 0);
+      hook.rotation.x = Math.PI / 2;
+      corner.add(hook);
+      const cage = new THREE.Mesh(cageGeo, cageMat);
+      cage.position.set(px, 2.6, 0);
+      corner.add(cage);
+      const birdMat2 = new THREE.MeshStandardMaterial({ color: birdColors2[p], roughness: 0.8 });
+      mats.push(birdMat2);
+      const bird2 = new THREE.Mesh(birdGeo2, birdMat2);
+      bird2.position.set(px, 2.6, 0);
+      bird2.rotation.x = -Math.PI / 2;
+      corner.add(bird2);
+    }
+    // a wooden bench for the bird-singing uncles
+    const benchMat = new THREE.MeshStandardMaterial({ color: 0x6a4a30, roughness: 1 });
+    mats.push(benchMat);
+    const [benchSeatGeo] = track(new THREE.BoxGeometry(2.2, 0.12, 0.6), benchMat);
+    const [benchLegGeo] = track(new THREE.BoxGeometry(0.1, 0.5, 0.5), benchMat);
+    const bench = new THREE.Group();
+    const seat = new THREE.Mesh(benchSeatGeo, benchMat);
+    seat.position.y = 0.5;
+    bench.add(seat);
+    for (const s of [-1, 1]) {
+      const leg3 = new THREE.Mesh(benchLegGeo, benchMat);
+      leg3.position.set(s * 0.95, 0.25, 0);
+      bench.add(leg3);
+    }
+    bench.position.set(0, 0, 1.0);
+    corner.add(bench);
+    corner.position.set(10, 0, -8);
+    group.add(corner);
+  }
+
+  // ---- Southern Ridges wave bridge: an undulating timber walkway echoing
+  // the park connector's signature Henderson Waves span ----
+  if (mapId === "southern_ridges") {
+    const deckMat2 = new THREE.MeshStandardMaterial({ color: 0xa07850, roughness: 0.9 });
+    mats.push(deckMat2);
+    const [segGeo] = track(new THREE.BoxGeometry(1.2, 0.15, 1.6), deckMat2);
+    const [ribGeo3, ribMat3] = track(new THREE.BoxGeometry(0.12, 0.9, 0.12), new THREE.MeshStandardMaterial({ color: 0x8a6040, roughness: 0.85 }));
+    const bridge = new THREE.Group();
+    const segments2 = 9;
+    for (let i = 0; i < segments2; i++) {
+      const t = i / (segments2 - 1);
+      const seg = new THREE.Mesh(segGeo, deckMat2);
+      seg.position.set(0, Math.sin(t * Math.PI * 2) * 0.35 + 1.0, (t - 0.5) * 11);
+      seg.rotation.x = Math.cos(t * Math.PI * 2) * 0.18; // undulating wave profile
+      seg.castShadow = true;
+      bridge.add(seg);
+      // an arching rib rises alongside every other segment, like the real span's ribs
+      if (i % 2 === 0) {
+        const rib = new THREE.Mesh(ribGeo3, ribMat3);
+        rib.position.set(0.75, seg.position.y + 0.5, seg.position.z);
+        rib.rotation.z = 0.3;
+        bridge.add(rib);
+      }
+    }
+    bridge.position.set(-9, 0, 0);
+    bridge.rotation.y = Math.PI / 2;
+    group.add(bridge);
+  }
+
   // ---- Aldebaran clock tower: the town's landmark — a tall stone tower with
   // a white clock face whose hands really turn ----
   if (mapId === "aldebaran") {
