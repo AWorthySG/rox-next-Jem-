@@ -3938,6 +3938,55 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Byalan sunken ruin: a broken ship's hull rests on the seafloor,
+  // giving the underwater dungeon its own identity apart from the bubbles
+  // and jellyfish it shares with Abyss ----
+  if (mapId === "byalan") {
+    const hullStone = new THREE.MeshStandardMaterial({ color: 0x3a4a3a, roughness: 1, flatShading: true });
+    mats.push(hullStone);
+    const [hullSideGeo2] = track(new THREE.BoxGeometry(4.2, 1.3, 0.18), hullStone);
+    const [ribGeo2] = track(new THREE.CylinderGeometry(0.06, 0.07, 1.5, 5), hullStone);
+    const [mastGeo, mastMat] = track(new THREE.CylinderGeometry(0.09, 0.13, 3.2, 6), hullStone);
+    const ruin = new THREE.Group();
+    const hullSide = new THREE.Mesh(hullSideGeo2, hullStone);
+    hullSide.position.y = 0.4;
+    hullSide.castShadow = true;
+    ruin.add(hullSide);
+    for (let r = 0; r < 6; r++) {
+      const rib = new THREE.Mesh(ribGeo2, hullStone);
+      rib.position.set(-1.7 + r * 0.7, 0.5, 0.1);
+      rib.rotation.x = 0.2;
+      ruin.add(rib);
+    }
+    const mast = new THREE.Mesh(mastGeo, mastMat);
+    mast.position.set(0.5, 1.5, 0);
+    mast.rotation.z = 0.6; // toppled, half-buried in silt
+    ruin.add(mast);
+    ruin.position.set(11, -0.2, -9);
+    ruin.rotation.y = 0.7;
+    group.add(ruin);
+  }
+
+  // ---- Abyss trench: a glowing teal chasm splits the lakebed, distinct
+  // from Byalan's sunken ruin and from GH Abyss's void-purple rift ----
+  if (mapId === "abyss") {
+    const [trenchGeo, trenchMat] = track(
+      new THREE.PlaneGeometry(1.4, 7.0),
+      new THREE.MeshBasicMaterial({ color: 0x2ad0c0, transparent: true, opacity: 0.5 }),
+    );
+    nightLights.push({
+      mat: trenchMat,
+      day: new THREE.Color(0x2ad0c0).multiplyScalar(0.6),
+      night: new THREE.Color(0x6af0e0),
+    });
+    const trench = new THREE.Mesh(trenchGeo, trenchMat);
+    trench.rotation.x = -Math.PI / 2;
+    trench.position.set(-10, 0.03, -9);
+    trench.rotation.z = -0.4;
+    group.add(trench);
+    flickers.push(trench); // a slow pulsing glow from the deep
+  }
+
   // ---- drifting jellyfish: the abyssal maps have a few translucent jellies
   // pulsing slowly as they wander at mid-depth ----
   if (mapId === "byalan" || mapId === "abyss") {
