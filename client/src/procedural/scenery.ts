@@ -4586,6 +4586,156 @@ export function buildScenery(mapId: string): Scenery {
     group.add(fort);
   }
 
+  // ---- Mount Faber cable car: a small hilltop station with a gondola
+  // suspended from the cableway, swaying gently in the wind ----
+  if (mapId === "mount_faber") {
+    const stationMat = new THREE.MeshStandardMaterial({ color: 0x7a7a74, roughness: 0.7, metalness: 0.3 });
+    mats.push(stationMat);
+    const [postGeo7] = track(new THREE.CylinderGeometry(0.18, 0.22, 3.6, 8), stationMat);
+    const [roofGeo4, roofMat4] = track(new THREE.BoxGeometry(3.2, 0.25, 2.2), new THREE.MeshStandardMaterial({ color: 0x4a5a6a, roughness: 0.6, metalness: 0.4 }));
+    const [cableGeo, cableMat] = track(new THREE.CylinderGeometry(0.025, 0.025, 8, 4), new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.5, metalness: 0.6 }));
+    const [gondolaGeo, gondolaMat] = track(new THREE.BoxGeometry(0.9, 1.0, 0.9), new THREE.MeshStandardMaterial({ color: 0xd83030, roughness: 0.4, metalness: 0.3 }));
+    const [windowGeo2, windowMat2] = track(new THREE.PlaneGeometry(0.6, 0.5), new THREE.MeshBasicMaterial({ color: 0xa8e0f0 }));
+    nightLights.push({ mat: windowMat2, day: new THREE.Color(0xa8e0f0).multiplyScalar(0.6), night: new THREE.Color(0xfff2c0) });
+    const station = new THREE.Group();
+    for (const s of [-1, 1]) {
+      const post = new THREE.Mesh(postGeo7, stationMat);
+      post.position.set(s * 1.4, 1.8, 0);
+      post.castShadow = true;
+      station.add(post);
+    }
+    const roof2 = new THREE.Mesh(roofGeo4, roofMat4);
+    roof2.position.y = 3.7;
+    roof2.castShadow = true;
+    station.add(roof2);
+    const cable = new THREE.Mesh(cableGeo, cableMat);
+    cable.rotation.z = Math.PI / 2;
+    cable.position.set(4.5, 3.4, 0);
+    station.add(cable);
+    const gondola = new THREE.Group();
+    const gondolaBody = new THREE.Mesh(gondolaGeo, gondolaMat);
+    gondolaBody.castShadow = true;
+    gondola.add(gondolaBody);
+    const win2 = new THREE.Mesh(windowGeo2, windowMat2);
+    win2.position.set(0, 0, 0.46);
+    gondola.add(win2);
+    gondola.position.set(3.0, 3.0, 0);
+    station.add(gondola);
+    bobbers.push({ obj: gondola, baseY: 3.0, phase: rng() * Math.PI * 2 });
+    station.position.set(9, 0, -9);
+    station.rotation.y = Math.atan2(9, -9);
+    group.add(station);
+  }
+
+  // ---- Little India temple gate: a vividly painted tiered gopuram gate,
+  // echoing the ornate Hindu temples along Serangoon Road ----
+  if (mapId === "little_india") {
+    const gopuramBase = new THREE.MeshStandardMaterial({ color: 0xd06840, roughness: 0.85, flatShading: true });
+    mats.push(gopuramBase);
+    const [pillarGeo3] = track(new THREE.BoxGeometry(0.7, 3.4, 0.7), gopuramBase);
+    const tierColors = [0xf0a040, 0xe05a40, 0x40a0c0, 0xf0d060];
+    const tierMats = tierColors.map((c) => {
+      const m = new THREE.MeshStandardMaterial({ color: c, roughness: 0.8, flatShading: true });
+      mats.push(m);
+      return m;
+    });
+    const [tierGeo4] = track(new THREE.BoxGeometry(2.4, 0.5, 1.6), tierMats[0]);
+    const gopuram = new THREE.Group();
+    for (const s of [-1, 1]) {
+      const pillar2 = new THREE.Mesh(pillarGeo3, gopuramBase);
+      pillar2.position.set(s * 1.0, 1.7, 0);
+      pillar2.castShadow = true;
+      gopuram.add(pillar2);
+    }
+    for (let t = 0; t < 4; t++) {
+      const shrink2 = 1 - t * 0.15;
+      const tier4 = new THREE.Mesh(tierGeo4, tierMats[t % tierMats.length]);
+      tier4.scale.set(shrink2, 1, shrink2);
+      tier4.position.y = 3.6 + t * 0.55;
+      tier4.castShadow = true;
+      gopuram.add(tier4);
+    }
+    gopuram.position.set(-10, 0, -11);
+    group.add(gopuram);
+  }
+
+  // ---- Orchard Road neon arcade: a lit-up shopping arcade sign strung with
+  // festive lights, the boulevard's retail glow ----
+  if (mapId === "orchard_road") {
+    const archFrameMat = new THREE.MeshStandardMaterial({ color: 0x2a2a34, roughness: 0.5, metalness: 0.6 });
+    mats.push(archFrameMat);
+    const [postGeo8] = track(new THREE.CylinderGeometry(0.14, 0.16, 3.4, 8), archFrameMat);
+    const [beamGeo2] = track(new THREE.BoxGeometry(4.4, 0.3, 0.3), archFrameMat);
+    const [neonGeo, neonMat] = track(new THREE.BoxGeometry(3.8, 0.5, 0.08), new THREE.MeshBasicMaterial({ color: 0xc040e0 }));
+    nightLights.push({ mat: neonMat, day: new THREE.Color(0xc040e0).multiplyScalar(0.55), night: new THREE.Color(0xff80f0) });
+    const [bulbGeo2, bulbMat2] = track(
+      new THREE.SphereGeometry(0.06, 6, 5),
+      new THREE.MeshBasicMaterial({ color: 0x40c0e0, transparent: true, opacity: 0, blending: THREE.AdditiveBlending }),
+    );
+    nightFades.push({ mat: bulbMat2, max: 0.9 });
+    const arcade = new THREE.Group();
+    for (const s of [-1, 1]) {
+      const post2 = new THREE.Mesh(postGeo8, archFrameMat);
+      post2.position.set(s * 2.0, 1.7, 0);
+      post2.castShadow = true;
+      arcade.add(post2);
+    }
+    const beam2 = new THREE.Mesh(beamGeo2, archFrameMat);
+    beam2.position.y = 3.4;
+    arcade.add(beam2);
+    const neon = new THREE.Mesh(neonGeo, neonMat);
+    neon.position.set(0, 3.4, 0.2);
+    arcade.add(neon);
+    for (let i = 0; i < 8; i++) {
+      const bulb2 = new THREE.Mesh(bulbGeo2, bulbMat2);
+      bulb2.position.set(-1.9 + i * 0.54, 3.1, 0.2);
+      arcade.add(bulb2);
+    }
+    arcade.position.set(11, 0, 8);
+    group.add(arcade);
+  }
+
+  // ---- Night Safari watchtower: an elevated wooden viewing platform with a
+  // thatch roof and hanging lanterns, for observing nocturnal wildlife ----
+  if (mapId === "night_safari") {
+    const towerWood = new THREE.MeshStandardMaterial({ color: 0x3a2c1c, roughness: 1 });
+    mats.push(towerWood);
+    const [legGeo4] = track(new THREE.CylinderGeometry(0.14, 0.18, 3.2, 6), towerWood);
+    const [platformGeo] = track(new THREE.BoxGeometry(2.4, 0.2, 2.0), towerWood);
+    const [railGeo] = track(new THREE.BoxGeometry(2.4, 0.5, 0.08), towerWood);
+    const [thatchGeo, thatchMat] = track(new THREE.ConeGeometry(1.9, 1.1, 6), new THREE.MeshStandardMaterial({ color: 0x5a4426, roughness: 1, flatShading: true }));
+    const [lanternGeo2, lanternMat2] = track(new THREE.SphereGeometry(0.13, 8, 6), new THREE.MeshBasicMaterial({ color: 0xffb050 }));
+    nightLights.push({ mat: lanternMat2, day: new THREE.Color(0x8a6a3a), night: new THREE.Color(0xffcf80) });
+    const tower = new THREE.Group();
+    for (const [lx, lz] of [[-1.0, -0.8], [1.0, -0.8], [-1.0, 0.8], [1.0, 0.8]] as const) {
+      const leg2 = new THREE.Mesh(legGeo4, towerWood);
+      leg2.position.set(lx, 1.6, lz);
+      tower.add(leg2);
+    }
+    const platform = new THREE.Mesh(platformGeo, towerWood);
+    platform.position.y = 3.3;
+    platform.castShadow = true;
+    tower.add(platform);
+    for (const s of [-1, 1]) {
+      const rail = new THREE.Mesh(railGeo, towerWood);
+      rail.position.set(0, 3.65, s * 1.0);
+      tower.add(rail);
+    }
+    const thatch = new THREE.Mesh(thatchGeo, thatchMat);
+    thatch.position.y = 4.6;
+    thatch.rotation.y = Math.PI / 6;
+    thatch.castShadow = true;
+    tower.add(thatch);
+    for (const [lx, lz] of [[-1.1, 0], [1.1, 0]] as const) {
+      const lantern = new THREE.Mesh(lanternGeo2, lanternMat2);
+      lantern.position.set(lx, 3.05, lz);
+      tower.add(lantern);
+      flickers.push(lantern);
+    }
+    tower.position.set(-11, 0, 10);
+    group.add(tower);
+  }
+
   // ---- Aldebaran clock tower: the town's landmark — a tall stone tower with
   // a white clock face whose hands really turn ----
   if (mapId === "aldebaran") {
