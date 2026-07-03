@@ -2784,6 +2784,67 @@ export function buildScenery(mapId: string): Scenery {
     group.add(merlion);
   }
 
+  // ---- The Float stage: a raised performance platform with a scoreboard
+  // screen, honoring the floating stadium's own identity apart from the
+  // floodlights it shares with Marina Barrage ----
+  if (mapId === "the_float") {
+    const stageMetal = new THREE.MeshStandardMaterial({ color: 0x5a626c, roughness: 0.6, metalness: 0.4 });
+    mats.push(stageMetal);
+    const [platformGeo] = track(new THREE.BoxGeometry(4.5, 0.4, 2.6), stageMetal);
+    const [screenGeo, screenMat] = track(new THREE.BoxGeometry(3.0, 1.8, 0.15), new THREE.MeshBasicMaterial({ color: 0x2a6ac0 }));
+    nightLights.push({ mat: screenMat, day: new THREE.Color(0x2a6ac0).multiplyScalar(0.7), night: new THREE.Color(0x5aa0f0) });
+    const [frameGeo, frameMat] = track(new THREE.BoxGeometry(3.2, 2.0, 0.1), new THREE.MeshStandardMaterial({ color: 0x2a2c30, roughness: 0.6 }));
+    const [postGeo4] = track(new THREE.CylinderGeometry(0.1, 0.12, 3.2, 6), stageMetal);
+    const stage = new THREE.Group();
+    const platform = new THREE.Mesh(platformGeo, stageMetal);
+    platform.position.y = 0.2;
+    platform.castShadow = true;
+    stage.add(platform);
+    for (const s of [-1, 1]) {
+      const post = new THREE.Mesh(postGeo4, stageMetal);
+      post.position.set(s * 1.4, 1.9, -1.0);
+      stage.add(post);
+    }
+    const frame = new THREE.Mesh(frameGeo, frameMat);
+    frame.position.set(0, 3.2, -1.0);
+    stage.add(frame);
+    const screen = new THREE.Mesh(screenGeo, screenMat);
+    screen.position.set(0, 3.2, -0.93);
+    stage.add(screen);
+    stage.position.set(-9, 0, 9);
+    stage.rotation.y = Math.atan2(9, -9);
+    group.add(stage);
+  }
+
+  // ---- Marina Barrage spillway: a concrete dam wall with a sheet of
+  // falling water, its own identity apart from The Float ----
+  if (mapId === "marina_barrage") {
+    const damConcrete = new THREE.MeshStandardMaterial({ color: 0x8a9098, roughness: 0.9 });
+    mats.push(damConcrete);
+    const [wallGeo2] = track(new THREE.BoxGeometry(6.5, 3.0, 1.2), damConcrete);
+    const wall = new THREE.Mesh(wallGeo2, damConcrete);
+    wall.castShadow = true;
+    group.add(wall);
+    const [sheetGeo, sheetMat] = track(
+      new THREE.PlaneGeometry(2.0, 2.8),
+      new THREE.MeshBasicMaterial({ color: 0xbfe8ff, transparent: true, opacity: 0.5, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }),
+    );
+    const sheet = new THREE.Mesh(sheetGeo, sheetMat);
+    sheet.position.set(0, 1.4, 0.62);
+    wall.add(sheet);
+    const spillMistMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0xd8f0ff, transparent: true, opacity: 0.4, depthWrite: false, blending: THREE.AdditiveBlending });
+    mats.push(spillMistMat);
+    for (let m = 0; m < 3; m++) {
+      const mist = new THREE.Sprite(spillMistMat);
+      mist.position.set((m - 1) * 0.7, 0.1, 0.8);
+      mist.scale.setScalar(0.5);
+      wall.add(mist);
+      smokes.push({ sprite: mist, baseY: 0.1, offset: m / 3 });
+    }
+    wall.position.set(9, 1.5, -8);
+    wall.rotation.y = 0.9;
+  }
+
   // ---- floodlight pylons: the modern waterfront maps raise angled stadium
   // lights that blaze after dark ----
   if (mapId === "the_float" || mapId === "marina_barrage") {
