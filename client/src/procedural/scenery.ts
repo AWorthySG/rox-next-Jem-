@@ -2970,6 +2970,52 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- abandoned mine cart: a rusted ore cart derailed on a short stretch
+  // of track, giving Cave its own identity apart from the stalagmites and
+  // webs it shares with Orc Dungeon ----
+  if (mapId === "cave") {
+    const rustMetal = new THREE.MeshStandardMaterial({ color: 0x7a4a3a, roughness: 0.8, metalness: 0.3 });
+    mats.push(rustMetal);
+    const [railGeo] = track(new THREE.BoxGeometry(0.1, 0.06, 4.0), rustMetal);
+    const [tieGeo, tieMat] = track(new THREE.BoxGeometry(0.9, 0.08, 0.16), new THREE.MeshStandardMaterial({ color: 0x3a2c1e, roughness: 1 }));
+    const [cartBodyGeo] = track(new THREE.BoxGeometry(1.0, 0.6, 1.4), rustMetal);
+    const [wheelGeo2, wheelMat2] = track(new THREE.CylinderGeometry(0.18, 0.18, 0.08, 10), new THREE.MeshStandardMaterial({ color: 0x2a2420, roughness: 0.7 }));
+    const [oreGeo, oreMat] = track(new THREE.DodecahedronGeometry(0.16, 0), new THREE.MeshStandardMaterial({ color: 0x9a8060, roughness: 1, flatShading: true }));
+    const mineScene = new THREE.Group();
+    for (const s of [-1, 1]) {
+      const rail = new THREE.Mesh(railGeo, rustMetal);
+      rail.position.x = s * 0.4;
+      mineScene.add(rail);
+    }
+    for (let t = 0; t < 6; t++) {
+      const tie = new THREE.Mesh(tieGeo, tieMat);
+      tie.position.z = -1.8 + t * 0.7;
+      mineScene.add(tie);
+    }
+    const cart = new THREE.Group();
+    const cartBody = new THREE.Mesh(cartBodyGeo, rustMetal);
+    cartBody.position.y = 0.4;
+    cartBody.castShadow = true;
+    cart.add(cartBody);
+    for (const [wx, wz] of [[-0.45, 0.5], [0.45, 0.5], [-0.45, -0.5], [0.45, -0.5]] as const) {
+      const wheel = new THREE.Mesh(wheelGeo2, wheelMat2);
+      wheel.rotation.z = Math.PI / 2;
+      wheel.position.set(wx, 0.18, wz);
+      cart.add(wheel);
+    }
+    for (let o = 0; o < 5; o++) {
+      const ore = new THREE.Mesh(oreGeo, oreMat);
+      ore.position.set((rng() - 0.5) * 0.6, 0.75 + rng() * 0.15, (rng() - 0.5) * 0.9);
+      cart.add(ore);
+    }
+    cart.position.set(0, 0, 0.8);
+    cart.rotation.y = 0.15; // slightly askew, derailed
+    mineScene.add(cart);
+    mineScene.position.set(10, 0, 8);
+    mineScene.rotation.y = 0.9;
+    group.add(mineScene);
+  }
+
   // ---- cave stalagmites: the underground maps grow clusters of rock spikes
   // rising from the floor ----
   if (mapId === "cave" || mapId === "orc_dungeon") {
@@ -3163,6 +3209,46 @@ export function buildScenery(mapId: string): Scenery {
     totem.position.set(10.5, 0, -11);
     totem.rotation.y = Math.atan2(-10.5, 11);
     group.add(totem);
+  }
+
+  // ---- GH Church altar: a cracked stone altar with a toppled cross, its
+  // own feature apart from the ruined columns it shares with Glast Heim ----
+  if (mapId === "gh_church") {
+    const altarStone = new THREE.MeshStandardMaterial({ color: 0x6a6a70, roughness: 1, flatShading: true });
+    mats.push(altarStone);
+    const [altarBaseGeo] = track(new THREE.BoxGeometry(1.8, 0.9, 0.9), altarStone);
+    const [crossBeamGeo] = track(new THREE.BoxGeometry(0.16, 1.3, 0.16), altarStone);
+    const [crossArmGeo] = track(new THREE.BoxGeometry(0.7, 0.14, 0.14), altarStone);
+    const [candleGeo, candleMat] = track(new THREE.CylinderGeometry(0.05, 0.06, 0.3, 6), new THREE.MeshStandardMaterial({ color: 0xe8e0c8, roughness: 0.9 }));
+    const [flameGeo2, flameMat2] = track(new THREE.ConeGeometry(0.04, 0.12, 6), new THREE.MeshBasicMaterial({ color: 0xffb050 }));
+    nightLights.push({ mat: flameMat2, day: new THREE.Color(0xffb050), night: new THREE.Color(0xffd080) });
+    const shrine = new THREE.Group();
+    const altarBase = new THREE.Mesh(altarBaseGeo, altarStone);
+    altarBase.position.y = 0.45;
+    altarBase.castShadow = true;
+    shrine.add(altarBase);
+    // the cross has toppled to lean against the altar rather than stand upright
+    const crossGroup = new THREE.Group();
+    const beam = new THREE.Mesh(crossBeamGeo, altarStone);
+    crossGroup.add(beam);
+    const arm = new THREE.Mesh(crossArmGeo, altarStone);
+    arm.position.y = 0.3;
+    crossGroup.add(arm);
+    crossGroup.position.set(0.7, 1.15, 0);
+    crossGroup.rotation.z = -0.55;
+    shrine.add(crossGroup);
+    for (const s of [-1, 1]) {
+      const candle = new THREE.Mesh(candleGeo, candleMat);
+      candle.position.set(s * 0.6, 1.05, 0.2);
+      shrine.add(candle);
+      const flame = new THREE.Mesh(flameGeo2, flameMat2);
+      flame.position.set(s * 0.6, 1.24, 0.2);
+      shrine.add(flame);
+      flickers.push(flame);
+    }
+    shrine.position.set(-10, 0, 9.5);
+    shrine.rotation.y = 0.6;
+    group.add(shrine);
   }
 
   // ---- Glast Heim ruins: broken column stumps and one leaning survivor
