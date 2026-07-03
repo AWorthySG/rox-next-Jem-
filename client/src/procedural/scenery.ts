@@ -3221,6 +3221,75 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Niflheim spirit gate: a skeletal bone archway marks the threshold
+  // to the land of the dead, its own landmark apart from the gravestones
+  // and wisps it shares with sister haunted maps ----
+  if (mapId === "niflheim") {
+    const boneMat2 = new THREE.MeshStandardMaterial({ color: 0xd8d0b8, roughness: 0.9 });
+    mats.push(boneMat2);
+    const [boneLegGeo] = track(new THREE.CylinderGeometry(0.16, 0.24, 3.2, 8), boneMat2);
+    const [ribArchGeo] = track(new THREE.TorusGeometry(1.9, 0.14, 8, 16, Math.PI), boneMat2);
+    const [skullTopGeo, skullTopMat] = track(new THREE.SphereGeometry(0.5, 10, 8), boneMat2);
+    const [eyeSocketGeo, eyeSocketMat] = track(new THREE.SphereGeometry(0.11, 6, 5), new THREE.MeshBasicMaterial({ color: 0x6a4fb0 }));
+    nightLights.push({ mat: eyeSocketMat, day: new THREE.Color(0x3a2f5a), night: new THREE.Color(0x9a7ae0) });
+    const gate = new THREE.Group();
+    for (const s of [-1, 1]) {
+      const leg = new THREE.Mesh(boneLegGeo, boneMat2);
+      leg.position.set(s * 1.9, 1.6, 0);
+      leg.rotation.z = s * 0.08;
+      gate.add(leg);
+    }
+    const arch = new THREE.Mesh(ribArchGeo, boneMat2);
+    arch.position.y = 3.2;
+    arch.rotation.z = Math.PI;
+    gate.add(arch);
+    const skullTop = new THREE.Mesh(skullTopGeo, skullTopMat);
+    skullTop.position.y = 5.1;
+    skullTop.scale.set(1, 0.85, 1);
+    gate.add(skullTop);
+    for (const s of [-1, 1]) {
+      const socket = new THREE.Mesh(eyeSocketGeo, eyeSocketMat);
+      socket.position.set(s * 0.2, 5.15, 0.42);
+      gate.add(socket);
+    }
+    gate.position.set(9, 0, 8.5);
+    gate.rotation.y = Math.atan2(-9, -8.5);
+    group.add(gate);
+  }
+
+  // ---- Pulau Hantu keramat: a small haunted shrine honoring local ghost
+  // folklore, apart from the shipwreck and wisps it shares with sister maps ----
+  if (mapId === "pulau_hantu") {
+    const keramatWood = new THREE.MeshStandardMaterial({ color: 0x3a3228, roughness: 1 });
+    mats.push(keramatWood);
+    const [postGeo6] = track(new THREE.CylinderGeometry(0.07, 0.09, 1.4, 6), keramatWood);
+    const [roofGeo3, roofMat3] = track(new THREE.ConeGeometry(1.1, 0.6, 4), new THREE.MeshStandardMaterial({ color: 0x2a2620, roughness: 0.95, flatShading: true }));
+    const [clothGeo2, clothMat2] = track(new THREE.PlaneGeometry(0.5, 1.3), new THREE.MeshStandardMaterial({ color: 0xd8c060, roughness: 1, side: THREE.DoubleSide }));
+    const keramatCandleMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0x9adcc8, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
+    mats.push(keramatCandleMat);
+    nightFades.push({ mat: keramatCandleMat, max: 0.6 });
+    const keramat = new THREE.Group();
+    for (const [px, pz] of [[-0.7, -0.7], [0.7, -0.7], [-0.7, 0.7], [0.7, 0.7]] as const) {
+      const post = new THREE.Mesh(postGeo6, keramatWood);
+      post.position.set(px, 0.7, pz);
+      keramat.add(post);
+    }
+    const roof3 = new THREE.Mesh(roofGeo3, roofMat3);
+    roof3.position.y = 1.7;
+    roof3.rotation.y = Math.PI / 4;
+    roof3.castShadow = true;
+    keramat.add(roof3);
+    const cloth2 = new THREE.Mesh(clothGeo2, clothMat2);
+    cloth2.position.set(0.9, 1.0, 0);
+    keramat.add(cloth2);
+    const eerieGlow = new THREE.Sprite(keramatCandleMat);
+    eerieGlow.position.set(0, 0.8, 0);
+    eerieGlow.scale.setScalar(0.8);
+    keramat.add(eerieGlow);
+    keramat.position.set(-9.5, 0, -8);
+    group.add(keramat);
+  }
+
   // ---- shipwreck: a broken hull half-buried in the sand on wilder coastal
   // maps, ribs exposed, listing to one side ----
   if (mapId === "pulau_hantu" || mapId === "coney_island") {
