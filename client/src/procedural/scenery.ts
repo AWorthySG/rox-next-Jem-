@@ -2588,6 +2588,68 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Kusu Island shrine: a small incense pavilion honoring the island's
+  // Da Bo Gong temple, apart from the turtle statue it shares with Turtle
+  // Island ----
+  if (mapId === "kusu_island") {
+    const shrineWood2 = new THREE.MeshStandardMaterial({ color: 0xc0392a, roughness: 0.85 });
+    mats.push(shrineWood2);
+    const [shrinePostGeo] = track(new THREE.CylinderGeometry(0.08, 0.09, 1.8, 8), shrineWood2);
+    const [shrineRoofGeo, shrineRoofMat] = track(new THREE.ConeGeometry(1.3, 0.6, 4), new THREE.MeshStandardMaterial({ color: 0x2a2430, roughness: 0.9, flatShading: true }));
+    const [incenseGeo, incenseMat] = track(new THREE.CylinderGeometry(0.28, 0.32, 0.5, 10), new THREE.MeshStandardMaterial({ color: 0x8a6a42, roughness: 0.9 }));
+    const [emberGeo3, emberMat3] = track(new THREE.SphereGeometry(0.06, 6, 5), new THREE.MeshBasicMaterial({ color: 0xff8a3a }));
+    nightLights.push({ mat: emberMat3, day: new THREE.Color(0xff8a3a), night: new THREE.Color(0xffb060) });
+    const shrine2 = new THREE.Group();
+    for (const [px, pz] of [[-0.9, -0.9], [0.9, -0.9], [-0.9, 0.9], [0.9, 0.9]] as const) {
+      const post = new THREE.Mesh(shrinePostGeo, shrineWood2);
+      post.position.set(px, 0.9, pz);
+      shrine2.add(post);
+    }
+    const shrineRoof = new THREE.Mesh(shrineRoofGeo, shrineRoofMat);
+    shrineRoof.position.y = 2.1;
+    shrineRoof.rotation.y = Math.PI / 4;
+    shrineRoof.castShadow = true;
+    shrine2.add(shrineRoof);
+    const incenseUrn = new THREE.Mesh(incenseGeo, incenseMat);
+    incenseUrn.position.y = 0.25;
+    shrine2.add(incenseUrn);
+    const embers3 = new THREE.Mesh(emberGeo3, emberMat3);
+    embers3.position.y = 0.52;
+    shrine2.add(embers3);
+    flickers.push(embers3);
+    shrine2.position.set(9, 0, -9);
+    group.add(shrine2);
+  }
+
+  // ---- Turtle Island nesting ground: a roped-off sandy patch with a few
+  // egg mounds, apart from the shared statue with Kusu Island ----
+  if (mapId === "turtle") {
+    const sandMat = new THREE.MeshStandardMaterial({ color: 0xe0d0a0, roughness: 1 });
+    mats.push(sandMat);
+    const [postGeo5] = track(new THREE.CylinderGeometry(0.05, 0.06, 0.5, 6), new THREE.MeshStandardMaterial({ color: 0x8a6a42, roughness: 1 }));
+    const [ropeGeo3, ropeMat3] = track(new THREE.TorusGeometry(1.6, 0.03, 6, 20), new THREE.MeshStandardMaterial({ color: 0xd8c090, roughness: 1 }));
+    const [moundGeo, moundMat] = track(new THREE.SphereGeometry(0.28, 8, 6), sandMat);
+    const nest = new THREE.Group();
+    for (let p = 0; p < 6; p++) {
+      const a = (p / 6) * Math.PI * 2;
+      const post = new THREE.Mesh(postGeo5, sandMat);
+      post.position.set(Math.cos(a) * 1.6, 0.25, Math.sin(a) * 1.6);
+      nest.add(post);
+    }
+    const rope = new THREE.Mesh(ropeGeo3, ropeMat3);
+    rope.rotation.x = -Math.PI / 2;
+    rope.position.y = 0.25;
+    nest.add(rope);
+    for (let m = 0; m < 3; m++) {
+      const mound = new THREE.Mesh(moundGeo, moundMat);
+      mound.scale.y = 0.5;
+      mound.position.set((rng() - 0.5) * 1.8, 0.14, (rng() - 0.5) * 1.8);
+      nest.add(mound);
+    }
+    nest.position.set(-9, 0, 9);
+    group.add(nest);
+  }
+
   // ---- turtle statue: the turtle islands honour their namesake with a stone
   // turtle — shell dome, head and four flippers ----
   if (mapId === "kusu_island" || mapId === "turtle") {
