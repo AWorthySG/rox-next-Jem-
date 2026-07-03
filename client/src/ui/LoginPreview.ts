@@ -1,6 +1,6 @@
 import * as THREE from "three";
 import { isMagicJob, jobFamilyOf, JobId } from "@rox/shared";
-import { applyHeadgear, buildCharacter, type CharacterMesh, type WeaponStyle } from "../procedural/characterMesh.js";
+import { applyHeadgear, buildCharacter, setEyeBlink, type CharacterMesh, type WeaponStyle } from "../procedural/characterMesh.js";
 
 // Per-job outfit hue + a flashy starter hat so the login preview reads distinct.
 const JOB_LOOK: Record<string, { hue: number; hat: string }> = {
@@ -24,6 +24,8 @@ export class LoginPreview {
   private raf = 0;
   private running = false;
   private spin = 0;
+  private blinkIn = 2;
+  private blinkT = 0;
 
   constructor() {
     const w = this.container.clientWidth || 280;
@@ -55,6 +57,14 @@ export class LoginPreview {
     );
     disc.position.y = -0.06;
     this.scene.add(disc);
+    // glowing rim ring on the pedestal so the pick screen feels like a stage
+    const glowRing = new THREE.Mesh(
+      new THREE.TorusGeometry(1.14, 0.035, 8, 40),
+      new THREE.MeshBasicMaterial({ color: 0x8ad0ff }),
+    );
+    glowRing.rotation.x = Math.PI / 2;
+    glowRing.position.y = 0.02;
+    this.scene.add(glowRing);
     this.scene.add(this.holder);
 
     this.setJob(JobId.Novice);
@@ -85,6 +95,16 @@ export class LoginPreview {
       this.spin += 0.01;
       this.holder.rotation.y = Math.sin(this.spin) * 0.6 + this.spin * 0.15;
       this.holder.position.y = Math.sin(this.spin * 2) * 0.03;
+      // preview blink, matching the in-game chibi charm (~60fps ticks)
+      this.blinkIn -= 1 / 60;
+      if (this.blinkIn <= 0) {
+        this.blinkIn = 1.5 + Math.random() * 3.5;
+        this.blinkT = 0.13;
+      }
+      if (this.blinkT > 0 && this.char) {
+        this.blinkT -= 1 / 60;
+        setEyeBlink(this.char, this.blinkT > 0 ? 0.08 : 1);
+      }
       this.renderer.render(this.scene, this.camera);
       this.raf = requestAnimationFrame(tick);
     };

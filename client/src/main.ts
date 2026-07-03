@@ -43,6 +43,7 @@ import { LoginPreview } from "./ui/LoginPreview.js";
 import { Sfx } from "./ui/Sfx.js";
 import { AutoBattle } from "./ui/AutoBattle.js";
 import { MiniMap } from "./ui/MiniMap.js";
+import { LootToast } from "./ui/LootToast.js";
 import { EquipSlot, getItem, JOB_NAME, type SelfState } from "@rox/shared";
 import { buildMonsterAppearances } from "./procedural/monsters.js";
 
@@ -246,10 +247,11 @@ const skills = new SkillsPanel({
 
 const warp = new WarpPanel((npcId, mapId) => transport?.send({ t: MsgType.Warp, npcId, mapId }));
 const achievements = new AchievementsPanel();
+const lootToast = new LootToast();
 const aesir = new AesirPanel({ onUnlock: (runeId) => transport?.send({ t: MsgType.UnlockRune, runeId }) });
 
 let currentJob: JobId | null = null;
-const jobAdvance = new JobAdvance((job) => transport?.send({ t: MsgType.JobAdvance, targetJob: job }));
+const jobAdvance = new JobAdvance((job) => transport?.send({ t: MsgType.JobAdvance, targetJob: job }), screenFx);
 
 const partyHud = new PartyHud(
   () => transport?.send({ t: MsgType.PartyLeave }),
@@ -431,6 +433,10 @@ function handleMessage(msg: ServerMessage): void {
     case MsgType.Loot: {
       const names = msg.items.map((i) => `${getItem(i.id)?.name ?? i.id}${i.qty > 1 ? ` ×${i.qty}` : ""}`);
       if (names.length) chat.system(`Looted: ${names.join(", ")} (+${msg.zeny} Zeny)`);
+      for (const i of msg.items) {
+        const def = getItem(i.id);
+        if (def) lootToast.show(def, i.qty);
+      }
       sfx.loot();
       break;
     }

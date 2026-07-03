@@ -1,6 +1,7 @@
 [
   "butoijo.glb",
   "chrome_sentry.glb",
+  "drone.glb",
   "drone_swarm.glb",
   "firefly_swarm.glb",
   "holo_serpent.glb",
@@ -9,8 +10,11 @@
   "magmaring.glb",
   "mecha_dino.glb",
   "metaling.glb",
+  "neon_phantom.glb",
   "neon_wisp.glb",
+  "overlord_core.glb",
   "scout_bot.glb",
+  "sentinel.glb",
   "snowier.glb",
   "surge_elemental.glb",
   "war_machine.glb"

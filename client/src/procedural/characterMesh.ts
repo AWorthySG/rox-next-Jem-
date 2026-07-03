@@ -1,5 +1,5 @@
 import * as THREE from "three";
-import { makeBlobShadow, makeToonGradient } from "./textures.js";
+import { makeBlobShadow, makeSpark, makeToonGradient } from "./textures.js";
 import { applyRimLight } from "./rimLight.js";
 
 export interface CharacterMesh {
@@ -12,6 +12,14 @@ export interface CharacterMesh {
   head: THREE.Object3D;
   headgear: THREE.Object3D | null; // currently-worn hat mesh, if any
   cape: THREE.Object3D | null; // swordsman cape pivot (sways with movement), if any
+  eyeParts: { mesh: THREE.Object3D; baseY: number }[]; // eye meshes, for blinking
+  // a hidden spark that the view sweeps along the weapon for a periodic glint
+  weaponGlint: { sprite: THREE.Sprite; x: number; z: number; y0: number; y1: number };
+}
+
+// Squash/restore the eyes for an anime blink: f=1 open, f≈0.08 closed.
+export function setEyeBlink(char: CharacterMesh, f: number): void {
+  for (const p of char.eyeParts) p.mesh.scale.y = p.baseY * f;
 }
 
 const OUTLINE_MAT = new THREE.MeshBasicMaterial({ color: 0x171019, side: THREE.BackSide });
@@ -42,6 +50,7 @@ export function buildCharacter(
   colorSeed: number,
   magic: boolean,
   weapon: WeaponStyle = magic ? "staff" : "blade",
+  tier = 0, // job advancement tier: 3rd-job = small feather wings, 4th-job = large glowing wings
 ): CharacterMesh {
   const group = new THREE.Group();
   let cape: THREE.Object3D | null = null;
@@ -81,6 +90,7 @@ export function buildCharacter(
   const eyeMat = new THREE.MeshBasicMaterial({ color: 0x241c2c });
   const irisMat = new THREE.MeshBasicMaterial({ color: new THREE.Color().setHSL((hue + 0.6) % 1, 0.55, 0.42) });
   const glintMat = new THREE.MeshBasicMaterial({ color: 0xffffff });
+  const eyeParts: { mesh: THREE.Object3D; baseY: number }[] = [];
   for (const sx of [-1, 1]) {
     const eye = new THREE.Mesh(new THREE.SphereGeometry(0.085, 12, 12), eyeMat);
     eye.scale.set(0.85, 1.4, 0.45);
@@ -96,6 +106,7 @@ export function buildCharacter(
     const glint2 = new THREE.Mesh(new THREE.SphereGeometry(0.012, 6, 6), glintMat);
     glint2.position.set(sx * 0.16 - 0.025, 1.27, 0.425);
     group.add(glint2);
+    eyeParts.push({ mesh: eye, baseY: eye.scale.y }, { mesh: iris, baseY: iris.scale.y }, { mesh: glint, baseY: 1 }, { mesh: glint2, baseY: 1 });
     // eyebrow: a thin tilted bar above the eye
     const brow = new THREE.Mesh(new THREE.BoxGeometry(0.14, 0.022, 0.02), eyeMat);
     brow.position.set(sx * 0.16, 1.47, 0.395);
@@ -111,14 +122,15 @@ export function buildCharacter(
     group.add(blush);
   }
 
-  // ---- styled hair: cap + swept bangs + side tufts + back spike ----
+  // ---- styled hair: shared cap + one of three styles keyed off the seed, so
+  // a crowd doesn't share a single haircut ----
   const hairCap = new THREE.Mesh(
     new THREE.SphereGeometry(0.455, 20, 18, 0, Math.PI * 2, 0, Math.PI / 1.65),
     hairMat,
   );
   hairCap.position.y = 1.37;
   group.add(hairCap);
-  // front bangs: a row of little cones sweeping across the forehead
+  // front bangs: a row of little cones sweeping across the forehead (all styles)
   for (let i = -2; i <= 2; i++) {
     const bang = new THREE.Mesh(new THREE.ConeGeometry(0.085, 0.24, 6), hairMat);
     bang.position.set(i * 0.135, 1.5, 0.38 - Math.abs(i) * 0.03);
@@ -126,19 +138,44 @@ export function buildCharacter(
     bang.rotation.z = i * 0.16;
     group.add(bang);
   }
-  // side tufts
-  for (const sx of [-1, 1]) {
-    const tuft = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.3, 6), hairMat);
-    tuft.position.set(sx * 0.42, 1.28, 0.08);
-    tuft.rotation.x = Math.PI;
-    tuft.rotation.z = sx * 0.25;
-    group.add(tuft);
+  const hairStyle = Math.floor(Math.abs(colorSeed)) % 3;
+  if (hairStyle === 0) {
+    // short + windswept: side tufts and a back spike
+    for (const sx of [-1, 1]) {
+      const tuft = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.3, 6), hairMat);
+      tuft.position.set(sx * 0.42, 1.28, 0.08);
+      tuft.rotation.x = Math.PI;
+      tuft.rotation.z = sx * 0.25;
+      group.add(tuft);
+    }
+    const backTuft = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.34, 6), hairMat);
+    backTuft.position.set(0, 1.35, -0.38);
+    backTuft.rotation.x = Math.PI - 0.7;
+    group.add(backTuft);
+  } else if (hairStyle === 1) {
+    // twin tails: long side falls that reach the shoulders
+    for (const sx of [-1, 1]) {
+      const tail = new THREE.Mesh(new THREE.ConeGeometry(0.11, 0.62, 8), hairMat);
+      tail.position.set(sx * 0.44, 1.08, -0.05);
+      tail.rotation.x = Math.PI;
+      tail.rotation.z = sx * 0.18;
+      group.add(tail);
+      const bobble = new THREE.Mesh(new THREE.SphereGeometry(0.06, 8, 8), toon(0xf0c25a));
+      bobble.position.set(sx * 0.42, 1.36, -0.02);
+      group.add(bobble);
+    }
+  } else {
+    // spiky top: a crown of upward spikes
+    for (let i = 0; i < 5; i++) {
+      const a = (i / 5) * Math.PI * 2;
+      const spike = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.3, 6), hairMat);
+      spike.position.set(Math.sin(a) * 0.22, 1.72, Math.cos(a) * 0.22 - 0.05);
+      // lean each spike outward from the crown's centre
+      spike.rotation.z = -Math.sin(a) * 0.45;
+      spike.rotation.x = Math.cos(a) * 0.35;
+      group.add(spike);
+    }
   }
-  // back spike
-  const backTuft = new THREE.Mesh(new THREE.ConeGeometry(0.12, 0.34, 6), hairMat);
-  backTuft.position.set(0, 1.35, -0.38);
-  backTuft.rotation.x = Math.PI - 0.7;
-  group.add(backTuft);
 
   // ---- stubby limbs (pivot from shoulder/hip so they can swing) ----
   const armGeo = new THREE.CapsuleGeometry(0.09, 0.26, 4, 8);
@@ -248,6 +285,43 @@ export function buildCharacter(
     group.add(hilt);
   }
 
+  // weapon glint: a hidden spark the view sweeps along the weapon periodically
+  const glintPath =
+    weapon === "staff" ? { x: 0.5, z: 0.1, y0: 0.3, y1: 1.14 } :
+    weapon === "bow" ? { x: 0.48, z: 0.12, y0: 0.36, y1: 0.94 } :
+    weapon === "mace" ? { x: 0.48, z: 0.12, y0: 0.35, y1: 0.93 } :
+    { x: 0.46, z: 0.12, y0: 0.36, y1: 0.92 };
+  const glintSprite = new THREE.Sprite(
+    new THREE.SpriteMaterial({ map: makeSpark(), color: 0xffffff, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }),
+  );
+  glintSprite.scale.setScalar(0.22);
+  glintSprite.position.set(glintPath.x, glintPath.y0, glintPath.z);
+  group.add(glintSprite);
+  const weaponGlint = { sprite: glintSprite, ...glintPath };
+
+  // advanced-job back wings: a fan of feather cones per side; 4th-job wings are
+  // larger with glowing tips (a status symbol, like ROX's high-tier looks)
+  if (tier >= 3) {
+    const big = tier >= 4;
+    const wingMat = toon(0xf4f6fb);
+    const tipMat = new THREE.MeshBasicMaterial({ color: 0xffe6a0 });
+    const wingScale = big ? 1.35 : 1;
+    for (const s of [-1, 1]) {
+      for (let k = 0; k < 3; k++) {
+        const len = (0.4 - k * 0.08) * wingScale;
+        const feather = new THREE.Mesh(new THREE.ConeGeometry(0.055 * wingScale, len, 6), wingMat);
+        feather.position.set(s * (0.24 + k * 0.11) * wingScale, 0.95 + k * 0.03, -0.28);
+        feather.rotation.z = s * (2.1 + k * 0.35);
+        group.add(feather);
+        if (big && k === 0) {
+          const tip = new THREE.Mesh(new THREE.SphereGeometry(0.05, 8, 8), tipMat);
+          tip.position.set(s * 0.52, 1.2, -0.28);
+          group.add(tip); // catches bloom
+        }
+      }
+    }
+  }
+
   // soft contact shadow
   const shadow = new THREE.Mesh(
     new THREE.PlaneGeometry(1.0, 1.0),
@@ -261,7 +335,7 @@ export function buildCharacter(
     if (o instanceof THREE.Mesh && o.material !== OUTLINE_MAT) o.castShadow = true;
   });
 
-  return { group, leftArm, rightArm, leftLeg, rightLeg, head, headgear: null, cape };
+  return { group, leftArm, rightArm, leftLeg, rightLeg, head, headgear: null, cape, eyeParts, weaponGlint };
 }
 
 function limb(

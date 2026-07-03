@@ -10,6 +10,7 @@ import { MAP_SIZE, DAY_LENGTH_MS, daylight, Weather, type MapTheme } from "@rox/
 import { makeGroundTexture, makeGroundRoughness, makeSunSprite, makeCloud, makeSpark, makeCloudShadow, makeButterfly, makeBird, makeRaindrop } from "../procedural/textures.js";
 import { buildScenery, type Scenery } from "../procedural/scenery.js";
 import { buildWater, type Water } from "../procedural/water.js";
+import { WATER_MAPS } from "../procedural/waterMaps.js";
 import { windTime } from "../procedural/wind.js";
 import { env } from "./env.js";
 
@@ -449,6 +450,8 @@ export class SceneManager {
 
     // night sky: stars + moon fade in as the sun sets (and dim under overcast)
     const night = (1 - d) * overcast;
+    // lamp heads + house windows warm up as the light fades
+    this.scenery?.setNight(1 - d);
     (this.stars.material as THREE.PointsMaterial).opacity = night * 0.9;
     this.stars.visible = night > 0.04;
     (this.moon.material as THREE.SpriteMaterial).opacity = night * 0.8;
@@ -604,6 +607,7 @@ export class SceneManager {
     }
 
     if (this.water) this.water.material.uniforms.time.value += dt;
+    this.scenery?.tick(dt); // fountain jet pulse / crystal spin
     windTime.value += dt;
     this.grade.uniforms.time.value += dt;
     (this.composer.passes[0] as RenderPass).camera = camera;
@@ -655,26 +659,6 @@ const GRADE_SHADER = {
       gl_FragColor = c;
     }
   `,
-};
-
-// Maps that get an ocean around the island: [shallow, deep] water colours.
-const WATER_MAPS: Record<string, [number, number]> = {
-  comodo: [0x6fd0e0, 0x12586f],
-  abyss: [0x3a8fb0, 0x081f2e],
-  merlion_bay: [0x7fdce8, 0x1a6a8a],
-  sentosa: [0x7fe0e8, 0x1a7090],
-  east_coast: [0x7fd8e0, 0x1a6884],
-  changi: [0x7fdce4, 0x1a6a88],
-  macritchie: [0x4a9a6a, 0x14483a],
-  sungei_buloh: [0x6a9a6a, 0x244a2a],
-  kusu_island: [0x7fe0e8, 0x1a7090],
-  botanic_gardens: [0x6abada, 0x1e5a7a],
-  labrador_park: [0x7fd0e0, 0x1a6080],
-  coney_island: [0x7fd8d8, 0x1e6470],
-  punggol_waterway: [0x6fc8d0, 0x1a5a78],
-  pasir_ris: [0x7fd8d0, 0x1e6470],
-  marina_barrage: [0x6fb0d0, 0x143a5a],
-  the_float: [0x5a9ad0, 0x0a2a5a],
 };
 
 // Shared, read-only colour targets for day/night blending (never mutated, so a

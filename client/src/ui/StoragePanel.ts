@@ -83,6 +83,11 @@ export class StoragePanel {
         `<span class="iqty">×${entry.qty}</span>` +
         `<span class="iact">${action === "store" ? "Deposit ▸" : "◂ Withdraw"}</span>`;
       cell.addEventListener("click", (ev) => {
+        // immediate feedback: the cell is torn down and rebuilt only once the
+        // server confirms the move on the next sync, which would otherwise
+        // read as an unresponsive click during that round-trip
+        cell.classList.add("inv-cell-flash");
+        setTimeout(() => cell.classList.remove("inv-cell-flash"), 300);
         const qty = ev.shiftKey ? entry.qty : 1;
         if (action === "store") this.handlers.onStore(entry.id, qty);
         else this.handlers.onRetrieve(entry.id, qty);

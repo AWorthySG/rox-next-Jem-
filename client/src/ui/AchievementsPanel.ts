@@ -6,6 +6,8 @@ export class AchievementsPanel {
   private root = document.getElementById("achievements")!;
   private list = document.getElementById("ach-list")!;
   private last: SelfState | null = null;
+  private knownUnlocked: Set<string> | null = null; // null until the first sync, so we don't toast every existing unlock on load
+  private toastHost: HTMLElement;
 
   constructor() {
     document.getElementById("ach-close")!.addEventListener("click", () => this.close());
@@ -14,6 +16,9 @@ export class AchievementsPanel {
       if (e.key === "v" || e.key === "V") this.toggle();
       else if (e.key === "Escape" && !this.root.classList.contains("hidden")) this.close();
     });
+    this.toastHost = document.createElement("div");
+    this.toastHost.id = "ach-toast-host";
+    document.body.appendChild(this.toastHost);
   }
 
   private get isOpen(): boolean {
@@ -31,7 +36,38 @@ export class AchievementsPanel {
 
   sync(self: SelfState): void {
     this.last = self;
+    if (this.knownUnlocked === null) {
+      // first sync after login: seed from whatever's already unlocked, so we
+      // don't fire a toast for every past achievement on page load
+      this.knownUnlocked = new Set(self.achievements);
+    } else {
+      for (const id of self.achievements) {
+        if (!this.knownUnlocked.has(id)) {
+          this.knownUnlocked.add(id);
+          this.showToast(id);
+        }
+      }
+    }
     if (this.isOpen) this.render(self);
+  }
+
+  // A brief on-screen banner the instant an achievement unlocks, even if the
+  // achievements window isn't open — the panel alone would only surface it
+  // the next time the player thinks to check.
+  private showToast(id: string): void {
+    const def = allAchievements().find((a) => a.id === id);
+    if (!def) return;
+    const toast = document.createElement("div");
+    toast.className = "ach-toast";
+    toast.innerHTML =
+      `<div class="ach-toast-title">Achievement Unlocked</div>` +
+      `<div class="ach-toast-name">★ ${def.name}</div>` +
+      `<div class="ach-toast-reward">+${def.rewardZeny}z</div>`;
+    this.toastHost.appendChild(toast);
+    setTimeout(() => {
+      toast.classList.add("out");
+      setTimeout(() => toast.remove(), 400);
+    }, 3200);
   }
 
   private render(self: SelfState): void {

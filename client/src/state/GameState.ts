@@ -240,12 +240,14 @@ export class GameState {
   }
 
   // Lightweight position list for the minimap.
-  blips(): Array<{ x: number; z: number; type: "self" | "player" | "monster" | "boss" | "npc" }> {
-    const out: Array<{ x: number; z: number; type: "self" | "player" | "monster" | "boss" | "npc" }> = [];
+  blips(): Array<{ x: number; z: number; type: "self" | "player" | "monster" | "boss" | "npc"; facing?: number }> {
+    const out: Array<{ x: number; z: number; type: "self" | "player" | "monster" | "boss" | "npc"; facing?: number }> = [];
     for (const v of this.views.values()) {
       const p = v.group.position;
-      if (v instanceof PlayerView) out.push({ x: p.x, z: p.z, type: v.id === this.selfId ? "self" : "player" });
-      else if (v instanceof MonsterView) out.push({ x: p.x, z: p.z, type: v.boss ? "boss" : "monster" });
+      if (v instanceof PlayerView) {
+        const isSelf = v.id === this.selfId;
+        out.push({ x: p.x, z: p.z, type: isSelf ? "self" : "player", facing: isSelf ? v.group.rotation.y : undefined });
+      } else if (v instanceof MonsterView) out.push({ x: p.x, z: p.z, type: v.boss ? "boss" : "monster" });
       else if (v instanceof NpcView) out.push({ x: p.x, z: p.z, type: "npc" });
     }
     return out;

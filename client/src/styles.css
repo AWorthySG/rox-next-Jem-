@@ -226,6 +226,16 @@ body {
 .qt-count { opacity: 0.8; margin-top: 2px; font-size: 10px; }
 .qt-row.ready .qt-count { color: #8fe0a0; opacity: 1; }
 .qt-row.ready .qt-bar > i { background: linear-gradient(180deg, #9be88f, #4cae3e); }
+/* one-shot flash the moment a quest first becomes turn-in ready, so hitting
+   the objective count reads as a small reward rather than a quiet color swap */
+.qt-row.just-completed {
+  animation: qt-complete-flash 0.7s ease-out;
+  border-radius: 4px;
+}
+@keyframes qt-complete-flash {
+  0% { background: rgba(140, 230, 140, 0.35); box-shadow: 0 0 10px rgba(140, 230, 140, 0.5); }
+  100% { background: transparent; box-shadow: none; }
+}
 
 /* ---- mounted speed lines (radial streaks at the screen edges) ---- */
 #speed-lines {
@@ -525,6 +535,20 @@ body {
   background: linear-gradient(180deg, #ff7b7b, #c0392b);
   transition: width 0.15s linear;
 }
+/* chip-damage ghost: a lighter bar that sits behind the real fill and lags
+   behind on a slower transition, so a hit reads as a visible "bite" out of
+   the bar rather than the fill just snapping straight down */
+#tf-chip {
+  position: absolute;
+  inset: 0;
+  background: #f0c8a0;
+  transition: width 0.6s ease-out 0.1s;
+  z-index: 0;
+}
+#tf-fill {
+  position: relative;
+  z-index: 1;
+}
 
 /* world-boss raid bar (server-wide) */
 .worldboss-bar {
@@ -564,6 +588,19 @@ body {
   background: linear-gradient(180deg, #ff8aa0, #d11a3a);
   transition: width 0.18s linear;
 }
+/* chip-damage ghost, same idea as the target frame: a lighter layer that
+   lags behind the real fill so a raid-wide hit reads as a visible bite */
+#wb-chip {
+  position: absolute;
+  inset: 0;
+  background: #f8c8b0;
+  transition: width 0.7s ease-out 0.1s;
+  z-index: 0;
+}
+#wb-fill {
+  position: relative;
+  z-index: 1;
+}
 .wb-sub {
   margin-top: 4px;
   font-size: 11px;
@@ -601,6 +638,15 @@ body {
   height: 100%;
   width: 0%;
   background: linear-gradient(180deg, #aee0ff, #4a90e0);
+}
+/* a quick bright flash the instant a cast completes, so it reads as a beat
+   rather than the bar just quietly stopping */
+.cast-bar-track > i.cast-complete {
+  animation: cast-flash 0.25s ease-out;
+}
+@keyframes cast-flash {
+  0% { background: linear-gradient(180deg, #fff6d0, #ffe27a); box-shadow: 0 0 10px 2px rgba(255, 226, 122, 0.7); }
+  100% { background: linear-gradient(180deg, #aee0ff, #4a90e0); box-shadow: none; }
 }
 
 /* day/night + weather badge */
@@ -663,6 +709,17 @@ body {
 .equip-cell.filled.rar-mythic {
   animation: rar-glow 1.2s ease-in-out infinite;
 }
+/* immediate click feedback for transactional cells/buttons across storage,
+   the bag panel and the exchange — a brightness pulse composites correctly
+   over any element's own background/gradient, unlike swapping the color */
+.inv-cell-flash {
+  animation: inv-cell-flash-anim 0.3s ease-out;
+}
+@keyframes inv-cell-flash-anim {
+  0% { filter: brightness(1.7); }
+  100% { filter: brightness(1); }
+}
+
 @keyframes rar-glow {
   0%, 100% { box-shadow: 0 0 5px color-mix(in srgb, var(--rar) 35%, transparent); }
   50% { box-shadow: 0 0 15px color-mix(in srgb, var(--rar) 85%, transparent); }
@@ -982,7 +1039,11 @@ body {
   color: #1a1430;
   background: linear-gradient(180deg, #9be88f, #4cae3e);
   border-color: #4cae3e;
-  box-shadow: 0 0 16px rgba(120, 230, 140, 0.5);
+  animation: auto-pulse 1.8s ease-in-out infinite;
+}
+@keyframes auto-pulse {
+  0%, 100% { box-shadow: 0 0 12px rgba(120, 230, 140, 0.4); }
+  50% { box-shadow: 0 0 20px rgba(120, 230, 140, 0.7); }
 }
 .market-btn {
   position: absolute;
@@ -1164,6 +1225,13 @@ body {
   width: 100%;
   background: linear-gradient(180deg, #7CFC7C, #2faf4a);
   transition: width 0.2s linear;
+}
+/* a party member in danger pulses red, mirroring the player's own low-HP bar */
+.pm-bar.low {
+  animation: hp-danger 0.9s ease-in-out infinite;
+}
+.pm-bar.low > i {
+  background: linear-gradient(180deg, #ff6b5a, #d11a2a);
 }
 
 /* ---- party invite prompt ---- */
@@ -1560,6 +1628,14 @@ body {
 .shop-row.dim {
   opacity: 0.45;
 }
+/* immediate click feedback while the trade round-trips to the server */
+.shop-row-flash {
+  animation: shop-row-flash-anim 0.3s ease-out;
+}
+@keyframes shop-row-flash-anim {
+  0% { background: rgba(230, 200, 120, 0.35); }
+  100% { background: rgba(0, 0, 0, 0.3); }
+}
 .shop-row .sr-name {
   flex: 1;
   font-size: 12px;
@@ -1871,6 +1947,104 @@ body {
 .ach-reward {
   font-size: 12px;
   color: var(--gold);
+}
+
+/* ---- achievement unlock toast: fires even with the panel closed ---- */
+#ach-toast-host {
+  position: absolute;
+  top: 90px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  z-index: 20;
+  pointer-events: none;
+}
+.ach-toast {
+  min-width: 220px;
+  padding: 8px 18px;
+  background: linear-gradient(180deg, rgba(40, 32, 10, 0.94), rgba(20, 16, 6, 0.94));
+  border: 2px solid var(--gold);
+  border-radius: 10px;
+  text-align: center;
+  box-shadow: 0 0 20px rgba(255, 210, 74, 0.5);
+  animation: ach-toast-in 0.35s ease-out;
+}
+.ach-toast.out {
+  animation: ach-toast-out 0.4s ease-in forwards;
+}
+.ach-toast-title {
+  font-size: 10px;
+  letter-spacing: 1px;
+  text-transform: uppercase;
+  color: var(--gold);
+  opacity: 0.85;
+}
+.ach-toast-name {
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff6d8;
+  margin: 2px 0;
+}
+.ach-toast-reward {
+  font-size: 12px;
+  color: var(--gold);
+}
+@keyframes ach-toast-in {
+  from { opacity: 0; transform: translateY(-14px) scale(0.9); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes ach-toast-out {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translateY(-10px) scale(0.95); }
+}
+
+/* ---- notable-loot toast: rarity-tinted, top-right so it never collides
+   with the centered achievement banner ---- */
+#loot-toast-host {
+  position: absolute;
+  top: 90px;
+  right: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  z-index: 20;
+  pointer-events: none;
+}
+.loot-toast {
+  min-width: 160px;
+  padding: 6px 14px;
+  background: rgba(20, 18, 26, 0.92);
+  border: 2px solid var(--rar, #9aa0a8);
+  border-radius: 8px;
+  text-align: right;
+  box-shadow: 0 0 14px color-mix(in srgb, var(--rar, #9aa0a8) 55%, transparent);
+  animation: loot-toast-in 0.3s ease-out;
+}
+.loot-toast.out {
+  animation: loot-toast-out 0.4s ease-in forwards;
+}
+.loot-toast-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--rar, #f3eede);
+}
+.loot-toast-rarity {
+  font-size: 9px;
+  letter-spacing: 0.6px;
+  text-transform: uppercase;
+  opacity: 0.75;
+}
+@keyframes loot-toast-in {
+  from { opacity: 0; transform: translateX(20px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes loot-toast-out {
+  from { opacity: 1; transform: none; }
+  to { opacity: 0; transform: translateX(16px); }
 }
 
 /* ---- warp panel ---- */

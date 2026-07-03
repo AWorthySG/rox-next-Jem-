@@ -91,6 +91,7 @@ export class ExchangePanel {
       buy.className = `ex-btn${afford ? "" : " dim"}`;
       buy.textContent = "Buy";
       buy.addEventListener("click", () => {
+        this.flash(row);
         const q = clampInt(qtyInput.value, 1, l.qty);
         this.handlers.onBuy(l.id, q);
       });
@@ -119,7 +120,10 @@ export class ExchangePanel {
       const cancel = document.createElement("button");
       cancel.className = "ex-btn cancel";
       cancel.textContent = "Cancel";
-      cancel.addEventListener("click", () => this.handlers.onCancel(l.id));
+      cancel.addEventListener("click", () => {
+        this.flash(row);
+        this.handlers.onCancel(l.id);
+      });
       const controls = document.createElement("div");
       controls.className = "ex-controls";
       controls.appendChild(cancel);
@@ -162,6 +166,7 @@ export class ExchangePanel {
     list.className = "ex-btn list";
     list.textContent = "List for Sale";
     list.addEventListener("click", () => {
+      this.flash(list);
       const q = clampInt(qty.value, 1, selected.qty);
       const p = clampInt(price.value, 1, 100_000_000);
       this.sellQty = q;
@@ -172,6 +177,13 @@ export class ExchangePanel {
     const labelQty = field("Qty", qty);
     const labelPrice = field("Unit price", price);
     this.sellEl.append(select, labelQty, labelPrice, list);
+  }
+
+  // Immediate click feedback: the list/market panel only redraws once the
+  // server confirms the order, mirroring the shop/storage/bag panels.
+  private flash(el: HTMLElement): void {
+    el.classList.add("inv-cell-flash");
+    setTimeout(() => el.classList.remove("inv-cell-flash"), 300);
   }
 }
 
