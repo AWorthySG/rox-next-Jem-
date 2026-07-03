@@ -2970,6 +2970,61 @@ export function buildScenery(mapId: string): Scenery {
     group.add(doorway);
   }
 
+  // ---- Thanatos fallen throne: a shattered royal seat at the tower's base,
+  // relic of the kingdom it once ruled, apart from the arcane doorway shared
+  // with Tower ----
+  if (mapId === "thanatos") {
+    const throneStone = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(0.85), roughness: 1, flatShading: true });
+    mats.push(throneStone);
+    const [seatGeo] = track(new THREE.BoxGeometry(1.6, 0.5, 1.4), throneStone);
+    const [backGeo] = track(new THREE.BoxGeometry(1.6, 1.8, 0.3), throneStone);
+    const [armGeo] = track(new THREE.BoxGeometry(0.3, 0.6, 1.2), throneStone);
+    const [shardGeo, shardMat] = track(new THREE.ConeGeometry(0.16, 0.6, 4), new THREE.MeshBasicMaterial({ color: theme.foliage[0] }));
+    nightLights.push({ mat: shardMat, day: new THREE.Color(theme.foliage[0]).multiplyScalar(0.7), night: new THREE.Color(0x9a7ae0) });
+    const throne = new THREE.Group();
+    const seat = new THREE.Mesh(seatGeo, throneStone);
+    seat.position.y = 0.55;
+    seat.castShadow = true;
+    throne.add(seat);
+    const back = new THREE.Mesh(backGeo, throneStone);
+    back.position.set(0, 1.3, -0.6);
+    back.rotation.x = 0.15; // toppled backward, cracked down the middle
+    throne.add(back);
+    for (const s of [-1, 1]) {
+      const arm = new THREE.Mesh(armGeo, throneStone);
+      arm.position.set(s * 0.75, 1.05, 0);
+      throne.add(arm);
+    }
+    for (let i = 0; i < 3; i++) {
+      const shard = new THREE.Mesh(shardGeo, shardMat);
+      shard.position.set((rng() - 0.5) * 1.8, 0.4 + rng() * 0.3, 0.9 + rng() * 0.6);
+      shard.rotation.z = rng() * Math.PI;
+      throne.add(shard);
+    }
+    throne.position.set(13, 0, 13);
+    throne.rotation.y = Math.atan2(-13, -13);
+    group.add(throne);
+  }
+
+  // ---- Tower ascending shards: violet crystal fragments spiral upward around
+  // a floating core, marking the tower's endless climb, apart from the fallen
+  // throne at Thanatos's base ----
+  if (mapId === "tower") {
+    const shardCoreMat = new THREE.MeshBasicMaterial({ color: theme.foliage[0], transparent: true, opacity: 0.55 });
+    mats.push(shardCoreMat);
+    const [coreGeo] = track(new THREE.OctahedronGeometry(0.35, 0), shardCoreMat);
+    const core = new THREE.Mesh(coreGeo, shardCoreMat);
+    core.position.set(13, 2.2, -13);
+    group.add(core);
+    spinners.push({ obj: core, speed: 0.6 });
+    const [shardGeo2, shardMat2] = track(new THREE.OctahedronGeometry(0.16, 0), new THREE.MeshBasicMaterial({ color: 0xb090f0 }));
+    for (let i = 0; i < 6; i++) {
+      const shard = new THREE.Mesh(shardGeo2, shardMat2);
+      group.add(shard);
+      orbiters.push({ sprite: shard as unknown as THREE.Sprite, cx: 13, cz: -13, y: 1.2 + (i / 6) * 2.4, r: 0.7 + rng() * 0.3, speed: 0.9 + rng() * 0.4, phase: (i / 6) * Math.PI * 2 });
+    }
+  }
+
   // ---- Bifrost rainbow: three nested translucent arcs span the sky over
   // the rainbow bridge, fog-exempt so they read from anywhere ----
   if (mapId === "bifrost") {
@@ -3024,6 +3079,47 @@ export function buildScenery(mapId: string): Scenery {
       bloom.rotation.z = (rng() - 0.5) * 0.12;
       group.add(bloom);
     }
+  }
+
+  // ---- Splendide fountain: a tiered stone fountain at the plaza's heart,
+  // its basin misting gently, apart from the fairy blooms shared with Eclage ----
+  if (mapId === "splendide") {
+    const fountainStone = new THREE.MeshStandardMaterial({ color: 0x9a9a92, roughness: 0.85, flatShading: true });
+    mats.push(fountainStone);
+    const [basinGeo] = track(new THREE.CylinderGeometry(1.6, 1.7, 0.5, 16), fountainStone);
+    const [pedestalGeo] = track(new THREE.CylinderGeometry(0.35, 0.45, 1.1, 10), fountainStone);
+    const [bowlGeo] = track(new THREE.CylinderGeometry(0.7, 0.8, 0.3, 14), fountainStone);
+    const [waterGeo, waterMat] = track(
+      new THREE.CircleGeometry(1.45, 16),
+      new THREE.MeshStandardMaterial({ color: 0x6fc0e0, roughness: 0.2, transparent: true, opacity: 0.75 }),
+    );
+    const fountain = new THREE.Group();
+    const basin = new THREE.Mesh(basinGeo, fountainStone);
+    basin.position.y = 0.25;
+    basin.castShadow = true;
+    fountain.add(basin);
+    const water = new THREE.Mesh(waterGeo, waterMat);
+    water.rotation.x = -Math.PI / 2;
+    water.position.y = 0.51;
+    fountain.add(water);
+    shimmers.push({ mat: waterMat, base: 0.75, amp: 0.1, phase: rng() * Math.PI * 2 });
+    const pedestal = new THREE.Mesh(pedestalGeo, fountainStone);
+    pedestal.position.y = 1.05;
+    fountain.add(pedestal);
+    const bowl = new THREE.Mesh(bowlGeo, fountainStone);
+    bowl.position.y = 1.75;
+    fountain.add(bowl);
+    const mistMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0xd8f0ff, transparent: true, opacity: 0.3, depthWrite: false, blending: THREE.AdditiveBlending });
+    mats.push(mistMat);
+    for (let m = 0; m < 3; m++) {
+      const sprite = new THREE.Sprite(mistMat);
+      sprite.position.set((rng() - 0.5) * 0.5, 1.9, (rng() - 0.5) * 0.5);
+      sprite.scale.setScalar(0.3);
+      fountain.add(sprite);
+      smokes.push({ sprite, baseY: 1.9, offset: m / 3 });
+    }
+    fountain.position.set(10, 0, 10);
+    group.add(fountain);
   }
 
   // ---- Eclage lantern grove: floating fae lanterns bob among the trees,
@@ -3584,6 +3680,42 @@ export function buildScenery(mapId: string): Scenery {
       column.castShadow = true;
       group.add(column);
     }
+  }
+
+  // ---- Glast Heim broken gate: the castle's collapsed main entrance, a
+  // portcullis grate torn loose and leaning against one tower, apart from
+  // the column ruins shared with GH Church ----
+  if (mapId === "glast_heim") {
+    const gateStone = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(0.95), roughness: 1, flatShading: true });
+    mats.push(gateStone);
+    const [towerGeo] = track(new THREE.BoxGeometry(1.4, 3.6, 1.4), gateStone);
+    const [barGeo, barMat] = track(new THREE.CylinderGeometry(0.05, 0.05, 2.6, 5), new THREE.MeshStandardMaterial({ color: 0x4a4038, roughness: 0.6, metalness: 0.4 }));
+    const [chainGeo, chainMat] = track(new THREE.TorusGeometry(0.09, 0.025, 5, 8), new THREE.MeshStandardMaterial({ color: 0x3a3530, roughness: 0.5, metalness: 0.5 }));
+    const gate = new THREE.Group();
+    for (const s of [-1, 1]) {
+      const towerM = new THREE.Mesh(towerGeo, gateStone);
+      towerM.position.set(s * 1.6, 1.8, 0);
+      towerM.rotation.y = s * 0.05;
+      towerM.castShadow = true;
+      gate.add(towerM);
+    }
+    const grate = new THREE.Group();
+    for (let b = 0; b < 5; b++) {
+      const bar = new THREE.Mesh(barGeo, barMat);
+      bar.position.x = -1.0 + b * 0.5;
+      grate.add(bar);
+    }
+    grate.rotation.z = Math.PI / 2 - 0.5; // torn loose, leaning against the left tower
+    grate.position.set(-1.0, 1.3, 0.3);
+    gate.add(grate);
+    for (let l = 0; l < 3; l++) {
+      const link = new THREE.Mesh(chainGeo, chainMat);
+      link.position.set(-1.6, 3.3 - l * 0.16, 0.65);
+      link.rotation.y = (l % 2) * (Math.PI / 2);
+      gate.add(link);
+    }
+    gate.position.set(0, 0, -15);
+    group.add(gate);
   }
 
   // ---- Gonryun dojo: a modest training hall with a wooden practice post
