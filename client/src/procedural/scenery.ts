@@ -3311,6 +3311,58 @@ export function buildScenery(mapId: string): Scenery {
     spinners.push({ obj: wheelPivot, speed: 0.15 });
   }
 
+  // ---- East Coast BBQ pits: a row of park grill pits with charcoal
+  // glowing after dark, honoring the park's picnic culture — apart from
+  // the parasols it shares with Comodo/Sentosa/Pasir Ris ----
+  if (mapId === "east_coast") {
+    const pitStone = new THREE.MeshStandardMaterial({ color: 0x6a6a6a, roughness: 0.9 });
+    mats.push(pitStone);
+    const [pitGeo] = track(new THREE.CylinderGeometry(0.4, 0.34, 0.5, 10), pitStone);
+    const [grillGeo2, grillMat2] = track(new THREE.CylinderGeometry(0.38, 0.38, 0.03, 10), new THREE.MeshStandardMaterial({ color: 0x2a2c30, roughness: 0.6, metalness: 0.5 }));
+    const [coalGlowGeo2, coalGlowMat2] = track(new THREE.CircleGeometry(0.32, 10), new THREE.MeshBasicMaterial({ color: 0xff6a20 }));
+    nightLights.push({ mat: coalGlowMat2, day: new THREE.Color(0xff6a20), night: new THREE.Color(0xffb050) });
+    for (let p = 0; p < 3; p++) {
+      const pit = new THREE.Mesh(pitGeo, pitStone);
+      pit.position.set(-9 + p * 0.9, 0.25, 10);
+      pit.castShadow = true;
+      group.add(pit);
+      const grill = new THREE.Mesh(grillGeo2, grillMat2);
+      grill.position.set(-9 + p * 0.9, 0.51, 10);
+      group.add(grill);
+      const glow = new THREE.Mesh(coalGlowGeo2, coalGlowMat2);
+      glow.position.set(-9 + p * 0.9, 0.15, 10);
+      glow.rotation.x = -Math.PI / 2;
+      group.add(glow);
+      flickers.push(glow);
+    }
+  }
+
+  // ---- Pasir Ris playground: a net-climbing adventure structure, apart
+  // from the parasols it shares with the other resort coasts ----
+  if (mapId === "pasir_ris") {
+    const playWood = new THREE.MeshStandardMaterial({ color: 0xd8a83a, roughness: 0.9 });
+    mats.push(playWood);
+    const [towerLegGeo] = track(new THREE.CylinderGeometry(0.09, 0.1, 2.6, 6), playWood);
+    const [platformGeo2] = track(new THREE.BoxGeometry(1.6, 0.12, 1.6), playWood);
+    const [slideGeo, slideMat] = track(new THREE.BoxGeometry(0.6, 0.06, 2.2), new THREE.MeshStandardMaterial({ color: 0xe8823a, roughness: 0.5, side: THREE.DoubleSide }));
+    const playground = new THREE.Group();
+    for (const [px, pz] of [[-0.7, -0.7], [0.7, -0.7], [-0.7, 0.7], [0.7, 0.7]] as const) {
+      const leg = new THREE.Mesh(towerLegGeo, playWood);
+      leg.position.set(px, 1.3, pz);
+      playground.add(leg);
+    }
+    const platform2 = new THREE.Mesh(platformGeo2, playWood);
+    platform2.position.y = 2.6;
+    platform2.castShadow = true;
+    playground.add(platform2);
+    const slide = new THREE.Mesh(slideGeo, slideMat);
+    slide.position.set(1.5, 1.4, 0.2);
+    slide.rotation.x = 0.55;
+    playground.add(slide);
+    playground.position.set(9, 0, -10);
+    group.add(playground);
+  }
+
   // ---- beach day: sandy resort coasts plant a striped parasol with a towel
   // laid out beside it ----
   if (mapId === "comodo" || mapId === "sentosa" || mapId === "east_coast" || mapId === "pasir_ris") {
