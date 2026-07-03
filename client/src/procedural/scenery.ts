@@ -3122,6 +3122,72 @@ export function buildScenery(mapId: string): Scenery {
     group.add(wreck);
   }
 
+  // ---- Comodo racing banner: a checkered finish-line arch, honoring the
+  // town's kafra racing reputation — its own identity apart from the
+  // parasols it shares with Sentosa, East Coast and Pasir Ris ----
+  if (mapId === "comodo") {
+    const postMat2 = new THREE.MeshStandardMaterial({ color: 0x8a6a42, roughness: 0.95 });
+    mats.push(postMat2);
+    const [flagPostGeo] = track(new THREE.CylinderGeometry(0.08, 0.1, 3.4, 6), postMat2);
+    const checkerMats = [0x1a1a1a, 0xf0ece0].map((c) => {
+      const m = new THREE.MeshStandardMaterial({ color: c, roughness: 0.9, side: THREE.DoubleSide });
+      mats.push(m);
+      return m;
+    });
+    const [checkerGeo] = track(new THREE.PlaneGeometry(0.5, 0.5), checkerMats[0]);
+    const banner = new THREE.Group();
+    for (const s of [-1, 1]) {
+      const post = new THREE.Mesh(flagPostGeo, postMat2);
+      post.position.set(s * 2.2, 1.7, 0);
+      banner.add(post);
+    }
+    for (let r = 0; r < 2; r++) {
+      for (let c = 0; c < 9; c++) {
+        const tile = new THREE.Mesh(checkerGeo, checkerMats[(r + c) % 2]);
+        tile.position.set(-2.2 + c * 0.5, 3.2 - r * 0.5, 0);
+        banner.add(tile);
+      }
+    }
+    banner.position.set(6, 0, 6.5);
+    banner.rotation.y = Math.atan2(-6, -6.5);
+    group.add(banner);
+  }
+
+  // ---- Sentosa Ferris wheel: a slowly turning resort wheel silhouette,
+  // its own identity apart from the shared beach dressing ----
+  if (mapId === "sentosa") {
+    const wheelMetal = new THREE.MeshStandardMaterial({ color: 0xd8d8e0, roughness: 0.5, metalness: 0.5 });
+    mats.push(wheelMetal);
+    const [rimGeo2] = track(new THREE.TorusGeometry(2.6, 0.08, 8, 24), wheelMetal);
+    const [spokeGeo2] = track(new THREE.CylinderGeometry(0.03, 0.03, 2.6, 4), wheelMetal);
+    const [legGeo2] = track(new THREE.CylinderGeometry(0.08, 0.1, 3.2, 6), wheelMetal);
+    const [cabinGeo2, cabinMat2] = track(new THREE.BoxGeometry(0.3, 0.3, 0.3), new THREE.MeshStandardMaterial({ color: 0xe86a9a, roughness: 0.7 }));
+    const wheelPivot = new THREE.Group();
+    const rim = new THREE.Mesh(rimGeo2, wheelMetal);
+    wheelPivot.add(rim);
+    for (let s = 0; s < 6; s++) {
+      const a = (s / 6) * Math.PI * 2;
+      const spoke = new THREE.Mesh(spokeGeo2, wheelMetal);
+      spoke.rotation.z = a;
+      wheelPivot.add(spoke);
+      const cabin = new THREE.Mesh(cabinGeo2, cabinMat2);
+      cabin.position.set(Math.cos(a) * 2.6, Math.sin(a) * 2.6, 0);
+      wheelPivot.add(cabin);
+    }
+    wheelPivot.position.y = 3.6;
+    const ferris = new THREE.Group();
+    ferris.add(wheelPivot);
+    for (const s of [-1, 1]) {
+      const leg = new THREE.Mesh(legGeo2, wheelMetal);
+      leg.position.set(s * 0.7, 1.6, 0);
+      leg.rotation.z = -s * 0.15;
+      ferris.add(leg);
+    }
+    ferris.position.set(-8, 0, -7);
+    group.add(ferris);
+    spinners.push({ obj: wheelPivot, speed: 0.15 });
+  }
+
   // ---- beach day: sandy resort coasts plant a striped parasol with a towel
   // laid out beside it ----
   if (mapId === "comodo" || mapId === "sentosa" || mapId === "east_coast" || mapId === "pasir_ris") {
