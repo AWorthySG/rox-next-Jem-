@@ -19,7 +19,7 @@ export interface Scenery {
 
 // An emissive prop material that changes with the day/night cycle.
 interface NightLight {
-  mat: THREE.MeshBasicMaterial;
+  mat: THREE.Material & { color: THREE.Color };
   day: THREE.Color;
   night: THREE.Color;
 }
@@ -267,7 +267,7 @@ export function buildScenery(mapId: string): Scenery {
   // materials that do the opposite — visible by day, gone after dark (pollen)
   const dayFades: { mat: THREE.Material & { opacity: number }; max: number }[] = [];
   // meshes that flicker like flame (brazier embers) — scale-pulsed in tick()
-  const flickers: THREE.Mesh[] = [];
+  const flickers: THREE.Object3D[] = [];
   // objects that bob on the water (the moored rowboat, the distant ship)
   const bobbers: { obj: THREE.Object3D; baseY: number; phase: number }[] = [];
   // objects that spin in place (windmill hubs)
@@ -410,7 +410,7 @@ export function buildScenery(mapId: string): Scenery {
       group.add(frog);
       cruisers.push({ obj: frog, r: 0.4, y: 0.335, speed: -0.08, phase: 0, bob: 0.005 });
     }
-    addHouses(group, theme, track, nightLights, smokes, spinners);
+    addHouses(group, theme, track, nightLights, smokes, spinners, bobbers);
     addPlazaProps(group, theme, track);
 
     // flower beds around the plaza rim on living maps (the south path stays clear)
@@ -5579,6 +5579,7 @@ function addHouses(
   nightLights: NightLight[],
   smokes: { sprite: THREE.Sprite; baseY: number; offset: number }[],
   spinners: { obj: THREE.Object3D; speed: number; axis?: "y" }[],
+  bobbers: { obj: THREE.Object3D; baseY: number; phase: number }[],
 ): void {
   const [wallGeo, wallMat] = track(
     new THREE.BoxGeometry(2.6, 1.8, 2.2),
@@ -5658,7 +5659,6 @@ function addHouses(
     // that sway and glint gently in the breeze
     {
       const chimeMat = new THREE.MeshStandardMaterial({ color: 0xd8b060, roughness: 0.4, metalness: 0.6 });
-      mats.push(chimeMat);
       const [hangerGeo] = track(new THREE.CylinderGeometry(0.015, 0.015, 0.36, 4), chimeMat);
       const [tubeGeo] = track(new THREE.CylinderGeometry(0.018, 0.018, 0.28, 6), chimeMat);
       const chimes = new THREE.Group();
@@ -5672,7 +5672,7 @@ function addHouses(
       }
       chimes.position.set(p.x === 0 ? 0.9 : Math.sign(p.x) * -0.9, 1.6, 1.15);
       house.add(chimes);
-      bobbers.push({ obj: chimes, baseY: 1.6, phase: rng() * Math.PI * 2 });
+      bobbers.push({ obj: chimes, baseY: 1.6, phase: (p.x + p.z) * 0.3 });
     }
 
     // the north house carries a weather vane that swings slowly with the wind
