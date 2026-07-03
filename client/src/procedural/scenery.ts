@@ -3607,6 +3607,80 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Einbroch gear engine: a clanking steampunk contraption of turning
+  // gears and pipes, the industrial town's own identity apart from the
+  // smokestacks it shares with Bio Lab ----
+  if (mapId === "einbroch") {
+    const gearMetal = new THREE.MeshStandardMaterial({ color: 0x6a6058, roughness: 0.4, metalness: 0.7 });
+    mats.push(gearMetal);
+    const [housingGeo] = track(new THREE.BoxGeometry(1.6, 2.4, 1.2), gearMetal);
+    const [pipeGeo] = track(new THREE.CylinderGeometry(0.12, 0.12, 1.8, 8), gearMetal);
+    const [gearGeo] = track(new THREE.CylinderGeometry(0.7, 0.7, 0.2, 10), gearMetal);
+    const [toothGeo] = track(new THREE.BoxGeometry(0.16, 0.2, 0.22), gearMetal);
+    const engine = new THREE.Group();
+    const housing = new THREE.Mesh(housingGeo, gearMetal);
+    housing.position.y = 1.2;
+    housing.castShadow = true;
+    engine.add(housing);
+    for (const [px, pz, rz] of [[0.9, 0, 0.3], [-0.9, 0.2, -0.2]] as const) {
+      const pipe = new THREE.Mesh(pipeGeo, gearMetal);
+      pipe.rotation.z = Math.PI / 2 + rz;
+      pipe.position.set(px, 1.6, pz);
+      engine.add(pipe);
+    }
+    for (const [gy, gz, speed] of [[2.7, 0.65, 0.8], [2.2, -0.65, -1.1]] as const) {
+      const gearPivot = new THREE.Group();
+      const gear = new THREE.Mesh(gearGeo, gearMetal);
+      gear.rotation.x = Math.PI / 2;
+      gearPivot.add(gear);
+      for (let t = 0; t < 8; t++) {
+        const a = (t / 8) * Math.PI * 2;
+        const tooth = new THREE.Mesh(toothGeo, gearMetal);
+        tooth.position.set(Math.cos(a) * 0.72, 0, Math.sin(a) * 0.72);
+        tooth.rotation.y = -a;
+        gearPivot.add(tooth);
+      }
+      gearPivot.position.set(0, gy, gz);
+      engine.add(gearPivot);
+      spinners.push({ obj: gearPivot, speed });
+    }
+    engine.position.set(-9.5, 0, 8.5);
+    engine.rotation.y = Math.atan2(9.5, -8.5);
+    group.add(engine);
+  }
+
+  // ---- Louyang garden pond: a scholar's koi pond with a small stone
+  // bridge, honoring the imperial garden city — its own identity apart
+  // from Amatsu and Gonryun which it otherwise shares dressing with ----
+  if (mapId === "louyang") {
+    const [pondGeo, pondMat] = track(
+      new THREE.CircleGeometry(1.6, 20),
+      new THREE.MeshStandardMaterial({ color: 0x3a7a8a, roughness: 0.15, metalness: 0.2, transparent: true, opacity: 0.85 }),
+    );
+    const pond = new THREE.Mesh(pondGeo, pondMat);
+    pond.rotation.x = -Math.PI / 2;
+    pond.position.set(7.5, 0.03, -8.5);
+    group.add(pond);
+    const bridgeStone = new THREE.MeshStandardMaterial({ color: 0xc9c0a8, roughness: 0.9 });
+    mats.push(bridgeStone);
+    const [archGeo] = track(new THREE.TorusGeometry(1.6, 0.14, 8, 20, Math.PI), bridgeStone);
+    const arch = new THREE.Mesh(archGeo, bridgeStone);
+    arch.position.set(7.5, 0.4, -8.5);
+    arch.rotation.z = Math.PI;
+    arch.rotation.y = Math.PI / 2;
+    group.add(arch);
+    // a couple of koi circle the pond, riding the cruiser channel
+    const [koiGeo2, koiMat2] = track(new THREE.ConeGeometry(0.06, 0.3, 6), new THREE.MeshStandardMaterial({ color: 0xe8823a, roughness: 0.5 }));
+    for (let k = 0; k < 2; k++) {
+      const koi = new THREE.Group();
+      const koiBody = new THREE.Mesh(koiGeo2, koiMat2);
+      koiBody.rotation.x = Math.PI / 2;
+      koi.add(koiBody);
+      group.add(koi);
+      cruisers.push({ obj: koi, cx: 7.5, cz: -8.5, r: 0.7 + k * 0.4, y: 0.05, speed: (0.4 + k * 0.15) * (k % 2 === 0 ? 1 : -1), phase: (k / 2) * Math.PI * 2, bob: 0.01 });
+    }
+  }
+
   // ---- Geffen wizard spire: a twisted stone tower crowned with a glowing
   // crystal ball, honoring the mage guild's home town ----
   if (mapId === "geffen") {
