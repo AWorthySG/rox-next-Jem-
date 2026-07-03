@@ -4424,6 +4424,168 @@ export function buildScenery(mapId: string): Scenery {
     group.add(towers);
   }
 
+  // ---- Jurong Bird Park aviary: a domed walk-in birdcage with perched
+  // birds, the park's iconic centerpiece ----
+  if (mapId === "jurong") {
+    const aviaryFrame = new THREE.MeshStandardMaterial({ color: 0x5a5a54, roughness: 0.6, metalness: 0.5 });
+    mats.push(aviaryFrame);
+    const [ringGeo] = track(new THREE.TorusGeometry(2.4, 0.06, 6, 24), aviaryFrame);
+    const [ribGeo2] = track(new THREE.TorusGeometry(2.4, 0.05, 5, 16, Math.PI), aviaryFrame);
+    const [perchGeo, perchMat] = track(new THREE.CylinderGeometry(0.05, 0.05, 2.2, 6), new THREE.MeshStandardMaterial({ color: 0x6a4a30, roughness: 1 }));
+    const aviary = new THREE.Group();
+    const baseRing = new THREE.Mesh(ringGeo, aviaryFrame);
+    baseRing.rotation.x = Math.PI / 2;
+    aviary.add(baseRing);
+    for (let a = 0; a < 5; a++) {
+      const rib = new THREE.Mesh(ribGeo2, aviaryFrame);
+      rib.rotation.x = Math.PI / 2; // stand the half-ring upright as a dome rib
+      rib.rotation.y = (a / 5) * Math.PI;
+      aviary.add(rib);
+    }
+    const perch = new THREE.Mesh(perchGeo, perchMat);
+    perch.rotation.z = Math.PI / 2;
+    perch.position.y = 1.1;
+    aviary.add(perch);
+    const birdColors = [0xe05030, 0x50a0e0, 0xe0c040];
+    const [birdGeo] = track(new THREE.ConeGeometry(0.12, 0.32, 6), aviaryFrame);
+    for (let b = 0; b < 3; b++) {
+      const birdMat = new THREE.MeshStandardMaterial({ color: birdColors[b], roughness: 0.8 });
+      mats.push(birdMat);
+      const bird = new THREE.Mesh(birdGeo, birdMat);
+      bird.position.set(-0.7 + b * 0.7, 1.26, 0);
+      bird.rotation.x = Math.PI / 2;
+      aviary.add(bird);
+    }
+    aviary.position.set(10, 0, 10);
+    group.add(aviary);
+  }
+
+  // ---- Pulau Ubin kampong house: a rustic zinc-roofed stilt house beside a
+  // short wooden jetty, the island's old village charm ----
+  if (mapId === "pulau_ubin") {
+    const stiltWood = new THREE.MeshStandardMaterial({ color: 0x6a4a30, roughness: 1 });
+    mats.push(stiltWood);
+    const [stiltGeo] = track(new THREE.CylinderGeometry(0.08, 0.1, 1.6, 6), stiltWood);
+    const [hutGeo, hutMat] = track(new THREE.BoxGeometry(2.6, 1.5, 2.0), new THREE.MeshStandardMaterial({ color: 0xc8b090, roughness: 0.95 }));
+    const [zincGeo, zincMat] = track(new THREE.ConeGeometry(2.0, 0.9, 4), new THREE.MeshStandardMaterial({ color: 0x8a8a90, roughness: 0.4, metalness: 0.5, flatShading: true }));
+    const [plankGeo] = track(new THREE.BoxGeometry(0.4, 0.06, 1.2), stiltWood);
+    const hut = new THREE.Group();
+    for (const [px, pz] of [[-1.0, -0.8], [1.0, -0.8], [-1.0, 0.8], [1.0, 0.8]] as const) {
+      const stilt = new THREE.Mesh(stiltGeo, stiltWood);
+      stilt.position.set(px, 0.8, pz);
+      hut.add(stilt);
+    }
+    const hutBody = new THREE.Mesh(hutGeo, hutMat);
+    hutBody.position.y = 2.35;
+    hutBody.castShadow = true;
+    hut.add(hutBody);
+    const zincRoof = new THREE.Mesh(zincGeo, zincMat);
+    zincRoof.position.y = 3.55;
+    zincRoof.rotation.y = Math.PI / 4;
+    zincRoof.castShadow = true;
+    hut.add(zincRoof);
+    // a short jetty of planks leading out from the stilt house
+    for (let p = 0; p < 4; p++) {
+      const plank = new THREE.Mesh(plankGeo, stiltWood);
+      plank.position.set(1.8 + p * 0.42, 1.55, 0);
+      hut.add(plank);
+    }
+    hut.position.set(-11, 0, 11);
+    hut.rotation.y = Math.atan2(-11, -11);
+    group.add(hut);
+  }
+
+  // ---- Haw Par Villa tiger statue: a crouching stone tiger on a pedestal,
+  // echoing the park's Tiger Balm Gardens origin ----
+  if (mapId === "haw_par") {
+    const statueStone = new THREE.MeshStandardMaterial({ color: 0xd8c8a0, roughness: 0.9, flatShading: true });
+    mats.push(statueStone);
+    const [pedestalGeo2] = track(new THREE.BoxGeometry(2.0, 0.8, 1.4), statueStone);
+    const tigerMat = new THREE.MeshStandardMaterial({ color: 0xe0a030, roughness: 0.85, flatShading: true });
+    mats.push(tigerMat);
+    const [bodyGeo2] = track(new THREE.CapsuleGeometry(0.4, 1.3, 3, 6), tigerMat);
+    const [headGeo3] = track(new THREE.SphereGeometry(0.32, 8, 6), tigerMat);
+    const [legGeo3] = track(new THREE.CylinderGeometry(0.1, 0.12, 0.6, 5), tigerMat);
+    const [tailGeo, tailMat] = track(new THREE.CylinderGeometry(0.04, 0.07, 0.9, 5), tigerMat);
+    const [stripeGeo, stripeMat] = track(new THREE.BoxGeometry(0.06, 0.35, 0.02), new THREE.MeshStandardMaterial({ color: 0x2a2018, roughness: 0.9 }));
+    const statue = new THREE.Group();
+    const pedestal2 = new THREE.Mesh(pedestalGeo2, statueStone);
+    pedestal2.position.y = 0.4;
+    pedestal2.castShadow = true;
+    statue.add(pedestal2);
+    const tiger = new THREE.Group();
+    const body2 = new THREE.Mesh(bodyGeo2, tigerMat);
+    body2.rotation.z = Math.PI / 2;
+    body2.position.y = 0.6;
+    tiger.add(body2);
+    const head3 = new THREE.Mesh(headGeo3, tigerMat);
+    head3.position.set(0.75, 0.72, 0);
+    tiger.add(head3);
+    for (const [lx, lz] of [[-0.4, -0.3], [-0.4, 0.3], [0.4, -0.3], [0.4, 0.3]] as const) {
+      const leg = new THREE.Mesh(legGeo3, tigerMat);
+      leg.position.set(lx, 0.3, lz);
+      tiger.add(leg);
+    }
+    const tail = new THREE.Mesh(tailGeo, tailMat);
+    tail.position.set(-0.75, 0.75, 0);
+    tail.rotation.z = -0.9;
+    tiger.add(tail);
+    for (let s = 0; s < 4; s++) {
+      const stripe = new THREE.Mesh(stripeGeo, stripeMat);
+      stripe.position.set(-0.4 + s * 0.28, 0.75, 0.42);
+      stripe.rotation.y = Math.PI / 2;
+      tiger.add(stripe);
+    }
+    tiger.position.y = 0.8;
+    statue.add(tiger);
+    statue.position.set(11, 0, -9);
+    statue.rotation.y = Math.atan2(9, -11);
+    group.add(statue);
+  }
+
+  // ---- Fort Canning gate: an old colonial fort gate with a cannon on
+  // display, honoring the hill's fortified history ----
+  if (mapId === "fort_canning") {
+    const fortStone = new THREE.MeshStandardMaterial({ color: 0x9a9086, roughness: 0.9, flatShading: true });
+    mats.push(fortStone);
+    const [pillarGeo2] = track(new THREE.BoxGeometry(0.9, 2.6, 0.9), fortStone);
+    const [archGeo2] = track(new THREE.BoxGeometry(3.0, 0.6, 0.9), fortStone);
+    const [barrelGeo, barrelMat] = track(new THREE.CylinderGeometry(0.18, 0.22, 1.8, 10), new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.4, metalness: 0.7 }));
+    const [wheelGeo, wheelMat] = track(new THREE.CylinderGeometry(0.4, 0.4, 0.18, 12), new THREE.MeshStandardMaterial({ color: 0x4a3020, roughness: 0.9 }));
+    const [carriageGeo] = track(new THREE.BoxGeometry(1.0, 0.35, 0.5), wheelMat);
+    const fort = new THREE.Group();
+    for (const s of [-1, 1]) {
+      const pillar = new THREE.Mesh(pillarGeo2, fortStone);
+      pillar.position.set(s * 1.3, 1.3, 0);
+      pillar.castShadow = true;
+      fort.add(pillar);
+    }
+    const archTop = new THREE.Mesh(archGeo2, fortStone);
+    archTop.position.y = 2.9;
+    archTop.castShadow = true;
+    fort.add(archTop);
+    const cannon = new THREE.Group();
+    const carriage = new THREE.Mesh(carriageGeo, wheelMat);
+    carriage.position.y = 0.5;
+    cannon.add(carriage);
+    for (const s of [-1, 1]) {
+      const wheel = new THREE.Mesh(wheelGeo, wheelMat);
+      wheel.rotation.x = Math.PI / 2;
+      wheel.position.set(0, 0.4, s * 0.3);
+      cannon.add(wheel);
+    }
+    const barrel = new THREE.Mesh(barrelGeo, barrelMat);
+    barrel.rotation.z = Math.PI / 2;
+    barrel.rotation.x = -0.15;
+    barrel.position.set(0.5, 0.75, 0);
+    cannon.add(barrel);
+    cannon.position.set(2.2, 0, 0);
+    fort.add(cannon);
+    fort.position.set(-9, 0, 9);
+    fort.rotation.y = Math.atan2(-9, 9);
+    group.add(fort);
+  }
+
   // ---- Aldebaran clock tower: the town's landmark — a tall stone tower with
   // a white clock face whose hands really turn ----
   if (mapId === "aldebaran") {
