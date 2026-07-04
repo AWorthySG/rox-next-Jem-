@@ -12,7 +12,6 @@ export const MAP_HALF = MAP_SIZE / 2;
 // Movement speeds in world-units per second.
 export const PLAYER_SPEED = 9;
 export const MONSTER_SPEED = 4;
-export const MOUNT_SPEED_MULT = 1.6; // while riding a mount
 
 // Combat / AI ranges (world units).
 export const AGGRO_RANGE = 12;

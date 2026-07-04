@@ -1,5 +1,6 @@
 import {
   EquipSlot,
+  getItem,
   JobId,
   MAP_SIZE,
   MsgType,
@@ -66,7 +67,10 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
     }
     case MsgType.UseItem: {
       const p = playerOf(world, link);
-      if (p) p.useItem(msg.itemId);
+      if (p && p.useItem(msg.itemId) && getItem(msg.itemId)?.mount) {
+        // Mounting/dismounting changes how the rider looks to everyone else.
+        world.broadcastToMap(p.mapId, { t: MsgType.Spawn, entity: p.toFull() });
+      }
       break;
     }
     case MsgType.Equip: {

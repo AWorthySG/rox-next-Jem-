@@ -8,6 +8,7 @@ import {
   type AchievementDef,
   getItem,
   itemEquippableBy,
+  getMount,
   getPet,
   getQuest,
   getRune,
@@ -73,7 +74,7 @@ export class Player {
   guildId: number | null = null;
   guildName: string | null = null;
   activePet: string | null = null;
-  mounted = false;
+  activeMountId: string | null = null;
   activeQuests: Record<string, number> = {}; // questId -> kill progress
   completedQuests: string[] = [];
   totalKills = 0;
@@ -236,6 +237,9 @@ export class Player {
       flatMatk += pet.matk ?? 0;
       flatHp += pet.maxHp ?? 0;
     }
+    // active mount bonus
+    const mount = getMount(this.activeMountId);
+    if (mount?.bonusStats) effective = addStats(effective, fullStats(mount.bonusStats));
     // unlocked Aesir rune bonuses
     for (const runeId of this.runes) {
       const rune = getRune(runeId);
@@ -372,9 +376,11 @@ export class Player {
     const item = getItem(itemId);
     if (!item || item.type !== ItemType.Consumable) return false;
     if ((this.inventory[itemId] ?? 0) <= 0) return false;
-    // A mount whistle is reusable — toggle without consuming it.
+    // A mount whistle is reusable — toggle without consuming it. Summoning a
+    // different mount than the one currently active switches to it directly.
     if (item.mount) {
-      this.mounted = !this.mounted;
+      this.activeMountId = this.activeMountId === item.mount ? null : item.mount;
+      this.recompute();
       return true;
     }
     this.removeItem(itemId, 1);
@@ -628,7 +634,7 @@ export class Player {
     for (const k of s.killCounts ?? []) this.killCounts[k.id] = k.count;
     this.mapId = s.mapId ?? "field";
     this.activePet = s.pet ?? null;
-    this.mounted = !!s.mounted;
+    this.activeMountId = s.mountId ?? null;
     this.buffs = [];
     this.foodBuffs = [];
     this.learnJobSkills();
@@ -652,6 +658,7 @@ export class Player {
       colorSeed: this.colorSeed,
       guildName: this.guildName ?? undefined,
       headgear: this.equipped[EquipSlot.Headgear] ?? undefined,
+      mountId: this.activeMountId ?? undefined,
     };
   }
 
@@ -714,7 +721,7 @@ export class Player {
           .map((b) => ({ type: getItem(b.id)?.name ?? "Food", remainingMs: Math.round(b.expiresAt - Date.now()) })),
       ],
       pet: this.activePet,
-      mounted: this.mounted,
+      mountId: this.activeMountId,
       mapId: this.mapId,
       x: round2(this.x),
       z: round2(this.z),

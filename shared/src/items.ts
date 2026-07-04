@@ -92,7 +92,7 @@ export interface ItemDef {
   healSp?: number;
   food?: FoodBuff; // eating grants a timed stat buff
   pet?: string; // summons this pet when used
-  mount?: boolean; // toggles riding a mount when used
+  mount?: string; // toggles riding this mount (by id, see mounts.ts) when used
   // progression tier (1 Worn … 6 Mythic). Optional: when set it pins the rarity
   // tint and is shown as a label; otherwise rarity is derived from sell value.
   tier?: number;
@@ -175,11 +175,16 @@ export const ITEMS: Record<string, ItemDef> = {
   poring_egg: { id: "poring_egg", name: "Poring Egg", type: ItemType.Consumable, desc: "Summons a Poring pet (LUK +3, Max HP +50).", pet: "poring_pet", price: 800, sellPrice: 100 },
   lunatic_egg: { id: "lunatic_egg", name: "Lunatic Egg", type: ItemType.Consumable, desc: "Summons a Lunatic pet (AGI +3, DEX +2).", pet: "lunatic_pet", sellPrice: 150 },
   baphomet_egg: { id: "baphomet_egg", name: "Baphomet Egg", type: ItemType.Consumable, desc: "Summons Baphomet Jr. (STR +4, INT +4, Max HP +80).", pet: "baphomet_pet", sellPrice: 1200 },
-  peco_whistle: { id: "peco_whistle", name: "Peco Peco Whistle", type: ItemType.Consumable, desc: "Summon/dismiss a Peco Peco mount (faster movement). Reusable — not consumed.", mount: true, price: 1500, sellPrice: 200 },
   marc_egg: { id: "marc_egg", name: "Marc Egg", type: ItemType.Consumable, desc: "Summons a Marc pet (VIT +3, AGI +2, Max HP +90).", pet: "marc_pet", sellPrice: 300 },
   garm_egg: { id: "garm_egg", name: "Garm Egg", type: ItemType.Consumable, desc: "Summons a Garm Cub (VIT +5, Max HP +220).", pet: "garm_pet", sellPrice: 1500 },
   ifrit_egg: { id: "ifrit_egg", name: "Ifrit Egg", type: ItemType.Consumable, desc: "Summons an Ifrit Spark (STR +6, ATK +14).", pet: "ifrit_pet", sellPrice: 3000 },
   nidhoggr_egg: { id: "nidhoggr_egg", name: "Shadow Egg", type: ItemType.Consumable, desc: "Summons a Shadow Hatchling (all stats +3, Max HP +160).", pet: "nidhoggr_pet", sellPrice: 6000 },
+
+  // mount whistles (use to summon/dismiss a ridden mount; reusable — not consumed)
+  peco_whistle: { id: "peco_whistle", name: "Peco Peco Whistle", type: ItemType.Consumable, desc: "Summon/dismiss a Peco Peco mount. +60% move speed.", mount: "peco", price: 1500, sellPrice: 200 },
+  grand_peco_whistle: { id: "grand_peco_whistle", name: "Grand Peco Whistle", type: ItemType.Consumable, desc: "Summon/dismiss a Grand Peco mount. +80% move speed, VIT +5.", mount: "grand_peco", price: 6000, sellPrice: 900 },
+  dune_wolf_whistle: { id: "dune_wolf_whistle", name: "Dune Wolf Whistle", type: ItemType.Consumable, desc: "Summon/dismiss a Dune Wolf mount. +70% move speed, AGI +5.", mount: "dune_wolf", price: 6000, sellPrice: 900 },
+  baby_dragon_whistle: { id: "baby_dragon_whistle", name: "Baby Dragon Whistle", type: ItemType.Consumable, desc: "Summon/dismiss a Baby Dragon mount. +100% move speed, STR +3, INT +3.", mount: "baby_dragon", price: 20000, sellPrice: 4000 },
 
   // weapons
   novice_knife: {
@@ -1437,6 +1442,9 @@ export const SHOP_STOCK: string[] = [
   "elunium",
   "poring_egg",
   "peco_whistle",
+  "grand_peco_whistle",
+  "dune_wolf_whistle",
+  "baby_dragon_whistle",
 ];
 
 export function getItem(id: string): ItemDef | undefined {

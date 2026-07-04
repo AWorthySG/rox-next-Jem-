@@ -486,9 +486,18 @@ async function main(): Promise<void> {
   // ---- deterministic mount (reusable whistle toggles) ----
   const rider = new Player(985, 1, "Rider", JobId.Swordsman, 0, 0);
   rider.addItem("peco_whistle", 1);
-  check(rider.useItem("peco_whistle") && rider.mounted, "mount: whistle mounts the rider");
+  check(rider.useItem("peco_whistle") && rider.activeMountId === "peco", "mount: whistle mounts the rider on Peco Peco");
   check((rider.inventory["peco_whistle"] ?? 0) === 1, "mount: whistle is reusable (not consumed)");
-  check(rider.useItem("peco_whistle") && !rider.mounted, "mount: whistle toggles dismount");
+  check(rider.useItem("peco_whistle") && rider.activeMountId === null, "mount: whistle toggles dismount");
+
+  // ---- mount collection: distinct mounts, stat bonus, direct switching ----
+  const baseAgi = rider.stats.agi;
+  rider.addItem("dune_wolf_whistle", 1);
+  check(rider.useItem("dune_wolf_whistle") && rider.activeMountId === "dune_wolf", "mount: Dune Wolf whistle mounts a different mount");
+  check(rider.derived.atk > 0 && rider.stats.agi === baseAgi, "mount: Dune Wolf's AGI bonus is derived-only");
+  rider.addItem("baby_dragon_whistle", 1);
+  check(rider.useItem("baby_dragon_whistle") && rider.activeMountId === "baby_dragon", "mount: summoning a different mount switches directly");
+  check(rider.useItem("baby_dragon_whistle") && rider.activeMountId === null, "mount: re-using the active mount's whistle dismounts");
 
   // ---- day/night + weather environment ----
   check(daylight(0.5) > 0.9, "env: noon is bright");

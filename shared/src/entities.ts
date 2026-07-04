@@ -42,6 +42,7 @@ export interface EntityFull {
   colorSeed?: number; // deterministic tint for the procedural character mesh
   guildName?: string; // shown as a [tag] above the player
   headgear?: string; // equipped headgear item id (rendered as a hat)
+  mountId?: string; // active mount id (see mounts.ts), rendered under the rider
   // monsters
   templateId?: string;
   aiState?: MonsterAIState;
@@ -81,7 +82,7 @@ export interface SelfState {
   killCounts: Array<{ id: string; count: number }>; // Monster Codex tallies
   buffs: Array<{ type: string; remainingMs: number }>;
   pet: string | null;
-  mounted: boolean;
+  mountId: string | null;
   mapId: string;
   x: number;
   z: number;

@@ -8,6 +8,7 @@ export * from "./combat.js";
 export * from "./skills.js";
 export * from "./items.js";
 export * from "./pets.js";
+export * from "./mounts.js";
 export * from "./quests.js";
 export * from "./achievements.js";
 export * from "./runes.js";

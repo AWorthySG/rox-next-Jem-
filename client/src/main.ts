@@ -424,8 +424,8 @@ function handleMessage(msg: ServerMessage): void {
       achievements.sync(msg.self);
       aesir.sync(msg.self);
       petCompanion.setPet(msg.self.pet);
-      gameState.self?.setMounted(msg.self.mounted);
-      selfMounted = msg.self.mounted;
+      gameState.self?.setMount(msg.self.mountId);
+      selfMounted = !!msg.self.mountId;
       questTracker.sync(msg.self);
       gameState.self?.setHeadgear(msg.self.equipped.find((e) => e.slot === EquipSlot.Headgear)?.id ?? null);
       jobAdvance.update(msg.self);
