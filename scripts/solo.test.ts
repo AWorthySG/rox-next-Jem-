@@ -499,6 +499,20 @@ async function main(): Promise<void> {
   check(rider.useItem("baby_dragon_whistle") && rider.activeMountId === "baby_dragon", "mount: summoning a different mount switches directly");
   check(rider.useItem("baby_dragon_whistle") && rider.activeMountId === null, "mount: re-using the active mount's whistle dismounts");
 
+  // ---- costumes: purely cosmetic, no stat effect ----
+  const dresser = new Player(964, 1, "Dresser", JobId.Mage, 0, 0);
+  const baseAtkD = dresser.derived.atk;
+  const baseStatsD = { ...dresser.stats };
+  dresser.addItem("crimson_duelist_ticket", 1);
+  check(dresser.useItem("crimson_duelist_ticket") && dresser.activeCostumeId === "crimson_duelist", "costume: ticket wears the outfit");
+  check((dresser.inventory["crimson_duelist_ticket"] ?? 0) === 1, "costume: ticket is reusable (not consumed)");
+  check(dresser.derived.atk === baseAtkD, "costume: no effect on derived stats");
+  check(JSON.stringify(dresser.stats) === JSON.stringify(baseStatsD), "costume: no effect on base stats");
+  dresser.addItem("azure_mystic_ticket", 1);
+  check(dresser.useItem("azure_mystic_ticket") && dresser.activeCostumeId === "azure_mystic", "costume: wearing a different outfit switches directly");
+  check(dresser.useItem("azure_mystic_ticket") && dresser.activeCostumeId === null, "costume: re-using the worn outfit's ticket removes it");
+  check(dresser.toSelfState().costumeId === null, "costume: surfaced in self state");
+
   // ---- day/night + weather environment ----
   check(daylight(0.5) > 0.9, "env: noon is bright");
   check(daylight(0.0) < 0.1, "env: midnight is dark");

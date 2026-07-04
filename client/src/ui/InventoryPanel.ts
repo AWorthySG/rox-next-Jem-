@@ -21,6 +21,7 @@ export interface InventoryHandlers {
 function iconFor(item: ItemDef): string {
   if (item.pet) return "🥚";
   if (item.mount) return "🐎";
+  if (item.costume) return "👘";
   if (item.type === ItemType.Card) return "🃏";
   if (item.type === ItemType.Material) return "⛏️";
   if (item.type === ItemType.Consumable) return item.food ? "🍙" : item.healSp ? "🔷" : "🧪";

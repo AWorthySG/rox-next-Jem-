@@ -43,6 +43,7 @@ export interface EntityFull {
   guildName?: string; // shown as a [tag] above the player
   headgear?: string; // equipped headgear item id (rendered as a hat)
   mountId?: string; // active mount id (see mounts.ts), rendered under the rider
+  costumeId?: string; // active cosmetic outfit id (see costumes.ts)
   // monsters
   templateId?: string;
   aiState?: MonsterAIState;
@@ -83,6 +84,7 @@ export interface SelfState {
   buffs: Array<{ type: string; remainingMs: number }>;
   pet: string | null;
   mountId: string | null;
+  costumeId: string | null;
   mapId: string;
   x: number;
   z: number;

@@ -425,6 +425,7 @@ function handleMessage(msg: ServerMessage): void {
       aesir.sync(msg.self);
       petCompanion.setPet(msg.self.pet);
       gameState.self?.setMount(msg.self.mountId);
+      gameState.self?.setCostume(msg.self.costumeId);
       selfMounted = !!msg.self.mountId;
       questTracker.sync(msg.self);
       gameState.self?.setHeadgear(msg.self.equipped.find((e) => e.slot === EquipSlot.Headgear)?.id ?? null);

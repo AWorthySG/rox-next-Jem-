@@ -13,6 +13,15 @@ export interface CharacterMesh {
   headgear: THREE.Object3D | null; // currently-worn hat mesh, if any
   cape: THREE.Object3D | null; // swordsman cape pivot (sways with movement), if any
   eyeParts: { mesh: THREE.Object3D; baseY: number }[]; // eye meshes, for blinking
+  // shared outfit materials, exposed so a cosmetic costume can recolor the
+  // whole silhouette at once (each material is reused across many meshes)
+  outfitMat: THREE.MeshToonMaterial;
+  accentMat: THREE.MeshToonMaterial;
+  hairMat: THREE.MeshToonMaterial;
+  bootMat: THREE.MeshToonMaterial;
+  // the palette this character was built with, so a costume can be removed
+  // and the player's own hue-derived look restored exactly
+  baseColors: { outfit: THREE.Color; accent: THREE.Color; hair: THREE.Color; boot: THREE.Color };
   // a hidden spark that the view sweeps along the weapon for a periodic glint
   weaponGlint: { sprite: THREE.Sprite; x: number; z: number; y0: number; y1: number };
 }
@@ -335,7 +344,53 @@ export function buildCharacter(
     if (o instanceof THREE.Mesh && o.material !== OUTLINE_MAT) o.castShadow = true;
   });
 
-  return { group, leftArm, rightArm, leftLeg, rightLeg, head, headgear: null, cape, eyeParts, weaponGlint };
+  return {
+    group,
+    leftArm,
+    rightArm,
+    leftLeg,
+    rightLeg,
+    head,
+    headgear: null,
+    cape,
+    eyeParts,
+    weaponGlint,
+    outfitMat: outfit,
+    accentMat: accent,
+    hairMat,
+    bootMat,
+    baseColors: {
+      outfit: outfit.color.clone(),
+      accent: accent.color.clone(),
+      hair: hairMat.color.clone(),
+      boot: bootMat.color.clone(),
+    },
+  };
+}
+
+// Recolor the shared outfit/accent/hair/boot materials to a costume's palette,
+// or restore the player's own hue-derived look when `costumeId` is null. Purely
+// cosmetic — never touches geometry, stats, or the currently-worn headgear.
+export function applyCostume(char: CharacterMesh, costume: { outfitHue: number; accentHue: number; hairHue: number } | null | undefined): void {
+  if (!costume) {
+    char.outfitMat.color.copy(char.baseColors.outfit);
+    char.accentMat.color.copy(char.baseColors.accent);
+    char.hairMat.color.copy(char.baseColors.hair);
+    char.bootMat.color.copy(char.baseColors.boot);
+    return;
+  }
+  const outfitHsl = { h: 0, s: 0, l: 0 };
+  char.baseColors.outfit.getHSL(outfitHsl);
+  const accentHsl = { h: 0, s: 0, l: 0 };
+  char.baseColors.accent.getHSL(accentHsl);
+  const hairHsl = { h: 0, s: 0, l: 0 };
+  char.baseColors.hair.getHSL(hairHsl);
+  const bootHsl = { h: 0, s: 0, l: 0 };
+  char.baseColors.boot.getHSL(bootHsl);
+  char.outfitMat.color.setHSL(costume.outfitHue, outfitHsl.s, outfitHsl.l);
+  char.accentMat.color.setHSL(costume.accentHue, accentHsl.s, accentHsl.l);
+  char.hairMat.color.setHSL(costume.hairHue, hairHsl.s, hairHsl.l);
+  char.bootMat.color.setHSL(costume.accentHue, bootHsl.s, bootHsl.l);
 }
 
 function limb(

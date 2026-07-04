@@ -93,6 +93,7 @@ export interface ItemDef {
   food?: FoodBuff; // eating grants a timed stat buff
   pet?: string; // summons this pet when used
   mount?: string; // toggles riding this mount (by id, see mounts.ts) when used
+  costume?: string; // toggles wearing this cosmetic outfit (by id, see costumes.ts) when used
   // progression tier (1 Worn … 6 Mythic). Optional: when set it pins the rarity
   // tint and is shown as a label; otherwise rarity is derived from sell value.
   tier?: number;
@@ -185,6 +186,13 @@ export const ITEMS: Record<string, ItemDef> = {
   grand_peco_whistle: { id: "grand_peco_whistle", name: "Grand Peco Whistle", type: ItemType.Consumable, desc: "Summon/dismiss a Grand Peco mount. +80% move speed, VIT +5.", mount: "grand_peco", price: 6000, sellPrice: 900 },
   dune_wolf_whistle: { id: "dune_wolf_whistle", name: "Dune Wolf Whistle", type: ItemType.Consumable, desc: "Summon/dismiss a Dune Wolf mount. +70% move speed, AGI +5.", mount: "dune_wolf", price: 6000, sellPrice: 900 },
   baby_dragon_whistle: { id: "baby_dragon_whistle", name: "Baby Dragon Whistle", type: ItemType.Consumable, desc: "Summon/dismiss a Baby Dragon mount. +100% move speed, STR +3, INT +3.", mount: "baby_dragon", price: 20000, sellPrice: 4000 },
+
+  // costume tickets (use to wear/remove a cosmetic outfit; reusable — not
+  // consumed, purely visual, zero effect on stats — mix and match freely)
+  crimson_duelist_ticket: { id: "crimson_duelist_ticket", name: "Crimson Duelist Ticket", type: ItemType.Consumable, desc: "Wear/remove the Crimson Duelist outfit. Purely cosmetic.", costume: "crimson_duelist", price: 3000, sellPrice: 500 },
+  azure_mystic_ticket: { id: "azure_mystic_ticket", name: "Azure Mystic Ticket", type: ItemType.Consumable, desc: "Wear/remove the Azure Mystic outfit. Purely cosmetic.", costume: "azure_mystic", price: 3000, sellPrice: 500 },
+  verdant_ranger_ticket: { id: "verdant_ranger_ticket", name: "Verdant Ranger Ticket", type: ItemType.Consumable, desc: "Wear/remove the Verdant Ranger outfit. Purely cosmetic.", costume: "verdant_ranger", price: 3000, sellPrice: 500 },
+  golden_regalia_ticket: { id: "golden_regalia_ticket", name: "Golden Regalia Ticket", type: ItemType.Consumable, desc: "Wear/remove the Golden Regalia outfit. Purely cosmetic.", costume: "golden_regalia", price: 8000, sellPrice: 1500 },
 
   // weapons
   novice_knife: {
@@ -1445,6 +1453,10 @@ export const SHOP_STOCK: string[] = [
   "grand_peco_whistle",
   "dune_wolf_whistle",
   "baby_dragon_whistle",
+  "crimson_duelist_ticket",
+  "azure_mystic_ticket",
+  "verdant_ranger_ticket",
+  "golden_regalia_ticket",
 ];
 
 export function getItem(id: string): ItemDef | undefined {

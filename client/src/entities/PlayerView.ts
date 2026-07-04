@@ -1,7 +1,7 @@
 import type { EntityFull } from "@rox/shared";
-import { getMount, isMagicJob, jobFamilyOf, jobTierOf, PLAYER_SPEED } from "@rox/shared";
+import { getCostume, getMount, isMagicJob, jobFamilyOf, jobTierOf, PLAYER_SPEED } from "@rox/shared";
 import * as THREE from "three";
-import { applyHeadgear, buildCharacter, setEyeBlink, type CharacterMesh, type WeaponStyle } from "../procedural/characterMesh.js";
+import { applyCostume, applyHeadgear, buildCharacter, setEyeBlink, type CharacterMesh, type WeaponStyle } from "../procedural/characterMesh.js";
 import { makeSpark } from "../procedural/textures.js";
 import { EntityView } from "./EntityView.js";
 import { ModelRig } from "./ModelRig.js";
@@ -21,6 +21,7 @@ export class PlayerView extends EntityView {
   private speedMul = 1;
   private mount: THREE.Object3D | null = null;
   private mountId: string | null = null;
+  private costumeId: string | null = null;
   private bodyBaseY = 0;
   private headgearId: string | null = null;
   private swingT = 0; // attack-swing animation timer (1→0)
@@ -58,6 +59,7 @@ export class PlayerView extends EntityView {
     applyHeadgear(this.char, entity.headgear);
     this.headgearId = entity.headgear ?? null;
     if (entity.mountId) this.setMount(entity.mountId);
+    if (entity.costumeId) this.setCostume(entity.costumeId);
     this.group.add(this.char.group);
 
     this.serverX = entity.x;
@@ -260,6 +262,14 @@ export class PlayerView extends EntityView {
     tail.rotation.x = -1.9;
     dragon.add(tail);
     return { mesh: dragon, riderY: 0.66 };
+  }
+
+  // Wear/remove a purely cosmetic outfit by id (see costumes.ts). Recolors the
+  // shared outfit/accent/hair materials in place; never touches stats or gear.
+  setCostume(costumeId: string | null): void {
+    if (costumeId === this.costumeId) return;
+    this.costumeId = costumeId;
+    applyCostume(this.char, getCostume(costumeId));
   }
 
   clearMoveTarget(): void {

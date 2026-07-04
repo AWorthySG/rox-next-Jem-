@@ -75,6 +75,7 @@ export class Player {
   guildName: string | null = null;
   activePet: string | null = null;
   activeMountId: string | null = null;
+  activeCostumeId: string | null = null;
   activeQuests: Record<string, number> = {}; // questId -> kill progress
   completedQuests: string[] = [];
   totalKills = 0;
@@ -383,6 +384,11 @@ export class Player {
       this.recompute();
       return true;
     }
+    // A costume ticket is reusable and purely cosmetic — no stat recompute.
+    if (item.costume) {
+      this.activeCostumeId = this.activeCostumeId === item.costume ? null : item.costume;
+      return true;
+    }
     this.removeItem(itemId, 1);
     if (item.pet) {
       this.activePet = item.pet;
@@ -635,6 +641,7 @@ export class Player {
     this.mapId = s.mapId ?? "field";
     this.activePet = s.pet ?? null;
     this.activeMountId = s.mountId ?? null;
+    this.activeCostumeId = s.costumeId ?? null;
     this.buffs = [];
     this.foodBuffs = [];
     this.learnJobSkills();
@@ -659,6 +666,7 @@ export class Player {
       guildName: this.guildName ?? undefined,
       headgear: this.equipped[EquipSlot.Headgear] ?? undefined,
       mountId: this.activeMountId ?? undefined,
+      costumeId: this.activeCostumeId ?? undefined,
     };
   }
 
@@ -722,6 +730,7 @@ export class Player {
       ],
       pet: this.activePet,
       mountId: this.activeMountId,
+      costumeId: this.activeCostumeId,
       mapId: this.mapId,
       x: round2(this.x),
       z: round2(this.z),
