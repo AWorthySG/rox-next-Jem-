@@ -112,6 +112,25 @@ export interface GuildRetrieveItemMsg {
   qty: number;
 }
 
+export interface DuelRequestMsg {
+  t: MsgType.DuelRequest;
+  targetId: number;
+}
+
+export interface DuelAcceptMsg {
+  t: MsgType.DuelAccept;
+  fromId: number;
+}
+
+export interface DuelDeclineMsg {
+  t: MsgType.DuelDecline;
+  fromId: number;
+}
+
+export interface DuelCancelMsg {
+  t: MsgType.DuelCancel;
+}
+
 export interface AcceptQuestMsg {
   t: MsgType.AcceptQuest;
   questId: string;
@@ -283,6 +302,10 @@ export type ClientMessage =
   | LeaveGuildMsg
   | GuildStoreItemMsg
   | GuildRetrieveItemMsg
+  | DuelRequestMsg
+  | DuelAcceptMsg
+  | DuelDeclineMsg
+  | DuelCancelMsg
   | AcceptQuestMsg
   | ClaimQuestMsg
   | AllocateStatMsg
@@ -383,6 +406,18 @@ export interface GuildUpdateMsg {
   guild: GuildInfo | null; // null = you are no longer in a guild
 }
 
+export interface DuelRequestRecvMsg {
+  t: MsgType.DuelRequestRecv;
+  fromId: number;
+  fromName: string;
+}
+
+export interface DuelUpdateMsg {
+  t: MsgType.DuelUpdate;
+  opponentId: number | null; // null = you are no longer in a duel
+  opponentName?: string;
+}
+
 export interface DamageEventMsg {
   t: MsgType.DamageEvent;
   sourceId: number;
@@ -465,6 +500,8 @@ export type ServerMessage =
   | PartyInviteRecvMsg
   | PartyUpdateMsg
   | GuildUpdateMsg
+  | DuelRequestRecvMsg
+  | DuelUpdateMsg
   | MapChangeMsg
   | DefeatedMsg
   | RefineResultMsg

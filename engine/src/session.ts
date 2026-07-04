@@ -42,9 +42,13 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       const p = playerOf(world, link);
       if (p && world.monsters.has(msg.targetId)) {
         p.attackTargetId = msg.targetId;
-      } else if (p && world.isPvp(p.mapId)) {
+      } else if (p) {
+        const openPvp = world.isPvp(p.mapId);
+        const duelOpponentId = world.duel.opponentOf(p.id);
         const other = world.players.get(msg.targetId);
-        if (other && other.id !== p.id && other.mapId === p.mapId) p.attackTargetId = msg.targetId;
+        if (other && other.id !== p.id && other.mapId === p.mapId && (openPvp || other.id === duelOpponentId)) {
+          p.attackTargetId = msg.targetId;
+        }
       }
       break;
     }
@@ -154,6 +158,26 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
     case MsgType.GuildRetrieveItem: {
       const p = playerOf(world, link);
       if (p) world.guild.retrieveItem(p, msg.itemId, Math.max(1, Math.floor(msg.qty || 1)));
+      break;
+    }
+    case MsgType.DuelRequest: {
+      const p = playerOf(world, link);
+      if (p) world.duel.request(p, msg.targetId);
+      break;
+    }
+    case MsgType.DuelAccept: {
+      const p = playerOf(world, link);
+      if (p) world.duel.accept(p, msg.fromId);
+      break;
+    }
+    case MsgType.DuelDecline: {
+      const p = playerOf(world, link);
+      if (p) world.duel.decline(p, msg.fromId);
+      break;
+    }
+    case MsgType.DuelCancel: {
+      const p = playerOf(world, link);
+      if (p) world.duel.leave(p);
       break;
     }
     case MsgType.AcceptQuest: {

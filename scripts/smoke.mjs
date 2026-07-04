@@ -40,6 +40,8 @@ function client(name, job) {
     if (m.t === "partyInviteRecv") st.invitePartyId = m.partyId;
     if (m.t === "partyUpdate") st.party = m.party;
     if (m.t === "guildUpdate") st.guild = m.guild;
+    if (m.t === "duelRequestRecv") st.duelRequestFrom = m.fromId;
+    if (m.t === "duelUpdate") st.duelOpponentId = m.opponentId;
     if (m.t === "chatMsg") { st.lastChat = `${m.name}: ${m.text}`; st.chats.push(`${m.name}: ${m.text}`); }
     if (m.t === "exchangeUpdate") st.listings = m.listings;
   });
@@ -185,6 +187,25 @@ async function main() {
   const d1 = client("Duelist1", "swordsman");
   const d2 = client("Duelist2", "swordsman");
   await wait(1500);
+
+  // Structured PvP: a duel request lets two players fight right on the
+  // (non-PvP) field map, without needing the arena at all.
+  d1.ws.send(JSON.stringify({ t: "duelRequest", targetId: d2.self }));
+  await wait(400);
+  check(d2.duelRequestFrom === d1.self, "duel: request is delivered to the target");
+  d2.ws.send(JSON.stringify({ t: "duelAccept", fromId: d1.self }));
+  await wait(400);
+  check(d1.duelOpponentId === d2.self && d2.duelOpponentId === d1.self, "duel: accepting pairs both duelists");
+  for (let i = 0; i < 10; i++) {
+    d1.ws.send(JSON.stringify({ t: "attack", targetId: d2.self }));
+    await wait(200);
+    if (d1.dmg.some((x) => x.sourceId === d1.self && x.targetId === d2.self)) break;
+  }
+  check(d1.dmg.some((x) => x.sourceId === d1.self && x.targetId === d2.self), "duel: a player can damage their duel opponent on a non-PvP map");
+  d1.ws.send(JSON.stringify({ t: "duelCancel" }));
+  await wait(400);
+  check(d1.duelOpponentId === null, "duel: forfeiting ends the duel");
+
   const arenaPortal = d1.portals["Arena Portal"];
   check(arenaPortal != null, "field has an arena portal");
   if (arenaPortal) {

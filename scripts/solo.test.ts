@@ -536,6 +536,44 @@ async function main(): Promise<void> {
   check(recruit.countItem("red_potion") === 2, "guild storage: withdrawn items land in the withdrawer's own bag");
   check(!guildWorld.guild.storeItem(master, "red_potion", 5), "guild storage: cannot deposit more than the member owns");
 
+  // ---- structured PvP: duel requests ----
+  const duelWorld = new World();
+  const challenger = new Player(951, 1, "Challenger", JobId.Swordsman, 0, 0);
+  const defender = new Player(950, 1, "Defender", JobId.Swordsman, 0, 0);
+  const distant = new Player(949, 1, "Distant", JobId.Mage, 0, 0);
+  distant.mapId = "geffen";
+  duelWorld.players.set(challenger.id, challenger);
+  duelWorld.players.set(defender.id, defender);
+  duelWorld.players.set(distant.id, distant);
+
+  check(duelWorld.duel.opponentOf(challenger.id) === null, "duel: no opponent before any request");
+  duelWorld.duel.request(challenger, distant.id);
+  duelWorld.duel.accept(distant, challenger.id);
+  check(duelWorld.duel.opponentOf(challenger.id) === null, "duel: cannot duel a player on a different map");
+
+  duelWorld.duel.request(challenger, defender.id);
+  duelWorld.duel.accept(defender, challenger.id);
+  check(duelWorld.duel.opponentOf(challenger.id) === defender.id, "duel: accepting pairs the challenger with the defender");
+  check(duelWorld.duel.opponentOf(defender.id) === challenger.id, "duel: the pairing is mutual");
+
+  duelWorld.duel.request(challenger, distant.id); // already dueling — should be ignored
+  check(duelWorld.duel.opponentOf(distant.id) === null, "duel: an active duelist cannot also challenge a third player");
+
+  duelWorld.duel.leave(challenger); // forfeit
+  check(duelWorld.duel.opponentOf(challenger.id) === null, "duel: forfeiting clears the challenger's own state");
+  check(duelWorld.duel.opponentOf(defender.id) === null, "duel: forfeiting also clears the opponent's state");
+
+  const decliner = new Player(948, 1, "Decliner", JobId.Swordsman, 0, 0);
+  duelWorld.players.set(decliner.id, decliner);
+  duelWorld.duel.request(defender, decliner.id);
+  duelWorld.duel.decline(decliner, defender.id);
+  duelWorld.duel.accept(decliner, defender.id); // the request was declined — accepting late should fail
+  check(duelWorld.duel.opponentOf(defender.id) === null, "duel: a declined request cannot later be accepted");
+
+  duelWorld.duel.request(defender, decliner.id);
+  duelWorld.duel.accept(decliner, defender.id);
+  check(duelWorld.duel.opponentOf(defender.id) === decliner.id, "duel: a fresh request after a decline succeeds normally");
+
   // ---- day/night + weather environment ----
   check(daylight(0.5) > 0.9, "env: noon is bright");
   check(daylight(0.0) < 0.1, "env: midnight is dark");

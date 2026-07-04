@@ -374,9 +374,15 @@ export class CombatSystem {
 
   private updatePlayerAttack(p: Player): void {
     if (p.attackTargetId == null) return;
-    // PvP: the target may be another player on a PvP map.
+    // PvP: the target may be another player on a PvP map, or a duel opponent
+    // fighting anywhere they agreed to duel.
     const pvpTarget = this.world.players.get(p.attackTargetId);
-    if (pvpTarget && this.world.isPvp(p.mapId) && pvpTarget.mapId === p.mapId && pvpTarget.id !== p.id) {
+    if (
+      pvpTarget &&
+      pvpTarget.mapId === p.mapId &&
+      pvpTarget.id !== p.id &&
+      (this.world.isPvp(p.mapId) || this.world.duel.opponentOf(p.id) === pvpTarget.id)
+    ) {
       this.updatePvpAttack(p, pvpTarget);
       return;
     }
@@ -452,12 +458,14 @@ export class CombatSystem {
     if (result.miss) return;
     target.hp -= result.amount;
     if (target.hp <= 0) {
+      const dueling = this.world.duel.opponentOf(p.id) === target.id;
       this.world.broadcastToMap(p.mapId, {
         t: MsgType.ChatBroadcast,
         fromId: p.id,
-        name: "Arena",
-        text: `${p.name} defeated ${target.name}!`,
+        name: dueling ? "Duel" : "Arena",
+        text: dueling ? `${p.name} won the duel against ${target.name}!` : `${p.name} defeated ${target.name}!`,
       });
+      if (dueling) this.world.duel.leave(p); // clears + notifies both sides
       this.respawnPlayer(target, p.name);
       p.attackTargetId = null;
     }

@@ -1251,6 +1251,23 @@ body {
   pointer-events: auto;
   z-index: 35;
 }
+.duel-hud {
+  position: absolute;
+  top: 116px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 14px;
+  background: var(--panel);
+  border: 2px solid #d0453f;
+  border-radius: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  pointer-events: auto;
+  z-index: 35;
+}
 .ip-btn {
   padding: 6px 12px;
   font-weight: 700;

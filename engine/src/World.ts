@@ -7,6 +7,7 @@ import type { PortalDest } from "./Npc.js";
 import { PartySystem } from "./PartySystem.js";
 import { GuildSystem } from "./GuildSystem.js";
 import { ExchangeSystem } from "./ExchangeSystem.js";
+import { DuelSystem } from "./DuelSystem.js";
 import { MONSTER_TEMPLATES } from "./data/spawns.js";
 import { MAPS } from "./data/maps.js";
 
@@ -20,6 +21,7 @@ export class World {
   readonly party = new PartySystem(this);
   readonly guild = new GuildSystem(this);
   readonly exchange = new ExchangeSystem(this);
+  readonly duel = new DuelSystem(this);
   readonly mapIds = Object.keys(MAPS);
   private nextEntityId = 1;
 
@@ -58,6 +60,7 @@ export class World {
     if (player) {
       this.party.leave(player);
       this.guild.leave(player);
+      this.duel.leave(player);
     }
     if (this.players.delete(id)) {
       this.broadcastToMap(player?.mapId ?? "", { t: MsgType.Despawn, id });
@@ -167,6 +170,9 @@ export class World {
   travelPlayer(player: Player, dest: PortalDest): void {
     const conn = this.connections.get(player.connId);
     if (!conn || !MAPS[dest.toMap]) return;
+    // Changing maps forfeits any pending/active duel — dueling across maps
+    // makes no sense once the two players are no longer standing together.
+    this.duel.leave(player);
     // Leave the old map: others there see the player vanish.
     this.broadcastToMap(player.mapId, { t: MsgType.Despawn, id: player.id }, conn.id);
     // Drop any aggro the old map's monsters had on this player.
