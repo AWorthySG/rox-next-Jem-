@@ -2139,6 +2139,24 @@ body {
 .guild-member {
   font-size: 13px;
 }
+.guild-level {
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 10px;
+}
+.guild-exp-bar {
+  height: 8px;
+  margin: 4px 0;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--panel-border);
+  border-radius: 5px;
+  overflow: hidden;
+}
+.guild-exp-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #d4af37, #f0d878);
+  transition: width 0.3s ease;
+}
 
 /* ---- Aesir monument ---- */
 .aesir {

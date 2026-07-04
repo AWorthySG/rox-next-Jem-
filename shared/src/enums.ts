@@ -19,6 +19,8 @@ export enum MsgType {
   CreateGuild = "createGuild",
   JoinGuild = "joinGuild",
   LeaveGuild = "leaveGuild",
+  GuildStoreItem = "guildStoreItem",
+  GuildRetrieveItem = "guildRetrieveItem",
   AcceptQuest = "acceptQuest",
   ClaimQuest = "claimQuest",
   AllocateStat = "allocateStat",

@@ -100,6 +100,18 @@ export interface LeaveGuildMsg {
   t: MsgType.LeaveGuild;
 }
 
+export interface GuildStoreItemMsg {
+  t: MsgType.GuildStoreItem;
+  itemId: string;
+  qty: number;
+}
+
+export interface GuildRetrieveItemMsg {
+  t: MsgType.GuildRetrieveItem;
+  itemId: string;
+  qty: number;
+}
+
 export interface AcceptQuestMsg {
   t: MsgType.AcceptQuest;
   questId: string;
@@ -269,6 +281,8 @@ export type ClientMessage =
   | CreateGuildMsg
   | JoinGuildMsg
   | LeaveGuildMsg
+  | GuildStoreItemMsg
+  | GuildRetrieveItemMsg
   | AcceptQuestMsg
   | ClaimQuestMsg
   | AllocateStatMsg
@@ -358,6 +372,10 @@ export interface GuildInfo {
   name: string;
   masterId: number;
   members: PartyMember[];
+  level: number;
+  exp: number;
+  expToNext: number;
+  storage: Array<{ id: string; qty: number }>;
 }
 
 export interface GuildUpdateMsg {

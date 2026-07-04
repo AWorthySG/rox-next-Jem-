@@ -29,10 +29,11 @@ import {
   TIER_NAME,
   LEVEL_CAP,
   xpToNext,
+  guildXpToNext,
   type DerivedStats,
   type ServerMessage,
 } from "@rox/shared";
-import { ExchangeSystem, MAPS, Monster, MONSTER_TEMPLATES, Player } from "@rox/engine";
+import { ExchangeSystem, MAPS, Monster, MONSTER_TEMPLATES, Player, World } from "@rox/engine";
 import { LocalServer } from "../client/src/net/LocalServer.js";
 import { lodTier, labelVisible } from "../client/src/entities/lod.js";
 
@@ -512,6 +513,28 @@ async function main(): Promise<void> {
   check(dresser.useItem("azure_mystic_ticket") && dresser.activeCostumeId === "azure_mystic", "costume: wearing a different outfit switches directly");
   check(dresser.useItem("azure_mystic_ticket") && dresser.activeCostumeId === null, "costume: re-using the worn outfit's ticket removes it");
   check(dresser.toSelfState().costumeId === null, "costume: surfaced in self state");
+
+  // ---- guild depth: leveling (EXP bonus) + shared storage ----
+  const guildWorld = new World();
+  const master = new Player(958, 1, "Master", JobId.Swordsman, 0, 0);
+  const recruit = new Player(957, 1, "Recruit", JobId.Swordsman, 0, 0);
+  guildWorld.players.set(master.id, master);
+  guildWorld.players.set(recruit.id, recruit);
+  guildWorld.guild.create(master, "Testament");
+  guildWorld.guild.join(recruit, "Testament");
+  check(master.guildId != null && master.guildId === recruit.guildId, "guild: master and recruit share a guild");
+  check(guildWorld.guild.expMultiplier(master.guildId) === 1, "guild: no EXP bonus at level 1");
+  guildWorld.guild.addExp(master.guildId, guildXpToNext(1));
+  check(guildWorld.guild.expMultiplier(master.guildId) > 1, "guild: leveling up grants an EXP bonus");
+  check(guildWorld.guild.expMultiplier(recruit.guildId) === guildWorld.guild.expMultiplier(master.guildId), "guild: the EXP bonus applies to every member");
+
+  master.addItem("red_potion", 3);
+  check(guildWorld.guild.storeItem(master, "red_potion", 2), "guild storage: member deposits an item");
+  check(master.countItem("red_potion") === 1, "guild storage: deposited items leave the member's bag");
+  check(!guildWorld.guild.retrieveItem(recruit, "red_potion", 3), "guild storage: cannot withdraw more than is banked");
+  check(guildWorld.guild.retrieveItem(recruit, "red_potion", 2), "guild storage: a different member withdraws the shared item");
+  check(recruit.countItem("red_potion") === 2, "guild storage: withdrawn items land in the withdrawer's own bag");
+  check(!guildWorld.guild.storeItem(master, "red_potion", 5), "guild storage: cannot deposit more than the member owns");
 
   // ---- day/night + weather environment ----
   check(daylight(0.5) > 0.9, "env: noon is bright");

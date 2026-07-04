@@ -262,6 +262,8 @@ const guildPanel = new GuildPanel({
   onCreate: (name) => transport?.send({ t: MsgType.CreateGuild, name }),
   onJoin: (name) => transport?.send({ t: MsgType.JoinGuild, name }),
   onLeave: () => transport?.send({ t: MsgType.LeaveGuild }),
+  onStore: (itemId, qty) => transport?.send({ t: MsgType.GuildStoreItem, itemId, qty }),
+  onRetrieve: (itemId, qty) => transport?.send({ t: MsgType.GuildRetrieveItem, itemId, qty }),
 });
 
 // Render an incoming party invite as an accept/decline banner.
@@ -423,6 +425,7 @@ function handleMessage(msg: ServerMessage): void {
       skills.sync(msg.self);
       achievements.sync(msg.self);
       aesir.sync(msg.self);
+      guildPanel.sync(msg.self);
       petCompanion.setPet(msg.self.pet);
       gameState.self?.setMount(msg.self.mountId);
       gameState.self?.setCostume(msg.self.costumeId);

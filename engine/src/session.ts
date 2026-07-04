@@ -146,6 +146,16 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       if (p) world.guild.leave(p);
       break;
     }
+    case MsgType.GuildStoreItem: {
+      const p = playerOf(world, link);
+      if (p) world.guild.storeItem(p, msg.itemId, Math.max(1, Math.floor(msg.qty || 1)));
+      break;
+    }
+    case MsgType.GuildRetrieveItem: {
+      const p = playerOf(world, link);
+      if (p) world.guild.retrieveItem(p, msg.itemId, Math.max(1, Math.floor(msg.qty || 1)));
+      break;
+    }
     case MsgType.AcceptQuest: {
       const p = playerOf(world, link);
       if (p) p.acceptQuest(msg.questId);
