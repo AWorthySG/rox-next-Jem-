@@ -85,6 +85,7 @@ export interface SelfState {
   pet: string | null;
   mountId: string | null;
   costumeId: string | null;
+  lifeSkills: Array<{ id: string; level: number; exp: number; expToNext: number }>;
   mapId: string;
   x: number;
   z: number;

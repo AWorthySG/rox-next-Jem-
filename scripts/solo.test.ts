@@ -30,6 +30,9 @@ import {
   LEVEL_CAP,
   xpToNext,
   guildXpToNext,
+  GATHER_COOLDOWN_MS,
+  lifeSkillXpToNext,
+  rollGather,
   type DerivedStats,
   type ServerMessage,
 } from "@rox/shared";
@@ -573,6 +576,39 @@ async function main(): Promise<void> {
   duelWorld.duel.request(defender, decliner.id);
   duelWorld.duel.accept(decliner, defender.id);
   check(duelWorld.duel.opponentOf(defender.id) === decliner.id, "duel: a fresh request after a decline succeeds normally");
+
+  // ---- life skills: gathering yield tables ----
+  check(rollGather("fishing", 1, () => 0) === "sardine", "gather: lowest-level roll picks the common yield");
+  check(rollGather("fishing", 1, () => 0.999) === "sardine", "gather: only the unlocked yield can appear below its tier's level");
+  check(rollGather("fishing", 5, () => 0.999) === "tuna", "gather: leveling up unlocks a rarer yield");
+  check(rollGather("fishing", 20, () => 0.999) === "golden_carp", "gather: high level + high roll reaches the rarest yield");
+  check(isFinite(lifeSkillXpToNext(1)) && lifeSkillXpToNext(1) > 0, "gather: EXP-to-next is a positive number below the cap");
+  check(!isFinite(lifeSkillXpToNext(30)), "gather: no EXP needed once a life skill is maxed");
+
+  // ---- life skills: Player.gather() cooldown, leveling, yields ----
+  const gatherer = new Player(947, 1, "Gatherer", JobId.Merchant, 0, 0);
+  check(gatherer.lifeSkillLevel("gardening") === 1, "gather: a fresh player starts every life skill at level 1");
+  const firstGather = gatherer.gather("gardening", () => 0);
+  check(firstGather?.itemId === "turnip" && gatherer.countItem("turnip") === 1, "gather: a successful gather adds the rolled item to the bag");
+  check(gatherer.gather("gardening", () => 0) === null, "gather: gathering again immediately is blocked by the shared cooldown");
+  let gathers = 1;
+  while (gatherer.lifeSkillLevel("gardening") === 1 && gathers < 20) {
+    gatherer.lastGatherAt = 0; // bypass the real-time cooldown for a fast, deterministic test
+    gatherer.gather("gardening", () => 0);
+    gathers++;
+  }
+  check(gatherer.lifeSkillLevel("gardening") === 2, "gather: enough successful gathers level up the life skill");
+  check(gatherer.toSelfState().lifeSkills.find((s) => s.id === "gardening")?.level === 2, "gather: life skill level is surfaced in self state");
+
+  // ---- life skills: crafting ----
+  const cook = new Player(946, 1, "Cook", JobId.Merchant, 0, 0);
+  cook.addItem("sardine", 3);
+  const crafted = cook.craft("grilled_sardine_recipe");
+  check(crafted?.itemId === "grilled_sardine" && cook.countItem("grilled_sardine") === 1, "craft: a fulfilled recipe consumes inputs and grants the output");
+  check(cook.countItem("sardine") === 0, "craft: recipe inputs are fully consumed");
+  check(cook.craft("grilled_sardine_recipe") === null, "craft: cannot craft again without enough ingredients");
+  check(cook.countItem("grilled_sardine") === 1, "craft: a failed craft attempt doesn't partially consume anything");
+  check(cook.craft("not_a_real_recipe") === null, "craft: an unknown recipe id fails cleanly");
 
   // ---- day/night + weather environment ----
   check(daylight(0.5) > 0.9, "env: noon is bright");

@@ -131,6 +131,16 @@ export interface DuelCancelMsg {
   t: MsgType.DuelCancel;
 }
 
+export interface GatherMsg {
+  t: MsgType.Gather;
+  npcId: number;
+}
+
+export interface CraftMsg {
+  t: MsgType.Craft;
+  recipeId: string;
+}
+
 export interface AcceptQuestMsg {
   t: MsgType.AcceptQuest;
   questId: string;
@@ -306,6 +316,8 @@ export type ClientMessage =
   | DuelAcceptMsg
   | DuelDeclineMsg
   | DuelCancelMsg
+  | GatherMsg
+  | CraftMsg
   | AcceptQuestMsg
   | ClaimQuestMsg
   | AllocateStatMsg

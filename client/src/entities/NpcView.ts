@@ -15,6 +15,10 @@ const ROLE_LOOKS: Record<string, { seed: number; magic: boolean; weapon: WeaponS
   refine: { seed: 25, magic: false, weapon: "mace", hat: null }, // Blacksmith: ember tones
   exchange: { seed: 48, magic: false, weapon: "blade", hat: "gem_crown" }, // Broker: gold
   portal: { seed: 265, magic: true, weapon: "staff", hat: "valkyrie_helm" }, // mystic gatekeeper
+  gather_fish: { seed: 195, magic: false, weapon: "blade", hat: null }, // fisherman: sea-teal
+  gather_ore: { seed: 30, magic: false, weapon: "mace", hat: null }, // miner: earthy orange
+  gather_crop: { seed: 95, magic: false, weapon: "blade", hat: "feather_beret" }, // farmer: leafy green
+  cook: { seed: 15, magic: false, weapon: "mace", hat: null }, // cook: warm red
 };
 
 // A static town NPC. Renders a humanoid (or a npc_<role>.glb model if present)

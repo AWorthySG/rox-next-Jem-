@@ -30,13 +30,16 @@ function client(name, job) {
       st.portal = { id: m.entity.id, x: m.entity.x, z: m.entity.z };
       st.portals[m.entity.name] = { id: m.entity.id, x: m.entity.x, z: m.entity.z };
     }
+    if (m.t === "spawn" && m.entity.npcRole === "gather_crop") {
+      st.gatherNode = { id: m.entity.id, x: m.entity.x, z: m.entity.z };
+    }
     if (m.t === "damage") { st.dmg.push({ sourceId: m.sourceId, targetId: m.targetId }); if (st.dmg.length > 200) st.dmg.shift(); }
     if (m.t === "mapChange") st.map = m.mapId;
     if (m.t === "spawn" && m.entity.kind === "player") st.seenPlayers.add(m.entity.id);
     if (m.t === "despawn") st.monsters.delete(m.id);
     if (m.t === "self") st.lastSelf = m.self;
     if (m.t === "damage" && m.skillId) st.skillDamage = (st.skillDamage || 0) + 1;
-    if (m.t === "loot") st.loot = (st.loot || 0) + 1;
+    if (m.t === "loot") { st.loot = (st.loot || 0) + 1; st.lastLoot = m.items; }
     if (m.t === "partyInviteRecv") st.invitePartyId = m.partyId;
     if (m.t === "partyUpdate") st.party = m.party;
     if (m.t === "guildUpdate") st.guild = m.guild;
@@ -183,6 +186,18 @@ async function main() {
   }
   check(t.map === "cave", "entering the portal moves the player to the cave map");
 
+  // Life skills: gather at the field's Garden Plot.
+  const g = client("Gardener", "merchant");
+  await wait(1500);
+  check(g.gatherNode != null, "field has a Garden Plot gathering node");
+  if (g.gatherNode) {
+    g.ws.send(JSON.stringify({ t: "move", x: g.gatherNode.x, z: g.gatherNode.z }));
+    await wait(1600);
+    g.ws.send(JSON.stringify({ t: "gather", npcId: g.gatherNode.id }));
+    await wait(400);
+  }
+  check((g.lastLoot?.length ?? 0) > 0, "gather: gathering at the Garden Plot yields an item");
+
   // PvP: two duelists travel to the arena; one attacks the other.
   const d1 = client("Duelist1", "swordsman");
   const d2 = client("Duelist2", "swordsman");
@@ -225,6 +240,7 @@ async function main() {
   d1.ws.close();
   d2.ws.close();
   t.ws.close();
+  g.ws.close();
   a.ws.close();
   b.ws.close();
   await stopServer();

@@ -171,6 +171,20 @@ export const ITEMS: Record<string, ItemDef> = {
   // refine ores (materials consumed per refine attempt)
   oridecon: { id: "oridecon", name: "Oridecon", type: ItemType.Material, desc: "Refine ore for weapons & headgear.", price: 1200, sellPrice: 300 },
   elunium: { id: "elunium", name: "Elunium", type: ItemType.Material, desc: "Refine ore for armor & accessories.", price: 1200, sellPrice: 300 },
+  mithril_ore: { id: "mithril_ore", name: "Mithril Ore", type: ItemType.Material, desc: "A rare ore prized by miners. Not sold — only mined.", sellPrice: 2500 },
+
+  // ---- life skills: gathered raw materials (fishing / gardening) ----
+  sardine: { id: "sardine", name: "Sardine", type: ItemType.Material, desc: "A common catch. Cooking ingredient.", sellPrice: 8 },
+  tuna: { id: "tuna", name: "Tuna", type: ItemType.Material, desc: "A meatier catch. Cooking ingredient.", sellPrice: 30 },
+  golden_carp: { id: "golden_carp", name: "Golden Carp", type: ItemType.Material, desc: "A rare, shimmering catch. Not sold — only fished.", sellPrice: 1800 },
+  turnip: { id: "turnip", name: "Turnip", type: ItemType.Material, desc: "A common root vegetable. Cooking ingredient.", sellPrice: 6 },
+  pumpkin: { id: "pumpkin", name: "Pumpkin", type: ItemType.Material, desc: "A hearty gourd. Cooking ingredient.", sellPrice: 22 },
+  moonflower: { id: "moonflower", name: "Moonflower", type: ItemType.Material, desc: "A rare bloom that only grows for a patient gardener. Not sold — only grown.", sellPrice: 1600 },
+
+  // life-skill cooking recipes' output (eat for a timed stat buff)
+  grilled_sardine: { id: "grilled_sardine", name: "Grilled Sardine", type: ItemType.Consumable, desc: "Eat: DEX +5, ATK +12 for 5 min.", food: { durationMs: 300000, bonusStats: { dex: 5 }, atk: 12 }, sellPrice: 30 },
+  pumpkin_stew: { id: "pumpkin_stew", name: "Pumpkin Stew", type: ItemType.Consumable, desc: "Eat: VIT +7, Max HP +140 for 8 min.", food: { durationMs: 480000, bonusStats: { vit: 7 }, maxHp: 140 }, sellPrice: 60 },
+  moonflower_tonic: { id: "moonflower_tonic", name: "Moonflower Tonic", type: ItemType.Consumable, desc: "Eat: INT +10, Max SP +140 for 10 min.", food: { durationMs: 600000, bonusStats: { int: 10 }, maxSp: 140 }, sellPrice: 400 },
 
   // pet eggs (use to summon a companion)
   poring_egg: { id: "poring_egg", name: "Poring Egg", type: ItemType.Consumable, desc: "Summons a Poring pet (LUK +3, Max HP +50).", pet: "poring_pet", price: 800, sellPrice: 100 },

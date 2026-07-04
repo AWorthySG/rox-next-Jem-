@@ -254,6 +254,32 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       }
       break;
     }
+    case MsgType.Gather: {
+      const p = playerOf(world, link);
+      const npc = world.npcs.get(msg.npcId);
+      const skill =
+        npc?.role === "gather_fish" ? "fishing" :
+        npc?.role === "gather_ore" ? "mining" :
+        npc?.role === "gather_crop" ? "gardening" :
+        null;
+      if (p && npc && skill && npc.mapId === p.mapId && Math.hypot(p.x - npc.x, p.z - npc.z) <= 6) {
+        const result = p.gather(skill);
+        if (result) {
+          world.connections.get(p.connId)?.send({ t: MsgType.Loot, items: [{ id: result.itemId, qty: result.qty }], zeny: 0 });
+        }
+      }
+      break;
+    }
+    case MsgType.Craft: {
+      const p = playerOf(world, link);
+      if (p) {
+        const result = p.craft(msg.recipeId);
+        if (result) {
+          world.connections.get(p.connId)?.send({ t: MsgType.Loot, items: [{ id: result.itemId, qty: result.qty }], zeny: 0 });
+        }
+      }
+      break;
+    }
     case MsgType.Warp: {
       const p = playerOf(world, link);
       const npc = world.npcs.get(msg.npcId);

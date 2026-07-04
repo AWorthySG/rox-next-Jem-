@@ -23,6 +23,7 @@ import { InventoryPanel } from "./ui/InventoryPanel.js";
 import { StoragePanel } from "./ui/StoragePanel.js";
 import { BestiaryPanel } from "./ui/BestiaryPanel.js";
 import { ShopPanel } from "./ui/ShopPanel.js";
+import { CraftingPanel } from "./ui/CraftingPanel.js";
 import { ExchangePanel } from "./ui/ExchangePanel.js";
 import { QuestPanel } from "./ui/QuestPanel.js";
 import { RefinePanel } from "./ui/RefinePanel.js";
@@ -216,6 +217,10 @@ const shop = new ShopPanel({
   onSell: (itemId) => transport?.send({ t: MsgType.SellItem, itemId, qty: 1 }),
 });
 
+const crafting = new CraftingPanel({
+  onCraft: (recipeId) => transport?.send({ t: MsgType.Craft, recipeId }),
+});
+
 const storage = new StoragePanel({
   onStore: (itemId, qty) => transport?.send({ t: MsgType.StoreItem, itemId, qty }),
   onRetrieve: (itemId, qty) => transport?.send({ t: MsgType.RetrieveItem, itemId, qty }),
@@ -379,6 +384,20 @@ const input = new InputController(
         warp.open(id);
         return;
       }
+      if (role === "cook") {
+        crafting.open();
+        return;
+      }
+      if (role === "gather_fish" || role === "gather_ore" || role === "gather_crop") {
+        // Walk to the gathering spot and request a gather (server checks proximity).
+        const pos = gameState.worldPosOf(id);
+        if (pos) {
+          transport?.send({ t: MsgType.MoveIntent, x: pos.x, z: pos.z });
+          gameState.self?.setMoveTarget(pos.x, pos.z);
+        }
+        transport?.send({ t: MsgType.Gather, npcId: id });
+        return;
+      }
       // Clicking another player: shift-click challenges them to a duel; a
       // normal click attacks in a PvP map (or an active duel opponent
       // anywhere), else invites them to a party.
@@ -467,6 +486,7 @@ function handleMessage(msg: ServerMessage): void {
       exchange.sync(msg.self);
       bestiary.sync(msg.self);
       shop.sync(msg.self);
+      crafting.sync(msg.self);
       quests.sync(msg.self);
       refine.sync(msg.self);
       skills.sync(msg.self);

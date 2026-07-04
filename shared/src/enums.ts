@@ -38,6 +38,8 @@ export enum MsgType {
   EnterPortal = "enterPortal",
   NpcHeal = "npcHeal",
   Warp = "warp",
+  Gather = "gather",
+  Craft = "craft",
   ExchangeBrowse = "exchangeBrowse",
   ExchangeList = "exchangeList",
   ExchangeBuy = "exchangeBuy",

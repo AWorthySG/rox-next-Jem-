@@ -11,6 +11,7 @@ import {
   getMount,
   getPet,
   getQuest,
+  getRecipe,
   getRune,
   isStatKey,
   jobHasSkill,
@@ -20,6 +21,11 @@ import {
   ItemType,
   isMagicJob,
   ENCHANT_COST,
+  GATHER_COOLDOWN_MS,
+  GATHER_XP,
+  LIFE_SKILL_CAP,
+  LIFE_SKILLS,
+  lifeSkillXpToNext,
   MAX_ENCHANT_LINES,
   MAX_REFINE,
   refineBonus,
@@ -27,6 +33,7 @@ import {
   refineCost,
   refineMaterial,
   rollEnchantLine,
+  rollGather,
   SKILL_MAX_LEVEL,
   SKILLS_BY_JOB,
   STAT_POINTS_PER_LEVEL,
@@ -35,6 +42,7 @@ import {
   type EnchantLine,
   type EntityFull,
   type EntitySnapshot,
+  type LifeSkillId,
   type SelfState,
   type Stats,
 } from "@rox/shared";
@@ -76,6 +84,9 @@ export class Player {
   activePet: string | null = null;
   activeMountId: string | null = null;
   activeCostumeId: string | null = null;
+  lifeSkillLevels: Record<string, number> = {}; // life skill id -> level (default 1)
+  lifeSkillExp: Record<string, number> = {}; // life skill id -> current EXP toward next level
+  lastGatherAt = 0; // ms timestamp; gathering shares one cooldown across all life skills
   activeQuests: Record<string, number> = {}; // questId -> kill progress
   completedQuests: string[] = [];
   totalKills = 0;
@@ -404,6 +415,50 @@ export class Player {
     return true;
   }
 
+  // ---- life skills (fishing / mining / gardening) ----
+
+  lifeSkillLevel(skill: LifeSkillId): number {
+    return this.lifeSkillLevels[skill] ?? 1;
+  }
+
+  // Attempt to gather at a life-skill node. Gated by a shared cooldown across
+  // all three skills. Grants EXP (leveling up unlocks rarer yields) and rolls
+  // one raw material into the bag. Returns the yielded item, or null if the
+  // attempt was rejected (cooldown) or rolled nothing.
+  gather(skill: LifeSkillId, rng: () => number = Math.random): { itemId: string; qty: number } | null {
+    const now = Date.now();
+    if (now - this.lastGatherAt < GATHER_COOLDOWN_MS) return null;
+    this.lastGatherAt = now;
+
+    const level = this.lifeSkillLevel(skill);
+    let exp = (this.lifeSkillExp[skill] ?? 0) + GATHER_XP;
+    let newLevel = level;
+    while (newLevel < LIFE_SKILL_CAP && exp >= lifeSkillXpToNext(newLevel)) {
+      exp -= lifeSkillXpToNext(newLevel);
+      newLevel += 1;
+    }
+    this.lifeSkillLevels[skill] = newLevel;
+    this.lifeSkillExp[skill] = exp;
+
+    const itemId = rollGather(skill, newLevel, rng);
+    if (!itemId) return null;
+    this.addItem(itemId, 1);
+    return { itemId, qty: 1 };
+  }
+
+  // Craft a recipe: consumes its inputs from the bag and grants its output.
+  // Fails cleanly (no partial consumption) if any ingredient is short.
+  craft(recipeId: string): { itemId: string; qty: number } | null {
+    const recipe = getRecipe(recipeId);
+    if (!recipe) return null;
+    for (const input of recipe.inputs) {
+      if ((this.inventory[input.itemId] ?? 0) < input.qty) return null;
+    }
+    for (const input of recipe.inputs) this.removeItem(input.itemId, input.qty);
+    this.addItem(recipe.outputId, recipe.outputQty);
+    return { itemId: recipe.outputId, qty: recipe.outputQty };
+  }
+
   equip(itemId: string): boolean {
     const item = getItem(itemId);
     if (!item || !item.slot) return false;
@@ -642,6 +697,12 @@ export class Player {
     this.activePet = s.pet ?? null;
     this.activeMountId = s.mountId ?? null;
     this.activeCostumeId = s.costumeId ?? null;
+    this.lifeSkillLevels = {};
+    this.lifeSkillExp = {};
+    for (const ls of s.lifeSkills ?? []) {
+      this.lifeSkillLevels[ls.id] = ls.level;
+      this.lifeSkillExp[ls.id] = ls.exp;
+    }
     this.buffs = [];
     this.foodBuffs = [];
     this.learnJobSkills();
@@ -731,6 +792,10 @@ export class Player {
       pet: this.activePet,
       mountId: this.activeMountId,
       costumeId: this.activeCostumeId,
+      lifeSkills: LIFE_SKILLS.map((id) => {
+        const level = this.lifeSkillLevel(id);
+        return { id, level, exp: this.lifeSkillExp[id] ?? 0, expToNext: lifeSkillXpToNext(level) };
+      }),
       mapId: this.mapId,
       x: round2(this.x),
       z: round2(this.z),
