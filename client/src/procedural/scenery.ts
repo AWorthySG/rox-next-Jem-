@@ -63,6 +63,7 @@ const DEFAULT: Theme = { trunk: 0x6b4a2b, foliage: [0x3f8f3a, 0x4fa044, 0x357a30
 
 const THEMES: Record<string, Partial<Theme>> = {
   field: {},
+  celestial_spire: { trunk: 0x4a3a6a, foliage: [0x8a6ae0], rock: 0x5a4a7a, tree: "crystal", trees: 14, rocks: 46, tufts: 0, tuft: 0x6a4faa },
   payon: { foliage: [0x357a30, 0x2f6b2c, 0x46913f], tree: "pine", trees: 80 },
   cave: { trunk: 0x4a3a2b, foliage: [0x2c3a22], rock: 0x5b5e66, tree: "dead", trees: 26, rocks: 70, tufts: 40, tuft: 0x3a5a30 },
   glast_heim: { trunk: 0x3a3030, foliage: [0x2a3326], rock: 0x6a6d76, tree: "dead", trees: 34, rocks: 64, tufts: 30, tuft: 0x40503a },
@@ -4817,6 +4818,52 @@ export function buildScenery(mapId: string): Scenery {
     bridge.position.set(-9, 0, 0);
     bridge.rotation.y = Math.PI / 2;
     group.add(bridge);
+  }
+
+  // ---- Celestial Spire monument: the finale arena's namesake — a towering
+  // astral obelisk with a pulsing crystal apex and orbiting motes, standing
+  // between the spawn plaza and the boss zones beyond ----
+  if (mapId === "celestial_spire") {
+    const spireBase = new THREE.MeshStandardMaterial({ color: 0x4a3a6a, roughness: 0.6, metalness: 0.4 });
+    mats.push(spireBase);
+    const [baseGeo3] = track(new THREE.CylinderGeometry(2.2, 2.6, 1.2, 8), spireBase);
+    const [shaftGeo] = track(new THREE.CylinderGeometry(0.5, 1.4, 10, 8), spireBase);
+    const [apexGeo, apexMat] = track(
+      new THREE.OctahedronGeometry(1.1, 0),
+      new THREE.MeshBasicMaterial({ color: 0x8a6ae0, transparent: true, opacity: 0.9 }),
+    );
+    nightLights.push({ mat: apexMat, day: new THREE.Color(0x8a6ae0).multiplyScalar(0.65), night: new THREE.Color(0xc0a0ff) });
+    const [moteGeo, moteMat] = track(new THREE.OctahedronGeometry(0.22, 0), new THREE.MeshBasicMaterial({ color: 0xb090f0 }));
+    const spire = new THREE.Group();
+    const base3 = new THREE.Mesh(baseGeo3, spireBase);
+    base3.position.y = 0.6;
+    base3.castShadow = true;
+    spire.add(base3);
+    const shaft = new THREE.Mesh(shaftGeo, spireBase);
+    shaft.position.y = 6.2;
+    shaft.castShadow = true;
+    spire.add(shaft);
+    const apex = new THREE.Mesh(apexGeo, apexMat);
+    apex.position.y = 12.3;
+    spire.add(apex);
+    spinners.push({ obj: apex, speed: 0.5 });
+    spire.position.set(0, 0, 12);
+    group.add(spire);
+    // astral motes orbit the shaft — added to the top-level group since
+    // orbiters positions itself in world space, matching the spire's placement
+    for (let i = 0; i < 6; i++) {
+      const mote = new THREE.Mesh(moteGeo, moteMat);
+      group.add(mote);
+      orbiters.push({
+        sprite: mote as unknown as THREE.Sprite,
+        cx: 0,
+        cz: 12,
+        y: 4 + (i / 6) * 8,
+        r: 2.2 + rng() * 1.0,
+        speed: 0.35 + rng() * 0.25,
+        phase: (i / 6) * Math.PI * 2,
+      });
+    }
   }
 
   // ---- Aldebaran clock tower: the town's landmark — a tall stone tower with
