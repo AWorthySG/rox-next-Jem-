@@ -94,6 +94,14 @@ export enum JobId {
   ArchMage = "arch_mage",
   Windhawk = "windhawk",
   Cardinal = "cardinal",
+  Thief = "thief",
+  Merchant = "merchant",
+  Assassin = "assassin",
+  Blacksmith = "blacksmith",
+  GuillotineCross = "guillotine_cross",
+  Whitesmith = "whitesmith",
+  ShadowCross = "shadow_cross",
+  Mechanic = "mechanic",
 }
 
 export enum DamageKind {

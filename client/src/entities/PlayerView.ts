@@ -50,7 +50,8 @@ export class PlayerView extends EntityView {
     this.nameplateEl.classList.add("player");
     const magic = entity.job ? isMagicJob(entity.job) : false;
     const fam = entity.job ? jobFamilyOf(entity.job) : null;
-    const weapon: WeaponStyle = fam === "mage" ? "staff" : fam === "archer" ? "bow" : fam === "acolyte" ? "mace" : "blade";
+    const weapon: WeaponStyle =
+      fam === "mage" ? "staff" : fam === "archer" ? "bow" : fam === "acolyte" || fam === "merchant" ? "mace" : "blade";
     this.char = buildCharacter(entity.colorSeed ?? 0, magic, weapon, entity.job ? jobTierOf(entity.job) : 0);
     this.char.group.userData.entityId = entity.id;
     applyHeadgear(this.char, entity.headgear);

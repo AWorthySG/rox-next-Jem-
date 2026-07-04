@@ -18,6 +18,8 @@ const VALID_JOBS = new Set<string>([
   JobId.Mage,
   JobId.Archer,
   JobId.Acolyte,
+  JobId.Thief,
+  JobId.Merchant,
 ]);
 
 // Applies a decoded client message to the world for a given client link. Shared

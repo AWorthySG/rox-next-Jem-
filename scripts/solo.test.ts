@@ -145,6 +145,41 @@ async function main(): Promise<void> {
   check(jobTierOf(JobId.RuneKnight) === 3, "tier: Rune Knight is tier 3");
   check(jobTierOf(JobId.Cardinal) === 4, "tier: Cardinal is tier 4");
 
+  // ---- Thief line: Thief -> Assassin -> Guillotine Cross -> Shadow Cross ----
+  const rogue = new Player(963, 1, "Rogue", JobId.Thief, 0, 0);
+  check(rogue.skillLevel("envenom") === 1, "classes: Thief knows Envenom");
+  rogue.level = 25;
+  check(rogue.advanceJob(JobId.Assassin) && rogue.job === JobId.Assassin, "classes: Thief advances to Assassin");
+  check(rogue.skillLevel("sonic_blow") === 1, "classes: Assassin learns Sonic Blow");
+  rogue.level = 45;
+  check(rogue.advanceJob(JobId.GuillotineCross) && rogue.job === JobId.GuillotineCross, "3rd job: Assassin -> Guillotine Cross at Lv45");
+  check(rogue.skillLevel("cross_impact") === 1, "3rd job: Guillotine Cross learns Cross Impact");
+  rogue.level = 70;
+  check(rogue.advanceJob(JobId.ShadowCross) && rogue.job === JobId.ShadowCross, "4th job: Guillotine Cross -> Shadow Cross at Lv70");
+  check(rogue.skillLevel("soul_breaker") === 1, "4th job: Shadow Cross learns Soul Breaker");
+  check(jobTierOf(JobId.ShadowCross) === 4, "tier: Shadow Cross is tier 4");
+
+  // ---- Merchant line: Merchant -> Blacksmith -> Whitesmith -> Mechanic ----
+  const trader = new Player(962, 1, "Trader", JobId.Merchant, 0, 0);
+  check(trader.skillLevel("mammonite") === 1, "classes: Merchant knows Mammonite");
+  trader.level = 25;
+  check(trader.advanceJob(JobId.Blacksmith) && trader.job === JobId.Blacksmith, "classes: Merchant advances to Blacksmith");
+  check(trader.skillLevel("cart_revolution") === 1, "classes: Blacksmith learns Cart Revolution");
+  trader.level = 45;
+  check(trader.advanceJob(JobId.Whitesmith) && trader.job === JobId.Whitesmith, "3rd job: Blacksmith -> Whitesmith at Lv45");
+  check(trader.skillLevel("meltdown") === 1, "3rd job: Whitesmith learns Meltdown");
+  trader.level = 70;
+  check(trader.advanceJob(JobId.Mechanic) && trader.job === JobId.Mechanic, "4th job: Whitesmith -> Mechanic at Lv70");
+  check(trader.skillLevel("axe_tornado") === 1, "4th job: Mechanic learns Axe Tornado");
+  check(jobTierOf(JobId.Mechanic) === 4, "tier: Mechanic is tier 4");
+
+  // ---- new class gear fits its own family only ----
+  check(itemEquippableBy(getItem("nightblade")!, JobId.Thief), "class: dagger gear fits a Thief");
+  check(itemEquippableBy(getItem("nightblade")!, JobId.ShadowCross), "class: dagger gear fits Shadow Cross");
+  check(!itemEquippableBy(getItem("nightblade")!, JobId.Merchant), "class: a Merchant cannot use dagger gear");
+  check(itemEquippableBy(getItem("golden_axe")!, JobId.Mechanic), "class: axe gear fits a Mechanic");
+  check(!itemEquippableBy(getItem("golden_axe")!, JobId.Thief), "class: a Thief cannot use axe gear");
+
   // ---- every combat map has at least two bosses ----
   for (const m of Object.values(MAPS)) {
     if (m.zones.length === 0) continue; // PvP arena (no monster zones)

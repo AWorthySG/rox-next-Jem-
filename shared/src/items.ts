@@ -734,6 +734,50 @@ export const ITEMS: Record<string, ItemDef> = {
     maxSp: 70, bonusStats: { int: 8, vit: 6 }, price: 30000, sellPrice: 10000,
   },
 
+  // ---- Thief line (AGI/DEX/LUK, crit-focused melee) ----
+  nightblade: {
+    id: "nightblade", name: "Nightblade", type: ItemType.Weapon, slot: EquipSlot.Weapon, tier: 4,
+    jobs: fam("thief"), desc: "A whisper-quiet dagger. ATK +128, AGI +10, LUK +8.",
+    atk: 128, bonusStats: { agi: 10, luk: 8 }, price: 52000, sellPrice: 18000,
+  },
+  rogues_leathers: {
+    id: "rogues_leathers", name: "Rogue's Leathers", type: ItemType.Armor, slot: EquipSlot.Armor, tier: 4,
+    jobs: fam("thief"), desc: "Supple, silent armor. DEF +32, Max HP +360, AGI +8.",
+    def: 32, maxHp: 360, bonusStats: { agi: 8 }, price: 48000, sellPrice: 16000,
+  },
+  assassins_cowl: {
+    id: "assassins_cowl", name: "Assassin's Cowl", type: ItemType.Headgear, slot: EquipSlot.Headgear, tier: 4,
+    jobs: fam("thief"), desc: "A shadow-lined cowl. DEF +10, DEX +8, LUK +6.",
+    def: 10, bonusStats: { dex: 8, luk: 6 }, price: 30000, sellPrice: 10000,
+  },
+  poisoners_ring: {
+    id: "poisoners_ring", name: "Poisoner's Ring", type: ItemType.Accessory, slot: EquipSlot.Accessory, tier: 4,
+    jobs: fam("thief"), desc: "A ring set with a hidden needle. AGI +8, LUK +8.",
+    bonusStats: { agi: 8, luk: 8 }, price: 30000, sellPrice: 10000,
+  },
+
+  // ---- Merchant line (STR/VIT, cart-and-mace bruiser) ----
+  golden_axe: {
+    id: "golden_axe", name: "Golden Axe", type: ItemType.Weapon, slot: EquipSlot.Weapon, tier: 4,
+    jobs: fam("merchant"), desc: "A zeny-forged axe. ATK +130, STR +12, VIT +4.",
+    atk: 130, bonusStats: { str: 12, vit: 4 }, price: 52000, sellPrice: 18000,
+  },
+  merchants_cuirass: {
+    id: "merchants_cuirass", name: "Merchant's Cuirass", type: ItemType.Armor, slot: EquipSlot.Armor, tier: 4,
+    jobs: fam("merchant"), desc: "Reinforced trade armor. DEF +40, Max HP +420, VIT +8.",
+    def: 40, maxHp: 420, bonusStats: { vit: 8 }, price: 48000, sellPrice: 16000,
+  },
+  cart_drivers_cap: {
+    id: "cart_drivers_cap", name: "Cart Driver's Cap", type: ItemType.Headgear, slot: EquipSlot.Headgear, tier: 4,
+    jobs: fam("merchant"), desc: "A well-worn driving cap. DEF +12, Max HP +160, STR +6.",
+    def: 12, maxHp: 160, bonusStats: { str: 6 }, price: 30000, sellPrice: 10000,
+  },
+  zeny_pouch: {
+    id: "zeny_pouch", name: "Zeny Pouch", type: ItemType.Accessory, slot: EquipSlot.Accessory, tier: 4,
+    jobs: fam("merchant"), desc: "A heavy coin pouch. Max HP +180, STR +6, VIT +6.",
+    maxHp: 180, bonusStats: { str: 6, vit: 6 }, price: 30000, sellPrice: 10000,
+  },
+
   // ---- Mount Faber (Singapore) gear ----
   summit_lance: {
     id: "summit_lance", name: "Summit Lance", type: ItemType.Weapon, slot: EquipSlot.Weapon,
@@ -1387,6 +1431,8 @@ export const SHOP_STOCK: string[] = [
   "archmage_rod", "arcane_robe", "arcane_circlet", "mana_orb",
   "ranger_longbow", "ranger_vest", "ranger_hood", "hawk_eye_charm",
   "saints_mace", "cleric_robe", "cleric_hood", "blessing_rosary",
+  "nightblade", "rogues_leathers", "assassins_cowl", "poisoners_ring",
+  "golden_axe", "merchants_cuirass", "cart_drivers_cap", "zeny_pouch",
   "oridecon",
   "elunium",
   "poring_egg",
