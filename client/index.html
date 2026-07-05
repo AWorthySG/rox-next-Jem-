@@ -38,6 +38,12 @@
             <button class="job-btn" data-job="acolyte">
               <strong>Acolyte</strong><em>Holy · INT/VIT</em>
             </button>
+            <button class="job-btn" data-job="thief">
+              <strong>Thief</strong><em>Crit strikes · AGI/DEX</em>
+            </button>
+            <button class="job-btn" data-job="merchant">
+              <strong>Merchant</strong><em>Bruiser · STR/VIT</em>
+            </button>
           </div>
         </div>
         <button id="enter-btn" class="enter-btn">Enter World</button>
@@ -125,6 +131,7 @@
       </div>
 
       <div class="invite-prompt hidden" id="invite-prompt"></div>
+      <div class="duel-hud hidden" id="duel-hud"></div>
 
       <canvas class="minimap" id="minimap" width="156" height="156"></canvas>
 
@@ -191,6 +198,15 @@
           <div class="shop-col"><h4>Buy</h4><div class="shop-list" id="shop-buy-list"></div></div>
           <div class="shop-col"><h4>Sell</h4><div class="shop-list" id="shop-sell-list"></div></div>
         </div>
+      </div>
+
+      <div class="crafting hidden" id="crafting">
+        <div class="inv-header">
+          <span>Cooking</span>
+          <button class="inv-close" id="crafting-close">✕</button>
+        </div>
+        <div class="life-skill-levels" id="crafting-levels"></div>
+        <div class="craft-list" id="crafting-list"></div>
       </div>
 
       <div class="exchange hidden" id="exchange">

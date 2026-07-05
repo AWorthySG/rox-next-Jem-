@@ -29,10 +29,14 @@ import {
   TIER_NAME,
   LEVEL_CAP,
   xpToNext,
+  guildXpToNext,
+  GATHER_COOLDOWN_MS,
+  lifeSkillXpToNext,
+  rollGather,
   type DerivedStats,
   type ServerMessage,
 } from "@rox/shared";
-import { ExchangeSystem, MAPS, Monster, MONSTER_TEMPLATES, Player } from "@rox/engine";
+import { ExchangeSystem, MAPS, Monster, MONSTER_TEMPLATES, Player, World } from "@rox/engine";
 import { LocalServer } from "../client/src/net/LocalServer.js";
 import { lodTier, labelVisible } from "../client/src/entities/lod.js";
 
@@ -144,6 +148,41 @@ async function main(): Promise<void> {
   check(jobTierOf(JobId.Swordsman) === 1, "tier: Swordsman is tier 1");
   check(jobTierOf(JobId.RuneKnight) === 3, "tier: Rune Knight is tier 3");
   check(jobTierOf(JobId.Cardinal) === 4, "tier: Cardinal is tier 4");
+
+  // ---- Thief line: Thief -> Assassin -> Guillotine Cross -> Shadow Cross ----
+  const rogue = new Player(963, 1, "Rogue", JobId.Thief, 0, 0);
+  check(rogue.skillLevel("envenom") === 1, "classes: Thief knows Envenom");
+  rogue.level = 25;
+  check(rogue.advanceJob(JobId.Assassin) && rogue.job === JobId.Assassin, "classes: Thief advances to Assassin");
+  check(rogue.skillLevel("sonic_blow") === 1, "classes: Assassin learns Sonic Blow");
+  rogue.level = 45;
+  check(rogue.advanceJob(JobId.GuillotineCross) && rogue.job === JobId.GuillotineCross, "3rd job: Assassin -> Guillotine Cross at Lv45");
+  check(rogue.skillLevel("cross_impact") === 1, "3rd job: Guillotine Cross learns Cross Impact");
+  rogue.level = 70;
+  check(rogue.advanceJob(JobId.ShadowCross) && rogue.job === JobId.ShadowCross, "4th job: Guillotine Cross -> Shadow Cross at Lv70");
+  check(rogue.skillLevel("soul_breaker") === 1, "4th job: Shadow Cross learns Soul Breaker");
+  check(jobTierOf(JobId.ShadowCross) === 4, "tier: Shadow Cross is tier 4");
+
+  // ---- Merchant line: Merchant -> Blacksmith -> Whitesmith -> Mechanic ----
+  const trader = new Player(962, 1, "Trader", JobId.Merchant, 0, 0);
+  check(trader.skillLevel("mammonite") === 1, "classes: Merchant knows Mammonite");
+  trader.level = 25;
+  check(trader.advanceJob(JobId.Blacksmith) && trader.job === JobId.Blacksmith, "classes: Merchant advances to Blacksmith");
+  check(trader.skillLevel("cart_revolution") === 1, "classes: Blacksmith learns Cart Revolution");
+  trader.level = 45;
+  check(trader.advanceJob(JobId.Whitesmith) && trader.job === JobId.Whitesmith, "3rd job: Blacksmith -> Whitesmith at Lv45");
+  check(trader.skillLevel("meltdown") === 1, "3rd job: Whitesmith learns Meltdown");
+  trader.level = 70;
+  check(trader.advanceJob(JobId.Mechanic) && trader.job === JobId.Mechanic, "4th job: Whitesmith -> Mechanic at Lv70");
+  check(trader.skillLevel("axe_tornado") === 1, "4th job: Mechanic learns Axe Tornado");
+  check(jobTierOf(JobId.Mechanic) === 4, "tier: Mechanic is tier 4");
+
+  // ---- new class gear fits its own family only ----
+  check(itemEquippableBy(getItem("nightblade")!, JobId.Thief), "class: dagger gear fits a Thief");
+  check(itemEquippableBy(getItem("nightblade")!, JobId.ShadowCross), "class: dagger gear fits Shadow Cross");
+  check(!itemEquippableBy(getItem("nightblade")!, JobId.Merchant), "class: a Merchant cannot use dagger gear");
+  check(itemEquippableBy(getItem("golden_axe")!, JobId.Mechanic), "class: axe gear fits a Mechanic");
+  check(!itemEquippableBy(getItem("golden_axe")!, JobId.Thief), "class: a Thief cannot use axe gear");
 
   // ---- every combat map has at least two bosses ----
   for (const m of Object.values(MAPS)) {
@@ -451,9 +490,125 @@ async function main(): Promise<void> {
   // ---- deterministic mount (reusable whistle toggles) ----
   const rider = new Player(985, 1, "Rider", JobId.Swordsman, 0, 0);
   rider.addItem("peco_whistle", 1);
-  check(rider.useItem("peco_whistle") && rider.mounted, "mount: whistle mounts the rider");
+  check(rider.useItem("peco_whistle") && rider.activeMountId === "peco", "mount: whistle mounts the rider on Peco Peco");
   check((rider.inventory["peco_whistle"] ?? 0) === 1, "mount: whistle is reusable (not consumed)");
-  check(rider.useItem("peco_whistle") && !rider.mounted, "mount: whistle toggles dismount");
+  check(rider.useItem("peco_whistle") && rider.activeMountId === null, "mount: whistle toggles dismount");
+
+  // ---- mount collection: distinct mounts, stat bonus, direct switching ----
+  const baseAgi = rider.stats.agi;
+  rider.addItem("dune_wolf_whistle", 1);
+  check(rider.useItem("dune_wolf_whistle") && rider.activeMountId === "dune_wolf", "mount: Dune Wolf whistle mounts a different mount");
+  check(rider.derived.atk > 0 && rider.stats.agi === baseAgi, "mount: Dune Wolf's AGI bonus is derived-only");
+  rider.addItem("baby_dragon_whistle", 1);
+  check(rider.useItem("baby_dragon_whistle") && rider.activeMountId === "baby_dragon", "mount: summoning a different mount switches directly");
+  check(rider.useItem("baby_dragon_whistle") && rider.activeMountId === null, "mount: re-using the active mount's whistle dismounts");
+
+  // ---- costumes: purely cosmetic, no stat effect ----
+  const dresser = new Player(964, 1, "Dresser", JobId.Mage, 0, 0);
+  const baseAtkD = dresser.derived.atk;
+  const baseStatsD = { ...dresser.stats };
+  dresser.addItem("crimson_duelist_ticket", 1);
+  check(dresser.useItem("crimson_duelist_ticket") && dresser.activeCostumeId === "crimson_duelist", "costume: ticket wears the outfit");
+  check((dresser.inventory["crimson_duelist_ticket"] ?? 0) === 1, "costume: ticket is reusable (not consumed)");
+  check(dresser.derived.atk === baseAtkD, "costume: no effect on derived stats");
+  check(JSON.stringify(dresser.stats) === JSON.stringify(baseStatsD), "costume: no effect on base stats");
+  dresser.addItem("azure_mystic_ticket", 1);
+  check(dresser.useItem("azure_mystic_ticket") && dresser.activeCostumeId === "azure_mystic", "costume: wearing a different outfit switches directly");
+  check(dresser.useItem("azure_mystic_ticket") && dresser.activeCostumeId === null, "costume: re-using the worn outfit's ticket removes it");
+  check(dresser.toSelfState().costumeId === null, "costume: surfaced in self state");
+
+  // ---- guild depth: leveling (EXP bonus) + shared storage ----
+  const guildWorld = new World();
+  const master = new Player(958, 1, "Master", JobId.Swordsman, 0, 0);
+  const recruit = new Player(957, 1, "Recruit", JobId.Swordsman, 0, 0);
+  guildWorld.players.set(master.id, master);
+  guildWorld.players.set(recruit.id, recruit);
+  guildWorld.guild.create(master, "Testament");
+  guildWorld.guild.join(recruit, "Testament");
+  check(master.guildId != null && master.guildId === recruit.guildId, "guild: master and recruit share a guild");
+  check(guildWorld.guild.expMultiplier(master.guildId) === 1, "guild: no EXP bonus at level 1");
+  guildWorld.guild.addExp(master.guildId, guildXpToNext(1));
+  check(guildWorld.guild.expMultiplier(master.guildId) > 1, "guild: leveling up grants an EXP bonus");
+  check(guildWorld.guild.expMultiplier(recruit.guildId) === guildWorld.guild.expMultiplier(master.guildId), "guild: the EXP bonus applies to every member");
+
+  master.addItem("red_potion", 3);
+  check(guildWorld.guild.storeItem(master, "red_potion", 2), "guild storage: member deposits an item");
+  check(master.countItem("red_potion") === 1, "guild storage: deposited items leave the member's bag");
+  check(!guildWorld.guild.retrieveItem(recruit, "red_potion", 3), "guild storage: cannot withdraw more than is banked");
+  check(guildWorld.guild.retrieveItem(recruit, "red_potion", 2), "guild storage: a different member withdraws the shared item");
+  check(recruit.countItem("red_potion") === 2, "guild storage: withdrawn items land in the withdrawer's own bag");
+  check(!guildWorld.guild.storeItem(master, "red_potion", 5), "guild storage: cannot deposit more than the member owns");
+
+  // ---- structured PvP: duel requests ----
+  const duelWorld = new World();
+  const challenger = new Player(951, 1, "Challenger", JobId.Swordsman, 0, 0);
+  const defender = new Player(950, 1, "Defender", JobId.Swordsman, 0, 0);
+  const distant = new Player(949, 1, "Distant", JobId.Mage, 0, 0);
+  distant.mapId = "geffen";
+  duelWorld.players.set(challenger.id, challenger);
+  duelWorld.players.set(defender.id, defender);
+  duelWorld.players.set(distant.id, distant);
+
+  check(duelWorld.duel.opponentOf(challenger.id) === null, "duel: no opponent before any request");
+  duelWorld.duel.request(challenger, distant.id);
+  duelWorld.duel.accept(distant, challenger.id);
+  check(duelWorld.duel.opponentOf(challenger.id) === null, "duel: cannot duel a player on a different map");
+
+  duelWorld.duel.request(challenger, defender.id);
+  duelWorld.duel.accept(defender, challenger.id);
+  check(duelWorld.duel.opponentOf(challenger.id) === defender.id, "duel: accepting pairs the challenger with the defender");
+  check(duelWorld.duel.opponentOf(defender.id) === challenger.id, "duel: the pairing is mutual");
+
+  duelWorld.duel.request(challenger, distant.id); // already dueling — should be ignored
+  check(duelWorld.duel.opponentOf(distant.id) === null, "duel: an active duelist cannot also challenge a third player");
+
+  duelWorld.duel.leave(challenger); // forfeit
+  check(duelWorld.duel.opponentOf(challenger.id) === null, "duel: forfeiting clears the challenger's own state");
+  check(duelWorld.duel.opponentOf(defender.id) === null, "duel: forfeiting also clears the opponent's state");
+
+  const decliner = new Player(948, 1, "Decliner", JobId.Swordsman, 0, 0);
+  duelWorld.players.set(decliner.id, decliner);
+  duelWorld.duel.request(defender, decliner.id);
+  duelWorld.duel.decline(decliner, defender.id);
+  duelWorld.duel.accept(decliner, defender.id); // the request was declined — accepting late should fail
+  check(duelWorld.duel.opponentOf(defender.id) === null, "duel: a declined request cannot later be accepted");
+
+  duelWorld.duel.request(defender, decliner.id);
+  duelWorld.duel.accept(decliner, defender.id);
+  check(duelWorld.duel.opponentOf(defender.id) === decliner.id, "duel: a fresh request after a decline succeeds normally");
+
+  // ---- life skills: gathering yield tables ----
+  check(rollGather("fishing", 1, () => 0) === "sardine", "gather: lowest-level roll picks the common yield");
+  check(rollGather("fishing", 1, () => 0.999) === "sardine", "gather: only the unlocked yield can appear below its tier's level");
+  check(rollGather("fishing", 5, () => 0.999) === "tuna", "gather: leveling up unlocks a rarer yield");
+  check(rollGather("fishing", 20, () => 0.999) === "golden_carp", "gather: high level + high roll reaches the rarest yield");
+  check(isFinite(lifeSkillXpToNext(1)) && lifeSkillXpToNext(1) > 0, "gather: EXP-to-next is a positive number below the cap");
+  check(!isFinite(lifeSkillXpToNext(30)), "gather: no EXP needed once a life skill is maxed");
+
+  // ---- life skills: Player.gather() cooldown, leveling, yields ----
+  const gatherer = new Player(947, 1, "Gatherer", JobId.Merchant, 0, 0);
+  check(gatherer.lifeSkillLevel("gardening") === 1, "gather: a fresh player starts every life skill at level 1");
+  const firstGather = gatherer.gather("gardening", () => 0);
+  check(firstGather?.itemId === "turnip" && gatherer.countItem("turnip") === 1, "gather: a successful gather adds the rolled item to the bag");
+  check(gatherer.gather("gardening", () => 0) === null, "gather: gathering again immediately is blocked by the shared cooldown");
+  let gathers = 1;
+  while (gatherer.lifeSkillLevel("gardening") === 1 && gathers < 20) {
+    gatherer.lastGatherAt = 0; // bypass the real-time cooldown for a fast, deterministic test
+    gatherer.gather("gardening", () => 0);
+    gathers++;
+  }
+  check(gatherer.lifeSkillLevel("gardening") === 2, "gather: enough successful gathers level up the life skill");
+  check(gatherer.toSelfState().lifeSkills.find((s) => s.id === "gardening")?.level === 2, "gather: life skill level is surfaced in self state");
+
+  // ---- life skills: crafting ----
+  const cook = new Player(946, 1, "Cook", JobId.Merchant, 0, 0);
+  cook.addItem("sardine", 3);
+  const crafted = cook.craft("grilled_sardine_recipe");
+  check(crafted?.itemId === "grilled_sardine" && cook.countItem("grilled_sardine") === 1, "craft: a fulfilled recipe consumes inputs and grants the output");
+  check(cook.countItem("sardine") === 0, "craft: recipe inputs are fully consumed");
+  check(cook.craft("grilled_sardine_recipe") === null, "craft: cannot craft again without enough ingredients");
+  check(cook.countItem("grilled_sardine") === 1, "craft: a failed craft attempt doesn't partially consume anything");
+  check(cook.craft("not_a_real_recipe") === null, "craft: an unknown recipe id fails cleanly");
 
   // ---- day/night + weather environment ----
   check(daylight(0.5) > 0.9, "env: noon is bright");

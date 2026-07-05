@@ -60,6 +60,14 @@ export const JOB_BASE_STATS: Record<JobId, Stats> = {
   [JobId.ArchMage]: makeStats({ str: 12, agi: 26, vit: 30, int: 62, dex: 44, luk: 24 }),
   [JobId.Windhawk]: makeStats({ str: 26, agi: 52, vit: 26, int: 20, dex: 66, luk: 32 }),
   [JobId.Cardinal]: makeStats({ str: 26, agi: 34, vit: 40, int: 62, dex: 34, luk: 32 }),
+  [JobId.Thief]: makeStats({ str: 7, agi: 15, vit: 7, int: 3, dex: 11, luk: 10 }),
+  [JobId.Merchant]: makeStats({ str: 11, agi: 5, vit: 10, int: 6, dex: 9, luk: 5 }),
+  [JobId.Assassin]: makeStats({ str: 13, agi: 28, vit: 13, int: 5, dex: 20, luk: 18 }),
+  [JobId.Blacksmith]: makeStats({ str: 19, agi: 9, vit: 18, int: 9, dex: 15, luk: 8 }),
+  [JobId.GuillotineCross]: makeStats({ str: 20, agi: 44, vit: 20, int: 8, dex: 32, luk: 26 }),
+  [JobId.Whitesmith]: makeStats({ str: 36, agi: 16, vit: 32, int: 15, dex: 26, luk: 14 }),
+  [JobId.ShadowCross]: makeStats({ str: 30, agi: 64, vit: 30, int: 12, dex: 48, luk: 38 }),
+  [JobId.Mechanic]: makeStats({ str: 56, agi: 24, vit: 48, int: 20, dex: 38, luk: 20 }),
 };
 
 // On each level-up a job gains a weighted bundle of stat points (auto-allocated
@@ -82,6 +90,14 @@ export const JOB_GROWTH: Record<JobId, Stats> = {
   [JobId.ArchMage]: makeStats({ str: 1, agi: 4, vit: 4, int: 6, dex: 5, luk: 3 }),
   [JobId.Windhawk]: makeStats({ str: 3, agi: 5, vit: 3, int: 2, dex: 6, luk: 4 }),
   [JobId.Cardinal]: makeStats({ str: 2, agi: 4, vit: 5, int: 6, dex: 4, luk: 4 }),
+  [JobId.Thief]: makeStats({ str: 1, agi: 2, vit: 1, int: 0, dex: 2, luk: 1 }),
+  [JobId.Merchant]: makeStats({ str: 2, agi: 1, vit: 2, int: 1, dex: 1, luk: 0 }),
+  [JobId.Assassin]: makeStats({ str: 2, agi: 3, vit: 2, int: 1, dex: 3, luk: 2 }),
+  [JobId.Blacksmith]: makeStats({ str: 4, agi: 1, vit: 3, int: 1, dex: 2, luk: 1 }),
+  [JobId.GuillotineCross]: makeStats({ str: 3, agi: 5, vit: 3, int: 1, dex: 4, luk: 3 }),
+  [JobId.Whitesmith]: makeStats({ str: 6, agi: 2, vit: 5, int: 2, dex: 3, luk: 1 }),
+  [JobId.ShadowCross]: makeStats({ str: 4, agi: 6, vit: 4, int: 2, dex: 6, luk: 4 }),
+  [JobId.Mechanic]: makeStats({ str: 8, agi: 3, vit: 6, int: 2, dex: 4, luk: 2 }),
 };
 
 const MAGIC_JOBS = new Set<JobId>([

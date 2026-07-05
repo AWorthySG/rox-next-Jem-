@@ -206,11 +206,16 @@ function plant(app: MonsterAppearance): MonsterMesh {
 
 function rock(app: MonsterAppearance): MonsterMesh {
   const g = new THREE.Group();
-  const body = new THREE.Mesh(new THREE.IcosahedronGeometry(0.62, 0), new THREE.MeshToonMaterial({ color: app.main, gradientMap: makeToonGradient(), flatShading: true }));
+  const bodyMat = new THREE.MeshToonMaterial({ color: app.main, gradientMap: makeToonGradient() });
+  // MeshToonMaterial honors flatShading at runtime; this three.js version's types omit it
+  (bodyMat as unknown as { flatShading: boolean }).flatShading = true;
+  const body = new THREE.Mesh(new THREE.IcosahedronGeometry(0.62, 0), bodyMat);
   body.position.y = 0.6;
   g.add(body);
   for (let i = 0; i < 4; i++) {
-    const r = new THREE.Mesh(new THREE.IcosahedronGeometry(0.18 + Math.random() * 0.12, 0), new THREE.MeshToonMaterial({ color: app.accent, gradientMap: makeToonGradient(), flatShading: true }));
+    const rMat = new THREE.MeshToonMaterial({ color: app.accent, gradientMap: makeToonGradient() });
+    (rMat as unknown as { flatShading: boolean }).flatShading = true;
+    const r = new THREE.Mesh(new THREE.IcosahedronGeometry(0.18 + Math.random() * 0.12, 0), rMat);
     const a = (i / 4) * Math.PI * 2;
     r.position.set(Math.sin(a) * 0.5, 0.18, Math.cos(a) * 0.5);
     g.add(r);
@@ -380,7 +385,11 @@ function aquatic(app: MonsterAppearance): MonsterMesh {
 
 function golem(app: MonsterAppearance): MonsterMesh {
   const g = new THREE.Group();
-  const stone = () => new THREE.MeshToonMaterial({ color: app.main, gradientMap: makeToonGradient(), flatShading: true });
+  const stone = () => {
+    const m = new THREE.MeshToonMaterial({ color: app.main, gradientMap: makeToonGradient() });
+    (m as unknown as { flatShading: boolean }).flatShading = true;
+    return m;
+  };
   const torso = new THREE.Mesh(new THREE.BoxGeometry(0.85, 1.0, 0.6), stone());
   torso.position.y = 1.15;
   g.add(torso);

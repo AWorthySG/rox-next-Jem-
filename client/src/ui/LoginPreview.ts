@@ -9,6 +9,8 @@ const JOB_LOOK: Record<string, { hue: number; hat: string }> = {
   mage: { hue: 220, hat: "apprentice_circlet" },
   archer: { hue: 110, hat: "feather_beret" },
   acolyte: { hue: 48, hat: "gem_crown" },
+  thief: { hue: 280, hat: "feather_beret" },
+  merchant: { hue: 30, hat: "valkyrie_helm" },
 };
 
 // A small self-contained 3D scene shown on the login card: a slowly turning,
@@ -81,7 +83,8 @@ export class LoginPreview {
     }
     const look = JOB_LOOK[job] ?? JOB_LOOK.novice;
     const fam = jobFamilyOf(job);
-    const weapon: WeaponStyle = fam === "mage" ? "staff" : fam === "archer" ? "bow" : fam === "acolyte" ? "mace" : "blade";
+    const weapon: WeaponStyle =
+      fam === "mage" ? "staff" : fam === "archer" ? "bow" : fam === "acolyte" || fam === "merchant" ? "mace" : "blade";
     this.char = buildCharacter(look.hue, isMagicJob(job), weapon);
     applyHeadgear(this.char, look.hat);
     this.holder.add(this.char.group);

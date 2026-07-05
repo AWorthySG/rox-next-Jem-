@@ -1,7 +1,7 @@
 import type { EntityFull } from "@rox/shared";
-import { isMagicJob, jobFamilyOf, jobTierOf, MOUNT_SPEED_MULT, PLAYER_SPEED } from "@rox/shared";
+import { getCostume, getMount, isMagicJob, jobFamilyOf, jobTierOf, PLAYER_SPEED } from "@rox/shared";
 import * as THREE from "three";
-import { applyHeadgear, buildCharacter, setEyeBlink, type CharacterMesh, type WeaponStyle } from "../procedural/characterMesh.js";
+import { applyCostume, applyHeadgear, buildCharacter, setEyeBlink, type CharacterMesh, type WeaponStyle } from "../procedural/characterMesh.js";
 import { makeSpark } from "../procedural/textures.js";
 import { EntityView } from "./EntityView.js";
 import { ModelRig } from "./ModelRig.js";
@@ -20,6 +20,8 @@ export class PlayerView extends EntityView {
   private walkPhase = 0;
   private speedMul = 1;
   private mount: THREE.Object3D | null = null;
+  private mountId: string | null = null;
+  private costumeId: string | null = null;
   private bodyBaseY = 0;
   private headgearId: string | null = null;
   private swingT = 0; // attack-swing animation timer (1→0)
@@ -50,11 +52,14 @@ export class PlayerView extends EntityView {
     this.nameplateEl.classList.add("player");
     const magic = entity.job ? isMagicJob(entity.job) : false;
     const fam = entity.job ? jobFamilyOf(entity.job) : null;
-    const weapon: WeaponStyle = fam === "mage" ? "staff" : fam === "archer" ? "bow" : fam === "acolyte" ? "mace" : "blade";
+    const weapon: WeaponStyle =
+      fam === "mage" ? "staff" : fam === "archer" ? "bow" : fam === "acolyte" || fam === "merchant" ? "mace" : "blade";
     this.char = buildCharacter(entity.colorSeed ?? 0, magic, weapon, entity.job ? jobTierOf(entity.job) : 0);
     this.char.group.userData.entityId = entity.id;
     applyHeadgear(this.char, entity.headgear);
     this.headgearId = entity.headgear ?? null;
+    if (entity.mountId) this.setMount(entity.mountId);
+    if (entity.costumeId) this.setCostume(entity.costumeId);
     this.group.add(this.char.group);
 
     this.serverX = entity.x;
@@ -116,64 +121,155 @@ export class PlayerView extends EntityView {
     this.predTarget = { x, z };
   }
 
-  // Toggle the Peco Peco mount: a faster move speed + a big yellow bird under
-  // the rider (round body, craning neck, orange beak, tail feathers and legs).
-  setMounted(mounted: boolean): void {
-    this.speedMul = mounted ? MOUNT_SPEED_MULT : 1;
-    if (mounted && !this.mount) {
-      const bird = new THREE.Group();
-      const feather = new THREE.MeshLambertMaterial({ color: 0xf4c542 });
-      const featherDark = new THREE.MeshLambertMaterial({ color: 0xd9a52e });
-      const orange = new THREE.MeshLambertMaterial({ color: 0xe07a2a });
-
-      const body = new THREE.Mesh(new THREE.SphereGeometry(0.5, 14, 12), feather);
-      body.position.y = 0.55;
-      body.scale.set(0.9, 0.85, 1.15);
-      bird.add(body);
-      const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.18, 0.5, 8), feather);
-      neck.position.set(0, 0.95, 0.42);
-      neck.rotation.x = 0.35;
-      bird.add(neck);
-      const headM = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 10), feather);
-      headM.position.set(0, 1.2, 0.55);
-      bird.add(headM);
-      const beak = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.3, 8), orange);
-      beak.position.set(0, 1.18, 0.82);
-      beak.rotation.x = Math.PI / 2;
-      bird.add(beak);
-      for (const s of [-1, 1]) {
-        const eye = new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 8), new THREE.MeshBasicMaterial({ color: 0x241c2c }));
-        eye.position.set(s * 0.13, 1.26, 0.68);
-        bird.add(eye);
-        // folded wing
-        const wing = new THREE.Mesh(new THREE.SphereGeometry(0.3, 10, 8), featherDark);
-        wing.position.set(s * 0.42, 0.6, -0.05);
-        wing.scale.set(0.35, 0.6, 0.95);
-        bird.add(wing);
-        // stubby leg
-        const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 0.5, 6), orange);
-        leg.position.set(s * 0.2, 0.2, 0.05);
-        bird.add(leg);
-      }
-      // tail feathers
-      for (let i = -1; i <= 1; i++) {
-        const tail = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.5, 6), featherDark);
-        tail.position.set(i * 0.14, 0.72, -0.62);
-        tail.rotation.x = -2.2;
-        tail.rotation.z = i * 0.2;
-        bird.add(tail);
-      }
-      bird.traverse((o) => {
-        if (o instanceof THREE.Mesh) o.castShadow = true;
-      });
-      this.mount = bird;
-      this.char.group.add(bird);
-      this.bodyBaseY = 0.7; // sit the rider up
-    } else if (!mounted && this.mount) {
+  // Summon/dismiss a ridden mount by id (see mounts.ts). Each mount id gets its
+  // own distinct silhouette; switching mounts swaps the model directly.
+  setMount(mountId: string | null): void {
+    if (mountId === this.mountId) return;
+    this.mountId = mountId;
+    this.speedMul = getMount(mountId)?.speedMult ?? 1;
+    if (this.mount) {
       this.char.group.remove(this.mount);
       this.mount = null;
-      this.bodyBaseY = 0;
     }
+    if (!mountId) {
+      this.bodyBaseY = 0;
+      return;
+    }
+    const tint = getMount(mountId)?.tint ?? 0xf4c542;
+    const built =
+      mountId === "dune_wolf" ? this.buildDuneWolfMount(tint)
+      : mountId === "baby_dragon" ? this.buildBabyDragonMount(tint)
+      : this.buildPecoMount(tint, mountId === "grand_peco" ? 1.25 : 1);
+    built.mesh.traverse((o) => {
+      if (o instanceof THREE.Mesh) o.castShadow = true;
+    });
+    this.mount = built.mesh;
+    this.char.group.add(built.mesh);
+    this.bodyBaseY = built.riderY;
+  }
+
+  // A Peco Peco (or its bigger "Grand" variant, via `scale`): round body,
+  // craning neck, beak, folded wings, tail feathers and stubby legs.
+  private buildPecoMount(tint: number, scale: number): { mesh: THREE.Object3D; riderY: number } {
+    const bird = new THREE.Group();
+    const feather = new THREE.MeshLambertMaterial({ color: tint });
+    const featherDark = new THREE.MeshLambertMaterial({ color: new THREE.Color(tint).multiplyScalar(0.82) });
+    const orange = new THREE.MeshLambertMaterial({ color: 0xe07a2a });
+
+    const body = new THREE.Mesh(new THREE.SphereGeometry(0.5, 14, 12), feather);
+    body.position.y = 0.55;
+    body.scale.set(0.9, 0.85, 1.15);
+    bird.add(body);
+    const neck = new THREE.Mesh(new THREE.CylinderGeometry(0.13, 0.18, 0.5, 8), feather);
+    neck.position.set(0, 0.95, 0.42);
+    neck.rotation.x = 0.35;
+    bird.add(neck);
+    const headM = new THREE.Mesh(new THREE.SphereGeometry(0.22, 12, 10), feather);
+    headM.position.set(0, 1.2, 0.55);
+    bird.add(headM);
+    const beak = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.3, 8), orange);
+    beak.position.set(0, 1.18, 0.82);
+    beak.rotation.x = Math.PI / 2;
+    bird.add(beak);
+    for (const s of [-1, 1]) {
+      const eye = new THREE.Mesh(new THREE.SphereGeometry(0.045, 8, 8), new THREE.MeshBasicMaterial({ color: 0x241c2c }));
+      eye.position.set(s * 0.13, 1.26, 0.68);
+      bird.add(eye);
+      const wing = new THREE.Mesh(new THREE.SphereGeometry(0.3, 10, 8), featherDark);
+      wing.position.set(s * 0.42, 0.6, -0.05);
+      wing.scale.set(0.35, 0.6, 0.95);
+      bird.add(wing);
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.05, 0.06, 0.5, 6), orange);
+      leg.position.set(s * 0.2, 0.2, 0.05);
+      bird.add(leg);
+    }
+    for (let i = -1; i <= 1; i++) {
+      const tail = new THREE.Mesh(new THREE.ConeGeometry(0.09, 0.5, 6), featherDark);
+      tail.position.set(i * 0.14, 0.72, -0.62);
+      tail.rotation.x = -2.2;
+      tail.rotation.z = i * 0.2;
+      bird.add(tail);
+    }
+    bird.scale.setScalar(scale);
+    return { mesh: bird, riderY: 0.7 * scale };
+  }
+
+  // A Dune Wolf: a low, lean quadruped with pricked ears and a bushy tail.
+  private buildDuneWolfMount(tint: number): { mesh: THREE.Object3D; riderY: number } {
+    const wolf = new THREE.Group();
+    const fur = new THREE.MeshLambertMaterial({ color: tint });
+    const furDark = new THREE.MeshLambertMaterial({ color: new THREE.Color(tint).multiplyScalar(0.7) });
+
+    const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.28, 0.7, 4, 8), fur);
+    torso.rotation.z = Math.PI / 2;
+    torso.position.y = 0.42;
+    wolf.add(torso);
+    const head = new THREE.Mesh(new THREE.SphereGeometry(0.2, 10, 8), fur);
+    head.position.set(0, 0.56, 0.55);
+    wolf.add(head);
+    const snout = new THREE.Mesh(new THREE.ConeGeometry(0.1, 0.32, 8), furDark);
+    snout.position.set(0, 0.5, 0.78);
+    snout.rotation.x = Math.PI / 2;
+    wolf.add(snout);
+    for (const s of [-1, 1]) {
+      const ear = new THREE.Mesh(new THREE.ConeGeometry(0.08, 0.2, 6), furDark);
+      ear.position.set(s * 0.11, 0.72, 0.5);
+      wolf.add(ear);
+      const legF = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.07, 0.42, 6), fur);
+      legF.position.set(s * 0.18, 0.21, 0.3);
+      wolf.add(legF);
+      const legB = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.07, 0.42, 6), fur);
+      legB.position.set(s * 0.18, 0.21, -0.32);
+      wolf.add(legB);
+    }
+    const tail = new THREE.Mesh(new THREE.ConeGeometry(0.11, 0.55, 8), furDark);
+    tail.position.set(0, 0.5, -0.58);
+    tail.rotation.x = -2.0;
+    wolf.add(tail);
+    return { mesh: wolf, riderY: 0.62 };
+  }
+
+  // A Baby Dragon: a small winged reptile hatchling, wings spread for lift.
+  private buildBabyDragonMount(tint: number): { mesh: THREE.Object3D; riderY: number } {
+    const dragon = new THREE.Group();
+    const scale = new THREE.MeshStandardMaterial({ color: tint, roughness: 0.5, metalness: 0.2 });
+    const scaleDark = new THREE.MeshStandardMaterial({ color: new THREE.Color(tint).multiplyScalar(0.6), roughness: 0.5 });
+    const wingMat = new THREE.MeshStandardMaterial({ color: new THREE.Color(tint).multiplyScalar(0.8), roughness: 0.4, side: THREE.DoubleSide });
+
+    const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.26, 0.5, 4, 8), scale);
+    torso.rotation.z = Math.PI / 2;
+    torso.position.y = 0.5;
+    dragon.add(torso);
+    const head = new THREE.Mesh(new THREE.ConeGeometry(0.2, 0.4, 8), scale);
+    head.rotation.z = -Math.PI / 2;
+    head.position.set(0, 0.58, 0.55);
+    dragon.add(head);
+    for (const s of [-1, 1]) {
+      const horn = new THREE.Mesh(new THREE.ConeGeometry(0.04, 0.14, 5), scaleDark);
+      horn.position.set(s * 0.08, 0.74, 0.48);
+      dragon.add(horn);
+      const wing = new THREE.Mesh(new THREE.ConeGeometry(0.5, 0.14, 3), wingMat);
+      wing.position.set(s * 0.32, 0.75, -0.05);
+      wing.rotation.z = s * 1.1;
+      wing.rotation.y = 0.3;
+      dragon.add(wing);
+      const leg = new THREE.Mesh(new THREE.CylinderGeometry(0.06, 0.07, 0.36, 6), scale);
+      leg.position.set(s * 0.16, 0.2, 0.1);
+      dragon.add(leg);
+    }
+    const tail = new THREE.Mesh(new THREE.ConeGeometry(0.13, 0.7, 8), scaleDark);
+    tail.position.set(0, 0.48, -0.62);
+    tail.rotation.x = -1.9;
+    dragon.add(tail);
+    return { mesh: dragon, riderY: 0.66 };
+  }
+
+  // Wear/remove a purely cosmetic outfit by id (see costumes.ts). Recolors the
+  // shared outfit/accent/hair materials in place; never touches stats or gear.
+  setCostume(costumeId: string | null): void {
+    if (costumeId === this.costumeId) return;
+    this.costumeId = costumeId;
+    applyCostume(this.char, getCostume(costumeId));
   }
 
   clearMoveTarget(): void {

@@ -12,7 +12,6 @@ export const MAP_HALF = MAP_SIZE / 2;
 // Movement speeds in world-units per second.
 export const PLAYER_SPEED = 9;
 export const MONSTER_SPEED = 4;
-export const MOUNT_SPEED_MULT = 1.6; // while riding a mount
 
 // Combat / AI ranges (world units).
 export const AGGRO_RANGE = 12;
@@ -68,3 +67,9 @@ export const ZENY_MAX = 14;
 export const EXP_SHARE_RANGE = 45;
 export const PARTY_EXP_BONUS = 1.15;
 export const PARTY_MAX_SIZE = 6;
+
+// Guild leveling: a slice of every member's kill EXP also feeds their guild's
+// pool; each guild level grants a small EXP bonus back to every member.
+export const GUILD_LEVEL_CAP = 50;
+export const GUILD_EXP_SHARE = 0.2; // fraction of a kill's EXP credited to the guild
+export const GUILD_EXP_BONUS_PER_LEVEL = 0.01; // +1% member EXP per guild level

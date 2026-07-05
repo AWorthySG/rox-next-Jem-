@@ -92,7 +92,8 @@ export interface ItemDef {
   healSp?: number;
   food?: FoodBuff; // eating grants a timed stat buff
   pet?: string; // summons this pet when used
-  mount?: boolean; // toggles riding a mount when used
+  mount?: string; // toggles riding this mount (by id, see mounts.ts) when used
+  costume?: string; // toggles wearing this cosmetic outfit (by id, see costumes.ts) when used
   // progression tier (1 Worn … 6 Mythic). Optional: when set it pins the rarity
   // tint and is shown as a label; otherwise rarity is derived from sell value.
   tier?: number;
@@ -170,16 +171,42 @@ export const ITEMS: Record<string, ItemDef> = {
   // refine ores (materials consumed per refine attempt)
   oridecon: { id: "oridecon", name: "Oridecon", type: ItemType.Material, desc: "Refine ore for weapons & headgear.", price: 1200, sellPrice: 300 },
   elunium: { id: "elunium", name: "Elunium", type: ItemType.Material, desc: "Refine ore for armor & accessories.", price: 1200, sellPrice: 300 },
+  mithril_ore: { id: "mithril_ore", name: "Mithril Ore", type: ItemType.Material, desc: "A rare ore prized by miners. Not sold — only mined.", sellPrice: 2500 },
+
+  // ---- life skills: gathered raw materials (fishing / gardening) ----
+  sardine: { id: "sardine", name: "Sardine", type: ItemType.Material, desc: "A common catch. Cooking ingredient.", sellPrice: 8 },
+  tuna: { id: "tuna", name: "Tuna", type: ItemType.Material, desc: "A meatier catch. Cooking ingredient.", sellPrice: 30 },
+  golden_carp: { id: "golden_carp", name: "Golden Carp", type: ItemType.Material, desc: "A rare, shimmering catch. Not sold — only fished.", sellPrice: 1800 },
+  turnip: { id: "turnip", name: "Turnip", type: ItemType.Material, desc: "A common root vegetable. Cooking ingredient.", sellPrice: 6 },
+  pumpkin: { id: "pumpkin", name: "Pumpkin", type: ItemType.Material, desc: "A hearty gourd. Cooking ingredient.", sellPrice: 22 },
+  moonflower: { id: "moonflower", name: "Moonflower", type: ItemType.Material, desc: "A rare bloom that only grows for a patient gardener. Not sold — only grown.", sellPrice: 1600 },
+
+  // life-skill cooking recipes' output (eat for a timed stat buff)
+  grilled_sardine: { id: "grilled_sardine", name: "Grilled Sardine", type: ItemType.Consumable, desc: "Eat: DEX +5, ATK +12 for 5 min.", food: { durationMs: 300000, bonusStats: { dex: 5 }, atk: 12 }, sellPrice: 30 },
+  pumpkin_stew: { id: "pumpkin_stew", name: "Pumpkin Stew", type: ItemType.Consumable, desc: "Eat: VIT +7, Max HP +140 for 8 min.", food: { durationMs: 480000, bonusStats: { vit: 7 }, maxHp: 140 }, sellPrice: 60 },
+  moonflower_tonic: { id: "moonflower_tonic", name: "Moonflower Tonic", type: ItemType.Consumable, desc: "Eat: INT +10, Max SP +140 for 10 min.", food: { durationMs: 600000, bonusStats: { int: 10 }, maxSp: 140 }, sellPrice: 400 },
 
   // pet eggs (use to summon a companion)
   poring_egg: { id: "poring_egg", name: "Poring Egg", type: ItemType.Consumable, desc: "Summons a Poring pet (LUK +3, Max HP +50).", pet: "poring_pet", price: 800, sellPrice: 100 },
   lunatic_egg: { id: "lunatic_egg", name: "Lunatic Egg", type: ItemType.Consumable, desc: "Summons a Lunatic pet (AGI +3, DEX +2).", pet: "lunatic_pet", sellPrice: 150 },
   baphomet_egg: { id: "baphomet_egg", name: "Baphomet Egg", type: ItemType.Consumable, desc: "Summons Baphomet Jr. (STR +4, INT +4, Max HP +80).", pet: "baphomet_pet", sellPrice: 1200 },
-  peco_whistle: { id: "peco_whistle", name: "Peco Peco Whistle", type: ItemType.Consumable, desc: "Summon/dismiss a Peco Peco mount (faster movement). Reusable — not consumed.", mount: true, price: 1500, sellPrice: 200 },
   marc_egg: { id: "marc_egg", name: "Marc Egg", type: ItemType.Consumable, desc: "Summons a Marc pet (VIT +3, AGI +2, Max HP +90).", pet: "marc_pet", sellPrice: 300 },
   garm_egg: { id: "garm_egg", name: "Garm Egg", type: ItemType.Consumable, desc: "Summons a Garm Cub (VIT +5, Max HP +220).", pet: "garm_pet", sellPrice: 1500 },
   ifrit_egg: { id: "ifrit_egg", name: "Ifrit Egg", type: ItemType.Consumable, desc: "Summons an Ifrit Spark (STR +6, ATK +14).", pet: "ifrit_pet", sellPrice: 3000 },
   nidhoggr_egg: { id: "nidhoggr_egg", name: "Shadow Egg", type: ItemType.Consumable, desc: "Summons a Shadow Hatchling (all stats +3, Max HP +160).", pet: "nidhoggr_pet", sellPrice: 6000 },
+
+  // mount whistles (use to summon/dismiss a ridden mount; reusable — not consumed)
+  peco_whistle: { id: "peco_whistle", name: "Peco Peco Whistle", type: ItemType.Consumable, desc: "Summon/dismiss a Peco Peco mount. +60% move speed.", mount: "peco", price: 1500, sellPrice: 200 },
+  grand_peco_whistle: { id: "grand_peco_whistle", name: "Grand Peco Whistle", type: ItemType.Consumable, desc: "Summon/dismiss a Grand Peco mount. +80% move speed, VIT +5.", mount: "grand_peco", price: 6000, sellPrice: 900 },
+  dune_wolf_whistle: { id: "dune_wolf_whistle", name: "Dune Wolf Whistle", type: ItemType.Consumable, desc: "Summon/dismiss a Dune Wolf mount. +70% move speed, AGI +5.", mount: "dune_wolf", price: 6000, sellPrice: 900 },
+  baby_dragon_whistle: { id: "baby_dragon_whistle", name: "Baby Dragon Whistle", type: ItemType.Consumable, desc: "Summon/dismiss a Baby Dragon mount. +100% move speed, STR +3, INT +3.", mount: "baby_dragon", price: 20000, sellPrice: 4000 },
+
+  // costume tickets (use to wear/remove a cosmetic outfit; reusable — not
+  // consumed, purely visual, zero effect on stats — mix and match freely)
+  crimson_duelist_ticket: { id: "crimson_duelist_ticket", name: "Crimson Duelist Ticket", type: ItemType.Consumable, desc: "Wear/remove the Crimson Duelist outfit. Purely cosmetic.", costume: "crimson_duelist", price: 3000, sellPrice: 500 },
+  azure_mystic_ticket: { id: "azure_mystic_ticket", name: "Azure Mystic Ticket", type: ItemType.Consumable, desc: "Wear/remove the Azure Mystic outfit. Purely cosmetic.", costume: "azure_mystic", price: 3000, sellPrice: 500 },
+  verdant_ranger_ticket: { id: "verdant_ranger_ticket", name: "Verdant Ranger Ticket", type: ItemType.Consumable, desc: "Wear/remove the Verdant Ranger outfit. Purely cosmetic.", costume: "verdant_ranger", price: 3000, sellPrice: 500 },
+  golden_regalia_ticket: { id: "golden_regalia_ticket", name: "Golden Regalia Ticket", type: ItemType.Consumable, desc: "Wear/remove the Golden Regalia outfit. Purely cosmetic.", costume: "golden_regalia", price: 8000, sellPrice: 1500 },
 
   // weapons
   novice_knife: {
@@ -732,6 +759,50 @@ export const ITEMS: Record<string, ItemDef> = {
     id: "blessing_rosary", name: "Blessing Rosary", type: ItemType.Accessory, slot: EquipSlot.Accessory, tier: 4,
     jobs: fam("acolyte"), desc: "A holy rosary. INT +8, VIT +6, Max SP +70.",
     maxSp: 70, bonusStats: { int: 8, vit: 6 }, price: 30000, sellPrice: 10000,
+  },
+
+  // ---- Thief line (AGI/DEX/LUK, crit-focused melee) ----
+  nightblade: {
+    id: "nightblade", name: "Nightblade", type: ItemType.Weapon, slot: EquipSlot.Weapon, tier: 4,
+    jobs: fam("thief"), desc: "A whisper-quiet dagger. ATK +128, AGI +10, LUK +8.",
+    atk: 128, bonusStats: { agi: 10, luk: 8 }, price: 52000, sellPrice: 18000,
+  },
+  rogues_leathers: {
+    id: "rogues_leathers", name: "Rogue's Leathers", type: ItemType.Armor, slot: EquipSlot.Armor, tier: 4,
+    jobs: fam("thief"), desc: "Supple, silent armor. DEF +32, Max HP +360, AGI +8.",
+    def: 32, maxHp: 360, bonusStats: { agi: 8 }, price: 48000, sellPrice: 16000,
+  },
+  assassins_cowl: {
+    id: "assassins_cowl", name: "Assassin's Cowl", type: ItemType.Headgear, slot: EquipSlot.Headgear, tier: 4,
+    jobs: fam("thief"), desc: "A shadow-lined cowl. DEF +10, DEX +8, LUK +6.",
+    def: 10, bonusStats: { dex: 8, luk: 6 }, price: 30000, sellPrice: 10000,
+  },
+  poisoners_ring: {
+    id: "poisoners_ring", name: "Poisoner's Ring", type: ItemType.Accessory, slot: EquipSlot.Accessory, tier: 4,
+    jobs: fam("thief"), desc: "A ring set with a hidden needle. AGI +8, LUK +8.",
+    bonusStats: { agi: 8, luk: 8 }, price: 30000, sellPrice: 10000,
+  },
+
+  // ---- Merchant line (STR/VIT, cart-and-mace bruiser) ----
+  golden_axe: {
+    id: "golden_axe", name: "Golden Axe", type: ItemType.Weapon, slot: EquipSlot.Weapon, tier: 4,
+    jobs: fam("merchant"), desc: "A zeny-forged axe. ATK +130, STR +12, VIT +4.",
+    atk: 130, bonusStats: { str: 12, vit: 4 }, price: 52000, sellPrice: 18000,
+  },
+  merchants_cuirass: {
+    id: "merchants_cuirass", name: "Merchant's Cuirass", type: ItemType.Armor, slot: EquipSlot.Armor, tier: 4,
+    jobs: fam("merchant"), desc: "Reinforced trade armor. DEF +40, Max HP +420, VIT +8.",
+    def: 40, maxHp: 420, bonusStats: { vit: 8 }, price: 48000, sellPrice: 16000,
+  },
+  cart_drivers_cap: {
+    id: "cart_drivers_cap", name: "Cart Driver's Cap", type: ItemType.Headgear, slot: EquipSlot.Headgear, tier: 4,
+    jobs: fam("merchant"), desc: "A well-worn driving cap. DEF +12, Max HP +160, STR +6.",
+    def: 12, maxHp: 160, bonusStats: { str: 6 }, price: 30000, sellPrice: 10000,
+  },
+  zeny_pouch: {
+    id: "zeny_pouch", name: "Zeny Pouch", type: ItemType.Accessory, slot: EquipSlot.Accessory, tier: 4,
+    jobs: fam("merchant"), desc: "A heavy coin pouch. Max HP +180, STR +6, VIT +6.",
+    maxHp: 180, bonusStats: { str: 6, vit: 6 }, price: 30000, sellPrice: 10000,
   },
 
   // ---- Mount Faber (Singapore) gear ----
@@ -1387,10 +1458,19 @@ export const SHOP_STOCK: string[] = [
   "archmage_rod", "arcane_robe", "arcane_circlet", "mana_orb",
   "ranger_longbow", "ranger_vest", "ranger_hood", "hawk_eye_charm",
   "saints_mace", "cleric_robe", "cleric_hood", "blessing_rosary",
+  "nightblade", "rogues_leathers", "assassins_cowl", "poisoners_ring",
+  "golden_axe", "merchants_cuirass", "cart_drivers_cap", "zeny_pouch",
   "oridecon",
   "elunium",
   "poring_egg",
   "peco_whistle",
+  "grand_peco_whistle",
+  "dune_wolf_whistle",
+  "baby_dragon_whistle",
+  "crimson_duelist_ticket",
+  "azure_mystic_ticket",
+  "verdant_ranger_ticket",
+  "golden_regalia_ticket",
 ];
 
 export function getItem(id: string): ItemDef | undefined {

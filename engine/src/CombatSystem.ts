@@ -5,6 +5,7 @@ import {
   environmentMultiplier,
   EXP_SHARE_RANGE,
   getSkill,
+  GUILD_EXP_SHARE,
   HP_REGEN_PER_SEC,
   jobHasSkill,
   MonsterAIState,
@@ -373,9 +374,15 @@ export class CombatSystem {
 
   private updatePlayerAttack(p: Player): void {
     if (p.attackTargetId == null) return;
-    // PvP: the target may be another player on a PvP map.
+    // PvP: the target may be another player on a PvP map, or a duel opponent
+    // fighting anywhere they agreed to duel.
     const pvpTarget = this.world.players.get(p.attackTargetId);
-    if (pvpTarget && this.world.isPvp(p.mapId) && pvpTarget.mapId === p.mapId && pvpTarget.id !== p.id) {
+    if (
+      pvpTarget &&
+      pvpTarget.mapId === p.mapId &&
+      pvpTarget.id !== p.id &&
+      (this.world.isPvp(p.mapId) || this.world.duel.opponentOf(p.id) === pvpTarget.id)
+    ) {
       this.updatePvpAttack(p, pvpTarget);
       return;
     }
@@ -451,12 +458,14 @@ export class CombatSystem {
     if (result.miss) return;
     target.hp -= result.amount;
     if (target.hp <= 0) {
+      const dueling = this.world.duel.opponentOf(p.id) === target.id;
       this.world.broadcastToMap(p.mapId, {
         t: MsgType.ChatBroadcast,
         fromId: p.id,
-        name: "Arena",
-        text: `${p.name} defeated ${target.name}!`,
+        name: dueling ? "Duel" : "Arena",
+        text: dueling ? `${p.name} won the duel against ${target.name}!` : `${p.name} defeated ${target.name}!`,
       });
+      if (dueling) this.world.duel.leave(p); // clears + notifies both sides
       this.respawnPlayer(target, p.name);
       p.attackTargetId = null;
     }
@@ -525,7 +534,8 @@ export class CombatSystem {
     for (const r of recipients) {
       r.creditKill(target.template.id);
       r.recordKill(target.template.id, !!target.template.boss);
-      if (r.gainExp(share)) {
+      const guildBoosted = Math.round(share * this.world.guild.expMultiplier(r.guildId));
+      if (r.gainExp(guildBoosted)) {
         this.world.broadcast({
           t: MsgType.LevelUp,
           id: r.id,
@@ -536,6 +546,7 @@ export class CombatSystem {
           expToNext: r.toSelfState().expToNext,
         });
       }
+      if (r.guildId != null) this.world.guild.addExp(r.guildId, Math.round(share * GUILD_EXP_SHARE));
     }
 
     // Unlock any achievements newly satisfied by this kill / level-up.
@@ -598,7 +609,8 @@ export class CombatSystem {
       this.world.connections.get(r.connId)?.send({ t: MsgType.Loot, items: drops, zeny });
       r.creditKill(tmpl.id);
       r.recordKill(tmpl.id, true);
-      if (r.gainExp(exp)) {
+      const guildBoostedExp = Math.round(exp * this.world.guild.expMultiplier(r.guildId));
+      if (r.gainExp(guildBoostedExp)) {
         this.world.broadcast({
           t: MsgType.LevelUp,
           id: r.id,
@@ -609,6 +621,7 @@ export class CombatSystem {
           expToNext: r.toSelfState().expToNext,
         });
       }
+      if (r.guildId != null) this.world.guild.addExp(r.guildId, Math.round(exp * GUILD_EXP_SHARE));
       for (const a of r.evaluateAchievements()) {
         this.world.connections.get(r.connId)?.send({
           t: MsgType.ChatBroadcast,

@@ -19,7 +19,7 @@ export interface Scenery {
 
 // An emissive prop material that changes with the day/night cycle.
 interface NightLight {
-  mat: THREE.MeshBasicMaterial;
+  mat: THREE.Material & { color: THREE.Color };
   day: THREE.Color;
   night: THREE.Color;
 }
@@ -63,6 +63,7 @@ const DEFAULT: Theme = { trunk: 0x6b4a2b, foliage: [0x3f8f3a, 0x4fa044, 0x357a30
 
 const THEMES: Record<string, Partial<Theme>> = {
   field: {},
+  celestial_spire: { trunk: 0x4a3a6a, foliage: [0x8a6ae0], rock: 0x5a4a7a, tree: "crystal", trees: 14, rocks: 46, tufts: 0, tuft: 0x6a4faa },
   payon: { foliage: [0x357a30, 0x2f6b2c, 0x46913f], tree: "pine", trees: 80 },
   cave: { trunk: 0x4a3a2b, foliage: [0x2c3a22], rock: 0x5b5e66, tree: "dead", trees: 26, rocks: 70, tufts: 40, tuft: 0x3a5a30 },
   glast_heim: { trunk: 0x3a3030, foliage: [0x2a3326], rock: 0x6a6d76, tree: "dead", trees: 34, rocks: 64, tufts: 30, tuft: 0x40503a },
@@ -267,7 +268,7 @@ export function buildScenery(mapId: string): Scenery {
   // materials that do the opposite — visible by day, gone after dark (pollen)
   const dayFades: { mat: THREE.Material & { opacity: number }; max: number }[] = [];
   // meshes that flicker like flame (brazier embers) — scale-pulsed in tick()
-  const flickers: THREE.Mesh[] = [];
+  const flickers: THREE.Object3D[] = [];
   // objects that bob on the water (the moored rowboat, the distant ship)
   const bobbers: { obj: THREE.Object3D; baseY: number; phase: number }[] = [];
   // objects that spin in place (windmill hubs)
@@ -410,7 +411,7 @@ export function buildScenery(mapId: string): Scenery {
       group.add(frog);
       cruisers.push({ obj: frog, r: 0.4, y: 0.335, speed: -0.08, phase: 0, bob: 0.005 });
     }
-    addHouses(group, theme, track, nightLights, smokes, spinners);
+    addHouses(group, theme, track, nightLights, smokes, spinners, bobbers);
     addPlazaProps(group, theme, track);
 
     // flower beds around the plaza rim on living maps (the south path stays clear)
@@ -2588,6 +2589,68 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Kusu Island shrine: a small incense pavilion honoring the island's
+  // Da Bo Gong temple, apart from the turtle statue it shares with Turtle
+  // Island ----
+  if (mapId === "kusu_island") {
+    const shrineWood2 = new THREE.MeshStandardMaterial({ color: 0xc0392a, roughness: 0.85 });
+    mats.push(shrineWood2);
+    const [shrinePostGeo] = track(new THREE.CylinderGeometry(0.08, 0.09, 1.8, 8), shrineWood2);
+    const [shrineRoofGeo, shrineRoofMat] = track(new THREE.ConeGeometry(1.3, 0.6, 4), new THREE.MeshStandardMaterial({ color: 0x2a2430, roughness: 0.9, flatShading: true }));
+    const [incenseGeo, incenseMat] = track(new THREE.CylinderGeometry(0.28, 0.32, 0.5, 10), new THREE.MeshStandardMaterial({ color: 0x8a6a42, roughness: 0.9 }));
+    const [emberGeo3, emberMat3] = track(new THREE.SphereGeometry(0.06, 6, 5), new THREE.MeshBasicMaterial({ color: 0xff8a3a }));
+    nightLights.push({ mat: emberMat3, day: new THREE.Color(0xff8a3a), night: new THREE.Color(0xffb060) });
+    const shrine2 = new THREE.Group();
+    for (const [px, pz] of [[-0.9, -0.9], [0.9, -0.9], [-0.9, 0.9], [0.9, 0.9]] as const) {
+      const post = new THREE.Mesh(shrinePostGeo, shrineWood2);
+      post.position.set(px, 0.9, pz);
+      shrine2.add(post);
+    }
+    const shrineRoof = new THREE.Mesh(shrineRoofGeo, shrineRoofMat);
+    shrineRoof.position.y = 2.1;
+    shrineRoof.rotation.y = Math.PI / 4;
+    shrineRoof.castShadow = true;
+    shrine2.add(shrineRoof);
+    const incenseUrn = new THREE.Mesh(incenseGeo, incenseMat);
+    incenseUrn.position.y = 0.25;
+    shrine2.add(incenseUrn);
+    const embers3 = new THREE.Mesh(emberGeo3, emberMat3);
+    embers3.position.y = 0.52;
+    shrine2.add(embers3);
+    flickers.push(embers3);
+    shrine2.position.set(9, 0, -9);
+    group.add(shrine2);
+  }
+
+  // ---- Turtle Island nesting ground: a roped-off sandy patch with a few
+  // egg mounds, apart from the shared statue with Kusu Island ----
+  if (mapId === "turtle") {
+    const sandMat = new THREE.MeshStandardMaterial({ color: 0xe0d0a0, roughness: 1 });
+    mats.push(sandMat);
+    const [postGeo5] = track(new THREE.CylinderGeometry(0.05, 0.06, 0.5, 6), new THREE.MeshStandardMaterial({ color: 0x8a6a42, roughness: 1 }));
+    const [ropeGeo3, ropeMat3] = track(new THREE.TorusGeometry(1.6, 0.03, 6, 20), new THREE.MeshStandardMaterial({ color: 0xd8c090, roughness: 1 }));
+    const [moundGeo, moundMat] = track(new THREE.SphereGeometry(0.28, 8, 6), sandMat);
+    const nest = new THREE.Group();
+    for (let p = 0; p < 6; p++) {
+      const a = (p / 6) * Math.PI * 2;
+      const post = new THREE.Mesh(postGeo5, sandMat);
+      post.position.set(Math.cos(a) * 1.6, 0.25, Math.sin(a) * 1.6);
+      nest.add(post);
+    }
+    const rope = new THREE.Mesh(ropeGeo3, ropeMat3);
+    rope.rotation.x = -Math.PI / 2;
+    rope.position.y = 0.25;
+    nest.add(rope);
+    for (let m = 0; m < 3; m++) {
+      const mound = new THREE.Mesh(moundGeo, moundMat);
+      mound.scale.y = 0.5;
+      mound.position.set((rng() - 0.5) * 1.8, 0.14, (rng() - 0.5) * 1.8);
+      nest.add(mound);
+    }
+    nest.position.set(-9, 0, 9);
+    group.add(nest);
+  }
+
   // ---- turtle statue: the turtle islands honour their namesake with a stone
   // turtle — shell dome, head and four flippers ----
   if (mapId === "kusu_island" || mapId === "turtle") {
@@ -2784,6 +2847,67 @@ export function buildScenery(mapId: string): Scenery {
     group.add(merlion);
   }
 
+  // ---- The Float stage: a raised performance platform with a scoreboard
+  // screen, honoring the floating stadium's own identity apart from the
+  // floodlights it shares with Marina Barrage ----
+  if (mapId === "the_float") {
+    const stageMetal = new THREE.MeshStandardMaterial({ color: 0x5a626c, roughness: 0.6, metalness: 0.4 });
+    mats.push(stageMetal);
+    const [platformGeo] = track(new THREE.BoxGeometry(4.5, 0.4, 2.6), stageMetal);
+    const [screenGeo, screenMat] = track(new THREE.BoxGeometry(3.0, 1.8, 0.15), new THREE.MeshBasicMaterial({ color: 0x2a6ac0 }));
+    nightLights.push({ mat: screenMat, day: new THREE.Color(0x2a6ac0).multiplyScalar(0.7), night: new THREE.Color(0x5aa0f0) });
+    const [frameGeo, frameMat] = track(new THREE.BoxGeometry(3.2, 2.0, 0.1), new THREE.MeshStandardMaterial({ color: 0x2a2c30, roughness: 0.6 }));
+    const [postGeo4] = track(new THREE.CylinderGeometry(0.1, 0.12, 3.2, 6), stageMetal);
+    const stage = new THREE.Group();
+    const platform = new THREE.Mesh(platformGeo, stageMetal);
+    platform.position.y = 0.2;
+    platform.castShadow = true;
+    stage.add(platform);
+    for (const s of [-1, 1]) {
+      const post = new THREE.Mesh(postGeo4, stageMetal);
+      post.position.set(s * 1.4, 1.9, -1.0);
+      stage.add(post);
+    }
+    const frame = new THREE.Mesh(frameGeo, frameMat);
+    frame.position.set(0, 3.2, -1.0);
+    stage.add(frame);
+    const screen = new THREE.Mesh(screenGeo, screenMat);
+    screen.position.set(0, 3.2, -0.93);
+    stage.add(screen);
+    stage.position.set(-9, 0, 9);
+    stage.rotation.y = Math.atan2(9, -9);
+    group.add(stage);
+  }
+
+  // ---- Marina Barrage spillway: a concrete dam wall with a sheet of
+  // falling water, its own identity apart from The Float ----
+  if (mapId === "marina_barrage") {
+    const damConcrete = new THREE.MeshStandardMaterial({ color: 0x8a9098, roughness: 0.9 });
+    mats.push(damConcrete);
+    const [wallGeo2] = track(new THREE.BoxGeometry(6.5, 3.0, 1.2), damConcrete);
+    const wall = new THREE.Mesh(wallGeo2, damConcrete);
+    wall.castShadow = true;
+    group.add(wall);
+    const [sheetGeo, sheetMat] = track(
+      new THREE.PlaneGeometry(2.0, 2.8),
+      new THREE.MeshBasicMaterial({ color: 0xbfe8ff, transparent: true, opacity: 0.5, depthWrite: false, blending: THREE.AdditiveBlending, side: THREE.DoubleSide }),
+    );
+    const sheet = new THREE.Mesh(sheetGeo, sheetMat);
+    sheet.position.set(0, 1.4, 0.62);
+    wall.add(sheet);
+    const spillMistMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0xd8f0ff, transparent: true, opacity: 0.4, depthWrite: false, blending: THREE.AdditiveBlending });
+    mats.push(spillMistMat);
+    for (let m = 0; m < 3; m++) {
+      const mist = new THREE.Sprite(spillMistMat);
+      mist.position.set((m - 1) * 0.7, 0.1, 0.8);
+      mist.scale.setScalar(0.5);
+      wall.add(mist);
+      smokes.push({ sprite: mist, baseY: 0.1, offset: m / 3 });
+    }
+    wall.position.set(9, 1.5, -8);
+    wall.rotation.y = 0.9;
+  }
+
   // ---- floodlight pylons: the modern waterfront maps raise angled stadium
   // lights that blaze after dark ----
   if (mapId === "the_float" || mapId === "marina_barrage") {
@@ -2847,6 +2971,61 @@ export function buildScenery(mapId: string): Scenery {
     group.add(doorway);
   }
 
+  // ---- Thanatos fallen throne: a shattered royal seat at the tower's base,
+  // relic of the kingdom it once ruled, apart from the arcane doorway shared
+  // with Tower ----
+  if (mapId === "thanatos") {
+    const throneStone = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(0.85), roughness: 1, flatShading: true });
+    mats.push(throneStone);
+    const [seatGeo] = track(new THREE.BoxGeometry(1.6, 0.5, 1.4), throneStone);
+    const [backGeo] = track(new THREE.BoxGeometry(1.6, 1.8, 0.3), throneStone);
+    const [armGeo] = track(new THREE.BoxGeometry(0.3, 0.6, 1.2), throneStone);
+    const [shardGeo, shardMat] = track(new THREE.ConeGeometry(0.16, 0.6, 4), new THREE.MeshBasicMaterial({ color: theme.foliage[0] }));
+    nightLights.push({ mat: shardMat, day: new THREE.Color(theme.foliage[0]).multiplyScalar(0.7), night: new THREE.Color(0x9a7ae0) });
+    const throne = new THREE.Group();
+    const seat = new THREE.Mesh(seatGeo, throneStone);
+    seat.position.y = 0.55;
+    seat.castShadow = true;
+    throne.add(seat);
+    const back = new THREE.Mesh(backGeo, throneStone);
+    back.position.set(0, 1.3, -0.6);
+    back.rotation.x = 0.15; // toppled backward, cracked down the middle
+    throne.add(back);
+    for (const s of [-1, 1]) {
+      const arm = new THREE.Mesh(armGeo, throneStone);
+      arm.position.set(s * 0.75, 1.05, 0);
+      throne.add(arm);
+    }
+    for (let i = 0; i < 3; i++) {
+      const shard = new THREE.Mesh(shardGeo, shardMat);
+      shard.position.set((rng() - 0.5) * 1.8, 0.4 + rng() * 0.3, 0.9 + rng() * 0.6);
+      shard.rotation.z = rng() * Math.PI;
+      throne.add(shard);
+    }
+    throne.position.set(13, 0, 13);
+    throne.rotation.y = Math.atan2(-13, -13);
+    group.add(throne);
+  }
+
+  // ---- Tower ascending shards: violet crystal fragments spiral upward around
+  // a floating core, marking the tower's endless climb, apart from the fallen
+  // throne at Thanatos's base ----
+  if (mapId === "tower") {
+    const shardCoreMat = new THREE.MeshBasicMaterial({ color: theme.foliage[0], transparent: true, opacity: 0.55 });
+    mats.push(shardCoreMat);
+    const [coreGeo] = track(new THREE.OctahedronGeometry(0.35, 0), shardCoreMat);
+    const core = new THREE.Mesh(coreGeo, shardCoreMat);
+    core.position.set(13, 2.2, -13);
+    group.add(core);
+    spinners.push({ obj: core, speed: 0.6 });
+    const [shardGeo2, shardMat2] = track(new THREE.OctahedronGeometry(0.16, 0), new THREE.MeshBasicMaterial({ color: 0xb090f0 }));
+    for (let i = 0; i < 6; i++) {
+      const shard = new THREE.Mesh(shardGeo2, shardMat2);
+      group.add(shard);
+      orbiters.push({ sprite: shard as unknown as THREE.Sprite, cx: 13, cz: -13, y: 1.2 + (i / 6) * 2.4, r: 0.7 + rng() * 0.3, speed: 0.9 + rng() * 0.4, phase: (i / 6) * Math.PI * 2 });
+    }
+  }
+
   // ---- Bifrost rainbow: three nested translucent arcs span the sky over
   // the rainbow bridge, fog-exempt so they read from anywhere ----
   if (mapId === "bifrost") {
@@ -2901,6 +3080,47 @@ export function buildScenery(mapId: string): Scenery {
       bloom.rotation.z = (rng() - 0.5) * 0.12;
       group.add(bloom);
     }
+  }
+
+  // ---- Splendide fountain: a tiered stone fountain at the plaza's heart,
+  // its basin misting gently, apart from the fairy blooms shared with Eclage ----
+  if (mapId === "splendide") {
+    const fountainStone = new THREE.MeshStandardMaterial({ color: 0x9a9a92, roughness: 0.85, flatShading: true });
+    mats.push(fountainStone);
+    const [basinGeo] = track(new THREE.CylinderGeometry(1.6, 1.7, 0.5, 16), fountainStone);
+    const [pedestalGeo] = track(new THREE.CylinderGeometry(0.35, 0.45, 1.1, 10), fountainStone);
+    const [bowlGeo] = track(new THREE.CylinderGeometry(0.7, 0.8, 0.3, 14), fountainStone);
+    const [waterGeo, waterMat] = track(
+      new THREE.CircleGeometry(1.45, 16),
+      new THREE.MeshStandardMaterial({ color: 0x6fc0e0, roughness: 0.2, transparent: true, opacity: 0.75 }),
+    );
+    const fountain = new THREE.Group();
+    const basin = new THREE.Mesh(basinGeo, fountainStone);
+    basin.position.y = 0.25;
+    basin.castShadow = true;
+    fountain.add(basin);
+    const water = new THREE.Mesh(waterGeo, waterMat);
+    water.rotation.x = -Math.PI / 2;
+    water.position.y = 0.51;
+    fountain.add(water);
+    shimmers.push({ mat: waterMat, base: 0.75, amp: 0.1, phase: rng() * Math.PI * 2 });
+    const pedestal = new THREE.Mesh(pedestalGeo, fountainStone);
+    pedestal.position.y = 1.05;
+    fountain.add(pedestal);
+    const bowl = new THREE.Mesh(bowlGeo, fountainStone);
+    bowl.position.y = 1.75;
+    fountain.add(bowl);
+    const mistMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0xd8f0ff, transparent: true, opacity: 0.3, depthWrite: false, blending: THREE.AdditiveBlending });
+    mats.push(mistMat);
+    for (let m = 0; m < 3; m++) {
+      const sprite = new THREE.Sprite(mistMat);
+      sprite.position.set((rng() - 0.5) * 0.5, 1.9, (rng() - 0.5) * 0.5);
+      sprite.scale.setScalar(0.3);
+      fountain.add(sprite);
+      smokes.push({ sprite, baseY: 1.9, offset: m / 3 });
+    }
+    fountain.position.set(10, 0, 10);
+    group.add(fountain);
   }
 
   // ---- Eclage lantern grove: floating fae lanterns bob among the trees,
@@ -2968,6 +3188,52 @@ export function buildScenery(mapId: string): Scenery {
       lion.castShadow = true;
       group.add(lion);
     }
+  }
+
+  // ---- abandoned mine cart: a rusted ore cart derailed on a short stretch
+  // of track, giving Cave its own identity apart from the stalagmites and
+  // webs it shares with Orc Dungeon ----
+  if (mapId === "cave") {
+    const rustMetal = new THREE.MeshStandardMaterial({ color: 0x7a4a3a, roughness: 0.8, metalness: 0.3 });
+    mats.push(rustMetal);
+    const [railGeo] = track(new THREE.BoxGeometry(0.1, 0.06, 4.0), rustMetal);
+    const [tieGeo, tieMat] = track(new THREE.BoxGeometry(0.9, 0.08, 0.16), new THREE.MeshStandardMaterial({ color: 0x3a2c1e, roughness: 1 }));
+    const [cartBodyGeo] = track(new THREE.BoxGeometry(1.0, 0.6, 1.4), rustMetal);
+    const [wheelGeo2, wheelMat2] = track(new THREE.CylinderGeometry(0.18, 0.18, 0.08, 10), new THREE.MeshStandardMaterial({ color: 0x2a2420, roughness: 0.7 }));
+    const [oreGeo, oreMat] = track(new THREE.DodecahedronGeometry(0.16, 0), new THREE.MeshStandardMaterial({ color: 0x9a8060, roughness: 1, flatShading: true }));
+    const mineScene = new THREE.Group();
+    for (const s of [-1, 1]) {
+      const rail = new THREE.Mesh(railGeo, rustMetal);
+      rail.position.x = s * 0.4;
+      mineScene.add(rail);
+    }
+    for (let t = 0; t < 6; t++) {
+      const tie = new THREE.Mesh(tieGeo, tieMat);
+      tie.position.z = -1.8 + t * 0.7;
+      mineScene.add(tie);
+    }
+    const cart = new THREE.Group();
+    const cartBody = new THREE.Mesh(cartBodyGeo, rustMetal);
+    cartBody.position.y = 0.4;
+    cartBody.castShadow = true;
+    cart.add(cartBody);
+    for (const [wx, wz] of [[-0.45, 0.5], [0.45, 0.5], [-0.45, -0.5], [0.45, -0.5]] as const) {
+      const wheel = new THREE.Mesh(wheelGeo2, wheelMat2);
+      wheel.rotation.z = Math.PI / 2;
+      wheel.position.set(wx, 0.18, wz);
+      cart.add(wheel);
+    }
+    for (let o = 0; o < 5; o++) {
+      const ore = new THREE.Mesh(oreGeo, oreMat);
+      ore.position.set((rng() - 0.5) * 0.6, 0.75 + rng() * 0.15, (rng() - 0.5) * 0.9);
+      cart.add(ore);
+    }
+    cart.position.set(0, 0, 0.8);
+    cart.rotation.y = 0.15; // slightly askew, derailed
+    mineScene.add(cart);
+    mineScene.position.set(10, 0, 8);
+    mineScene.rotation.y = 0.9;
+    group.add(mineScene);
   }
 
   // ---- cave stalagmites: the underground maps grow clusters of rock spikes
@@ -3052,6 +3318,75 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Niflheim spirit gate: a skeletal bone archway marks the threshold
+  // to the land of the dead, its own landmark apart from the gravestones
+  // and wisps it shares with sister haunted maps ----
+  if (mapId === "niflheim") {
+    const boneMat2 = new THREE.MeshStandardMaterial({ color: 0xd8d0b8, roughness: 0.9 });
+    mats.push(boneMat2);
+    const [boneLegGeo] = track(new THREE.CylinderGeometry(0.16, 0.24, 3.2, 8), boneMat2);
+    const [ribArchGeo] = track(new THREE.TorusGeometry(1.9, 0.14, 8, 16, Math.PI), boneMat2);
+    const [skullTopGeo, skullTopMat] = track(new THREE.SphereGeometry(0.5, 10, 8), boneMat2);
+    const [eyeSocketGeo, eyeSocketMat] = track(new THREE.SphereGeometry(0.11, 6, 5), new THREE.MeshBasicMaterial({ color: 0x6a4fb0 }));
+    nightLights.push({ mat: eyeSocketMat, day: new THREE.Color(0x3a2f5a), night: new THREE.Color(0x9a7ae0) });
+    const gate = new THREE.Group();
+    for (const s of [-1, 1]) {
+      const leg = new THREE.Mesh(boneLegGeo, boneMat2);
+      leg.position.set(s * 1.9, 1.6, 0);
+      leg.rotation.z = s * 0.08;
+      gate.add(leg);
+    }
+    const arch = new THREE.Mesh(ribArchGeo, boneMat2);
+    arch.position.y = 3.2;
+    arch.rotation.z = Math.PI;
+    gate.add(arch);
+    const skullTop = new THREE.Mesh(skullTopGeo, skullTopMat);
+    skullTop.position.y = 5.1;
+    skullTop.scale.set(1, 0.85, 1);
+    gate.add(skullTop);
+    for (const s of [-1, 1]) {
+      const socket = new THREE.Mesh(eyeSocketGeo, eyeSocketMat);
+      socket.position.set(s * 0.2, 5.15, 0.42);
+      gate.add(socket);
+    }
+    gate.position.set(9, 0, 8.5);
+    gate.rotation.y = Math.atan2(-9, -8.5);
+    group.add(gate);
+  }
+
+  // ---- Pulau Hantu keramat: a small haunted shrine honoring local ghost
+  // folklore, apart from the shipwreck and wisps it shares with sister maps ----
+  if (mapId === "pulau_hantu") {
+    const keramatWood = new THREE.MeshStandardMaterial({ color: 0x3a3228, roughness: 1 });
+    mats.push(keramatWood);
+    const [postGeo6] = track(new THREE.CylinderGeometry(0.07, 0.09, 1.4, 6), keramatWood);
+    const [roofGeo3, roofMat3] = track(new THREE.ConeGeometry(1.1, 0.6, 4), new THREE.MeshStandardMaterial({ color: 0x2a2620, roughness: 0.95, flatShading: true }));
+    const [clothGeo2, clothMat2] = track(new THREE.PlaneGeometry(0.5, 1.3), new THREE.MeshStandardMaterial({ color: 0xd8c060, roughness: 1, side: THREE.DoubleSide }));
+    const keramatCandleMat = new THREE.SpriteMaterial({ map: makeSpark(), color: 0x9adcc8, transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending });
+    mats.push(keramatCandleMat);
+    nightFades.push({ mat: keramatCandleMat, max: 0.6 });
+    const keramat = new THREE.Group();
+    for (const [px, pz] of [[-0.7, -0.7], [0.7, -0.7], [-0.7, 0.7], [0.7, 0.7]] as const) {
+      const post = new THREE.Mesh(postGeo6, keramatWood);
+      post.position.set(px, 0.7, pz);
+      keramat.add(post);
+    }
+    const roof3 = new THREE.Mesh(roofGeo3, roofMat3);
+    roof3.position.y = 1.7;
+    roof3.rotation.y = Math.PI / 4;
+    roof3.castShadow = true;
+    keramat.add(roof3);
+    const cloth2 = new THREE.Mesh(clothGeo2, clothMat2);
+    cloth2.position.set(0.9, 1.0, 0);
+    keramat.add(cloth2);
+    const eerieGlow = new THREE.Sprite(keramatCandleMat);
+    eerieGlow.position.set(0, 0.8, 0);
+    eerieGlow.scale.setScalar(0.8);
+    keramat.add(eerieGlow);
+    keramat.position.set(-9.5, 0, -8);
+    group.add(keramat);
+  }
+
   // ---- shipwreck: a broken hull half-buried in the sand on wilder coastal
   // maps, ribs exposed, listing to one side ----
   if (mapId === "pulau_hantu" || mapId === "coney_island") {
@@ -3074,6 +3409,124 @@ export function buildScenery(mapId: string): Scenery {
     wreck.rotation.y = rng() * Math.PI * 2;
     wreck.rotation.z = 0.3; // listing to one side, half-swallowed by sand
     group.add(wreck);
+  }
+
+  // ---- Comodo racing banner: a checkered finish-line arch, honoring the
+  // town's kafra racing reputation — its own identity apart from the
+  // parasols it shares with Sentosa, East Coast and Pasir Ris ----
+  if (mapId === "comodo") {
+    const postMat2 = new THREE.MeshStandardMaterial({ color: 0x8a6a42, roughness: 0.95 });
+    mats.push(postMat2);
+    const [flagPostGeo] = track(new THREE.CylinderGeometry(0.08, 0.1, 3.4, 6), postMat2);
+    const checkerMats = [0x1a1a1a, 0xf0ece0].map((c) => {
+      const m = new THREE.MeshStandardMaterial({ color: c, roughness: 0.9, side: THREE.DoubleSide });
+      mats.push(m);
+      return m;
+    });
+    const [checkerGeo] = track(new THREE.PlaneGeometry(0.5, 0.5), checkerMats[0]);
+    const banner = new THREE.Group();
+    for (const s of [-1, 1]) {
+      const post = new THREE.Mesh(flagPostGeo, postMat2);
+      post.position.set(s * 2.2, 1.7, 0);
+      banner.add(post);
+    }
+    for (let r = 0; r < 2; r++) {
+      for (let c = 0; c < 9; c++) {
+        const tile = new THREE.Mesh(checkerGeo, checkerMats[(r + c) % 2]);
+        tile.position.set(-2.2 + c * 0.5, 3.2 - r * 0.5, 0);
+        banner.add(tile);
+      }
+    }
+    banner.position.set(6, 0, 6.5);
+    banner.rotation.y = Math.atan2(-6, -6.5);
+    group.add(banner);
+  }
+
+  // ---- Sentosa Ferris wheel: a slowly turning resort wheel silhouette,
+  // its own identity apart from the shared beach dressing ----
+  if (mapId === "sentosa") {
+    const wheelMetal = new THREE.MeshStandardMaterial({ color: 0xd8d8e0, roughness: 0.5, metalness: 0.5 });
+    mats.push(wheelMetal);
+    const [rimGeo2] = track(new THREE.TorusGeometry(2.6, 0.08, 8, 24), wheelMetal);
+    const [spokeGeo2] = track(new THREE.CylinderGeometry(0.03, 0.03, 2.6, 4), wheelMetal);
+    const [legGeo2] = track(new THREE.CylinderGeometry(0.08, 0.1, 3.2, 6), wheelMetal);
+    const [cabinGeo2, cabinMat2] = track(new THREE.BoxGeometry(0.3, 0.3, 0.3), new THREE.MeshStandardMaterial({ color: 0xe86a9a, roughness: 0.7 }));
+    const wheelPivot = new THREE.Group();
+    const rim = new THREE.Mesh(rimGeo2, wheelMetal);
+    wheelPivot.add(rim);
+    for (let s = 0; s < 6; s++) {
+      const a = (s / 6) * Math.PI * 2;
+      const spoke = new THREE.Mesh(spokeGeo2, wheelMetal);
+      spoke.rotation.z = a;
+      wheelPivot.add(spoke);
+      const cabin = new THREE.Mesh(cabinGeo2, cabinMat2);
+      cabin.position.set(Math.cos(a) * 2.6, Math.sin(a) * 2.6, 0);
+      wheelPivot.add(cabin);
+    }
+    wheelPivot.position.y = 3.6;
+    const ferris = new THREE.Group();
+    ferris.add(wheelPivot);
+    for (const s of [-1, 1]) {
+      const leg = new THREE.Mesh(legGeo2, wheelMetal);
+      leg.position.set(s * 0.7, 1.6, 0);
+      leg.rotation.z = -s * 0.15;
+      ferris.add(leg);
+    }
+    ferris.position.set(-8, 0, -7);
+    group.add(ferris);
+    spinners.push({ obj: wheelPivot, speed: 0.15 });
+  }
+
+  // ---- East Coast BBQ pits: a row of park grill pits with charcoal
+  // glowing after dark, honoring the park's picnic culture — apart from
+  // the parasols it shares with Comodo/Sentosa/Pasir Ris ----
+  if (mapId === "east_coast") {
+    const pitStone = new THREE.MeshStandardMaterial({ color: 0x6a6a6a, roughness: 0.9 });
+    mats.push(pitStone);
+    const [pitGeo] = track(new THREE.CylinderGeometry(0.4, 0.34, 0.5, 10), pitStone);
+    const [grillGeo2, grillMat2] = track(new THREE.CylinderGeometry(0.38, 0.38, 0.03, 10), new THREE.MeshStandardMaterial({ color: 0x2a2c30, roughness: 0.6, metalness: 0.5 }));
+    const [coalGlowGeo2, coalGlowMat2] = track(new THREE.CircleGeometry(0.32, 10), new THREE.MeshBasicMaterial({ color: 0xff6a20 }));
+    nightLights.push({ mat: coalGlowMat2, day: new THREE.Color(0xff6a20), night: new THREE.Color(0xffb050) });
+    for (let p = 0; p < 3; p++) {
+      const pit = new THREE.Mesh(pitGeo, pitStone);
+      pit.position.set(-9 + p * 0.9, 0.25, 10);
+      pit.castShadow = true;
+      group.add(pit);
+      const grill = new THREE.Mesh(grillGeo2, grillMat2);
+      grill.position.set(-9 + p * 0.9, 0.51, 10);
+      group.add(grill);
+      const glow = new THREE.Mesh(coalGlowGeo2, coalGlowMat2);
+      glow.position.set(-9 + p * 0.9, 0.15, 10);
+      glow.rotation.x = -Math.PI / 2;
+      group.add(glow);
+      flickers.push(glow);
+    }
+  }
+
+  // ---- Pasir Ris playground: a net-climbing adventure structure, apart
+  // from the parasols it shares with the other resort coasts ----
+  if (mapId === "pasir_ris") {
+    const playWood = new THREE.MeshStandardMaterial({ color: 0xd8a83a, roughness: 0.9 });
+    mats.push(playWood);
+    const [towerLegGeo] = track(new THREE.CylinderGeometry(0.09, 0.1, 2.6, 6), playWood);
+    const [platformGeo2] = track(new THREE.BoxGeometry(1.6, 0.12, 1.6), playWood);
+    const [slideGeo, slideMat] = track(new THREE.BoxGeometry(0.6, 0.06, 2.2), new THREE.MeshStandardMaterial({ color: 0xe8823a, roughness: 0.5, side: THREE.DoubleSide }));
+    const playground = new THREE.Group();
+    for (const [px, pz] of [[-0.7, -0.7], [0.7, -0.7], [-0.7, 0.7], [0.7, 0.7]] as const) {
+      const leg = new THREE.Mesh(towerLegGeo, playWood);
+      leg.position.set(px, 1.3, pz);
+      playground.add(leg);
+    }
+    const platform2 = new THREE.Mesh(platformGeo2, playWood);
+    platform2.position.y = 2.6;
+    platform2.castShadow = true;
+    playground.add(platform2);
+    const slide = new THREE.Mesh(slideGeo, slideMat);
+    slide.position.set(1.5, 1.4, 0.2);
+    slide.rotation.x = 0.55;
+    playground.add(slide);
+    playground.position.set(9, 0, -10);
+    group.add(playground);
   }
 
   // ---- beach day: sandy resort coasts plant a striped parasol with a towel
@@ -3165,6 +3618,46 @@ export function buildScenery(mapId: string): Scenery {
     group.add(totem);
   }
 
+  // ---- GH Church altar: a cracked stone altar with a toppled cross, its
+  // own feature apart from the ruined columns it shares with Glast Heim ----
+  if (mapId === "gh_church") {
+    const altarStone = new THREE.MeshStandardMaterial({ color: 0x6a6a70, roughness: 1, flatShading: true });
+    mats.push(altarStone);
+    const [altarBaseGeo] = track(new THREE.BoxGeometry(1.8, 0.9, 0.9), altarStone);
+    const [crossBeamGeo] = track(new THREE.BoxGeometry(0.16, 1.3, 0.16), altarStone);
+    const [crossArmGeo] = track(new THREE.BoxGeometry(0.7, 0.14, 0.14), altarStone);
+    const [candleGeo, candleMat] = track(new THREE.CylinderGeometry(0.05, 0.06, 0.3, 6), new THREE.MeshStandardMaterial({ color: 0xe8e0c8, roughness: 0.9 }));
+    const [flameGeo2, flameMat2] = track(new THREE.ConeGeometry(0.04, 0.12, 6), new THREE.MeshBasicMaterial({ color: 0xffb050 }));
+    nightLights.push({ mat: flameMat2, day: new THREE.Color(0xffb050), night: new THREE.Color(0xffd080) });
+    const shrine = new THREE.Group();
+    const altarBase = new THREE.Mesh(altarBaseGeo, altarStone);
+    altarBase.position.y = 0.45;
+    altarBase.castShadow = true;
+    shrine.add(altarBase);
+    // the cross has toppled to lean against the altar rather than stand upright
+    const crossGroup = new THREE.Group();
+    const beam = new THREE.Mesh(crossBeamGeo, altarStone);
+    crossGroup.add(beam);
+    const arm = new THREE.Mesh(crossArmGeo, altarStone);
+    arm.position.y = 0.3;
+    crossGroup.add(arm);
+    crossGroup.position.set(0.7, 1.15, 0);
+    crossGroup.rotation.z = -0.55;
+    shrine.add(crossGroup);
+    for (const s of [-1, 1]) {
+      const candle = new THREE.Mesh(candleGeo, candleMat);
+      candle.position.set(s * 0.6, 1.05, 0.2);
+      shrine.add(candle);
+      const flame = new THREE.Mesh(flameGeo2, flameMat2);
+      flame.position.set(s * 0.6, 1.24, 0.2);
+      shrine.add(flame);
+      flickers.push(flame);
+    }
+    shrine.position.set(-10, 0, 9.5);
+    shrine.rotation.y = 0.6;
+    group.add(shrine);
+  }
+
   // ---- Glast Heim ruins: broken column stumps and one leaning survivor
   // scattered around the haunted keep's approach ----
   if (mapId === "glast_heim" || mapId === "gh_church") {
@@ -3188,6 +3681,42 @@ export function buildScenery(mapId: string): Scenery {
       column.castShadow = true;
       group.add(column);
     }
+  }
+
+  // ---- Glast Heim broken gate: the castle's collapsed main entrance, a
+  // portcullis grate torn loose and leaning against one tower, apart from
+  // the column ruins shared with GH Church ----
+  if (mapId === "glast_heim") {
+    const gateStone = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).multiplyScalar(0.95), roughness: 1, flatShading: true });
+    mats.push(gateStone);
+    const [towerGeo] = track(new THREE.BoxGeometry(1.4, 3.6, 1.4), gateStone);
+    const [barGeo, barMat] = track(new THREE.CylinderGeometry(0.05, 0.05, 2.6, 5), new THREE.MeshStandardMaterial({ color: 0x4a4038, roughness: 0.6, metalness: 0.4 }));
+    const [chainGeo, chainMat] = track(new THREE.TorusGeometry(0.09, 0.025, 5, 8), new THREE.MeshStandardMaterial({ color: 0x3a3530, roughness: 0.5, metalness: 0.5 }));
+    const gate = new THREE.Group();
+    for (const s of [-1, 1]) {
+      const towerM = new THREE.Mesh(towerGeo, gateStone);
+      towerM.position.set(s * 1.6, 1.8, 0);
+      towerM.rotation.y = s * 0.05;
+      towerM.castShadow = true;
+      gate.add(towerM);
+    }
+    const grate = new THREE.Group();
+    for (let b = 0; b < 5; b++) {
+      const bar = new THREE.Mesh(barGeo, barMat);
+      bar.position.x = -1.0 + b * 0.5;
+      grate.add(bar);
+    }
+    grate.rotation.z = Math.PI / 2 - 0.5; // torn loose, leaning against the left tower
+    grate.position.set(-1.0, 1.3, 0.3);
+    gate.add(grate);
+    for (let l = 0; l < 3; l++) {
+      const link = new THREE.Mesh(chainGeo, chainMat);
+      link.position.set(-1.6, 3.3 - l * 0.16, 0.65);
+      link.rotation.y = (l % 2) * (Math.PI / 2);
+      gate.add(link);
+    }
+    gate.position.set(0, 0, -15);
+    group.add(gate);
   }
 
   // ---- Gonryun dojo: a modest training hall with a wooden practice post
@@ -3745,6 +4274,598 @@ export function buildScenery(mapId: string): Scenery {
     }
   }
 
+  // ---- Rachel windmill: a snow-dusted farmland windmill, the town's iconic
+  // landmark, distinct from the generic leafy-field windmill ----
+  if (mapId === "rachel") {
+    const millStone2 = new THREE.MeshStandardMaterial({ color: new THREE.Color(theme.rock).lerp(new THREE.Color(0xffffff), 0.4), roughness: 0.9 });
+    mats.push(millStone2);
+    const [towerGeo3] = track(new THREE.CylinderGeometry(1.0, 1.5, 4.8, 10), millStone2);
+    const [capGeo3, capMat3] = track(new THREE.ConeGeometry(1.3, 1.2, 10), new THREE.MeshStandardMaterial({ color: 0xe8ecf4, roughness: 0.85 }));
+    const [bladeGeo3, bladeMat3] = track(new THREE.BoxGeometry(0.4, 2.8, 0.07), new THREE.MeshStandardMaterial({ color: 0xe0dccc, roughness: 0.9 }));
+    const mill2 = new THREE.Group();
+    const tower3 = new THREE.Mesh(towerGeo3, millStone2);
+    tower3.position.y = 2.4;
+    tower3.castShadow = true;
+    mill2.add(tower3);
+    const cap3 = new THREE.Mesh(capGeo3, capMat3);
+    cap3.position.y = 5.4;
+    mill2.add(cap3);
+    const hub2 = new THREE.Group();
+    hub2.position.set(0, 4.5, 1.3);
+    for (let b = 0; b < 4; b++) {
+      const blade = new THREE.Mesh(bladeGeo3, bladeMat3);
+      blade.position.y = 1.45;
+      const arm2 = new THREE.Group();
+      arm2.rotation.z = (b / 4) * Math.PI * 2;
+      arm2.add(blade);
+      hub2.add(arm2);
+    }
+    mill2.add(hub2);
+    spinners.push({ obj: hub2, speed: 0.45 });
+    mill2.position.set(-12, 0, 11);
+    mill2.rotation.y = Math.atan2(-11, 12); // sails face the plaza
+    group.add(mill2);
+  }
+
+  // ---- Lutie Christmas tree: a towering decorated fir strung with lights,
+  // gift boxes piled at its base, the town's festive centerpiece ----
+  if (mapId === "lutie") {
+    const trunkMat2 = new THREE.MeshStandardMaterial({ color: 0x4a3020, roughness: 1 });
+    mats.push(trunkMat2);
+    const [trunkGeo2] = track(new THREE.CylinderGeometry(0.3, 0.4, 1.2, 8), trunkMat2);
+    const [tierGeo3, tierMat3] = track(new THREE.ConeGeometry(1.0, 1.6, 9), new THREE.MeshStandardMaterial({ color: 0x1e5a30, roughness: 0.95, flatShading: true }));
+    const [bulbGeo, bulbMat] = track(new THREE.SphereGeometry(0.08, 6, 5), new THREE.MeshBasicMaterial({ color: 0xffd070 }));
+    nightLights.push({ mat: bulbMat, day: new THREE.Color(0xffd070).multiplyScalar(0.6), night: new THREE.Color(0xffe6a0) });
+    const [starGeo, starMat] = track(new THREE.OctahedronGeometry(0.22, 0), new THREE.MeshBasicMaterial({ color: 0xffe27a }));
+    nightLights.push({ mat: starMat, day: new THREE.Color(0xffe27a).multiplyScalar(0.7), night: new THREE.Color(0xfff2c0) });
+    const tree = new THREE.Group();
+    const trunk2 = new THREE.Mesh(trunkGeo2, trunkMat2);
+    trunk2.position.y = 0.6;
+    tree.add(trunk2);
+    for (let t = 0; t < 4; t++) {
+      const shrink = 1 - t * 0.18;
+      const tier2 = new THREE.Mesh(tierGeo3, tierMat3);
+      tier2.scale.setScalar(shrink);
+      tier2.position.y = 1.6 + t * 1.1;
+      tier2.castShadow = true;
+      tree.add(tier2);
+    }
+    const star = new THREE.Mesh(starGeo, starMat);
+    star.position.y = 6.3;
+    tree.add(star);
+    spinners.push({ obj: star, speed: 0.4 });
+    for (let i = 0; i < 10; i++) {
+      const bulb = new THREE.Mesh(bulbGeo, bulbMat);
+      const tt = 1.9 + rng() * 3.6;
+      const ang = rng() * Math.PI * 2;
+      const rad = 0.15 + (1 - (tt - 1.9) / 3.6) * 0.85;
+      bulb.position.set(Math.cos(ang) * rad, tt, Math.sin(ang) * rad);
+      tree.add(bulb);
+    }
+    // gift boxes piled at the base, each its own color
+    const giftMats = [0xd04050, 0x4070c0, 0x50a060].map((c) => {
+      const m = new THREE.MeshStandardMaterial({ color: c, roughness: 0.7 });
+      mats.push(m);
+      return m;
+    });
+    const [giftGeo] = track(new THREE.BoxGeometry(0.5, 0.5, 0.5), giftMats[0]);
+    for (let g = 0; g < 4; g++) {
+      const gift = new THREE.Mesh(giftGeo, giftMats[g % giftMats.length]);
+      const ga = rng() * Math.PI * 2;
+      const gr = 1.1 + rng() * 0.6;
+      gift.position.set(Math.cos(ga) * gr, 0.25, Math.sin(ga) * gr);
+      gift.rotation.y = rng() * Math.PI;
+      gift.scale.setScalar(0.7 + rng() * 0.5);
+      tree.add(gift);
+    }
+    tree.position.set(11, 0, -11);
+    group.add(tree);
+  }
+
+  // ---- Kampong Glam mosque dome: a golden dome and slender minaret,
+  // honoring the district's Malay heritage and the Sultan Mosque nearby ----
+  if (mapId === "kampong_glam") {
+    const domeStone = new THREE.MeshStandardMaterial({ color: 0xe8e0c8, roughness: 0.85 });
+    mats.push(domeStone);
+    const [baseGeo2] = track(new THREE.CylinderGeometry(1.6, 1.8, 2.2, 16), domeStone);
+    const [domeGeo2, domeGoldMat] = track(
+      new THREE.SphereGeometry(1.6, 16, 10, 0, Math.PI * 2, 0, Math.PI / 2.1),
+      new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.3, metalness: 0.6 }),
+    );
+    const [finialGeo, finialMat] = track(new THREE.ConeGeometry(0.18, 0.6, 8), new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.3, metalness: 0.6 }));
+    nightLights.push({ mat: finialMat, day: new THREE.Color(0xd4af37).multiplyScalar(0.8), night: new THREE.Color(0xffe27a) });
+    const [minaretGeo] = track(new THREE.CylinderGeometry(0.4, 0.55, 4.4, 10), domeStone);
+    const mosque = new THREE.Group();
+    const base2 = new THREE.Mesh(baseGeo2, domeStone);
+    base2.position.y = 1.1;
+    base2.castShadow = true;
+    mosque.add(base2);
+    const dome2 = new THREE.Mesh(domeGeo2, domeGoldMat);
+    dome2.position.y = 2.2;
+    mosque.add(dome2);
+    const finial = new THREE.Mesh(finialGeo, finialMat);
+    finial.position.y = 3.9;
+    mosque.add(finial);
+    const minaret = new THREE.Mesh(minaretGeo, domeStone);
+    minaret.position.set(2.6, 2.2, 0);
+    minaret.castShadow = true;
+    mosque.add(minaret);
+    const minaretCap = new THREE.Mesh(finialGeo, domeGoldMat);
+    minaretCap.scale.setScalar(3.0);
+    minaretCap.position.set(2.6, 4.9, 0);
+    mosque.add(minaretCap);
+    mosque.position.set(-10, 0, -10);
+    group.add(mosque);
+  }
+
+  // ---- Marina Bay towers: a trio of glass skyscrapers joined by a raised
+  // sky platform, evoking the bay's iconic skyline ----
+  if (mapId === "marina_bay") {
+    const glassMat = new THREE.MeshStandardMaterial({ color: 0x3a5a7a, roughness: 0.25, metalness: 0.5 });
+    mats.push(glassMat);
+    const [towerGeo4] = track(new THREE.BoxGeometry(1.1, 6.5, 1.1), glassMat);
+    const [deckGeo, deckMat] = track(new THREE.BoxGeometry(4.4, 0.35, 1.4), new THREE.MeshStandardMaterial({ color: 0x8a95a0, roughness: 0.6, metalness: 0.3 }));
+    const [winGeo, winMat] = track(new THREE.PlaneGeometry(0.7, 0.9), new THREE.MeshBasicMaterial({ color: 0x9adcf0 }));
+    nightLights.push({ mat: winMat, day: new THREE.Color(0x9adcf0).multiplyScalar(0.5), night: new THREE.Color(0xfff2b0) });
+    const towers = new THREE.Group();
+    for (let t = 0; t < 3; t++) {
+      const tower4 = new THREE.Mesh(towerGeo4, glassMat);
+      tower4.position.set((t - 1) * 1.6, 3.25, 0);
+      tower4.castShadow = true;
+      towers.add(tower4);
+      const win = new THREE.Mesh(winGeo, winMat);
+      win.position.set((t - 1) * 1.6, 5.0, 0.56);
+      towers.add(win);
+    }
+    const deck = new THREE.Mesh(deckGeo, deckMat);
+    deck.position.y = 6.6;
+    deck.rotation.z = 0.03; // the deck tilts slightly, RO's version of the SkyPark
+    towers.add(deck);
+    towers.position.set(12, 0, -12);
+    group.add(towers);
+  }
+
+  // ---- Jurong Bird Park aviary: a domed walk-in birdcage with perched
+  // birds, the park's iconic centerpiece ----
+  if (mapId === "jurong") {
+    const aviaryFrame = new THREE.MeshStandardMaterial({ color: 0x5a5a54, roughness: 0.6, metalness: 0.5 });
+    mats.push(aviaryFrame);
+    const [ringGeo] = track(new THREE.TorusGeometry(2.4, 0.06, 6, 24), aviaryFrame);
+    const [ribGeo2] = track(new THREE.TorusGeometry(2.4, 0.05, 5, 16, Math.PI), aviaryFrame);
+    const [perchGeo, perchMat] = track(new THREE.CylinderGeometry(0.05, 0.05, 2.2, 6), new THREE.MeshStandardMaterial({ color: 0x6a4a30, roughness: 1 }));
+    const aviary = new THREE.Group();
+    const baseRing = new THREE.Mesh(ringGeo, aviaryFrame);
+    baseRing.rotation.x = Math.PI / 2;
+    aviary.add(baseRing);
+    for (let a = 0; a < 5; a++) {
+      const rib = new THREE.Mesh(ribGeo2, aviaryFrame);
+      rib.rotation.x = Math.PI / 2; // stand the half-ring upright as a dome rib
+      rib.rotation.y = (a / 5) * Math.PI;
+      aviary.add(rib);
+    }
+    const perch = new THREE.Mesh(perchGeo, perchMat);
+    perch.rotation.z = Math.PI / 2;
+    perch.position.y = 1.1;
+    aviary.add(perch);
+    const birdColors = [0xe05030, 0x50a0e0, 0xe0c040];
+    const [birdGeo] = track(new THREE.ConeGeometry(0.12, 0.32, 6), aviaryFrame);
+    for (let b = 0; b < 3; b++) {
+      const birdMat = new THREE.MeshStandardMaterial({ color: birdColors[b], roughness: 0.8 });
+      mats.push(birdMat);
+      const bird = new THREE.Mesh(birdGeo, birdMat);
+      bird.position.set(-0.7 + b * 0.7, 1.26, 0);
+      bird.rotation.x = Math.PI / 2;
+      aviary.add(bird);
+    }
+    aviary.position.set(10, 0, 10);
+    group.add(aviary);
+  }
+
+  // ---- Pulau Ubin kampong house: a rustic zinc-roofed stilt house beside a
+  // short wooden jetty, the island's old village charm ----
+  if (mapId === "pulau_ubin") {
+    const stiltWood = new THREE.MeshStandardMaterial({ color: 0x6a4a30, roughness: 1 });
+    mats.push(stiltWood);
+    const [stiltGeo] = track(new THREE.CylinderGeometry(0.08, 0.1, 1.6, 6), stiltWood);
+    const [hutGeo, hutMat] = track(new THREE.BoxGeometry(2.6, 1.5, 2.0), new THREE.MeshStandardMaterial({ color: 0xc8b090, roughness: 0.95 }));
+    const [zincGeo, zincMat] = track(new THREE.ConeGeometry(2.0, 0.9, 4), new THREE.MeshStandardMaterial({ color: 0x8a8a90, roughness: 0.4, metalness: 0.5, flatShading: true }));
+    const [plankGeo] = track(new THREE.BoxGeometry(0.4, 0.06, 1.2), stiltWood);
+    const hut = new THREE.Group();
+    for (const [px, pz] of [[-1.0, -0.8], [1.0, -0.8], [-1.0, 0.8], [1.0, 0.8]] as const) {
+      const stilt = new THREE.Mesh(stiltGeo, stiltWood);
+      stilt.position.set(px, 0.8, pz);
+      hut.add(stilt);
+    }
+    const hutBody = new THREE.Mesh(hutGeo, hutMat);
+    hutBody.position.y = 2.35;
+    hutBody.castShadow = true;
+    hut.add(hutBody);
+    const zincRoof = new THREE.Mesh(zincGeo, zincMat);
+    zincRoof.position.y = 3.55;
+    zincRoof.rotation.y = Math.PI / 4;
+    zincRoof.castShadow = true;
+    hut.add(zincRoof);
+    // a short jetty of planks leading out from the stilt house
+    for (let p = 0; p < 4; p++) {
+      const plank = new THREE.Mesh(plankGeo, stiltWood);
+      plank.position.set(1.8 + p * 0.42, 1.55, 0);
+      hut.add(plank);
+    }
+    hut.position.set(-11, 0, 11);
+    hut.rotation.y = Math.atan2(-11, -11);
+    group.add(hut);
+  }
+
+  // ---- Haw Par Villa tiger statue: a crouching stone tiger on a pedestal,
+  // echoing the park's Tiger Balm Gardens origin ----
+  if (mapId === "haw_par") {
+    const statueStone = new THREE.MeshStandardMaterial({ color: 0xd8c8a0, roughness: 0.9, flatShading: true });
+    mats.push(statueStone);
+    const [pedestalGeo2] = track(new THREE.BoxGeometry(2.0, 0.8, 1.4), statueStone);
+    const tigerMat = new THREE.MeshStandardMaterial({ color: 0xe0a030, roughness: 0.85, flatShading: true });
+    mats.push(tigerMat);
+    const [bodyGeo2] = track(new THREE.CapsuleGeometry(0.4, 1.3, 3, 6), tigerMat);
+    const [headGeo3] = track(new THREE.SphereGeometry(0.32, 8, 6), tigerMat);
+    const [legGeo3] = track(new THREE.CylinderGeometry(0.1, 0.12, 0.6, 5), tigerMat);
+    const [tailGeo, tailMat] = track(new THREE.CylinderGeometry(0.04, 0.07, 0.9, 5), tigerMat);
+    const [stripeGeo, stripeMat] = track(new THREE.BoxGeometry(0.06, 0.35, 0.02), new THREE.MeshStandardMaterial({ color: 0x2a2018, roughness: 0.9 }));
+    const statue = new THREE.Group();
+    const pedestal2 = new THREE.Mesh(pedestalGeo2, statueStone);
+    pedestal2.position.y = 0.4;
+    pedestal2.castShadow = true;
+    statue.add(pedestal2);
+    const tiger = new THREE.Group();
+    const body2 = new THREE.Mesh(bodyGeo2, tigerMat);
+    body2.rotation.z = Math.PI / 2;
+    body2.position.y = 0.6;
+    tiger.add(body2);
+    const head3 = new THREE.Mesh(headGeo3, tigerMat);
+    head3.position.set(0.75, 0.72, 0);
+    tiger.add(head3);
+    for (const [lx, lz] of [[-0.4, -0.3], [-0.4, 0.3], [0.4, -0.3], [0.4, 0.3]] as const) {
+      const leg = new THREE.Mesh(legGeo3, tigerMat);
+      leg.position.set(lx, 0.3, lz);
+      tiger.add(leg);
+    }
+    const tail = new THREE.Mesh(tailGeo, tailMat);
+    tail.position.set(-0.75, 0.75, 0);
+    tail.rotation.z = -0.9;
+    tiger.add(tail);
+    for (let s = 0; s < 4; s++) {
+      const stripe = new THREE.Mesh(stripeGeo, stripeMat);
+      stripe.position.set(-0.4 + s * 0.28, 0.75, 0.42);
+      stripe.rotation.y = Math.PI / 2;
+      tiger.add(stripe);
+    }
+    tiger.position.y = 0.8;
+    statue.add(tiger);
+    statue.position.set(11, 0, -9);
+    statue.rotation.y = Math.atan2(9, -11);
+    group.add(statue);
+  }
+
+  // ---- Fort Canning gate: an old colonial fort gate with a cannon on
+  // display, honoring the hill's fortified history ----
+  if (mapId === "fort_canning") {
+    const fortStone = new THREE.MeshStandardMaterial({ color: 0x9a9086, roughness: 0.9, flatShading: true });
+    mats.push(fortStone);
+    const [pillarGeo2] = track(new THREE.BoxGeometry(0.9, 2.6, 0.9), fortStone);
+    const [archGeo2] = track(new THREE.BoxGeometry(3.0, 0.6, 0.9), fortStone);
+    const [barrelGeo, barrelMat] = track(new THREE.CylinderGeometry(0.18, 0.22, 1.8, 10), new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.4, metalness: 0.7 }));
+    const [wheelGeo, wheelMat] = track(new THREE.CylinderGeometry(0.4, 0.4, 0.18, 12), new THREE.MeshStandardMaterial({ color: 0x4a3020, roughness: 0.9 }));
+    const [carriageGeo] = track(new THREE.BoxGeometry(1.0, 0.35, 0.5), wheelMat);
+    const fort = new THREE.Group();
+    for (const s of [-1, 1]) {
+      const pillar = new THREE.Mesh(pillarGeo2, fortStone);
+      pillar.position.set(s * 1.3, 1.3, 0);
+      pillar.castShadow = true;
+      fort.add(pillar);
+    }
+    const archTop = new THREE.Mesh(archGeo2, fortStone);
+    archTop.position.y = 2.9;
+    archTop.castShadow = true;
+    fort.add(archTop);
+    const cannon = new THREE.Group();
+    const carriage = new THREE.Mesh(carriageGeo, wheelMat);
+    carriage.position.y = 0.5;
+    cannon.add(carriage);
+    for (const s of [-1, 1]) {
+      const wheel = new THREE.Mesh(wheelGeo, wheelMat);
+      wheel.rotation.x = Math.PI / 2;
+      wheel.position.set(0, 0.4, s * 0.3);
+      cannon.add(wheel);
+    }
+    const barrel = new THREE.Mesh(barrelGeo, barrelMat);
+    barrel.rotation.z = Math.PI / 2;
+    barrel.rotation.x = -0.15;
+    barrel.position.set(0.5, 0.75, 0);
+    cannon.add(barrel);
+    cannon.position.set(2.2, 0, 0);
+    fort.add(cannon);
+    fort.position.set(-9, 0, 9);
+    fort.rotation.y = Math.atan2(-9, 9);
+    group.add(fort);
+  }
+
+  // ---- Mount Faber cable car: a small hilltop station with a gondola
+  // suspended from the cableway, swaying gently in the wind ----
+  if (mapId === "mount_faber") {
+    const stationMat = new THREE.MeshStandardMaterial({ color: 0x7a7a74, roughness: 0.7, metalness: 0.3 });
+    mats.push(stationMat);
+    const [postGeo7] = track(new THREE.CylinderGeometry(0.18, 0.22, 3.6, 8), stationMat);
+    const [roofGeo4, roofMat4] = track(new THREE.BoxGeometry(3.2, 0.25, 2.2), new THREE.MeshStandardMaterial({ color: 0x4a5a6a, roughness: 0.6, metalness: 0.4 }));
+    const [cableGeo, cableMat] = track(new THREE.CylinderGeometry(0.025, 0.025, 8, 4), new THREE.MeshStandardMaterial({ color: 0x2a2a2a, roughness: 0.5, metalness: 0.6 }));
+    const [gondolaGeo, gondolaMat] = track(new THREE.BoxGeometry(0.9, 1.0, 0.9), new THREE.MeshStandardMaterial({ color: 0xd83030, roughness: 0.4, metalness: 0.3 }));
+    const [windowGeo2, windowMat2] = track(new THREE.PlaneGeometry(0.6, 0.5), new THREE.MeshBasicMaterial({ color: 0xa8e0f0 }));
+    nightLights.push({ mat: windowMat2, day: new THREE.Color(0xa8e0f0).multiplyScalar(0.6), night: new THREE.Color(0xfff2c0) });
+    const station = new THREE.Group();
+    for (const s of [-1, 1]) {
+      const post = new THREE.Mesh(postGeo7, stationMat);
+      post.position.set(s * 1.4, 1.8, 0);
+      post.castShadow = true;
+      station.add(post);
+    }
+    const roof2 = new THREE.Mesh(roofGeo4, roofMat4);
+    roof2.position.y = 3.7;
+    roof2.castShadow = true;
+    station.add(roof2);
+    const cable = new THREE.Mesh(cableGeo, cableMat);
+    cable.rotation.z = Math.PI / 2;
+    cable.position.set(4.5, 3.4, 0);
+    station.add(cable);
+    const gondola = new THREE.Group();
+    const gondolaBody = new THREE.Mesh(gondolaGeo, gondolaMat);
+    gondolaBody.castShadow = true;
+    gondola.add(gondolaBody);
+    const win2 = new THREE.Mesh(windowGeo2, windowMat2);
+    win2.position.set(0, 0, 0.46);
+    gondola.add(win2);
+    gondola.position.set(3.0, 3.0, 0);
+    station.add(gondola);
+    bobbers.push({ obj: gondola, baseY: 3.0, phase: rng() * Math.PI * 2 });
+    station.position.set(9, 0, -9);
+    station.rotation.y = Math.atan2(9, -9);
+    group.add(station);
+  }
+
+  // ---- Little India temple gate: a vividly painted tiered gopuram gate,
+  // echoing the ornate Hindu temples along Serangoon Road ----
+  if (mapId === "little_india") {
+    const gopuramBase = new THREE.MeshStandardMaterial({ color: 0xd06840, roughness: 0.85, flatShading: true });
+    mats.push(gopuramBase);
+    const [pillarGeo3] = track(new THREE.BoxGeometry(0.7, 3.4, 0.7), gopuramBase);
+    const tierColors = [0xf0a040, 0xe05a40, 0x40a0c0, 0xf0d060];
+    const tierMats = tierColors.map((c) => {
+      const m = new THREE.MeshStandardMaterial({ color: c, roughness: 0.8, flatShading: true });
+      mats.push(m);
+      return m;
+    });
+    const [tierGeo4] = track(new THREE.BoxGeometry(2.4, 0.5, 1.6), tierMats[0]);
+    const gopuram = new THREE.Group();
+    for (const s of [-1, 1]) {
+      const pillar2 = new THREE.Mesh(pillarGeo3, gopuramBase);
+      pillar2.position.set(s * 1.0, 1.7, 0);
+      pillar2.castShadow = true;
+      gopuram.add(pillar2);
+    }
+    for (let t = 0; t < 4; t++) {
+      const shrink2 = 1 - t * 0.15;
+      const tier4 = new THREE.Mesh(tierGeo4, tierMats[t % tierMats.length]);
+      tier4.scale.set(shrink2, 1, shrink2);
+      tier4.position.y = 3.6 + t * 0.55;
+      tier4.castShadow = true;
+      gopuram.add(tier4);
+    }
+    gopuram.position.set(-10, 0, -11);
+    group.add(gopuram);
+  }
+
+  // ---- Orchard Road neon arcade: a lit-up shopping arcade sign strung with
+  // festive lights, the boulevard's retail glow ----
+  if (mapId === "orchard_road") {
+    const archFrameMat = new THREE.MeshStandardMaterial({ color: 0x2a2a34, roughness: 0.5, metalness: 0.6 });
+    mats.push(archFrameMat);
+    const [postGeo8] = track(new THREE.CylinderGeometry(0.14, 0.16, 3.4, 8), archFrameMat);
+    const [beamGeo2] = track(new THREE.BoxGeometry(4.4, 0.3, 0.3), archFrameMat);
+    const [neonGeo, neonMat] = track(new THREE.BoxGeometry(3.8, 0.5, 0.08), new THREE.MeshBasicMaterial({ color: 0xc040e0 }));
+    nightLights.push({ mat: neonMat, day: new THREE.Color(0xc040e0).multiplyScalar(0.55), night: new THREE.Color(0xff80f0) });
+    const [bulbGeo2, bulbMat2] = track(
+      new THREE.SphereGeometry(0.06, 6, 5),
+      new THREE.MeshBasicMaterial({ color: 0x40c0e0, transparent: true, opacity: 0, blending: THREE.AdditiveBlending }),
+    );
+    nightFades.push({ mat: bulbMat2, max: 0.9 });
+    const arcade = new THREE.Group();
+    for (const s of [-1, 1]) {
+      const post2 = new THREE.Mesh(postGeo8, archFrameMat);
+      post2.position.set(s * 2.0, 1.7, 0);
+      post2.castShadow = true;
+      arcade.add(post2);
+    }
+    const beam2 = new THREE.Mesh(beamGeo2, archFrameMat);
+    beam2.position.y = 3.4;
+    arcade.add(beam2);
+    const neon = new THREE.Mesh(neonGeo, neonMat);
+    neon.position.set(0, 3.4, 0.2);
+    arcade.add(neon);
+    for (let i = 0; i < 8; i++) {
+      const bulb2 = new THREE.Mesh(bulbGeo2, bulbMat2);
+      bulb2.position.set(-1.9 + i * 0.54, 3.1, 0.2);
+      arcade.add(bulb2);
+    }
+    arcade.position.set(11, 0, 8);
+    group.add(arcade);
+  }
+
+  // ---- Night Safari watchtower: an elevated wooden viewing platform with a
+  // thatch roof and hanging lanterns, for observing nocturnal wildlife ----
+  if (mapId === "night_safari") {
+    const towerWood = new THREE.MeshStandardMaterial({ color: 0x3a2c1c, roughness: 1 });
+    mats.push(towerWood);
+    const [legGeo4] = track(new THREE.CylinderGeometry(0.14, 0.18, 3.2, 6), towerWood);
+    const [platformGeo] = track(new THREE.BoxGeometry(2.4, 0.2, 2.0), towerWood);
+    const [railGeo] = track(new THREE.BoxGeometry(2.4, 0.5, 0.08), towerWood);
+    const [thatchGeo, thatchMat] = track(new THREE.ConeGeometry(1.9, 1.1, 6), new THREE.MeshStandardMaterial({ color: 0x5a4426, roughness: 1, flatShading: true }));
+    const [lanternGeo2, lanternMat2] = track(new THREE.SphereGeometry(0.13, 8, 6), new THREE.MeshBasicMaterial({ color: 0xffb050 }));
+    nightLights.push({ mat: lanternMat2, day: new THREE.Color(0x8a6a3a), night: new THREE.Color(0xffcf80) });
+    const tower = new THREE.Group();
+    for (const [lx, lz] of [[-1.0, -0.8], [1.0, -0.8], [-1.0, 0.8], [1.0, 0.8]] as const) {
+      const leg2 = new THREE.Mesh(legGeo4, towerWood);
+      leg2.position.set(lx, 1.6, lz);
+      tower.add(leg2);
+    }
+    const platform = new THREE.Mesh(platformGeo, towerWood);
+    platform.position.y = 3.3;
+    platform.castShadow = true;
+    tower.add(platform);
+    for (const s of [-1, 1]) {
+      const rail = new THREE.Mesh(railGeo, towerWood);
+      rail.position.set(0, 3.65, s * 1.0);
+      tower.add(rail);
+    }
+    const thatch = new THREE.Mesh(thatchGeo, thatchMat);
+    thatch.position.y = 4.6;
+    thatch.rotation.y = Math.PI / 6;
+    thatch.castShadow = true;
+    tower.add(thatch);
+    for (const [lx, lz] of [[-1.1, 0], [1.1, 0]] as const) {
+      const lantern = new THREE.Mesh(lanternGeo2, lanternMat2);
+      lantern.position.set(lx, 3.05, lz);
+      tower.add(lantern);
+      flickers.push(lantern);
+    }
+    tower.position.set(-11, 0, 10);
+    group.add(tower);
+  }
+
+  // ---- Tiong Bahru bird corner: a row of hanging birdcages on tall poles,
+  // the estate's old-school bird-singing tradition ----
+  if (mapId === "tiong_bahru") {
+    const poleMat2 = new THREE.MeshStandardMaterial({ color: 0x5a5a54, roughness: 0.6, metalness: 0.3 });
+    mats.push(poleMat2);
+    const [poleGeo2] = track(new THREE.CylinderGeometry(0.05, 0.06, 3.0, 6), poleMat2);
+    const [hookGeo, hookMat] = track(new THREE.TorusGeometry(0.1, 0.02, 5, 8), poleMat2);
+    const [cageGeo, cageMat] = track(
+      new THREE.CylinderGeometry(0.22, 0.22, 0.4, 10, 1, true),
+      new THREE.MeshStandardMaterial({ color: 0xc8a860, roughness: 0.7, wireframe: true }),
+    );
+    const [birdGeo2] = track(new THREE.ConeGeometry(0.08, 0.2, 6), poleMat2);
+    const birdColors2 = [0xd05030, 0xe0c040, 0x50a0c0];
+    const corner = new THREE.Group();
+    for (let p = 0; p < 3; p++) {
+      const px = p * 1.0 - 1.0;
+      const pole = new THREE.Mesh(poleGeo2, poleMat2);
+      pole.position.set(px, 1.5, 0);
+      pole.castShadow = true;
+      corner.add(pole);
+      const hook = new THREE.Mesh(hookGeo, hookMat);
+      hook.position.set(px, 2.95, 0);
+      hook.rotation.x = Math.PI / 2;
+      corner.add(hook);
+      const cage = new THREE.Mesh(cageGeo, cageMat);
+      cage.position.set(px, 2.6, 0);
+      corner.add(cage);
+      const birdMat2 = new THREE.MeshStandardMaterial({ color: birdColors2[p], roughness: 0.8 });
+      mats.push(birdMat2);
+      const bird2 = new THREE.Mesh(birdGeo2, birdMat2);
+      bird2.position.set(px, 2.6, 0);
+      bird2.rotation.x = -Math.PI / 2;
+      corner.add(bird2);
+    }
+    // a wooden bench for the bird-singing uncles
+    const benchMat = new THREE.MeshStandardMaterial({ color: 0x6a4a30, roughness: 1 });
+    mats.push(benchMat);
+    const [benchSeatGeo] = track(new THREE.BoxGeometry(2.2, 0.12, 0.6), benchMat);
+    const [benchLegGeo] = track(new THREE.BoxGeometry(0.1, 0.5, 0.5), benchMat);
+    const bench = new THREE.Group();
+    const seat = new THREE.Mesh(benchSeatGeo, benchMat);
+    seat.position.y = 0.5;
+    bench.add(seat);
+    for (const s of [-1, 1]) {
+      const leg3 = new THREE.Mesh(benchLegGeo, benchMat);
+      leg3.position.set(s * 0.95, 0.25, 0);
+      bench.add(leg3);
+    }
+    bench.position.set(0, 0, 1.0);
+    corner.add(bench);
+    corner.position.set(10, 0, -8);
+    group.add(corner);
+  }
+
+  // ---- Southern Ridges wave bridge: an undulating timber walkway echoing
+  // the park connector's signature Henderson Waves span ----
+  if (mapId === "southern_ridges") {
+    const deckMat2 = new THREE.MeshStandardMaterial({ color: 0xa07850, roughness: 0.9 });
+    mats.push(deckMat2);
+    const [segGeo] = track(new THREE.BoxGeometry(1.2, 0.15, 1.6), deckMat2);
+    const [ribGeo3, ribMat3] = track(new THREE.BoxGeometry(0.12, 0.9, 0.12), new THREE.MeshStandardMaterial({ color: 0x8a6040, roughness: 0.85 }));
+    const bridge = new THREE.Group();
+    const segments2 = 9;
+    for (let i = 0; i < segments2; i++) {
+      const t = i / (segments2 - 1);
+      const seg = new THREE.Mesh(segGeo, deckMat2);
+      seg.position.set(0, Math.sin(t * Math.PI * 2) * 0.35 + 1.0, (t - 0.5) * 11);
+      seg.rotation.x = Math.cos(t * Math.PI * 2) * 0.18; // undulating wave profile
+      seg.castShadow = true;
+      bridge.add(seg);
+      // an arching rib rises alongside every other segment, like the real span's ribs
+      if (i % 2 === 0) {
+        const rib = new THREE.Mesh(ribGeo3, ribMat3);
+        rib.position.set(0.75, seg.position.y + 0.5, seg.position.z);
+        rib.rotation.z = 0.3;
+        bridge.add(rib);
+      }
+    }
+    bridge.position.set(-9, 0, 0);
+    bridge.rotation.y = Math.PI / 2;
+    group.add(bridge);
+  }
+
+  // ---- Celestial Spire monument: the finale arena's namesake — a towering
+  // astral obelisk with a pulsing crystal apex and orbiting motes, standing
+  // between the spawn plaza and the boss zones beyond ----
+  if (mapId === "celestial_spire") {
+    const spireBase = new THREE.MeshStandardMaterial({ color: 0x4a3a6a, roughness: 0.6, metalness: 0.4 });
+    mats.push(spireBase);
+    const [baseGeo3] = track(new THREE.CylinderGeometry(2.2, 2.6, 1.2, 8), spireBase);
+    const [shaftGeo] = track(new THREE.CylinderGeometry(0.5, 1.4, 10, 8), spireBase);
+    const [apexGeo, apexMat] = track(
+      new THREE.OctahedronGeometry(1.1, 0),
+      new THREE.MeshBasicMaterial({ color: 0x8a6ae0, transparent: true, opacity: 0.9 }),
+    );
+    nightLights.push({ mat: apexMat, day: new THREE.Color(0x8a6ae0).multiplyScalar(0.65), night: new THREE.Color(0xc0a0ff) });
+    const [moteGeo, moteMat] = track(new THREE.OctahedronGeometry(0.22, 0), new THREE.MeshBasicMaterial({ color: 0xb090f0 }));
+    const spire = new THREE.Group();
+    const base3 = new THREE.Mesh(baseGeo3, spireBase);
+    base3.position.y = 0.6;
+    base3.castShadow = true;
+    spire.add(base3);
+    const shaft = new THREE.Mesh(shaftGeo, spireBase);
+    shaft.position.y = 6.2;
+    shaft.castShadow = true;
+    spire.add(shaft);
+    const apex = new THREE.Mesh(apexGeo, apexMat);
+    apex.position.y = 12.3;
+    spire.add(apex);
+    spinners.push({ obj: apex, speed: 0.5 });
+    spire.position.set(0, 0, 12);
+    group.add(spire);
+    // astral motes orbit the shaft — added to the top-level group since
+    // orbiters positions itself in world space, matching the spire's placement
+    for (let i = 0; i < 6; i++) {
+      const mote = new THREE.Mesh(moteGeo, moteMat);
+      group.add(mote);
+      orbiters.push({
+        sprite: mote as unknown as THREE.Sprite,
+        cx: 0,
+        cz: 12,
+        y: 4 + (i / 6) * 8,
+        r: 2.2 + rng() * 1.0,
+        speed: 0.35 + rng() * 0.25,
+        phase: (i / 6) * Math.PI * 2,
+      });
+    }
+  }
+
   // ---- Aldebaran clock tower: the town's landmark — a tall stone tower with
   // a white clock face whose hands really turn ----
   if (mapId === "aldebaran") {
@@ -3936,6 +5057,55 @@ export function buildScenery(mapId: string): Scenery {
         group.add(cap);
       }
     }
+  }
+
+  // ---- Byalan sunken ruin: a broken ship's hull rests on the seafloor,
+  // giving the underwater dungeon its own identity apart from the bubbles
+  // and jellyfish it shares with Abyss ----
+  if (mapId === "byalan") {
+    const hullStone = new THREE.MeshStandardMaterial({ color: 0x3a4a3a, roughness: 1, flatShading: true });
+    mats.push(hullStone);
+    const [hullSideGeo2] = track(new THREE.BoxGeometry(4.2, 1.3, 0.18), hullStone);
+    const [ribGeo2] = track(new THREE.CylinderGeometry(0.06, 0.07, 1.5, 5), hullStone);
+    const [mastGeo, mastMat] = track(new THREE.CylinderGeometry(0.09, 0.13, 3.2, 6), hullStone);
+    const ruin = new THREE.Group();
+    const hullSide = new THREE.Mesh(hullSideGeo2, hullStone);
+    hullSide.position.y = 0.4;
+    hullSide.castShadow = true;
+    ruin.add(hullSide);
+    for (let r = 0; r < 6; r++) {
+      const rib = new THREE.Mesh(ribGeo2, hullStone);
+      rib.position.set(-1.7 + r * 0.7, 0.5, 0.1);
+      rib.rotation.x = 0.2;
+      ruin.add(rib);
+    }
+    const mast = new THREE.Mesh(mastGeo, mastMat);
+    mast.position.set(0.5, 1.5, 0);
+    mast.rotation.z = 0.6; // toppled, half-buried in silt
+    ruin.add(mast);
+    ruin.position.set(11, -0.2, -9);
+    ruin.rotation.y = 0.7;
+    group.add(ruin);
+  }
+
+  // ---- Abyss trench: a glowing teal chasm splits the lakebed, distinct
+  // from Byalan's sunken ruin and from GH Abyss's void-purple rift ----
+  if (mapId === "abyss") {
+    const [trenchGeo, trenchMat] = track(
+      new THREE.PlaneGeometry(1.4, 7.0),
+      new THREE.MeshBasicMaterial({ color: 0x2ad0c0, transparent: true, opacity: 0.5 }),
+    );
+    nightLights.push({
+      mat: trenchMat,
+      day: new THREE.Color(0x2ad0c0).multiplyScalar(0.6),
+      night: new THREE.Color(0x6af0e0),
+    });
+    const trench = new THREE.Mesh(trenchGeo, trenchMat);
+    trench.rotation.x = -Math.PI / 2;
+    trench.position.set(-10, 0.03, -9);
+    trench.rotation.z = -0.4;
+    group.add(trench);
+    flickers.push(trench); // a slow pulsing glow from the deep
   }
 
   // ---- drifting jellyfish: the abyssal maps have a few translucent jellies
@@ -4456,6 +5626,7 @@ function addHouses(
   nightLights: NightLight[],
   smokes: { sprite: THREE.Sprite; baseY: number; offset: number }[],
   spinners: { obj: THREE.Object3D; speed: number; axis?: "y" }[],
+  bobbers: { obj: THREE.Object3D; baseY: number; phase: number }[],
 ): void {
   const [wallGeo, wallMat] = track(
     new THREE.BoxGeometry(2.6, 1.8, 2.2),
@@ -4535,7 +5706,6 @@ function addHouses(
     // that sway and glint gently in the breeze
     {
       const chimeMat = new THREE.MeshStandardMaterial({ color: 0xd8b060, roughness: 0.4, metalness: 0.6 });
-      mats.push(chimeMat);
       const [hangerGeo] = track(new THREE.CylinderGeometry(0.015, 0.015, 0.36, 4), chimeMat);
       const [tubeGeo] = track(new THREE.CylinderGeometry(0.018, 0.018, 0.28, 6), chimeMat);
       const chimes = new THREE.Group();
@@ -4549,7 +5719,7 @@ function addHouses(
       }
       chimes.position.set(p.x === 0 ? 0.9 : Math.sign(p.x) * -0.9, 1.6, 1.15);
       house.add(chimes);
-      bobbers.push({ obj: chimes, baseY: 1.6, phase: rng() * Math.PI * 2 });
+      bobbers.push({ obj: chimes, baseY: 1.6, phase: (p.x + p.z) * 0.3 });
     }
 
     // the north house carries a weather vane that swings slowly with the wind

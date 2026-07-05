@@ -1,5 +1,6 @@
 import {
   EquipSlot,
+  getItem,
   JobId,
   MAP_SIZE,
   MsgType,
@@ -18,6 +19,8 @@ const VALID_JOBS = new Set<string>([
   JobId.Mage,
   JobId.Archer,
   JobId.Acolyte,
+  JobId.Thief,
+  JobId.Merchant,
 ]);
 
 // Applies a decoded client message to the world for a given client link. Shared
@@ -39,9 +42,13 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       const p = playerOf(world, link);
       if (p && world.monsters.has(msg.targetId)) {
         p.attackTargetId = msg.targetId;
-      } else if (p && world.isPvp(p.mapId)) {
+      } else if (p) {
+        const openPvp = world.isPvp(p.mapId);
+        const duelOpponentId = world.duel.opponentOf(p.id);
         const other = world.players.get(msg.targetId);
-        if (other && other.id !== p.id && other.mapId === p.mapId) p.attackTargetId = msg.targetId;
+        if (other && other.id !== p.id && other.mapId === p.mapId && (openPvp || other.id === duelOpponentId)) {
+          p.attackTargetId = msg.targetId;
+        }
       }
       break;
     }
@@ -64,7 +71,12 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
     }
     case MsgType.UseItem: {
       const p = playerOf(world, link);
-      if (p) p.useItem(msg.itemId);
+      const item = getItem(msg.itemId);
+      if (p && p.useItem(msg.itemId) && (item?.mount || item?.costume)) {
+        // Mounting/dismounting or changing costume changes how the player
+        // looks to everyone else.
+        world.broadcastToMap(p.mapId, { t: MsgType.Spawn, entity: p.toFull() });
+      }
       break;
     }
     case MsgType.Equip: {
@@ -138,6 +150,36 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       if (p) world.guild.leave(p);
       break;
     }
+    case MsgType.GuildStoreItem: {
+      const p = playerOf(world, link);
+      if (p) world.guild.storeItem(p, msg.itemId, Math.max(1, Math.floor(msg.qty || 1)));
+      break;
+    }
+    case MsgType.GuildRetrieveItem: {
+      const p = playerOf(world, link);
+      if (p) world.guild.retrieveItem(p, msg.itemId, Math.max(1, Math.floor(msg.qty || 1)));
+      break;
+    }
+    case MsgType.DuelRequest: {
+      const p = playerOf(world, link);
+      if (p) world.duel.request(p, msg.targetId);
+      break;
+    }
+    case MsgType.DuelAccept: {
+      const p = playerOf(world, link);
+      if (p) world.duel.accept(p, msg.fromId);
+      break;
+    }
+    case MsgType.DuelDecline: {
+      const p = playerOf(world, link);
+      if (p) world.duel.decline(p, msg.fromId);
+      break;
+    }
+    case MsgType.DuelCancel: {
+      const p = playerOf(world, link);
+      if (p) world.duel.leave(p);
+      break;
+    }
     case MsgType.AcceptQuest: {
       const p = playerOf(world, link);
       if (p) p.acceptQuest(msg.questId);
@@ -209,6 +251,32 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       if (p && npc && npc.role === "healer" && npc.mapId === p.mapId) {
         p.hp = p.derived.maxHp;
         p.sp = p.derived.maxSp;
+      }
+      break;
+    }
+    case MsgType.Gather: {
+      const p = playerOf(world, link);
+      const npc = world.npcs.get(msg.npcId);
+      const skill =
+        npc?.role === "gather_fish" ? "fishing" :
+        npc?.role === "gather_ore" ? "mining" :
+        npc?.role === "gather_crop" ? "gardening" :
+        null;
+      if (p && npc && skill && npc.mapId === p.mapId && Math.hypot(p.x - npc.x, p.z - npc.z) <= 6) {
+        const result = p.gather(skill);
+        if (result) {
+          world.connections.get(p.connId)?.send({ t: MsgType.Loot, items: [{ id: result.itemId, qty: result.qty }], zeny: 0 });
+        }
+      }
+      break;
+    }
+    case MsgType.Craft: {
+      const p = playerOf(world, link);
+      if (p) {
+        const result = p.craft(msg.recipeId);
+        if (result) {
+          world.connections.get(p.connId)?.send({ t: MsgType.Loot, items: [{ id: result.itemId, qty: result.qty }], zeny: 0 });
+        }
       }
       break;
     }

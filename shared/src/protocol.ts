@@ -100,6 +100,47 @@ export interface LeaveGuildMsg {
   t: MsgType.LeaveGuild;
 }
 
+export interface GuildStoreItemMsg {
+  t: MsgType.GuildStoreItem;
+  itemId: string;
+  qty: number;
+}
+
+export interface GuildRetrieveItemMsg {
+  t: MsgType.GuildRetrieveItem;
+  itemId: string;
+  qty: number;
+}
+
+export interface DuelRequestMsg {
+  t: MsgType.DuelRequest;
+  targetId: number;
+}
+
+export interface DuelAcceptMsg {
+  t: MsgType.DuelAccept;
+  fromId: number;
+}
+
+export interface DuelDeclineMsg {
+  t: MsgType.DuelDecline;
+  fromId: number;
+}
+
+export interface DuelCancelMsg {
+  t: MsgType.DuelCancel;
+}
+
+export interface GatherMsg {
+  t: MsgType.Gather;
+  npcId: number;
+}
+
+export interface CraftMsg {
+  t: MsgType.Craft;
+  recipeId: string;
+}
+
 export interface AcceptQuestMsg {
   t: MsgType.AcceptQuest;
   questId: string;
@@ -269,6 +310,14 @@ export type ClientMessage =
   | CreateGuildMsg
   | JoinGuildMsg
   | LeaveGuildMsg
+  | GuildStoreItemMsg
+  | GuildRetrieveItemMsg
+  | DuelRequestMsg
+  | DuelAcceptMsg
+  | DuelDeclineMsg
+  | DuelCancelMsg
+  | GatherMsg
+  | CraftMsg
   | AcceptQuestMsg
   | ClaimQuestMsg
   | AllocateStatMsg
@@ -358,11 +407,27 @@ export interface GuildInfo {
   name: string;
   masterId: number;
   members: PartyMember[];
+  level: number;
+  exp: number;
+  expToNext: number;
+  storage: Array<{ id: string; qty: number }>;
 }
 
 export interface GuildUpdateMsg {
   t: MsgType.GuildUpdate;
   guild: GuildInfo | null; // null = you are no longer in a guild
+}
+
+export interface DuelRequestRecvMsg {
+  t: MsgType.DuelRequestRecv;
+  fromId: number;
+  fromName: string;
+}
+
+export interface DuelUpdateMsg {
+  t: MsgType.DuelUpdate;
+  opponentId: number | null; // null = you are no longer in a duel
+  opponentName?: string;
 }
 
 export interface DamageEventMsg {
@@ -447,6 +512,8 @@ export type ServerMessage =
   | PartyInviteRecvMsg
   | PartyUpdateMsg
   | GuildUpdateMsg
+  | DuelRequestRecvMsg
+  | DuelUpdateMsg
   | MapChangeMsg
   | DefeatedMsg
   | RefineResultMsg

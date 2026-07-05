@@ -23,6 +23,7 @@ import { InventoryPanel } from "./ui/InventoryPanel.js";
 import { StoragePanel } from "./ui/StoragePanel.js";
 import { BestiaryPanel } from "./ui/BestiaryPanel.js";
 import { ShopPanel } from "./ui/ShopPanel.js";
+import { CraftingPanel } from "./ui/CraftingPanel.js";
 import { ExchangePanel } from "./ui/ExchangePanel.js";
 import { QuestPanel } from "./ui/QuestPanel.js";
 import { RefinePanel } from "./ui/RefinePanel.js";
@@ -109,6 +110,7 @@ window.addEventListener("keydown", (e) => {
 let currentTargetId: number | null = null;
 let approachTargetId: number | null = null; // monster we're predicting an approach toward
 let pvpMap = false;
+let duelOpponentId: number | null = null;
 function attackMonster(id: number): void {
   currentTargetId = id;
   approachTargetId = id;
@@ -215,6 +217,10 @@ const shop = new ShopPanel({
   onSell: (itemId) => transport?.send({ t: MsgType.SellItem, itemId, qty: 1 }),
 });
 
+const crafting = new CraftingPanel({
+  onCraft: (recipeId) => transport?.send({ t: MsgType.Craft, recipeId }),
+});
+
 const storage = new StoragePanel({
   onStore: (itemId, qty) => transport?.send({ t: MsgType.StoreItem, itemId, qty }),
   onRetrieve: (itemId, qty) => transport?.send({ t: MsgType.RetrieveItem, itemId, qty }),
@@ -262,6 +268,8 @@ const guildPanel = new GuildPanel({
   onCreate: (name) => transport?.send({ t: MsgType.CreateGuild, name }),
   onJoin: (name) => transport?.send({ t: MsgType.JoinGuild, name }),
   onLeave: () => transport?.send({ t: MsgType.LeaveGuild }),
+  onStore: (itemId, qty) => transport?.send({ t: MsgType.GuildStoreItem, itemId, qty }),
+  onRetrieve: (itemId, qty) => transport?.send({ t: MsgType.GuildRetrieveItem, itemId, qty }),
 });
 
 // Render an incoming party invite as an accept/decline banner.
@@ -284,6 +292,47 @@ function showInvite(fromName: string, partyId: number): void {
   el.appendChild(decline);
 }
 
+// Render an incoming duel challenge as an accept/decline banner (reuses the
+// same prompt element as a party invite — only one can show at a time).
+function showDuelInvite(fromName: string, fromId: number): void {
+  const el = document.getElementById("invite-prompt")!;
+  el.classList.remove("hidden");
+  el.innerHTML = `<span>${fromName} challenges you to a duel.</span>`;
+  const accept = document.createElement("button");
+  accept.className = "ip-btn accept";
+  accept.textContent = "Accept";
+  accept.addEventListener("click", () => {
+    transport?.send({ t: MsgType.DuelAccept, fromId });
+    el.classList.add("hidden");
+  });
+  const decline = document.createElement("button");
+  decline.className = "ip-btn";
+  decline.textContent = "Decline";
+  decline.addEventListener("click", () => {
+    transport?.send({ t: MsgType.DuelDecline, fromId });
+    el.classList.add("hidden");
+  });
+  el.appendChild(accept);
+  el.appendChild(decline);
+}
+
+// Show/hide the small "dueling <name>" banner with a Forfeit button.
+function setDuelHud(opponentId: number | null, opponentName: string | null): void {
+  const el = document.getElementById("duel-hud")!;
+  if (opponentId == null) {
+    el.classList.add("hidden");
+    el.innerHTML = "";
+    return;
+  }
+  el.classList.remove("hidden");
+  el.innerHTML = `<span>⚔ Dueling ${opponentName}</span>`;
+  const forfeit = document.createElement("button");
+  forfeit.className = "ip-btn";
+  forfeit.textContent = "Forfeit";
+  forfeit.addEventListener("click", () => transport?.send({ t: MsgType.DuelCancel }));
+  el.appendChild(forfeit);
+}
+
 // ---- input → intents ----
 const input = new InputController(
   scene.renderer.domElement,
@@ -297,7 +346,7 @@ const input = new InputController(
       gameState.self?.setMoveTarget(x, z);
       clickMarker.ping(x, z);
     },
-    onAttack: (id) => {
+    onAttack: (id, shiftKey) => {
       // Clicking the shop NPC opens the shop instead of attacking.
       const role = gameState.npcRoleOf(id);
       if (role === "shop") {
@@ -335,9 +384,28 @@ const input = new InputController(
         warp.open(id);
         return;
       }
-      // Clicking another player: attack them in a PvP map, else invite to party.
+      if (role === "cook") {
+        crafting.open();
+        return;
+      }
+      if (role === "gather_fish" || role === "gather_ore" || role === "gather_crop") {
+        // Walk to the gathering spot and request a gather (server checks proximity).
+        const pos = gameState.worldPosOf(id);
+        if (pos) {
+          transport?.send({ t: MsgType.MoveIntent, x: pos.x, z: pos.z });
+          gameState.self?.setMoveTarget(pos.x, pos.z);
+        }
+        transport?.send({ t: MsgType.Gather, npcId: id });
+        return;
+      }
+      // Clicking another player: shift-click challenges them to a duel; a
+      // normal click attacks in a PvP map (or an active duel opponent
+      // anywhere), else invites them to a party.
       if (gameState.isRemotePlayer(id)) {
-        if (pvpMap) {
+        if (shiftKey) {
+          transport?.send({ t: MsgType.DuelRequest, targetId: id });
+          chat.system("Duel request sent.");
+        } else if (pvpMap || duelOpponentId === id) {
           attackMonster(id);
         } else {
           transport?.send({ t: MsgType.PartyInvite, targetId: id });
@@ -418,14 +486,17 @@ function handleMessage(msg: ServerMessage): void {
       exchange.sync(msg.self);
       bestiary.sync(msg.self);
       shop.sync(msg.self);
+      crafting.sync(msg.self);
       quests.sync(msg.self);
       refine.sync(msg.self);
       skills.sync(msg.self);
       achievements.sync(msg.self);
       aesir.sync(msg.self);
+      guildPanel.sync(msg.self);
       petCompanion.setPet(msg.self.pet);
-      gameState.self?.setMounted(msg.self.mounted);
-      selfMounted = msg.self.mounted;
+      gameState.self?.setMount(msg.self.mountId);
+      gameState.self?.setCostume(msg.self.costumeId);
+      selfMounted = !!msg.self.mountId;
       questTracker.sync(msg.self);
       gameState.self?.setHeadgear(msg.self.equipped.find((e) => e.slot === EquipSlot.Headgear)?.id ?? null);
       jobAdvance.update(msg.self);
@@ -450,6 +521,14 @@ function handleMessage(msg: ServerMessage): void {
     case MsgType.GuildUpdate:
       guildPanel.setGuild(msg.guild);
       chat.system(msg.guild ? `Guild: ${msg.guild.name}` : "You left your guild.");
+      break;
+    case MsgType.DuelRequestRecv:
+      showDuelInvite(msg.fromName, msg.fromId);
+      break;
+    case MsgType.DuelUpdate:
+      duelOpponentId = msg.opponentId;
+      setDuelHud(msg.opponentId, msg.opponentName ?? null);
+      chat.system(msg.opponentId != null ? `You are now dueling ${msg.opponentName}.` : "The duel has ended.");
       break;
     case MsgType.BossTelegraph:
       novaTelegraph.spawn(msg.x, msg.z, msg.radius, msg.delayMs);

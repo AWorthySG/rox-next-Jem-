@@ -30,16 +30,21 @@ function client(name, job) {
       st.portal = { id: m.entity.id, x: m.entity.x, z: m.entity.z };
       st.portals[m.entity.name] = { id: m.entity.id, x: m.entity.x, z: m.entity.z };
     }
+    if (m.t === "spawn" && m.entity.npcRole === "gather_crop") {
+      st.gatherNode = { id: m.entity.id, x: m.entity.x, z: m.entity.z };
+    }
     if (m.t === "damage") { st.dmg.push({ sourceId: m.sourceId, targetId: m.targetId }); if (st.dmg.length > 200) st.dmg.shift(); }
     if (m.t === "mapChange") st.map = m.mapId;
     if (m.t === "spawn" && m.entity.kind === "player") st.seenPlayers.add(m.entity.id);
     if (m.t === "despawn") st.monsters.delete(m.id);
     if (m.t === "self") st.lastSelf = m.self;
     if (m.t === "damage" && m.skillId) st.skillDamage = (st.skillDamage || 0) + 1;
-    if (m.t === "loot") st.loot = (st.loot || 0) + 1;
+    if (m.t === "loot") { st.loot = (st.loot || 0) + 1; st.lastLoot = m.items; }
     if (m.t === "partyInviteRecv") st.invitePartyId = m.partyId;
     if (m.t === "partyUpdate") st.party = m.party;
     if (m.t === "guildUpdate") st.guild = m.guild;
+    if (m.t === "duelRequestRecv") st.duelRequestFrom = m.fromId;
+    if (m.t === "duelUpdate") st.duelOpponentId = m.opponentId;
     if (m.t === "chatMsg") { st.lastChat = `${m.name}: ${m.text}`; st.chats.push(`${m.name}: ${m.text}`); }
     if (m.t === "exchangeUpdate") st.listings = m.listings;
   });
@@ -181,10 +186,41 @@ async function main() {
   }
   check(t.map === "cave", "entering the portal moves the player to the cave map");
 
+  // Life skills: gather at the field's Garden Plot.
+  const g = client("Gardener", "merchant");
+  await wait(1500);
+  check(g.gatherNode != null, "field has a Garden Plot gathering node");
+  if (g.gatherNode) {
+    g.ws.send(JSON.stringify({ t: "move", x: g.gatherNode.x, z: g.gatherNode.z }));
+    await wait(1600);
+    g.ws.send(JSON.stringify({ t: "gather", npcId: g.gatherNode.id }));
+    await wait(400);
+  }
+  check((g.lastLoot?.length ?? 0) > 0, "gather: gathering at the Garden Plot yields an item");
+
   // PvP: two duelists travel to the arena; one attacks the other.
   const d1 = client("Duelist1", "swordsman");
   const d2 = client("Duelist2", "swordsman");
   await wait(1500);
+
+  // Structured PvP: a duel request lets two players fight right on the
+  // (non-PvP) field map, without needing the arena at all.
+  d1.ws.send(JSON.stringify({ t: "duelRequest", targetId: d2.self }));
+  await wait(400);
+  check(d2.duelRequestFrom === d1.self, "duel: request is delivered to the target");
+  d2.ws.send(JSON.stringify({ t: "duelAccept", fromId: d1.self }));
+  await wait(400);
+  check(d1.duelOpponentId === d2.self && d2.duelOpponentId === d1.self, "duel: accepting pairs both duelists");
+  for (let i = 0; i < 10; i++) {
+    d1.ws.send(JSON.stringify({ t: "attack", targetId: d2.self }));
+    await wait(200);
+    if (d1.dmg.some((x) => x.sourceId === d1.self && x.targetId === d2.self)) break;
+  }
+  check(d1.dmg.some((x) => x.sourceId === d1.self && x.targetId === d2.self), "duel: a player can damage their duel opponent on a non-PvP map");
+  d1.ws.send(JSON.stringify({ t: "duelCancel" }));
+  await wait(400);
+  check(d1.duelOpponentId === null, "duel: forfeiting ends the duel");
+
   const arenaPortal = d1.portals["Arena Portal"];
   check(arenaPortal != null, "field has an arena portal");
   if (arenaPortal) {
@@ -204,6 +240,7 @@ async function main() {
   d1.ws.close();
   d2.ws.close();
   t.ws.close();
+  g.ws.close();
   a.ws.close();
   b.ws.close();
   await stopServer();

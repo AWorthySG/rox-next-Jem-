@@ -9,6 +9,7 @@ export interface StorageHandlers {
 function iconFor(item: ItemDef): string {
   if (item.pet) return "🥚";
   if (item.mount) return "🐎";
+  if (item.costume) return "👘";
   if (item.type === ItemType.Card) return "🃏";
   if (item.type === ItemType.Consumable) return item.healSp ? "🔷" : "🧪";
   if (item.type === ItemType.Weapon) return item.matk ? "🪄" : "⚔️";
