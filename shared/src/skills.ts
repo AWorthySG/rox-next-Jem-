@@ -688,6 +688,128 @@ export const SKILLS: Record<string, SkillDef> = {
     power: 6.5,
     desc: "Channel every last drop of SP into a single, world-shaking blow.",
   },
+
+  // ---- Rogue / Stalker ----
+  raid: {
+    id: "raid",
+    name: "Raid",
+    job: JobId.Rogue,
+    hotkey: 3,
+    spCost: 22,
+    cooldownMs: 5000,
+    range: 8,
+    kind: DamageKind.Physical,
+    power: 2.6,
+    aoeRadius: 5,
+    desc: "A hail of thrown blades scatters across a wide area.",
+  },
+  backstab: {
+    id: "backstab",
+    name: "Backstab",
+    job: JobId.Rogue,
+    hotkey: 4,
+    spCost: 18,
+    cooldownMs: 2000,
+    range: 2.6,
+    kind: DamageKind.Physical,
+    power: 4.2,
+    desc: "Slip behind a foe for a vicious, exposed strike.",
+  },
+  shadow_reaper: {
+    id: "shadow_reaper",
+    name: "Shadow Reaper",
+    job: JobId.Stalker,
+    hotkey: 6,
+    spCost: 58,
+    cooldownMs: 6500,
+    range: 2.8,
+    kind: DamageKind.Physical,
+    power: 5.6,
+    desc: "Strike from the gathered dark itself, reaping a single foe.",
+  },
+
+  // ---- Bard / Minstrel ----
+  melody_strike: {
+    id: "melody_strike",
+    name: "Melody Strike",
+    job: JobId.Bard,
+    hotkey: 3,
+    spCost: 14,
+    cooldownMs: 1600,
+    range: 11,
+    kind: DamageKind.Physical,
+    power: 3.4,
+    desc: "A resonant chord fired like an arrow at a single foe.",
+  },
+  battle_hymn: {
+    id: "battle_hymn",
+    name: "Battle Hymn",
+    job: JobId.Bard,
+    hotkey: 4,
+    spCost: 20,
+    cooldownMs: 20000,
+    range: 0,
+    kind: DamageKind.Physical,
+    power: 0,
+    buff: { stat: "atk", mult: 1.3, durationMs: 15000 },
+    desc: "Strike up a rousing hymn: +30% ATK for 15s.",
+  },
+  severe_rainstorm: {
+    id: "severe_rainstorm",
+    name: "Severe Rainstorm",
+    job: JobId.Minstrel,
+    hotkey: 6,
+    spCost: 50,
+    cooldownMs: 6500,
+    range: 12,
+    kind: DamageKind.Physical,
+    power: 5.0,
+    aoeRadius: 6.5,
+    effect: { type: StatusType.Stun, durationMs: 1300 },
+    desc: "A disorienting downpour of arrows that stuns everyone caught in it.",
+  },
+
+  // ---- Alchemist / Creator ----
+  acid_bomb: {
+    id: "acid_bomb",
+    name: "Acid Bomb",
+    job: JobId.Alchemist,
+    hotkey: 3,
+    spCost: 20,
+    cooldownMs: 2000,
+    range: 9,
+    kind: DamageKind.Magic,
+    power: 3.6,
+    desc: "Hurl a flask of corrosive acid at a single target.",
+  },
+  bio_explosion: {
+    id: "bio_explosion",
+    name: "Bio Explosion",
+    job: JobId.Alchemist,
+    hotkey: 4,
+    spCost: 30,
+    cooldownMs: 5500,
+    range: 9,
+    kind: DamageKind.Magic,
+    power: 2.2,
+    aoeRadius: 5,
+    effect: { type: StatusType.Burn, durationMs: 3500, magnitude: 0.25 },
+    desc: "A volatile brew that bursts into a caustic, burning cloud.",
+  },
+  plague_flask: {
+    id: "plague_flask",
+    name: "Plague Flask",
+    job: JobId.Creator,
+    hotkey: 6,
+    spCost: 54,
+    cooldownMs: 7000,
+    range: 10,
+    kind: DamageKind.Magic,
+    power: 4.8,
+    aoeRadius: 7,
+    effect: { type: StatusType.Burn, durationMs: 4000, magnitude: 0.35 },
+    desc: "Shatter a flask of engineered plague across a wide area.",
+  },
 };
 
 // Tag elemental skills (everything else stays Neutral). Lets the combat chart
@@ -713,6 +835,7 @@ const SKILL_ELEMENTS: Record<string, Element> = {
   soul_breaker: Element.Shadow,
   meltdown: Element.Fire,
   grand_cross: Element.Holy,
+  shadow_reaper: Element.Shadow,
 };
 for (const [id, el] of Object.entries(SKILL_ELEMENTS)) {
   if (SKILLS[id]) SKILLS[id].element = el;
@@ -801,6 +924,33 @@ export const SKILLS_BY_JOB: Record<JobId, SkillDef[]> = {
   // ---- Monk family (Acolyte's other branch) ----
   [JobId.Monk]: [SKILLS.heal, SKILLS.holy_light, SKILLS.chain_combo, SKILLS.tiger_palm],
   [JobId.Champion]: [SKILLS.heal, SKILLS.holy_light, SKILLS.chain_combo, SKILLS.tiger_palm, SKILLS.asura_strike],
+  // ---- Rogue family (Thief's other branch) ----
+  [JobId.Rogue]: [SKILLS.envenom, SKILLS.cloaking, SKILLS.raid, SKILLS.backstab],
+  [JobId.Stalker]: [
+    SKILLS.envenom,
+    SKILLS.cloaking,
+    SKILLS.raid,
+    SKILLS.backstab,
+    SKILLS.shadow_reaper,
+  ],
+  // ---- Bard family (Archer's other branch) ----
+  [JobId.Bard]: [SKILLS.double_strafe, SKILLS.arrow_shower, SKILLS.melody_strike, SKILLS.battle_hymn],
+  [JobId.Minstrel]: [
+    SKILLS.double_strafe,
+    SKILLS.arrow_shower,
+    SKILLS.melody_strike,
+    SKILLS.battle_hymn,
+    SKILLS.severe_rainstorm,
+  ],
+  // ---- Alchemist family (Merchant's other branch) ----
+  [JobId.Alchemist]: [SKILLS.mammonite, SKILLS.cart_swing, SKILLS.acid_bomb, SKILLS.bio_explosion],
+  [JobId.Creator]: [
+    SKILLS.mammonite,
+    SKILLS.cart_swing,
+    SKILLS.acid_bomb,
+    SKILLS.bio_explosion,
+    SKILLS.plague_flask,
+  ],
 };
 
 // Base cast times (ms) for the heavier magic nukes and ranged volleys. Melee
@@ -820,6 +970,10 @@ const CAST_TIMES: Record<string, number> = {
   arcane_lance: 650,
   dispell_wave: 950,
   grand_sage_nova: 1300,
+  acid_bomb: 550,
+  bio_explosion: 900,
+  plague_flask: 1250,
+  severe_rainstorm: 750,
 };
 for (const [id, ms] of Object.entries(CAST_TIMES)) {
   if (SKILLS[id]) SKILLS[id].castMs = ms;

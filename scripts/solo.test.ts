@@ -234,6 +234,50 @@ async function main(): Promise<void> {
   check(jobTierOf(JobId.Champion) === 3, "tier: Champion is tier 3");
   check(itemEquippableBy(getItem("saints_mace")!, JobId.Champion), "class: acolyte-family gear also fits a Champion");
 
+  // ---- branching 2nd jobs, round B: Thief/Archer/Merchant get a second path ----
+  const thiefOptions = advanceOptions(JobId.Thief, 25);
+  check(thiefOptions.includes(JobId.Assassin) && thiefOptions.includes(JobId.Rogue), "branch: Thief can advance to Assassin or Rogue");
+  const archerOptions = advanceOptions(JobId.Archer, 25);
+  check(archerOptions.includes(JobId.Hunter) && archerOptions.includes(JobId.Bard), "branch: Archer can advance to Hunter or Bard");
+  const merchantOptions = advanceOptions(JobId.Merchant, 25);
+  check(merchantOptions.includes(JobId.Blacksmith) && merchantOptions.includes(JobId.Alchemist), "branch: Merchant can advance to Blacksmith or Alchemist");
+
+  // ---- Rogue line: Thief -> Rogue -> Stalker (no confirmed 4th job yet) ----
+  const sneak = new Player(942, 1, "Sneak", JobId.Thief, 0, 0);
+  sneak.level = 25;
+  check(sneak.advanceJob(JobId.Rogue) && sneak.job === JobId.Rogue, "classes: Thief advances to Rogue");
+  check(sneak.skillLevel("backstab") === 1, "classes: Rogue learns Backstab");
+  check(jobTierOf(JobId.Rogue) === 2, "tier: Rogue is tier 2");
+  sneak.level = 45;
+  check(sneak.advanceJob(JobId.Stalker) && sneak.job === JobId.Stalker, "3rd job: Rogue -> Stalker at Lv45");
+  check(sneak.skillLevel("shadow_reaper") === 1, "3rd job: Stalker learns Shadow Reaper");
+  check(jobTierOf(JobId.Stalker) === 3, "tier: Stalker is tier 3");
+  check(itemEquippableBy(getItem("nightblade")!, JobId.Stalker), "class: thief-family gear also fits a Stalker");
+
+  // ---- Bard line: Archer -> Bard -> Minstrel (no confirmed 4th job yet) ----
+  const singer = new Player(941, 1, "Singer", JobId.Archer, 0, 0);
+  singer.level = 25;
+  check(singer.advanceJob(JobId.Bard) && singer.job === JobId.Bard, "classes: Archer advances to Bard");
+  check(singer.skillLevel("battle_hymn") === 1, "classes: Bard learns Battle Hymn");
+  check(jobTierOf(JobId.Bard) === 2, "tier: Bard is tier 2");
+  singer.level = 45;
+  check(singer.advanceJob(JobId.Minstrel) && singer.job === JobId.Minstrel, "3rd job: Bard -> Minstrel at Lv45");
+  check(singer.skillLevel("severe_rainstorm") === 1, "3rd job: Minstrel learns Severe Rainstorm");
+  check(jobTierOf(JobId.Minstrel) === 3, "tier: Minstrel is tier 3");
+  check(itemEquippableBy(getItem("ranger_longbow")!, JobId.Minstrel), "class: archer-family gear also fits a Minstrel");
+
+  // ---- Alchemist line: Merchant -> Alchemist -> Creator (no confirmed 4th job yet) ----
+  const chemist = new Player(940, 1, "Chemist", JobId.Merchant, 0, 0);
+  chemist.level = 25;
+  check(chemist.advanceJob(JobId.Alchemist) && chemist.job === JobId.Alchemist, "classes: Merchant advances to Alchemist");
+  check(chemist.skillLevel("acid_bomb") === 1, "classes: Alchemist learns Acid Bomb");
+  check(jobTierOf(JobId.Alchemist) === 2, "tier: Alchemist is tier 2");
+  chemist.level = 45;
+  check(chemist.advanceJob(JobId.Creator) && chemist.job === JobId.Creator, "3rd job: Alchemist -> Creator at Lv45");
+  check(chemist.skillLevel("plague_flask") === 1, "3rd job: Creator learns Plague Flask");
+  check(jobTierOf(JobId.Creator) === 3, "tier: Creator is tier 3");
+  check(itemEquippableBy(getItem("golden_axe")!, JobId.Creator), "class: merchant-family gear also fits a Creator");
+
   // ---- every combat map has at least two bosses ----
   for (const m of Object.values(MAPS)) {
     if (m.zones.length === 0) continue; // PvP arena (no monster zones)

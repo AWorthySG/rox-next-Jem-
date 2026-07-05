@@ -119,6 +119,12 @@ export enum JobId {
   Professor = "professor",
   Monk = "monk",
   Champion = "champion",
+  Rogue = "rogue",
+  Stalker = "stalker",
+  Bard = "bard",
+  Minstrel = "minstrel",
+  Alchemist = "alchemist",
+  Creator = "creator",
 }
 
 export enum DamageKind {
