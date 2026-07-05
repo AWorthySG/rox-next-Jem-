@@ -6,6 +6,7 @@ import {
   DamageKind,
   Element,
   jobTierOf,
+  advanceOptions,
   effectiveCastMs,
   elementMultiplier,
   environmentMultiplier,
@@ -183,6 +184,55 @@ async function main(): Promise<void> {
   check(!itemEquippableBy(getItem("nightblade")!, JobId.Merchant), "class: a Merchant cannot use dagger gear");
   check(itemEquippableBy(getItem("golden_axe")!, JobId.Mechanic), "class: axe gear fits a Mechanic");
   check(!itemEquippableBy(getItem("golden_axe")!, JobId.Thief), "class: a Thief cannot use axe gear");
+
+  // ---- branching 2nd jobs: Swordsman/Mage/Acolyte each get a second path ----
+  const swordOptions = advanceOptions(JobId.Swordsman, 25);
+  check(swordOptions.includes(JobId.Knight) && swordOptions.includes(JobId.Crusader), "branch: Swordsman can advance to Knight or Crusader");
+  const mageOptions = advanceOptions(JobId.Mage, 25);
+  check(mageOptions.includes(JobId.Wizard) && mageOptions.includes(JobId.Sage), "branch: Mage can advance to Wizard or Sage");
+  const acolyteOptions = advanceOptions(JobId.Acolyte, 25);
+  check(acolyteOptions.includes(JobId.Priest) && acolyteOptions.includes(JobId.Monk), "branch: Acolyte can advance to Priest or Monk");
+
+  // ---- Crusader line: Swordsman -> Crusader -> Paladin -> Royal Guard ----
+  const templar = new Player(945, 1, "Templar", JobId.Swordsman, 0, 0);
+  templar.level = 25;
+  check(templar.advanceJob(JobId.Crusader) && templar.job === JobId.Crusader, "classes: Swordsman advances to Crusader");
+  check(templar.skillLevel("shield_charge") === 1, "classes: Crusader learns Shield Charge");
+  check(jobTierOf(JobId.Crusader) === 2, "tier: Crusader is tier 2");
+  templar.level = 45;
+  check(templar.advanceJob(JobId.Paladin) && templar.job === JobId.Paladin, "3rd job: Crusader -> Paladin at Lv45");
+  check(templar.skillLevel("shield_chain") === 1, "3rd job: Paladin learns Shield Chain");
+  check(jobTierOf(JobId.Paladin) === 3, "tier: Paladin is tier 3");
+  templar.level = 70;
+  check(templar.advanceJob(JobId.RoyalGuard) && templar.job === JobId.RoyalGuard, "4th job: Paladin -> Royal Guard at Lv70");
+  check(templar.skillLevel("overbrand") === 1, "4th job: Royal Guard learns Overbrand");
+  check(jobTierOf(JobId.RoyalGuard) === 4, "tier: Royal Guard is tier 4");
+  check(itemEquippableBy(getItem("vanguard_greatsword")!, JobId.RoyalGuard), "class: sword-family gear also fits a Royal Guard");
+
+  // ---- Sage line: Mage -> Sage -> Professor (no confirmed 4th job yet) ----
+  const scholar = new Player(944, 1, "Scholar", JobId.Mage, 0, 0);
+  scholar.level = 25;
+  check(scholar.advanceJob(JobId.Sage) && scholar.job === JobId.Sage, "classes: Mage advances to Sage");
+  check(scholar.skillLevel("arcane_lance") === 1, "classes: Sage learns Arcane Lance");
+  check(jobTierOf(JobId.Sage) === 2, "tier: Sage is tier 2");
+  scholar.level = 45;
+  check(scholar.advanceJob(JobId.Professor) && scholar.job === JobId.Professor, "3rd job: Sage -> Professor at Lv45");
+  check(scholar.skillLevel("grand_sage_nova") === 1, "3rd job: Professor learns Grand Sage Nova");
+  check(jobTierOf(JobId.Professor) === 3, "tier: Professor is tier 3");
+  check(!scholar.advanceJob(JobId.ArchMage), "3rd job: Professor has no further advancement");
+  check(itemEquippableBy(getItem("archmage_rod")!, JobId.Professor), "class: mage-family gear also fits a Professor");
+
+  // ---- Monk line: Acolyte -> Monk -> Champion (no confirmed 4th job yet) ----
+  const brawler = new Player(943, 1, "Brawler", JobId.Acolyte, 0, 0);
+  brawler.level = 25;
+  check(brawler.advanceJob(JobId.Monk) && brawler.job === JobId.Monk, "classes: Acolyte advances to Monk");
+  check(brawler.skillLevel("chain_combo") === 1, "classes: Monk learns Chain Combo");
+  check(jobTierOf(JobId.Monk) === 2, "tier: Monk is tier 2");
+  brawler.level = 45;
+  check(brawler.advanceJob(JobId.Champion) && brawler.job === JobId.Champion, "3rd job: Monk -> Champion at Lv45");
+  check(brawler.skillLevel("asura_strike") === 1, "3rd job: Champion learns Asura Strike");
+  check(jobTierOf(JobId.Champion) === 3, "tier: Champion is tier 3");
+  check(itemEquippableBy(getItem("saints_mace")!, JobId.Champion), "class: acolyte-family gear also fits a Champion");
 
   // ---- every combat map has at least two bosses ----
   for (const m of Object.values(MAPS)) {

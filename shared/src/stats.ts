@@ -68,6 +68,13 @@ export const JOB_BASE_STATS: Record<JobId, Stats> = {
   [JobId.Whitesmith]: makeStats({ str: 36, agi: 16, vit: 32, int: 15, dex: 26, luk: 14 }),
   [JobId.ShadowCross]: makeStats({ str: 30, agi: 64, vit: 30, int: 12, dex: 48, luk: 38 }),
   [JobId.Mechanic]: makeStats({ str: 56, agi: 24, vit: 48, int: 20, dex: 38, luk: 20 }),
+  [JobId.Crusader]: makeStats({ str: 18, agi: 8, vit: 26, int: 6, dex: 14, luk: 6 }),
+  [JobId.Paladin]: makeStats({ str: 32, agi: 16, vit: 44, int: 10, dex: 24, luk: 12 }),
+  [JobId.RoyalGuard]: makeStats({ str: 48, agi: 22, vit: 64, int: 14, dex: 34, luk: 16 }),
+  [JobId.Sage]: makeStats({ str: 4, agi: 12, vit: 14, int: 20, dex: 22, luk: 8 }),
+  [JobId.Professor]: makeStats({ str: 7, agi: 20, vit: 22, int: 36, dex: 38, luk: 15 }),
+  [JobId.Monk]: makeStats({ str: 22, agi: 20, vit: 20, int: 6, dex: 16, luk: 8 }),
+  [JobId.Champion]: makeStats({ str: 36, agi: 32, vit: 32, int: 8, dex: 26, luk: 14 }),
 };
 
 // On each level-up a job gains a weighted bundle of stat points (auto-allocated
@@ -98,6 +105,13 @@ export const JOB_GROWTH: Record<JobId, Stats> = {
   [JobId.Whitesmith]: makeStats({ str: 6, agi: 2, vit: 5, int: 2, dex: 3, luk: 1 }),
   [JobId.ShadowCross]: makeStats({ str: 4, agi: 6, vit: 4, int: 2, dex: 6, luk: 4 }),
   [JobId.Mechanic]: makeStats({ str: 8, agi: 3, vit: 6, int: 2, dex: 4, luk: 2 }),
+  [JobId.Crusader]: makeStats({ str: 3, agi: 1, vit: 5, int: 1, dex: 2, luk: 1 }),
+  [JobId.Paladin]: makeStats({ str: 4, agi: 2, vit: 6, int: 1, dex: 3, luk: 2 }),
+  [JobId.RoyalGuard]: makeStats({ str: 6, agi: 3, vit: 8, int: 2, dex: 4, luk: 2 }),
+  [JobId.Sage]: makeStats({ str: 1, agi: 2, vit: 2, int: 3, dex: 4, luk: 1 }),
+  [JobId.Professor]: makeStats({ str: 1, agi: 3, vit: 3, int: 5, dex: 6, luk: 2 }),
+  [JobId.Monk]: makeStats({ str: 4, agi: 3, vit: 3, int: 0, dex: 2, luk: 1 }),
+  [JobId.Champion]: makeStats({ str: 5, agi: 5, vit: 5, int: 1, dex: 3, luk: 2 }),
 };
 
 const MAGIC_JOBS = new Set<JobId>([
@@ -109,6 +123,8 @@ const MAGIC_JOBS = new Set<JobId>([
   JobId.Priest,
   JobId.HighPriest,
   JobId.Cardinal,
+  JobId.Sage,
+  JobId.Professor,
 ]);
 
 export function isMagicJob(job: JobId): boolean {
