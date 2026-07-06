@@ -26,17 +26,30 @@ export const JOB_NAME: Record<JobId, string> = {
   [JobId.Whitesmith]: "Whitesmith",
   [JobId.ShadowCross]: "Shadow Cross",
   [JobId.Mechanic]: "Mechanic",
+  [JobId.Crusader]: "Crusader",
+  [JobId.Paladin]: "Paladin",
+  [JobId.RoyalGuard]: "Royal Guard",
+  [JobId.Sage]: "Sage",
+  [JobId.Professor]: "Professor",
+  [JobId.Monk]: "Monk",
+  [JobId.Champion]: "Champion",
+  [JobId.Rogue]: "Rogue",
+  [JobId.Stalker]: "Stalker",
+  [JobId.Bard]: "Bard",
+  [JobId.Minstrel]: "Minstrel",
+  [JobId.Alchemist]: "Alchemist",
+  [JobId.Creator]: "Creator",
 };
 
 // Advancement tree: which jobs each job may become next.
 export const JOB_TREE: Record<JobId, JobId[]> = {
   [JobId.Novice]: [JobId.Swordsman, JobId.Mage, JobId.Archer, JobId.Acolyte, JobId.Thief, JobId.Merchant],
-  [JobId.Swordsman]: [JobId.Knight],
-  [JobId.Mage]: [JobId.Wizard],
-  [JobId.Archer]: [JobId.Hunter],
-  [JobId.Acolyte]: [JobId.Priest],
-  [JobId.Thief]: [JobId.Assassin],
-  [JobId.Merchant]: [JobId.Blacksmith],
+  [JobId.Swordsman]: [JobId.Knight, JobId.Crusader],
+  [JobId.Mage]: [JobId.Wizard, JobId.Sage],
+  [JobId.Archer]: [JobId.Hunter, JobId.Bard],
+  [JobId.Acolyte]: [JobId.Priest, JobId.Monk],
+  [JobId.Thief]: [JobId.Assassin, JobId.Rogue],
+  [JobId.Merchant]: [JobId.Blacksmith, JobId.Alchemist],
   [JobId.Knight]: [JobId.RuneKnight],
   [JobId.Wizard]: [JobId.HighWizard],
   [JobId.Hunter]: [JobId.Sniper],
@@ -55,6 +68,19 @@ export const JOB_TREE: Record<JobId, JobId[]> = {
   [JobId.Cardinal]: [],
   [JobId.ShadowCross]: [],
   [JobId.Mechanic]: [],
+  [JobId.Crusader]: [JobId.Paladin],
+  [JobId.Paladin]: [JobId.RoyalGuard],
+  [JobId.RoyalGuard]: [],
+  [JobId.Sage]: [JobId.Professor],
+  [JobId.Professor]: [],
+  [JobId.Monk]: [JobId.Champion],
+  [JobId.Champion]: [],
+  [JobId.Rogue]: [JobId.Stalker],
+  [JobId.Stalker]: [],
+  [JobId.Bard]: [JobId.Minstrel],
+  [JobId.Minstrel]: [],
+  [JobId.Alchemist]: [JobId.Creator],
+  [JobId.Creator]: [],
 };
 
 const SECOND_JOBS = new Set<JobId>([
@@ -64,6 +90,12 @@ const SECOND_JOBS = new Set<JobId>([
   JobId.Priest,
   JobId.Assassin,
   JobId.Blacksmith,
+  JobId.Crusader,
+  JobId.Sage,
+  JobId.Monk,
+  JobId.Rogue,
+  JobId.Bard,
+  JobId.Alchemist,
 ]);
 const THIRD_JOBS = new Set<JobId>([
   JobId.RuneKnight,
@@ -72,6 +104,12 @@ const THIRD_JOBS = new Set<JobId>([
   JobId.HighPriest,
   JobId.GuillotineCross,
   JobId.Whitesmith,
+  JobId.Paladin,
+  JobId.Professor,
+  JobId.Champion,
+  JobId.Stalker,
+  JobId.Minstrel,
+  JobId.Creator,
 ]);
 
 // Base level required for each tier of advancement.
@@ -104,12 +142,27 @@ export function canAdvanceTo(job: JobId, target: JobId, level: number): boolean 
 export type JobFamily = "sword" | "mage" | "archer" | "acolyte" | "thief" | "merchant";
 
 export const FAMILY_JOBS: Record<JobFamily, JobId[]> = {
-  sword: [JobId.Swordsman, JobId.Knight, JobId.RuneKnight, JobId.DragonKnight],
-  mage: [JobId.Mage, JobId.Wizard, JobId.HighWizard, JobId.ArchMage],
-  archer: [JobId.Archer, JobId.Hunter, JobId.Sniper, JobId.Windhawk],
-  acolyte: [JobId.Acolyte, JobId.Priest, JobId.HighPriest, JobId.Cardinal],
-  thief: [JobId.Thief, JobId.Assassin, JobId.GuillotineCross, JobId.ShadowCross],
-  merchant: [JobId.Merchant, JobId.Blacksmith, JobId.Whitesmith, JobId.Mechanic],
+  sword: [
+    JobId.Swordsman,
+    JobId.Knight,
+    JobId.RuneKnight,
+    JobId.DragonKnight,
+    JobId.Crusader,
+    JobId.Paladin,
+    JobId.RoyalGuard,
+  ],
+  mage: [JobId.Mage, JobId.Wizard, JobId.HighWizard, JobId.ArchMage, JobId.Sage, JobId.Professor],
+  archer: [JobId.Archer, JobId.Hunter, JobId.Sniper, JobId.Windhawk, JobId.Bard, JobId.Minstrel],
+  acolyte: [JobId.Acolyte, JobId.Priest, JobId.HighPriest, JobId.Cardinal, JobId.Monk, JobId.Champion],
+  thief: [JobId.Thief, JobId.Assassin, JobId.GuillotineCross, JobId.ShadowCross, JobId.Rogue, JobId.Stalker],
+  merchant: [
+    JobId.Merchant,
+    JobId.Blacksmith,
+    JobId.Whitesmith,
+    JobId.Mechanic,
+    JobId.Alchemist,
+    JobId.Creator,
+  ],
 };
 
 export const FAMILY_LABEL: Record<JobFamily, string> = {
@@ -131,11 +184,27 @@ export function jobFamilyOf(job: JobId): JobFamily | null {
   return JOB_TO_FAMILY[job] ?? null;
 }
 
-// Advancement tier of a job: 0 = Novice, 1 = 1st job … 4 = 4th job. The family
-// arrays are ordered by tier, so the index gives the tier directly.
+// Advancement tier of a job: 0 = Novice, 1 = 1st job, 2 = 2nd job, 3 = 3rd
+// (transcendent) job, 4 = 4th job. Computed as each job's depth in the
+// advancement tree (BFS from Novice) so branching lines — e.g. Swordsman's
+// Knight and Crusader paths — both resolve correctly, unlike a flat
+// family-array index which only works for a single unbranched chain.
+const JOB_TIER: Partial<Record<JobId, number>> = { [JobId.Novice]: 0 };
+{
+  const queue: JobId[] = [JobId.Novice];
+  while (queue.length > 0) {
+    const job = queue.shift()!;
+    const depth = JOB_TIER[job]!;
+    for (const next of JOB_TREE[job] ?? []) {
+      if (JOB_TIER[next] == null) {
+        JOB_TIER[next] = depth + 1;
+        queue.push(next);
+      }
+    }
+  }
+}
+
 export function jobTierOf(job: JobId): number {
-  const fam = JOB_TO_FAMILY[job];
-  if (!fam) return 0;
-  return FAMILY_JOBS[fam].indexOf(job) + 1;
+  return JOB_TIER[job] ?? 0;
 }
 
