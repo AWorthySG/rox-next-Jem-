@@ -715,6 +715,7 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Glast Heim Portal", role: "portal", x: 0, z: -50, dest: { toMap: "glast_heim", toX: 0, toZ: 20 } },
       { name: "Byalan Portal", role: "portal", x: 16, z: 12, dest: { toMap: "byalan", toX: 0, toZ: 18 } },
       { name: "Ore Vein", role: "gather_ore", x: -14, z: 20 },
+      { name: "Forge", role: "forge", x: -18, z: 14 },
     ],
   },
   byalan: {

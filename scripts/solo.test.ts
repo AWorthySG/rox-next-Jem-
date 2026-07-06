@@ -34,6 +34,9 @@ import {
   GATHER_COOLDOWN_MS,
   lifeSkillXpToNext,
   rollGather,
+  GATHER_STAMINA_COST,
+  STAMINA_MAX,
+  STAMINA_REGEN_MS,
   type DerivedStats,
   type ServerMessage,
 } from "@rox/shared";
@@ -738,6 +741,39 @@ async function main(): Promise<void> {
   check(cook.craft("grilled_sardine_recipe") === null, "craft: cannot craft again without enough ingredients");
   check(cook.countItem("grilled_sardine") === 1, "craft: a failed craft attempt doesn't partially consume anything");
   check(cook.craft("not_a_real_recipe") === null, "craft: an unknown recipe id fails cleanly");
+  check((cook.lifeSkillExp["cooking"] ?? 0) > 0, "craft: a successful craft grants Cooking EXP");
+  check(cook.toSelfState().lifeSkills.some((s) => s.id === "smelting"), "craft: Smelting is surfaced in self state");
+  check(cook.toSelfState().lifeSkills.some((s) => s.id === "crafting"), "craft: Crafting is surfaced in self state");
+
+  // ---- life skills: smelting -> crafting production chain ----
+  const forger = new Player(938, 1, "Smith", JobId.Swordsman, 0, 0);
+  forger.addItem("oridecon", 4);
+  forger.addItem("elunium", 2);
+  check(forger.craft("oridecon_ingot_recipe")?.itemId === "oridecon_ingot", "smelt: ore smelts into an ingot");
+  check(forger.craft("oridecon_ingot_recipe")?.itemId === "oridecon_ingot", "smelt: second bar poured");
+  check(forger.craft("elunium_ingot_recipe")?.itemId === "elunium_ingot", "smelt: elunium smelts too");
+  check(forger.countItem("oridecon") === 0 && forger.countItem("oridecon_ingot") === 2, "smelt: ores consumed, ingots banked");
+  check((forger.lifeSkillExp["smelting"] ?? 0) > 0, "smelt: smelting grants Smelting EXP");
+  const band = forger.craft("miners_band_recipe");
+  check(band?.itemId === "miners_band" && forger.countItem("miners_band") === 1, "craft chain: ingots craft into equipment");
+  check(forger.countItem("oridecon_ingot") === 0 && forger.countItem("elunium_ingot") === 0, "craft chain: ingots consumed");
+  check(forger.equip("miners_band"), "craft chain: crafted accessory is equippable");
+  forger.addItem("mithril_ore", 2);
+  check(forger.craft("mithril_ingot_recipe") === null, "smelt: a master recipe is gated below its skill level");
+  forger.lifeSkillLevels["smelting"] = 10;
+  check(forger.craft("mithril_ingot_recipe")?.itemId === "mithril_ingot", "smelt: the gate opens at the required level");
+
+  // ---- life skills: gathering stamina ----
+  const miner = new Player(937, 1, "Miner", JobId.Merchant, 0, 0);
+  check(miner.toSelfState().stamina === STAMINA_MAX, "stamina: a fresh player starts at full stamina");
+  miner.gather("mining", () => 0);
+  check(miner.stamina === STAMINA_MAX - GATHER_STAMINA_COST, "stamina: each gather costs a slice");
+  miner.stamina = GATHER_STAMINA_COST - 1;
+  miner.lastGatherAt = 0;
+  check(miner.gather("mining", () => 0) === null, "stamina: gathering is blocked when exhausted");
+  check(miner.regenStamina(Date.now() + STAMINA_REGEN_MS * 2 + 50) >= GATHER_STAMINA_COST, "stamina: the pool trickles back over time");
+  miner.lastGatherAt = 0;
+  check(miner.gather("mining", () => 0) !== null, "stamina: gathering works again after regen");
 
   // ---- day/night + weather environment ----
   check(daylight(0.5) > 0.9, "env: noon is bright");

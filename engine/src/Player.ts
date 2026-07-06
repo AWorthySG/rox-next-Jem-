@@ -21,11 +21,15 @@ import {
   ItemType,
   isMagicJob,
   ENCHANT_COST,
+  CRAFT_XP,
   GATHER_COOLDOWN_MS,
+  GATHER_STAMINA_COST,
   GATHER_XP,
   LIFE_SKILL_CAP,
   LIFE_SKILLS,
   lifeSkillXpToNext,
+  STAMINA_MAX,
+  STAMINA_REGEN_MS,
   MAX_ENCHANT_LINES,
   MAX_REFINE,
   refineBonus,
@@ -42,6 +46,7 @@ import {
   type EnchantLine,
   type EntityFull,
   type EntitySnapshot,
+  type GatherSkillId,
   type LifeSkillId,
   type SelfState,
   type Stats,
@@ -87,6 +92,8 @@ export class Player {
   lifeSkillLevels: Record<string, number> = {}; // life skill id -> level (default 1)
   lifeSkillExp: Record<string, number> = {}; // life skill id -> current EXP toward next level
   lastGatherAt = 0; // ms timestamp; gathering shares one cooldown across all life skills
+  stamina = STAMINA_MAX; // gathering energy; each gather costs a slice, trickles back over time
+  private lastStaminaTickAt = Date.now();
   activeQuests: Record<string, number> = {}; // questId -> kill progress
   completedQuests: string[] = [];
   totalKills = 0;
@@ -415,47 +422,68 @@ export class Player {
     return true;
   }
 
-  // ---- life skills (fishing / mining / gardening) ----
+  // ---- life skills (gathering: fishing / mining / gardening; crafting: cooking / smelting / crafting) ----
 
   lifeSkillLevel(skill: LifeSkillId): number {
     return this.lifeSkillLevels[skill] ?? 1;
   }
 
+  // Grant EXP to a life skill, applying any level-ups (capped at LIFE_SKILL_CAP).
+  private grantLifeSkillXp(skill: LifeSkillId, xp: number): number {
+    let exp = (this.lifeSkillExp[skill] ?? 0) + xp;
+    let level = this.lifeSkillLevel(skill);
+    while (level < LIFE_SKILL_CAP && exp >= lifeSkillXpToNext(level)) {
+      exp -= lifeSkillXpToNext(level);
+      level += 1;
+    }
+    this.lifeSkillLevels[skill] = level;
+    this.lifeSkillExp[skill] = exp;
+    return level;
+  }
+
+  // Lazily trickle stamina back since the last time we looked at it.
+  regenStamina(now: number = Date.now()): number {
+    const ticks = Math.floor((now - this.lastStaminaTickAt) / STAMINA_REGEN_MS);
+    if (ticks > 0) {
+      this.stamina = Math.min(STAMINA_MAX, this.stamina + ticks);
+      this.lastStaminaTickAt += ticks * STAMINA_REGEN_MS;
+    }
+    if (this.stamina >= STAMINA_MAX) this.lastStaminaTickAt = now; // don't bank regen while full
+    return this.stamina;
+  }
+
   // Attempt to gather at a life-skill node. Gated by a shared cooldown across
-  // all three skills. Grants EXP (leveling up unlocks rarer yields) and rolls
-  // one raw material into the bag. Returns the yielded item, or null if the
-  // attempt was rejected (cooldown) or rolled nothing.
-  gather(skill: LifeSkillId, rng: () => number = Math.random): { itemId: string; qty: number } | null {
+  // all three skills and by the stamina pool. Grants EXP (leveling up unlocks
+  // rarer yields) and rolls one raw material into the bag. Returns the yielded
+  // item, or null if the attempt was rejected (cooldown / exhausted).
+  gather(skill: GatherSkillId, rng: () => number = Math.random): { itemId: string; qty: number } | null {
     const now = Date.now();
     if (now - this.lastGatherAt < GATHER_COOLDOWN_MS) return null;
+    if (this.regenStamina(now) < GATHER_STAMINA_COST) return null;
     this.lastGatherAt = now;
+    this.stamina -= GATHER_STAMINA_COST;
 
-    const level = this.lifeSkillLevel(skill);
-    let exp = (this.lifeSkillExp[skill] ?? 0) + GATHER_XP;
-    let newLevel = level;
-    while (newLevel < LIFE_SKILL_CAP && exp >= lifeSkillXpToNext(newLevel)) {
-      exp -= lifeSkillXpToNext(newLevel);
-      newLevel += 1;
-    }
-    this.lifeSkillLevels[skill] = newLevel;
-    this.lifeSkillExp[skill] = exp;
-
+    const newLevel = this.grantLifeSkillXp(skill, GATHER_XP);
     const itemId = rollGather(skill, newLevel, rng);
     if (!itemId) return null;
     this.addItem(itemId, 1);
     return { itemId, qty: 1 };
   }
 
-  // Craft a recipe: consumes its inputs from the bag and grants its output.
-  // Fails cleanly (no partial consumption) if any ingredient is short.
+  // Craft a recipe: consumes its inputs from the bag and grants its output,
+  // feeding EXP to the recipe's craft skill (cooking / smelting / crafting).
+  // Gated by the craft skill's level; fails cleanly (no partial consumption)
+  // if under-leveled or any ingredient is short.
   craft(recipeId: string): { itemId: string; qty: number } | null {
     const recipe = getRecipe(recipeId);
     if (!recipe) return null;
+    if (this.lifeSkillLevel(recipe.skill) < recipe.minLevel) return null;
     for (const input of recipe.inputs) {
       if ((this.inventory[input.itemId] ?? 0) < input.qty) return null;
     }
     for (const input of recipe.inputs) this.removeItem(input.itemId, input.qty);
     this.addItem(recipe.outputId, recipe.outputQty);
+    this.grantLifeSkillXp(recipe.skill, CRAFT_XP);
     return { itemId: recipe.outputId, qty: recipe.outputQty };
   }
 
@@ -703,6 +731,8 @@ export class Player {
       this.lifeSkillLevels[ls.id] = ls.level;
       this.lifeSkillExp[ls.id] = ls.exp;
     }
+    this.stamina = Math.min(s.stamina ?? STAMINA_MAX, STAMINA_MAX);
+    this.lastStaminaTickAt = Date.now();
     this.buffs = [];
     this.foodBuffs = [];
     this.learnJobSkills();
@@ -796,6 +826,8 @@ export class Player {
         const level = this.lifeSkillLevel(id);
         return { id, level, exp: this.lifeSkillExp[id] ?? 0, expToNext: lifeSkillXpToNext(level) };
       }),
+      stamina: this.regenStamina(),
+      staminaMax: STAMINA_MAX,
       mapId: this.mapId,
       x: round2(this.x),
       z: round2(this.z),

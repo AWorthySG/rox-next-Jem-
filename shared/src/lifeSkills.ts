@@ -1,19 +1,42 @@
-// Life skills: Fishing, Mining and Gardening. Each is worked at a dedicated
-// gathering spot NPC in the world; successful gathers grant skill EXP and a
-// weighted-random raw material, with rarer yields unlocking at higher levels.
-export type LifeSkillId = "fishing" | "mining" | "gardening";
+// Life skills, matching the real game's six: three gathering skills
+// (Fishing, Mining, Gardening) worked at dedicated spots in the world, and
+// three crafting skills (Cooking, Smelting, Crafting) worked at recipe NPCs.
+// Gathers grant skill EXP and a weighted-random raw material, with rarer
+// yields unlocking at higher levels; crafts grant EXP to their craft skill,
+// with better recipes gated behind higher levels.
+export type GatherSkillId = "fishing" | "mining" | "gardening";
+export type CraftSkillId = "cooking" | "smelting" | "crafting";
+export type LifeSkillId = GatherSkillId | CraftSkillId;
 
-export const LIFE_SKILLS: LifeSkillId[] = ["fishing", "mining", "gardening"];
+export const GATHER_SKILLS: GatherSkillId[] = ["fishing", "mining", "gardening"];
+export const LIFE_SKILLS: LifeSkillId[] = [
+  "fishing",
+  "mining",
+  "gardening",
+  "cooking",
+  "smelting",
+  "crafting",
+];
 
 export const LIFE_SKILL_LABEL: Record<LifeSkillId, string> = {
   fishing: "Fishing",
   mining: "Mining",
   gardening: "Gardening",
+  cooking: "Cooking",
+  smelting: "Smelting",
+  crafting: "Crafting",
 };
 
 export const LIFE_SKILL_CAP = 30;
 export const GATHER_COOLDOWN_MS = 3000;
 export const GATHER_XP = 8;
+export const CRAFT_XP = 10;
+
+// Gathering runs on a stamina pool (the real game gates life skills behind
+// daily stamina). Each gather costs a slice; the pool trickles back over time.
+export const STAMINA_MAX = 100;
+export const GATHER_STAMINA_COST = 5;
+export const STAMINA_REGEN_MS = 10_000; // 1 point per 10s
 
 // EXP required to advance a life skill from `level` to `level + 1`.
 export function lifeSkillXpToNext(level: number): number {
@@ -29,7 +52,7 @@ export interface GatherYield {
 
 // Weighted material tables per skill. Rarer/better materials need a higher
 // level to appear at all, so leveling up genuinely opens new loot.
-export const GATHER_TABLE: Record<LifeSkillId, GatherYield[]> = {
+export const GATHER_TABLE: Record<GatherSkillId, GatherYield[]> = {
   fishing: [
     { itemId: "sardine", weight: 10, minLevel: 1 },
     { itemId: "tuna", weight: 5, minLevel: 5 },
@@ -49,7 +72,7 @@ export const GATHER_TABLE: Record<LifeSkillId, GatherYield[]> = {
 
 // Roll one item from the skill's yield table, restricted to what the given
 // level has unlocked. Returns null if somehow nothing is unlocked yet.
-export function rollGather(skill: LifeSkillId, level: number, rng: () => number = Math.random): string | null {
+export function rollGather(skill: GatherSkillId, level: number, rng: () => number = Math.random): string | null {
   const table = GATHER_TABLE[skill].filter((g) => level >= g.minLevel);
   if (table.length === 0) return null;
   const total = table.reduce((sum, g) => sum + g.weight, 0);

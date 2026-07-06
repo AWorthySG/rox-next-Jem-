@@ -384,7 +384,7 @@ const input = new InputController(
         warp.open(id);
         return;
       }
-      if (role === "cook") {
+      if (role === "cook" || role === "forge") {
         crafting.open();
         return;
       }

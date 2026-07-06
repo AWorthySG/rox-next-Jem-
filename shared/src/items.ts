@@ -173,6 +173,11 @@ export const ITEMS: Record<string, ItemDef> = {
   elunium: { id: "elunium", name: "Elunium", type: ItemType.Material, desc: "Refine ore for armor & accessories.", price: 1200, sellPrice: 300 },
   mithril_ore: { id: "mithril_ore", name: "Mithril Ore", type: ItemType.Material, desc: "A rare ore prized by miners. Not sold — only mined.", sellPrice: 2500 },
 
+  // smelted ingots (life-skill Smelting outputs; Crafting's inputs)
+  oridecon_ingot: { id: "oridecon_ingot", name: "Oridecon Ingot", type: ItemType.Material, desc: "A bar of weapon-grade metal. Smelted from Oridecon.", sellPrice: 700 },
+  elunium_ingot: { id: "elunium_ingot", name: "Elunium Ingot", type: ItemType.Material, desc: "A bar of armor-grade metal. Smelted from Elunium.", sellPrice: 700 },
+  mithril_ingot: { id: "mithril_ingot", name: "Mithril Ingot", type: ItemType.Material, desc: "A gleaming bar of mithril. Only a master smelter can pour one.", sellPrice: 6000 },
+
   // ---- life skills: gathered raw materials (fishing / gardening) ----
   sardine: { id: "sardine", name: "Sardine", type: ItemType.Material, desc: "A common catch. Cooking ingredient.", sellPrice: 8 },
   tuna: { id: "tuna", name: "Tuna", type: ItemType.Material, desc: "A meatier catch. Cooking ingredient.", sellPrice: 30 },
@@ -285,6 +290,37 @@ export const ITEMS: Record<string, ItemDef> = {
     bonusStats: { luk: 5 },
     maxSp: 30,
     sellPrice: 500,
+  },
+
+  // life-skill crafted equipment (never sold — only made at the forge)
+  miners_band: {
+    id: "miners_band",
+    name: "Miner's Band",
+    type: ItemType.Accessory,
+    slot: EquipSlot.Accessory,
+    desc: "A sturdy ring for a working hand. STR +4, VIT +3.",
+    bonusStats: { str: 4, vit: 3 },
+    sellPrice: 900,
+  },
+  artisan_charm: {
+    id: "artisan_charm",
+    name: "Artisan's Charm",
+    type: ItemType.Accessory,
+    slot: EquipSlot.Accessory,
+    desc: "A charm that steadies the wearer's aim. DEX +5, LUK +3.",
+    bonusStats: { dex: 5, luk: 3 },
+    sellPrice: 1400,
+  },
+  mithril_circlet: {
+    id: "mithril_circlet",
+    name: "Mithril Circlet",
+    type: ItemType.Headgear,
+    slot: EquipSlot.Headgear,
+    desc: "A masterwork circlet. DEF +8, INT +6, Max SP +80.",
+    def: 8,
+    bonusStats: { int: 6 },
+    maxSp: 80,
+    sellPrice: 7000,
   },
 
   // ---- Glast Heim tier ----

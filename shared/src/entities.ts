@@ -86,6 +86,8 @@ export interface SelfState {
   mountId: string | null;
   costumeId: string | null;
   lifeSkills: Array<{ id: string; level: number; exp: number; expToNext: number }>;
+  stamina: number; // gathering energy remaining
+  staminaMax: number;
   mapId: string;
   x: number;
   z: number;
