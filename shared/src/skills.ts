@@ -810,6 +810,77 @@ export const SKILLS: Record<string, SkillDef> = {
     effect: { type: StatusType.Burn, durationMs: 4000, magnitude: 0.35 },
     desc: "Shatter a flask of engineered plague across a wide area.",
   },
+
+  // ---- alt-line 4th-job ultimates ----
+  temporal_rift: {
+    id: "temporal_rift",
+    name: "Temporal Rift",
+    job: JobId.Chronomancer,
+    hotkey: 7,
+    spCost: 85,
+    cooldownMs: 8500,
+    range: 13,
+    kind: DamageKind.Magic,
+    power: 5.0,
+    aoeRadius: 7.5,
+    effect: { type: StatusType.Slow, durationMs: 3000, magnitude: 0.5 },
+    desc: "Tear open a rift in time that crushes and slows all caught within.",
+  },
+  dragon_blood_fist: {
+    id: "dragon_blood_fist",
+    name: "Dragon Blood Fist",
+    job: JobId.DragonFist,
+    hotkey: 7,
+    spCost: 95,
+    cooldownMs: 8000,
+    range: 2.8,
+    kind: DamageKind.Physical,
+    power: 5.6,
+    aoeRadius: 4.5,
+    effect: { type: StatusType.Burn, durationMs: 3500, magnitude: 0.3 },
+    desc: "Channel the power of dragon blood into a searing flurry of fists.",
+  },
+  phantom_waltz: {
+    id: "phantom_waltz",
+    name: "Phantom Waltz",
+    job: JobId.PhantomDancer,
+    hotkey: 7,
+    spCost: 75,
+    cooldownMs: 7000,
+    range: 3,
+    kind: DamageKind.Physical,
+    power: 5.2,
+    aoeRadius: 6,
+    desc: "Your night-shadow illusion joins you in a lethal dance around the dark.",
+  },
+  grand_symphony: {
+    id: "grand_symphony",
+    name: "Grand Symphony",
+    job: JobId.Maestro,
+    hotkey: 7,
+    spCost: 80,
+    cooldownMs: 7500,
+    range: 13,
+    kind: DamageKind.Physical,
+    power: 5.4,
+    aoeRadius: 7,
+    effect: { type: StatusType.Stun, durationMs: 1200 },
+    desc: "A crescendo of sound so fierce it flattens the battlefield.",
+  },
+  hell_plant: {
+    id: "hell_plant",
+    name: "Hell Plant",
+    job: JobId.Begetter,
+    hotkey: 7,
+    spCost: 85,
+    cooldownMs: 8000,
+    range: 11,
+    kind: DamageKind.Magic,
+    power: 5.0,
+    aoeRadius: 7,
+    effect: { type: StatusType.Burn, durationMs: 4000, magnitude: 0.35 },
+    desc: "Beget a carnivorous horror that erupts in caustic spores.",
+  },
 };
 
 // Tag elemental skills (everything else stays Neutral). Lets the combat chart
@@ -836,6 +907,9 @@ const SKILL_ELEMENTS: Record<string, Element> = {
   meltdown: Element.Fire,
   grand_cross: Element.Holy,
   shadow_reaper: Element.Shadow,
+  dragon_blood_fist: Element.Fire,
+  phantom_waltz: Element.Shadow,
+  hell_plant: Element.Earth,
 };
 for (const [id, el] of Object.entries(SKILL_ELEMENTS)) {
   if (SKILLS[id]) SKILLS[id].element = el;
@@ -921,9 +995,26 @@ export const SKILLS_BY_JOB: Record<JobId, SkillDef[]> = {
     SKILLS.dispell_wave,
     SKILLS.grand_sage_nova,
   ],
+  [JobId.Chronomancer]: [
+    SKILLS.fire_bolt,
+    SKILLS.thunder_storm,
+    SKILLS.mystic_focus,
+    SKILLS.arcane_lance,
+    SKILLS.dispell_wave,
+    SKILLS.grand_sage_nova,
+    SKILLS.temporal_rift,
+  ],
   // ---- Monk family (Acolyte's other branch) ----
   [JobId.Monk]: [SKILLS.heal, SKILLS.holy_light, SKILLS.chain_combo, SKILLS.tiger_palm],
   [JobId.Champion]: [SKILLS.heal, SKILLS.holy_light, SKILLS.chain_combo, SKILLS.tiger_palm, SKILLS.asura_strike],
+  [JobId.DragonFist]: [
+    SKILLS.heal,
+    SKILLS.holy_light,
+    SKILLS.chain_combo,
+    SKILLS.tiger_palm,
+    SKILLS.asura_strike,
+    SKILLS.dragon_blood_fist,
+  ],
   // ---- Rogue family (Thief's other branch) ----
   [JobId.Rogue]: [SKILLS.envenom, SKILLS.cloaking, SKILLS.raid, SKILLS.backstab],
   [JobId.Stalker]: [
@@ -932,6 +1023,14 @@ export const SKILLS_BY_JOB: Record<JobId, SkillDef[]> = {
     SKILLS.raid,
     SKILLS.backstab,
     SKILLS.shadow_reaper,
+  ],
+  [JobId.PhantomDancer]: [
+    SKILLS.envenom,
+    SKILLS.cloaking,
+    SKILLS.raid,
+    SKILLS.backstab,
+    SKILLS.shadow_reaper,
+    SKILLS.phantom_waltz,
   ],
   // ---- Bard family (Archer's other branch) ----
   [JobId.Bard]: [SKILLS.double_strafe, SKILLS.arrow_shower, SKILLS.melody_strike, SKILLS.battle_hymn],
@@ -942,6 +1041,14 @@ export const SKILLS_BY_JOB: Record<JobId, SkillDef[]> = {
     SKILLS.battle_hymn,
     SKILLS.severe_rainstorm,
   ],
+  [JobId.Maestro]: [
+    SKILLS.double_strafe,
+    SKILLS.arrow_shower,
+    SKILLS.melody_strike,
+    SKILLS.battle_hymn,
+    SKILLS.severe_rainstorm,
+    SKILLS.grand_symphony,
+  ],
   // ---- Alchemist family (Merchant's other branch) ----
   [JobId.Alchemist]: [SKILLS.mammonite, SKILLS.cart_swing, SKILLS.acid_bomb, SKILLS.bio_explosion],
   [JobId.Creator]: [
@@ -950,6 +1057,14 @@ export const SKILLS_BY_JOB: Record<JobId, SkillDef[]> = {
     SKILLS.acid_bomb,
     SKILLS.bio_explosion,
     SKILLS.plague_flask,
+  ],
+  [JobId.Begetter]: [
+    SKILLS.mammonite,
+    SKILLS.cart_swing,
+    SKILLS.acid_bomb,
+    SKILLS.bio_explosion,
+    SKILLS.plague_flask,
+    SKILLS.hell_plant,
   ],
 };
 
@@ -974,6 +1089,9 @@ const CAST_TIMES: Record<string, number> = {
   bio_explosion: 900,
   plague_flask: 1250,
   severe_rainstorm: 750,
+  temporal_rift: 1300,
+  grand_symphony: 900,
+  hell_plant: 1250,
 };
 for (const [id, ms] of Object.entries(CAST_TIMES)) {
   if (SKILLS[id]) SKILLS[id].castMs = ms;

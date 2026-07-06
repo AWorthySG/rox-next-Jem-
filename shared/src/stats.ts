@@ -81,6 +81,11 @@ export const JOB_BASE_STATS: Record<JobId, Stats> = {
   [JobId.Minstrel]: makeStats({ str: 14, agi: 36, vit: 16, int: 16, dex: 38, luk: 20 }),
   [JobId.Alchemist]: makeStats({ str: 10, agi: 10, vit: 14, int: 20, dex: 20, luk: 8 }),
   [JobId.Creator]: makeStats({ str: 16, agi: 16, vit: 22, int: 34, dex: 34, luk: 14 }),
+  [JobId.Chronomancer]: makeStats({ str: 10, agi: 28, vit: 32, int: 52, dex: 54, luk: 22 }),
+  [JobId.DragonFist]: makeStats({ str: 52, agi: 46, vit: 46, int: 12, dex: 38, luk: 20 }),
+  [JobId.PhantomDancer]: makeStats({ str: 24, agi: 58, vit: 30, int: 14, dex: 54, luk: 32 }),
+  [JobId.Maestro]: makeStats({ str: 20, agi: 52, vit: 24, int: 24, dex: 54, luk: 29 }),
+  [JobId.Begetter]: makeStats({ str: 24, agi: 24, vit: 32, int: 50, dex: 48, luk: 20 }),
 };
 
 // On each level-up a job gains a weighted bundle of stat points (auto-allocated
@@ -124,6 +129,11 @@ export const JOB_GROWTH: Record<JobId, Stats> = {
   [JobId.Minstrel]: makeStats({ str: 2, agi: 4, vit: 2, int: 3, dex: 5, luk: 3 }),
   [JobId.Alchemist]: makeStats({ str: 1, agi: 1, vit: 2, int: 3, dex: 3, luk: 1 }),
   [JobId.Creator]: makeStats({ str: 2, agi: 2, vit: 3, int: 5, dex: 5, luk: 2 }),
+  [JobId.Chronomancer]: makeStats({ str: 1, agi: 4, vit: 4, int: 6, dex: 7, luk: 3 }),
+  [JobId.DragonFist]: makeStats({ str: 7, agi: 6, vit: 6, int: 1, dex: 4, luk: 3 }),
+  [JobId.PhantomDancer]: makeStats({ str: 3, agi: 7, vit: 4, int: 2, dex: 6, luk: 4 }),
+  [JobId.Maestro]: makeStats({ str: 3, agi: 6, vit: 3, int: 4, dex: 6, luk: 4 }),
+  [JobId.Begetter]: makeStats({ str: 3, agi: 3, vit: 4, int: 6, dex: 6, luk: 3 }),
 };
 
 const MAGIC_JOBS = new Set<JobId>([
@@ -137,8 +147,10 @@ const MAGIC_JOBS = new Set<JobId>([
   JobId.Cardinal,
   JobId.Sage,
   JobId.Professor,
+  JobId.Chronomancer,
   JobId.Alchemist,
   JobId.Creator,
+  JobId.Begetter,
 ]);
 
 export function isMagicJob(job: JobId): boolean {

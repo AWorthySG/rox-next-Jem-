@@ -209,7 +209,7 @@ async function main(): Promise<void> {
   check(jobTierOf(JobId.RoyalGuard) === 4, "tier: Royal Guard is tier 4");
   check(itemEquippableBy(getItem("vanguard_greatsword")!, JobId.RoyalGuard), "class: sword-family gear also fits a Royal Guard");
 
-  // ---- Sage line: Mage -> Sage -> Professor (no confirmed 4th job yet) ----
+  // ---- Sage line: Mage -> Sage -> Professor -> Chronomancer ----
   const scholar = new Player(944, 1, "Scholar", JobId.Mage, 0, 0);
   scholar.level = 25;
   check(scholar.advanceJob(JobId.Sage) && scholar.job === JobId.Sage, "classes: Mage advances to Sage");
@@ -219,10 +219,15 @@ async function main(): Promise<void> {
   check(scholar.advanceJob(JobId.Professor) && scholar.job === JobId.Professor, "3rd job: Sage -> Professor at Lv45");
   check(scholar.skillLevel("grand_sage_nova") === 1, "3rd job: Professor learns Grand Sage Nova");
   check(jobTierOf(JobId.Professor) === 3, "tier: Professor is tier 3");
-  check(!scholar.advanceJob(JobId.ArchMage), "3rd job: Professor has no further advancement");
+  check(!scholar.advanceJob(JobId.ArchMage), "3rd job: Professor cannot cross into the Wizard branch");
   check(itemEquippableBy(getItem("archmage_rod")!, JobId.Professor), "class: mage-family gear also fits a Professor");
+  scholar.level = 70;
+  check(scholar.advanceJob(JobId.Chronomancer) && scholar.job === JobId.Chronomancer, "4th job: Professor -> Chronomancer at Lv70");
+  check(scholar.skillLevel("temporal_rift") === 1, "4th job: Chronomancer learns Temporal Rift");
+  check(jobTierOf(JobId.Chronomancer) === 4, "tier: Chronomancer is tier 4");
+  check(itemEquippableBy(getItem("archmage_rod")!, JobId.Chronomancer), "class: mage-family gear also fits a Chronomancer");
 
-  // ---- Monk line: Acolyte -> Monk -> Champion (no confirmed 4th job yet) ----
+  // ---- Monk line: Acolyte -> Monk -> Champion -> Dragon Fist ----
   const brawler = new Player(943, 1, "Brawler", JobId.Acolyte, 0, 0);
   brawler.level = 25;
   check(brawler.advanceJob(JobId.Monk) && brawler.job === JobId.Monk, "classes: Acolyte advances to Monk");
@@ -233,6 +238,10 @@ async function main(): Promise<void> {
   check(brawler.skillLevel("asura_strike") === 1, "3rd job: Champion learns Asura Strike");
   check(jobTierOf(JobId.Champion) === 3, "tier: Champion is tier 3");
   check(itemEquippableBy(getItem("saints_mace")!, JobId.Champion), "class: acolyte-family gear also fits a Champion");
+  brawler.level = 70;
+  check(brawler.advanceJob(JobId.DragonFist) && brawler.job === JobId.DragonFist, "4th job: Champion -> Dragon Fist at Lv70");
+  check(brawler.skillLevel("dragon_blood_fist") === 1, "4th job: Dragon Fist learns Dragon Blood Fist");
+  check(jobTierOf(JobId.DragonFist) === 4, "tier: Dragon Fist is tier 4");
 
   // ---- branching 2nd jobs, round B: Thief/Archer/Merchant get a second path ----
   const thiefOptions = advanceOptions(JobId.Thief, 25);
@@ -242,7 +251,7 @@ async function main(): Promise<void> {
   const merchantOptions = advanceOptions(JobId.Merchant, 25);
   check(merchantOptions.includes(JobId.Blacksmith) && merchantOptions.includes(JobId.Alchemist), "branch: Merchant can advance to Blacksmith or Alchemist");
 
-  // ---- Rogue line: Thief -> Rogue -> Stalker (no confirmed 4th job yet) ----
+  // ---- Rogue line: Thief -> Rogue -> Stalker -> Phantom Dancer ----
   const sneak = new Player(942, 1, "Sneak", JobId.Thief, 0, 0);
   sneak.level = 25;
   check(sneak.advanceJob(JobId.Rogue) && sneak.job === JobId.Rogue, "classes: Thief advances to Rogue");
@@ -253,8 +262,12 @@ async function main(): Promise<void> {
   check(sneak.skillLevel("shadow_reaper") === 1, "3rd job: Stalker learns Shadow Reaper");
   check(jobTierOf(JobId.Stalker) === 3, "tier: Stalker is tier 3");
   check(itemEquippableBy(getItem("nightblade")!, JobId.Stalker), "class: thief-family gear also fits a Stalker");
+  sneak.level = 70;
+  check(sneak.advanceJob(JobId.PhantomDancer) && sneak.job === JobId.PhantomDancer, "4th job: Stalker -> Phantom Dancer at Lv70");
+  check(sneak.skillLevel("phantom_waltz") === 1, "4th job: Phantom Dancer learns Phantom Waltz");
+  check(jobTierOf(JobId.PhantomDancer) === 4, "tier: Phantom Dancer is tier 4");
 
-  // ---- Bard line: Archer -> Bard -> Minstrel (no confirmed 4th job yet) ----
+  // ---- Bard line: Archer -> Bard -> Minstrel -> Maestro ----
   const singer = new Player(941, 1, "Singer", JobId.Archer, 0, 0);
   singer.level = 25;
   check(singer.advanceJob(JobId.Bard) && singer.job === JobId.Bard, "classes: Archer advances to Bard");
@@ -265,8 +278,12 @@ async function main(): Promise<void> {
   check(singer.skillLevel("severe_rainstorm") === 1, "3rd job: Minstrel learns Severe Rainstorm");
   check(jobTierOf(JobId.Minstrel) === 3, "tier: Minstrel is tier 3");
   check(itemEquippableBy(getItem("ranger_longbow")!, JobId.Minstrel), "class: archer-family gear also fits a Minstrel");
+  singer.level = 70;
+  check(singer.advanceJob(JobId.Maestro) && singer.job === JobId.Maestro, "4th job: Minstrel -> Maestro at Lv70");
+  check(singer.skillLevel("grand_symphony") === 1, "4th job: Maestro learns Grand Symphony");
+  check(jobTierOf(JobId.Maestro) === 4, "tier: Maestro is tier 4");
 
-  // ---- Alchemist line: Merchant -> Alchemist -> Creator (no confirmed 4th job yet) ----
+  // ---- Alchemist line: Merchant -> Alchemist -> Creator -> Begetter ----
   const chemist = new Player(940, 1, "Chemist", JobId.Merchant, 0, 0);
   chemist.level = 25;
   check(chemist.advanceJob(JobId.Alchemist) && chemist.job === JobId.Alchemist, "classes: Merchant advances to Alchemist");
@@ -277,6 +294,24 @@ async function main(): Promise<void> {
   check(chemist.skillLevel("plague_flask") === 1, "3rd job: Creator learns Plague Flask");
   check(jobTierOf(JobId.Creator) === 3, "tier: Creator is tier 3");
   check(itemEquippableBy(getItem("golden_axe")!, JobId.Creator), "class: merchant-family gear also fits a Creator");
+  chemist.level = 70;
+  check(chemist.advanceJob(JobId.Begetter) && chemist.job === JobId.Begetter, "4th job: Creator -> Begetter at Lv70");
+  check(chemist.skillLevel("hell_plant") === 1, "4th job: Begetter learns Hell Plant");
+  check(jobTierOf(JobId.Begetter) === 4, "tier: Begetter is tier 4");
+  check(itemEquippableBy(getItem("golden_axe")!, JobId.Begetter), "class: merchant-family gear also fits a Begetter");
+
+  // ---- 4th-job gate: a Lv69 3rd-job cannot advance early ----
+  const early = new Player(939, 1, "Early", JobId.Novice, 0, 0);
+  early.level = 10;
+  early.advanceJob(JobId.Acolyte);
+  early.level = 25;
+  early.advanceJob(JobId.Monk);
+  early.level = 45;
+  early.advanceJob(JobId.Champion);
+  early.level = 69;
+  check(!early.advanceJob(JobId.DragonFist), "4th job: Champion cannot become Dragon Fist below Lv70");
+  check(advanceOptions(JobId.Champion, 69).length === 0, "4th job: no options offered below Lv70");
+  check(advanceOptions(JobId.Champion, 70).includes(JobId.DragonFist), "4th job: Dragon Fist offered at Lv70");
 
   // ---- every combat map has at least two bosses ----
   for (const m of Object.values(MAPS)) {
