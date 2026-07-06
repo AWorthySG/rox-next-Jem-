@@ -125,6 +125,11 @@ export enum JobId {
   Minstrel = "minstrel",
   Alchemist = "alchemist",
   Creator = "creator",
+  Chronomancer = "chronomancer",
+  DragonFist = "dragon_fist",
+  PhantomDancer = "phantom_dancer",
+  Maestro = "maestro",
+  Begetter = "begetter",
 }
 
 export enum DamageKind {

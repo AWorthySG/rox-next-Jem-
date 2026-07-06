@@ -1411,6 +1411,7 @@ body {
 }
 .life-skill-levels {
   display: flex;
+  flex-wrap: wrap;
   gap: 8px;
   padding: 8px 12px;
   border-bottom: 1px solid var(--panel-border);
@@ -1422,6 +1423,17 @@ body {
   border-radius: 8px;
   background: rgba(230, 200, 120, 0.14);
   border: 1px solid var(--panel-border);
+}
+.ls-stamina {
+  background: rgba(110, 200, 140, 0.16);
+}
+.craft-section {
+  margin: 8px 0 2px;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.75;
 }
 .craft-list {
   display: flex;
