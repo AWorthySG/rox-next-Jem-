@@ -289,6 +289,17 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       }
       break;
     }
+    case MsgType.EnterTower: {
+      const p = playerOf(world, link);
+      const npc = world.npcs.get(msg.npcId);
+      if (p && npc && npc.role === "tower" && npc.mapId === p.mapId && Math.hypot(p.x - npc.x, p.z - npc.z) <= 6) {
+        const res = world.instances.enter(p);
+        if (!res.ok && res.error) {
+          link.send({ t: MsgType.ChatBroadcast, fromId: 0, name: "Tower Keeper", text: res.error });
+        }
+      }
+      break;
+    }
     case MsgType.ExchangeBrowse: {
       const p = playerOf(world, link);
       if (p) world.exchange.sendTo(p);

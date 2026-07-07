@@ -37,10 +37,11 @@ import {
   GATHER_STAMINA_COST,
   STAMINA_MAX,
   STAMINA_REGEN_MS,
+  MonsterAIState,
   type DerivedStats,
   type ServerMessage,
 } from "@rox/shared";
-import { ExchangeSystem, MAPS, Monster, MONSTER_TEMPLATES, Player, World } from "@rox/engine";
+import { ExchangeSystem, MAPS, Monster, MONSTER_TEMPLATES, Player, TOWER_ENTRY_ZENY, World } from "@rox/engine";
 import { LocalServer } from "../client/src/net/LocalServer.js";
 import { lodTier, labelVisible } from "../client/src/entities/lod.js";
 
@@ -774,6 +775,53 @@ async function main(): Promise<void> {
   check(miner.regenStamina(Date.now() + STAMINA_REGEN_MS * 2 + 50) >= GATHER_STAMINA_COST, "stamina: the pool trickles back over time");
   miner.lastGatherAt = 0;
   check(miner.gather("mining", () => 0) !== null, "stamina: gathering works again after regen");
+
+  // ---- Endless Tower: party-scoped instanced dungeon ----
+  const tw = new World();
+  const towerMsgs: ServerMessage[] = [];
+  const towerLink = { id: 9001, playerId: null as number | null, send: (m: ServerMessage) => towerMsgs.push(m) };
+  tw.addConnection(towerLink as never);
+  const climber = new Player(tw.allocId(), towerLink.id, "Climber", JobId.Knight, 0, 0);
+  towerLink.playerId = climber.id;
+  tw.addPlayer(climber);
+  check(!tw.instances.enter(climber).ok, "tower: entry blocked below the level gate");
+  climber.level = 40;
+  climber.zeny = 0;
+  check(!tw.instances.enter(climber).ok, "tower: entry blocked without the Zeny fee");
+  climber.zeny = 5000;
+  check(tw.instances.enter(climber).ok, "tower: a leveled player with the fee may enter");
+  check(climber.zeny === 5000 - TOWER_ENTRY_ZENY, "tower: the entry fee is deducted");
+  const instMapId = climber.mapId;
+  check(instMapId.startsWith("tower_"), "tower: entry moves the player onto a private instance map");
+  check(!!MAPS[instMapId], "tower: the instance map registers itself while open");
+  check(tw.instances.floorOf(instMapId) === 1, "tower: the climb starts on floor 1");
+  const floor1 = [...tw.monsters.values()].filter((m) => m.mapId === instMapId);
+  check(floor1.length === 4, "tower: floor 1 spawns a wave of monsters");
+  check(floor1.every((m) => m.temporary), "tower: tower monsters are one-shot spawns (no respawn)");
+  check([...tw.npcs.values()].some((n) => n.mapId === instMapId && n.role === "portal"), "tower: an exit portal waits inside");
+  check(towerMsgs.some((m) => m.t === MsgType.TowerUpdate && m.floor === 1 && m.remaining === 4), "tower: the floor status is pushed to climbers");
+  const zenyBefore = climber.zeny;
+  const clearFloor = () => {
+    for (const m of [...tw.monsters.values()].filter((x) => x.mapId === instMapId && !x.isDead)) {
+      m.hp = 0;
+      m.aiState = MonsterAIState.Dead;
+      tw.instances.onMonsterSlain(m);
+    }
+  };
+  clearFloor();
+  check(tw.instances.floorOf(instMapId) === 2, "tower: clearing every monster advances the floor");
+  check(climber.zeny > zenyBefore, "tower: a cleared floor pays out Zeny");
+  check([...tw.monsters.values()].some((m) => m.mapId === instMapId && !m.isDead), "tower: the next floor spawns immediately");
+  while (tw.instances.floorOf(instMapId) < 5) clearFloor();
+  check([...tw.monsters.values()].some((m) => m.mapId === instMapId && !m.isDead && m.template.boss), "tower: every 5th floor spawns a boss capstone");
+  const oreBefore = climber.countItem("oridecon");
+  clearFloor();
+  check(tw.instances.floorOf(instMapId) === 6, "tower: boss floors advance like any other once cleared");
+  check(climber.countItem("oridecon") > oreBefore, "tower: boss floors pay a refine-ore bonus");
+  tw.travelPlayer(climber, { toMap: "field", toX: 0, toZ: 0 });
+  check(!MAPS[instMapId], "tower: the instance unregisters when its last climber leaves");
+  check([...tw.monsters.values()].every((m) => m.mapId !== instMapId), "tower: instance monsters are swept on teardown");
+  check([...tw.npcs.values()].every((n) => n.mapId !== instMapId), "tower: the exit portal is swept on teardown");
 
   // ---- day/night + weather environment ----
   check(daylight(0.5) > 0.9, "env: noon is bright");
