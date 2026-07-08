@@ -325,6 +325,20 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       }
       break;
     }
+    case MsgType.SocialAction: {
+      const p = playerOf(world, link);
+      if (!p) break;
+      const tid = msg.targetId ?? -1;
+      switch (msg.action) {
+        case "mentorRequest": world.social.requestMentor(p, tid); break;
+        case "mentorAccept": world.social.acceptMentor(p, tid); break;
+        case "coupleRequest": world.social.requestCouple(p, tid); break;
+        case "coupleAccept": world.social.acceptCouple(p, tid); break;
+        case "leaveMentor": world.social.leaveMentor(p); break;
+        case "leaveCouple": world.social.leaveCouple(p); break;
+      }
+      break;
+    }
     case MsgType.ExchangeBrowse: {
       const p = playerOf(world, link);
       if (p) world.exchange.sendTo(p);

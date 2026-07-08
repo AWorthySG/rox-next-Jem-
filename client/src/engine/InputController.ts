@@ -1,8 +1,14 @@
 import * as THREE from "three";
 
+export interface ClickMods {
+  shift: boolean;
+  ctrl: boolean;
+  alt: boolean;
+}
+
 export interface InputHandlers {
   onMoveTo(x: number, z: number): void;
-  onAttack(entityId: number, shiftKey: boolean): void;
+  onAttack(entityId: number, mods: ClickMods): void;
 }
 
 // Translates left-clicks into intents: clicking a monster attacks it, clicking
@@ -46,7 +52,7 @@ export class InputController {
     const id = this.pickEntity(e.clientX, e.clientY);
     if (id != null) {
       this.holdMove = false;
-      this.handlers.onAttack(id, e.shiftKey);
+      this.handlers.onAttack(id, { shift: e.shiftKey, ctrl: e.ctrlKey || e.metaKey, alt: e.altKey });
       return;
     }
     // Otherwise move to the clicked ground point and begin steering.

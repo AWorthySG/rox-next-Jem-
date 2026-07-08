@@ -13,3 +13,4 @@ export * from "./data/spawns.js";
 export * from "./data/maps.js";
 export * from "./InstanceSystem.js";
 export * from "./SiegeSystem.js";
+export * from "./SocialSystem.js";

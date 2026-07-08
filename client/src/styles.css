@@ -1294,6 +1294,19 @@ body {
   font-weight: 700;
   z-index: 34;
 }
+.social-hud {
+  position: absolute;
+  bottom: 96px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 6px 12px;
+  background: var(--panel);
+  border: 1px solid var(--panel-border);
+  border-radius: 10px;
+  font-size: 12px;
+  font-weight: 600;
+  z-index: 33;
+}
 .ip-btn {
   padding: 6px 12px;
   font-weight: 700;

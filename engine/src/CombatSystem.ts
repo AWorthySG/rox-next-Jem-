@@ -542,8 +542,8 @@ export class CombatSystem {
     for (const r of recipients) {
       r.creditKill(target.template.id);
       r.recordKill(target.template.id, !!target.template.boss);
-      const guildBoosted = Math.round(share * this.world.guild.expMultiplier(r.guildId));
-      if (r.gainExp(guildBoosted)) {
+      const boosted = Math.round(share * this.world.guild.expMultiplier(r.guildId) * this.world.social.expMultiplier(r));
+      if (r.gainExp(boosted)) {
         this.world.broadcast({
           t: MsgType.LevelUp,
           id: r.id,
@@ -555,6 +555,7 @@ export class CombatSystem {
         });
       }
       if (r.guildId != null) this.world.guild.addExp(r.guildId, Math.round(share * GUILD_EXP_SHARE));
+      this.world.social.onKill(r); // build mentorship value; graduate a maxed student
     }
 
     // Unlock any achievements newly satisfied by this kill / level-up.

@@ -10,6 +10,7 @@ import { ExchangeSystem } from "./ExchangeSystem.js";
 import { DuelSystem } from "./DuelSystem.js";
 import { InstanceSystem } from "./InstanceSystem.js";
 import { SiegeSystem } from "./SiegeSystem.js";
+import { SocialSystem } from "./SocialSystem.js";
 import { MONSTER_TEMPLATES } from "./data/spawns.js";
 import { MAPS } from "./data/maps.js";
 
@@ -26,6 +27,7 @@ export class World {
   readonly duel = new DuelSystem(this);
   readonly instances = new InstanceSystem(this);
   readonly siege = new SiegeSystem(this);
+  readonly social = new SocialSystem(this);
   readonly mapIds = Object.keys(MAPS);
   private nextEntityId = 1;
 
@@ -65,6 +67,7 @@ export class World {
       this.party.leave(player);
       this.guild.leave(player);
       this.duel.leave(player);
+      this.social.onDisconnect(player);
     }
     if (this.players.delete(id)) {
       this.broadcastToMap(player?.mapId ?? "", { t: MsgType.Despawn, id });
