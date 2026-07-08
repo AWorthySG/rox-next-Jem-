@@ -300,6 +300,31 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       }
       break;
     }
+    case MsgType.EnterCastle: {
+      const p = playerOf(world, link);
+      const npc = world.npcs.get(msg.npcId);
+      if (p && npc && npc.role === "castle" && npc.mapId === p.mapId && Math.hypot(p.x - npc.x, p.z - npc.z) <= 6) {
+        const res = world.siege.enter(p);
+        if (!res.ok && res.error) {
+          link.send({ t: MsgType.ChatBroadcast, fromId: 0, name: "Castle Herald", text: res.error });
+        }
+      }
+      break;
+    }
+    case MsgType.DeclareSiege: {
+      const p = playerOf(world, link);
+      const npc = world.npcs.get(msg.npcId);
+      if (p && npc && npc.role === "castle" && npc.mapId === p.mapId && Math.hypot(p.x - npc.x, p.z - npc.z) <= 6) {
+        const res = world.siege.declare(p);
+        link.send({
+          t: MsgType.ChatBroadcast,
+          fromId: 0,
+          name: "Castle Herald",
+          text: res.ok ? "War is declared — to the castle!" : res.error ?? "The siege cannot begin.",
+        });
+      }
+      break;
+    }
     case MsgType.ExchangeBrowse: {
       const p = playerOf(world, link);
       if (p) world.exchange.sendTo(p);

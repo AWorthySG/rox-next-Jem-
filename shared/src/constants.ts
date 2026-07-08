@@ -73,3 +73,13 @@ export const PARTY_MAX_SIZE = 6;
 export const GUILD_LEVEL_CAP = 50;
 export const GUILD_EXP_SHARE = 0.2; // fraction of a kill's EXP credited to the guild
 export const GUILD_EXP_BONUS_PER_LEVEL = 0.01; // +1% member EXP per guild level
+
+// War of Emperium: a guild breaks the castle's Emperium during a siege window
+// to claim it. Owning the castle grants a recurring occupancy payout to online
+// members (the "Master Chamber treasure"), and a small guild-wide EXP edge.
+export const SIEGE_MIN_LEVEL = 35; // level gate to enter the castle
+export const SIEGE_WINDOW_MS = 300_000; // a declared siege stays open 5 minutes
+export const SIEGE_INTERVAL_MS = 1_800_000; // auto-siege window opens every 30 min
+export const SIEGE_REWARD_INTERVAL_MS = 60_000; // occupancy payout cadence
+export const SIEGE_REWARD_ZENY = 500; // per payout, per online owning member
+export const SIEGE_OWNER_EXP_BONUS = 0.05; // +5% member EXP while holding the castle

@@ -146,6 +146,16 @@ export interface EnterTowerMsg {
   npcId: number;
 }
 
+export interface EnterCastleMsg {
+  t: MsgType.EnterCastle;
+  npcId: number;
+}
+
+export interface DeclareSiegeMsg {
+  t: MsgType.DeclareSiege;
+  npcId: number;
+}
+
 export interface AcceptQuestMsg {
   t: MsgType.AcceptQuest;
   questId: string;
@@ -324,6 +334,8 @@ export type ClientMessage =
   | GatherMsg
   | CraftMsg
   | EnterTowerMsg
+  | EnterCastleMsg
+  | DeclareSiegeMsg
   | AcceptQuestMsg
   | ClaimQuestMsg
   | AllocateStatMsg
@@ -417,6 +429,7 @@ export interface GuildInfo {
   exp: number;
   expToNext: number;
   storage: Array<{ id: string; qty: number }>;
+  ownedCastle: string | null; // name of a held War-of-Emperium castle, if any
 }
 
 export interface GuildUpdateMsg {
@@ -440,6 +453,16 @@ export interface TowerUpdateMsg {
   t: MsgType.TowerUpdate;
   floor: number;
   remaining: number; // monsters left on the current floor
+}
+
+export interface SiegeUpdateMsg {
+  t: MsgType.SiegeUpdate;
+  castle: string; // castle display name
+  ownerGuild: string | null; // holding guild's name, or null while unclaimed
+  active: boolean; // true while a siege window is open (PvP + Emperium vulnerable)
+  emperiumHp: number;
+  emperiumMaxHp: number;
+  endsInMs: number; // ms left in the open window (0 when inactive)
 }
 
 export interface DamageEventMsg {
@@ -527,6 +550,7 @@ export type ServerMessage =
   | DuelRequestRecvMsg
   | DuelUpdateMsg
   | TowerUpdateMsg
+  | SiegeUpdateMsg
   | MapChangeMsg
   | DefeatedMsg
   | RefineResultMsg

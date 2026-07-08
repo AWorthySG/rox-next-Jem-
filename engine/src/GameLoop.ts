@@ -65,6 +65,7 @@ export class GameLoop {
     this.movement.update(dt);
     this.ai.update(dt, dtMs);
     this.combat.update(dtMs);
+    this.world.siege.update(dtMs);
 
     if (this.tick % SNAPSHOT_EVERY_N_TICKS === 0) {
       this.snapshots.broadcast(this.tick);

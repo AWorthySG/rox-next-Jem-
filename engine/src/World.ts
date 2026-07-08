@@ -9,6 +9,7 @@ import { GuildSystem } from "./GuildSystem.js";
 import { ExchangeSystem } from "./ExchangeSystem.js";
 import { DuelSystem } from "./DuelSystem.js";
 import { InstanceSystem } from "./InstanceSystem.js";
+import { SiegeSystem } from "./SiegeSystem.js";
 import { MONSTER_TEMPLATES } from "./data/spawns.js";
 import { MAPS } from "./data/maps.js";
 
@@ -24,6 +25,7 @@ export class World {
   readonly exchange = new ExchangeSystem(this);
   readonly duel = new DuelSystem(this);
   readonly instances = new InstanceSystem(this);
+  readonly siege = new SiegeSystem(this);
   readonly mapIds = Object.keys(MAPS);
   private nextEntityId = 1;
 
@@ -167,7 +169,7 @@ export class World {
   }
 
   isPvp(mapId: string): boolean {
-    return !!MAPS[mapId]?.pvp;
+    return !!MAPS[mapId]?.pvp || this.siege.isActive(mapId);
   }
 
   travelPlayer(player: Player, dest: PortalDest): void {

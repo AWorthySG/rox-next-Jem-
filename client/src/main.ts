@@ -316,6 +316,30 @@ function showDuelInvite(fromName: string, fromId: number): void {
   el.appendChild(decline);
 }
 
+// Present the Castle Herald's two options: visit the castle, or declare a
+// siege now (reuses the shared prompt element).
+function showCastleMenu(npcId: number): void {
+  const el = document.getElementById("invite-prompt")!;
+  el.classList.remove("hidden");
+  el.innerHTML = `<span>Valkyrie Castle — War of Emperium</span>`;
+  const enter = document.createElement("button");
+  enter.className = "ip-btn accept";
+  enter.textContent = "Enter Castle";
+  enter.addEventListener("click", () => {
+    transport?.send({ t: MsgType.EnterCastle, npcId });
+    el.classList.add("hidden");
+  });
+  const declare = document.createElement("button");
+  declare.className = "ip-btn";
+  declare.textContent = "Declare Siege";
+  declare.addEventListener("click", () => {
+    transport?.send({ t: MsgType.DeclareSiege, npcId });
+    el.classList.add("hidden");
+  });
+  el.appendChild(enter);
+  el.appendChild(declare);
+}
+
 // Show/hide the Endless Tower floor banner while inside an instance.
 function setTowerHud(floor: number | null, remaining = 0): void {
   const el = document.getElementById("tower-hud")!;
@@ -326,6 +350,25 @@ function setTowerHud(floor: number | null, remaining = 0): void {
   }
   el.classList.remove("hidden");
   el.textContent = `🗼 Endless Tower — Floor ${floor} · ${remaining} ${remaining === 1 ? "foe" : "foes"} remain`;
+}
+
+// Show/hide the War of Emperium banner while standing in the castle.
+function setSiegeHud(msg: import("@rox/shared").SiegeUpdateMsg | null): void {
+  const el = document.getElementById("siege-hud")!;
+  if (!msg) {
+    el.classList.add("hidden");
+    el.textContent = "";
+    return;
+  }
+  el.classList.remove("hidden");
+  const owner = msg.ownerGuild ? `Held by ${msg.ownerGuild}` : "Unclaimed";
+  if (msg.active) {
+    const hpPct = msg.emperiumMaxHp > 0 ? Math.round((msg.emperiumHp / msg.emperiumMaxHp) * 100) : 0;
+    const secs = Math.ceil(msg.endsInMs / 1000);
+    el.textContent = `⚔ Siege on! Emperium ${hpPct}% · ${secs}s left · ${owner}`;
+  } else {
+    el.textContent = `🏰 ${msg.castle} — ${owner}`;
+  }
 }
 
 // Show/hide the small "dueling <name>" banner with a Forfeit button.
@@ -408,6 +451,16 @@ const input = new InputController(
           gameState.self?.setMoveTarget(pos.x, pos.z);
         }
         transport?.send({ t: MsgType.EnterTower, npcId: id });
+        return;
+      }
+      if (role === "castle") {
+        // Walk to the herald, then open the castle menu (server checks proximity).
+        const pos = gameState.worldPosOf(id);
+        if (pos) {
+          transport?.send({ t: MsgType.MoveIntent, x: pos.x, z: pos.z });
+          gameState.self?.setMoveTarget(pos.x, pos.z);
+        }
+        showCastleMenu(id);
         return;
       }
       if (role === "gather_fish" || role === "gather_ore" || role === "gather_crop") {
@@ -555,6 +608,9 @@ function handleMessage(msg: ServerMessage): void {
     case MsgType.TowerUpdate:
       setTowerHud(msg.floor, msg.remaining);
       break;
+    case MsgType.SiegeUpdate:
+      setSiegeHud(msg);
+      break;
     case MsgType.BossTelegraph:
       novaTelegraph.spawn(msg.x, msg.z, msg.radius, msg.delayMs);
       break;
@@ -580,6 +636,7 @@ function handleMessage(msg: ServerMessage): void {
       approachTargetId = null;
       pvpMap = msg.pvp;
       if (!msg.mapId.startsWith("tower_")) setTowerHud(null);
+      if (msg.mapId !== "valkyrie_castle") setSiegeHud(null);
       screenFx.mapFade();
       gameState.clearExceptSelf();
       gameState.self?.teleport(msg.x, msg.z);

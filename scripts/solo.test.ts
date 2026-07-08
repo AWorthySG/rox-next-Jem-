@@ -37,6 +37,8 @@ import {
   GATHER_STAMINA_COST,
   STAMINA_MAX,
   STAMINA_REGEN_MS,
+  SIEGE_REWARD_INTERVAL_MS,
+  SIEGE_WINDOW_MS,
   MonsterAIState,
   type DerivedStats,
   type ServerMessage,
@@ -822,6 +824,52 @@ async function main(): Promise<void> {
   check(!MAPS[instMapId], "tower: the instance unregisters when its last climber leaves");
   check([...tw.monsters.values()].every((m) => m.mapId !== instMapId), "tower: instance monsters are swept on teardown");
   check([...tw.npcs.values()].every((n) => n.mapId !== instMapId), "tower: the exit portal is swept on teardown");
+
+  // ---- War of Emperium: guild siege ----
+  check(MONSTER_TEMPLATES.emperium?.passive === true, "siege: the Emperium is a passive objective");
+  check((MONSTER_TEMPLATES.emperium?.baseHp ?? 0) >= 50000, "siege: the Emperium has a heavy HP pool");
+  const sg = new World();
+  const sgMsgs: ServerMessage[] = [];
+  const sgLink = { id: 9100, playerId: null as number | null, send: (m: ServerMessage) => sgMsgs.push(m) };
+  sg.addConnection(sgLink as never);
+  const warlord = new Player(sg.allocId(), sgLink.id, "Master", JobId.Knight, 0, 0);
+  sgLink.playerId = warlord.id;
+  sg.addPlayer(warlord);
+  check(!sg.siege.enter(warlord).ok, "siege: entry blocked below the castle level gate");
+  warlord.level = 40;
+  check(!sg.siege.declare(warlord).ok, "siege: a guildless player cannot declare war");
+  sg.guild.create(warlord, "Valkyries");
+  check(warlord.guildId != null, "siege: warlord formed a guild");
+  check(sg.siege.enter(warlord).ok, "siege: a leveled player may approach the castle");
+  check(warlord.mapId === "valkyrie_castle", "siege: entry warps to the castle");
+  check(!sg.isPvp("valkyrie_castle"), "siege: the castle is peaceful outside a siege window");
+  check(sg.siege.declare(warlord).ok, "siege: a guild may declare a siege");
+  check(sg.isPvp("valkyrie_castle"), "siege: the castle turns PvP during a siege window");
+  const emperium = [...sg.monsters.values()].find((m) => m.template.id === "emperium");
+  check(!!emperium, "siege: declaring a siege raises the Emperium");
+  check(sg.siege.isEmperium(emperium!.id), "siege: the siege system recognises its Emperium");
+  check(!sg.siege.declare(warlord).ok, "siege: cannot declare a second siege while one runs");
+  check(sgMsgs.some((m) => m.t === MsgType.SiegeUpdate && m.active), "siege: an active siege status is pushed to the castle");
+  const warlordZenyBefore = warlord.zeny;
+  sg.siege.onEmperiumBroken(warlord);
+  check(sg.siege.ownerGuildId === warlord.guildId, "siege: breaking the Emperium claims the castle for the breaker's guild");
+  check(sg.guild.getById(warlord.guildId)?.ownedCastle === "Valkyrie Castle", "siege: the holding guild records the castle it owns");
+  check(warlord.countItem("emperium_fragment") >= 3, "siege: the conquering guild is paid in Emperium Fragments");
+  check(warlord.zeny > warlordZenyBefore, "siege: the conquest also pays Zeny");
+  check(![...sg.monsters.values()].some((m) => m.template.id === "emperium"), "siege: the Emperium is removed once broken");
+  check(!sg.isPvp("valkyrie_castle"), "siege: PvP closes when the siege ends");
+  check(sg.guild.expMultiplier(warlord.guildId) > 1, "siege: holding a castle grants a guild-wide EXP edge");
+  const heldZeny = warlord.zeny;
+  sg.siege.update(SIEGE_REWARD_INTERVAL_MS);
+  check(warlord.zeny > heldZeny, "siege: the holding guild draws a recurring occupancy payout");
+  // A siege that runs out of time is repelled — the Emperium falls and the
+  // current holder keeps the castle.
+  sg.siege.startSiege();
+  check([...sg.monsters.values()].some((m) => m.template.id === "emperium"), "siege: a new window raises a fresh Emperium");
+  sg.siege.update(SIEGE_WINDOW_MS + 1);
+  check(!sg.isPvp("valkyrie_castle"), "siege: an expired window closes PvP");
+  check(![...sg.monsters.values()].some((m) => m.template.id === "emperium"), "siege: a repelled siege removes the Emperium");
+  check(sg.siege.ownerGuildId === warlord.guildId, "siege: a repelled siege leaves ownership unchanged");
 
   // ---- day/night + weather environment ----
   check(daylight(0.5) > 0.9, "env: noon is bright");
