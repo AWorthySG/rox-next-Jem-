@@ -483,6 +483,7 @@ export class CombatSystem {
     target.damageByPlayer.clear();
     target.respawnAt = Date.now() + (target.template.respawnMs ?? RESPAWN_MS);
     this.world.broadcastToMap(target.mapId, { t: MsgType.Despawn, id: target.id });
+    this.world.instances.onMonsterSlain(target); // tower floors advance on last kill
   }
 
   private killMonster(target: Monster, killer: Player): void {

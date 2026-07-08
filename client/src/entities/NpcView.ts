@@ -20,6 +20,7 @@ const ROLE_LOOKS: Record<string, { seed: number; magic: boolean; weapon: WeaponS
   gather_crop: { seed: 95, magic: false, weapon: "blade", hat: "feather_beret" }, // farmer: leafy green
   cook: { seed: 15, magic: false, weapon: "mace", hat: null }, // cook: warm red
   forge: { seed: 38, magic: false, weapon: "mace", hat: "valkyrie_helm" }, // forgemaster: molten bronze
+  tower: { seed: 280, magic: true, weapon: "staff", hat: "gem_crown" }, // tower keeper: violet mystic
 };
 
 // A static town NPC. Renders a humanoid (or a npc_<role>.glb model if present)

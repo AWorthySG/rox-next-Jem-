@@ -316,6 +316,18 @@ function showDuelInvite(fromName: string, fromId: number): void {
   el.appendChild(decline);
 }
 
+// Show/hide the Endless Tower floor banner while inside an instance.
+function setTowerHud(floor: number | null, remaining = 0): void {
+  const el = document.getElementById("tower-hud")!;
+  if (floor == null) {
+    el.classList.add("hidden");
+    el.textContent = "";
+    return;
+  }
+  el.classList.remove("hidden");
+  el.textContent = `🗼 Endless Tower — Floor ${floor} · ${remaining} ${remaining === 1 ? "foe" : "foes"} remain`;
+}
+
 // Show/hide the small "dueling <name>" banner with a Forfeit button.
 function setDuelHud(opponentId: number | null, opponentName: string | null): void {
   const el = document.getElementById("duel-hud")!;
@@ -386,6 +398,16 @@ const input = new InputController(
       }
       if (role === "cook" || role === "forge") {
         crafting.open();
+        return;
+      }
+      if (role === "tower") {
+        // Walk to the keeper and ask to enter (server checks proximity).
+        const pos = gameState.worldPosOf(id);
+        if (pos) {
+          transport?.send({ t: MsgType.MoveIntent, x: pos.x, z: pos.z });
+          gameState.self?.setMoveTarget(pos.x, pos.z);
+        }
+        transport?.send({ t: MsgType.EnterTower, npcId: id });
         return;
       }
       if (role === "gather_fish" || role === "gather_ore" || role === "gather_crop") {
@@ -530,6 +552,9 @@ function handleMessage(msg: ServerMessage): void {
       setDuelHud(msg.opponentId, msg.opponentName ?? null);
       chat.system(msg.opponentId != null ? `You are now dueling ${msg.opponentName}.` : "The duel has ended.");
       break;
+    case MsgType.TowerUpdate:
+      setTowerHud(msg.floor, msg.remaining);
+      break;
     case MsgType.BossTelegraph:
       novaTelegraph.spawn(msg.x, msg.z, msg.radius, msg.delayMs);
       break;
@@ -554,6 +579,7 @@ function handleMessage(msg: ServerMessage): void {
       currentTargetId = null;
       approachTargetId = null;
       pvpMap = msg.pvp;
+      if (!msg.mapId.startsWith("tower_")) setTowerHud(null);
       screenFx.mapFade();
       gameState.clearExceptSelf();
       gameState.self?.teleport(msg.x, msg.z);

@@ -141,6 +141,11 @@ export interface CraftMsg {
   recipeId: string;
 }
 
+export interface EnterTowerMsg {
+  t: MsgType.EnterTower;
+  npcId: number;
+}
+
 export interface AcceptQuestMsg {
   t: MsgType.AcceptQuest;
   questId: string;
@@ -318,6 +323,7 @@ export type ClientMessage =
   | DuelCancelMsg
   | GatherMsg
   | CraftMsg
+  | EnterTowerMsg
   | AcceptQuestMsg
   | ClaimQuestMsg
   | AllocateStatMsg
@@ -430,6 +436,12 @@ export interface DuelUpdateMsg {
   opponentName?: string;
 }
 
+export interface TowerUpdateMsg {
+  t: MsgType.TowerUpdate;
+  floor: number;
+  remaining: number; // monsters left on the current floor
+}
+
 export interface DamageEventMsg {
   t: MsgType.DamageEvent;
   sourceId: number;
@@ -514,6 +526,7 @@ export type ServerMessage =
   | GuildUpdateMsg
   | DuelRequestRecvMsg
   | DuelUpdateMsg
+  | TowerUpdateMsg
   | MapChangeMsg
   | DefeatedMsg
   | RefineResultMsg
