@@ -871,6 +871,60 @@ async function main(): Promise<void> {
   check(![...sg.monsters.values()].some((m) => m.template.id === "emperium"), "siege: a repelled siege removes the Emperium");
   check(sg.siege.ownerGuildId === warlord.guildId, "siege: a repelled siege leaves ownership unchanged");
 
+  // ---- social bonds: mentorship + couples ----
+  const soc = new World();
+  const socSend = () => {};
+  const mLink = { id: 9200, playerId: null as number | null, send: socSend };
+  const sLink = { id: 9201, playerId: null as number | null, send: socSend };
+  const pLink = { id: 9202, playerId: null as number | null, send: socSend };
+  soc.addConnection(mLink as never);
+  soc.addConnection(sLink as never);
+  soc.addConnection(pLink as never);
+  const mentor = new Player(soc.allocId(), mLink.id, "Mentor", JobId.Knight, 0, 0);
+  const student = new Player(soc.allocId(), sLink.id, "Student", JobId.Swordsman, 2, 0);
+  const partner = new Player(soc.allocId(), pLink.id, "Partner", JobId.Mage, 3, 0);
+  mLink.playerId = mentor.id;
+  sLink.playerId = student.id;
+  pLink.playerId = partner.id;
+  mentor.level = 50;
+  student.level = 20;
+  partner.level = 50;
+  soc.addPlayer(mentor);
+  soc.addPlayer(student);
+  soc.addPlayer(partner);
+
+  // mentorship: level-gap gate, request/accept, bonus, value, graduation
+  soc.social.requestMentor(student, mentor.id); // student too low to mentor the mentor
+  soc.social.acceptMentor(mentor, student.id);
+  check(soc.social.mentorIdOf(mentor.id) === null, "social: a junior cannot mentor a senior");
+  soc.social.requestMentor(mentor, student.id);
+  soc.social.acceptMentor(student, mentor.id);
+  check(soc.social.mentorIdOf(student.id) === mentor.id, "social: a qualified mentor may take a student");
+  check(soc.social.studentsList(mentor.id).includes(student.id), "social: the student appears on the mentor's roster");
+  check(soc.social.expMultiplier(student) > 1, "social: a student near their mentor earns bonus EXP");
+  check(soc.social.expMultiplier(mentor) > 1, "social: a mentor near a student earns bonus EXP");
+  student.x = 999; // walk out of bond range
+  check(soc.social.expMultiplier(student) === 1, "social: the bond bonus needs the pair to be close");
+  student.x = 2;
+  soc.social.onKill(student);
+  check(soc.social.info(mentor).students[0].value > 0, "social: shared kills build mentorship value");
+  student.level = 60;
+  soc.social.onKill(student);
+  check(soc.social.mentorIdOf(student.id) === null, "social: a student graduates at the cap");
+  check(student.countItem("emperium_fragment") > 0, "social: graduation rewards the student");
+
+  // couples: request/accept, mutual bonus, leave
+  soc.social.requestCouple(mentor, partner.id);
+  soc.social.acceptCouple(partner, mentor.id);
+  check(soc.social.partnerIdOf(mentor.id) === partner.id, "social: two players may pair as a couple");
+  check(soc.social.partnerIdOf(partner.id) === mentor.id, "social: the couple bond is mutual");
+  check(soc.social.expMultiplier(mentor) > 1, "social: partners near each other earn bonus EXP");
+  soc.social.requestCouple(student, partner.id); // partner already taken
+  soc.social.acceptCouple(partner, student.id);
+  check(soc.social.partnerIdOf(partner.id) === mentor.id, "social: a paired player cannot take a second partner");
+  soc.social.leaveCouple(mentor);
+  check(soc.social.partnerIdOf(mentor.id) === null && soc.social.partnerIdOf(partner.id) === null, "social: leaving dissolves the couple for both");
+
   // ---- day/night + weather environment ----
   check(daylight(0.5) > 0.9, "env: noon is bright");
   check(daylight(0.0) < 0.1, "env: midnight is dark");

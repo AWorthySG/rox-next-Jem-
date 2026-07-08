@@ -316,6 +316,43 @@ function showDuelInvite(fromName: string, fromId: number): void {
   el.appendChild(decline);
 }
 
+// Render an incoming mentorship / couple request as an accept/decline banner.
+function showSocialInvite(kind: "mentor" | "couple", fromName: string, fromId: number): void {
+  const el = document.getElementById("invite-prompt")!;
+  el.classList.remove("hidden");
+  const verb = kind === "mentor" ? "offers to mentor you" : "wants to be your partner 💞";
+  el.innerHTML = `<span>${fromName} ${verb}.</span>`;
+  const accept = document.createElement("button");
+  accept.className = "ip-btn accept";
+  accept.textContent = "Accept";
+  accept.addEventListener("click", () => {
+    transport?.send({ t: MsgType.SocialAction, action: kind === "mentor" ? "mentorAccept" : "coupleAccept", targetId: fromId });
+    el.classList.add("hidden");
+  });
+  const decline = document.createElement("button");
+  decline.className = "ip-btn";
+  decline.textContent = "Decline";
+  decline.addEventListener("click", () => el.classList.add("hidden"));
+  el.appendChild(accept);
+  el.appendChild(decline);
+}
+
+// Show/hide the social-bonds banner (mentor, students, partner).
+function setSocialHud(social: import("@rox/shared").SocialInfo): void {
+  const el = document.getElementById("social-hud")!;
+  const parts: string[] = [];
+  if (social.mentorName) parts.push(`🎓 Mentor: ${social.mentorName}`);
+  if (social.students.length) parts.push(`📚 Students: ${social.students.map((s) => `${s.name} (${s.value})`).join(", ")}`);
+  if (social.partnerName) parts.push(`💞 Partner: ${social.partnerName}`);
+  if (parts.length === 0) {
+    el.classList.add("hidden");
+    el.textContent = "";
+    return;
+  }
+  el.classList.remove("hidden");
+  el.textContent = parts.join("   ·   ");
+}
+
 // Present the Castle Herald's two options: visit the castle, or declare a
 // siege now (reuses the shared prompt element).
 function showCastleMenu(npcId: number): void {
@@ -401,7 +438,7 @@ const input = new InputController(
       gameState.self?.setMoveTarget(x, z);
       clickMarker.ping(x, z);
     },
-    onAttack: (id, shiftKey) => {
+    onAttack: (id, mods) => {
       // Clicking the shop NPC opens the shop instead of attacking.
       const role = gameState.npcRoleOf(id);
       if (role === "shop") {
@@ -473,11 +510,18 @@ const input = new InputController(
         transport?.send({ t: MsgType.Gather, npcId: id });
         return;
       }
-      // Clicking another player: shift-click challenges them to a duel; a
-      // normal click attacks in a PvP map (or an active duel opponent
-      // anywhere), else invites them to a party.
+      // Clicking another player: modifiers pick the social action — shift
+      // challenges a duel, ctrl offers mentorship, alt proposes a couple; a
+      // plain click attacks in a PvP map (or an active duel opponent anywhere),
+      // else invites them to a party.
       if (gameState.isRemotePlayer(id)) {
-        if (shiftKey) {
+        if (mods.ctrl) {
+          transport?.send({ t: MsgType.SocialAction, action: "mentorRequest", targetId: id });
+          chat.system("Mentorship offer sent.");
+        } else if (mods.alt) {
+          transport?.send({ t: MsgType.SocialAction, action: "coupleRequest", targetId: id });
+          chat.system("Couple request sent.");
+        } else if (mods.shift) {
           transport?.send({ t: MsgType.DuelRequest, targetId: id });
           chat.system("Duel request sent.");
         } else if (pvpMap || duelOpponentId === id) {
@@ -610,6 +654,12 @@ function handleMessage(msg: ServerMessage): void {
       break;
     case MsgType.SiegeUpdate:
       setSiegeHud(msg);
+      break;
+    case MsgType.SocialRequestRecv:
+      showSocialInvite(msg.kind, msg.fromName, msg.fromId);
+      break;
+    case MsgType.SocialUpdate:
+      setSocialHud(msg.social);
       break;
     case MsgType.BossTelegraph:
       novaTelegraph.spawn(msg.x, msg.z, msg.radius, msg.delayMs);

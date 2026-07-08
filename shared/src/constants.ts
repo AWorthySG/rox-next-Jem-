@@ -83,3 +83,15 @@ export const SIEGE_INTERVAL_MS = 1_800_000; // auto-siege window opens every 30 
 export const SIEGE_REWARD_INTERVAL_MS = 60_000; // occupancy payout cadence
 export const SIEGE_REWARD_ZENY = 500; // per payout, per online owning member
 export const SIEGE_OWNER_EXP_BONUS = 0.05; // +5% member EXP while holding the castle
+
+// Social bonds: mentorship (a veteran guides a newcomer) and couples (two
+// partners adventuring together). Bonded players earn bonus EXP while near one
+// another, mirroring the real game's cooperative social systems.
+export const SOCIAL_BOND_RANGE = 45; // must be this close for a bond bonus to apply
+export const MENTOR_MIN_LEVEL_GAP = 15; // mentor must outrank the student by this much
+export const MENTOR_MAX_STUDENTS = 2; // students a single mentor may take
+export const MENTOR_GRADUATE_LEVEL = 60; // a student graduates at this base level
+export const MENTOR_STUDENT_EXP_BONUS = 0.25; // student's EXP bonus while near their mentor
+export const MENTOR_TEACH_EXP_BONUS = 0.1; // mentor's EXP bonus while near a student
+export const MENTOR_VALUE_PER_KILL = 2; // mentorship value gained per shared kill
+export const COUPLE_EXP_BONUS = 0.15; // each partner's EXP bonus while near the other

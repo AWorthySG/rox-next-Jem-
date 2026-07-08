@@ -156,6 +156,20 @@ export interface DeclareSiegeMsg {
   npcId: number;
 }
 
+export type SocialActionKind =
+  | "mentorRequest"
+  | "mentorAccept"
+  | "coupleRequest"
+  | "coupleAccept"
+  | "leaveMentor"
+  | "leaveCouple";
+
+export interface SocialActionMsg {
+  t: MsgType.SocialAction;
+  action: SocialActionKind;
+  targetId?: number; // request: whom to bond with; accept: the requester's id
+}
+
 export interface AcceptQuestMsg {
   t: MsgType.AcceptQuest;
   questId: string;
@@ -336,6 +350,7 @@ export type ClientMessage =
   | EnterTowerMsg
   | EnterCastleMsg
   | DeclareSiegeMsg
+  | SocialActionMsg
   | AcceptQuestMsg
   | ClaimQuestMsg
   | AllocateStatMsg
@@ -465,6 +480,26 @@ export interface SiegeUpdateMsg {
   endsInMs: number; // ms left in the open window (0 when inactive)
 }
 
+export interface SocialRequestRecvMsg {
+  t: MsgType.SocialRequestRecv;
+  kind: "mentor" | "couple";
+  fromId: number;
+  fromName: string;
+}
+
+export interface SocialInfo {
+  mentorId: number | null;
+  mentorName: string | null;
+  students: Array<{ id: number; name: string; value: number }>;
+  partnerId: number | null;
+  partnerName: string | null;
+}
+
+export interface SocialUpdateMsg {
+  t: MsgType.SocialUpdate;
+  social: SocialInfo;
+}
+
 export interface DamageEventMsg {
   t: MsgType.DamageEvent;
   sourceId: number;
@@ -551,6 +586,8 @@ export type ServerMessage =
   | DuelUpdateMsg
   | TowerUpdateMsg
   | SiegeUpdateMsg
+  | SocialRequestRecvMsg
+  | SocialUpdateMsg
   | MapChangeMsg
   | DefeatedMsg
   | RefineResultMsg
