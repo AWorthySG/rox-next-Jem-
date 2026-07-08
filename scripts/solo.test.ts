@@ -39,6 +39,12 @@ import {
   STAMINA_REGEN_MS,
   SIEGE_REWARD_INTERVAL_MS,
   SIEGE_WINDOW_MS,
+  petLevelFromIntimacy,
+  petBonusScale,
+  petSkillUnlocked,
+  PET_INTIMACY_PER_LEVEL,
+  PET_INTIMACY_PER_FEED,
+  PET_FEED_COOLDOWN_MS,
   MonsterAIState,
   type DerivedStats,
   type ServerMessage,
@@ -924,6 +930,35 @@ async function main(): Promise<void> {
   check(soc.social.partnerIdOf(partner.id) === mentor.id, "social: a paired player cannot take a second partner");
   soc.social.leaveCouple(mentor);
   check(soc.social.partnerIdOf(mentor.id) === null && soc.social.partnerIdOf(partner.id) === null, "social: leaving dissolves the couple for both");
+
+  // ---- pets: intimacy, leveling, active skills ----
+  check(petLevelFromIntimacy(0) === 1, "pet: a fresh pet is level 1");
+  check(petLevelFromIntimacy(PET_INTIMACY_PER_LEVEL * 2) === 3, "pet: intimacy raises the pet's level");
+  check(petBonusScale(1) === 1, "pet: level 1 applies no bonus scaling");
+  check(petBonusScale(4) > 1, "pet: higher levels scale the passive bonus up");
+  check(!petSkillUnlocked(2) && petSkillUnlocked(3), "pet: the active skill unlocks at the threshold level");
+
+  const owner = new Player(930, 1, "PetOwner", JobId.Knight, 0, 0);
+  owner.activePet = "ifrit_pet";
+  owner.recompute();
+  const petAtkLv1 = owner.derived.atk;
+  check(owner.feedPet() === false, "pet: feeding without a treat fails");
+  owner.addItem("pet_treat", 20);
+  let petT = PET_FEED_COOLDOWN_MS + 1;
+  check(owner.feedPet(petT), "pet: feeding consumes a treat and raises intimacy");
+  check(owner.countItem("pet_treat") === 19, "pet: one treat is consumed per feed");
+  check(owner.feedPet(petT) === false, "pet: feeding again immediately is blocked by the cooldown");
+  check(owner.petIntimacyOf("ifrit_pet") === PET_INTIMACY_PER_FEED, "pet: intimacy accrues from feeding");
+  for (let i = 0; i < 12; i++) {
+    petT += PET_FEED_COOLDOWN_MS;
+    owner.feedPet(petT);
+  }
+  check(owner.activePetLevel() >= 3, "pet: sustained feeding levels the pet up");
+  owner.recompute();
+  check(owner.derived.atk > petAtkLv1, "pet: a higher-level pet grants a bigger passive bonus");
+  const petInfo = owner.toSelfState().petInfo;
+  check(petInfo?.id === "ifrit_pet" && petInfo.level >= 3, "pet: pet info is surfaced in self state");
+  check(petInfo?.skillName != null, "pet: the pet's active skill is learned and surfaced once leveled");
 
   // ---- day/night + weather environment ----
   check(daylight(0.5) > 0.9, "env: noon is bright");

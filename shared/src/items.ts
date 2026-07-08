@@ -176,6 +176,9 @@ export const ITEMS: Record<string, ItemDef> = {
   // War of Emperium occupancy reward
   emperium_fragment: { id: "emperium_fragment", name: "Emperium Fragment", type: ItemType.Material, desc: "A shard of a conquered Emperium. Proof of a castle held. Not sold.", sellPrice: 1500 },
 
+  // pet feed: raises the active pet's intimacy (and, at thresholds, its level)
+  pet_treat: { id: "pet_treat", name: "Pet Treat", type: ItemType.Consumable, desc: "Feed your active pet to raise its intimacy.", price: 120, sellPrice: 20 },
+
   // smelted ingots (life-skill Smelting outputs; Crafting's inputs)
   oridecon_ingot: { id: "oridecon_ingot", name: "Oridecon Ingot", type: ItemType.Material, desc: "A bar of weapon-grade metal. Smelted from Oridecon.", sellPrice: 700 },
   elunium_ingot: { id: "elunium_ingot", name: "Elunium Ingot", type: ItemType.Material, desc: "A bar of armor-grade metal. Smelted from Elunium.", sellPrice: 700 },
@@ -1486,6 +1489,7 @@ export const SHOP_STOCK: string[] = [
   "honey_pancake",
   "spicy_skewer",
   "steamed_tuna",
+  "pet_treat",
   "novice_knife",
   "apprentice_rod",
   "cotton_shirt",

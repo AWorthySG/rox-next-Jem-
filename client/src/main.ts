@@ -24,6 +24,7 @@ import { StoragePanel } from "./ui/StoragePanel.js";
 import { BestiaryPanel } from "./ui/BestiaryPanel.js";
 import { ShopPanel } from "./ui/ShopPanel.js";
 import { CraftingPanel } from "./ui/CraftingPanel.js";
+import { PetPanel } from "./ui/PetPanel.js";
 import { ExchangePanel } from "./ui/ExchangePanel.js";
 import { QuestPanel } from "./ui/QuestPanel.js";
 import { RefinePanel } from "./ui/RefinePanel.js";
@@ -100,6 +101,7 @@ window.addEventListener("keydown", (e) => {
   const a = document.activeElement;
   if (a && (a.tagName === "INPUT" || a.tagName === "TEXTAREA")) return;
   if (e.key === "h" || e.key === "H") toggleHelp();
+  else if (e.key === "j" || e.key === "J") petPanel.toggle();
   else if (e.key === "Tab") {
     // cycle to the next-nearest enemy and engage it
     e.preventDefault();
@@ -219,6 +221,10 @@ const shop = new ShopPanel({
 
 const crafting = new CraftingPanel({
   onCraft: (recipeId) => transport?.send({ t: MsgType.Craft, recipeId }),
+});
+
+const petPanel = new PetPanel({
+  onFeed: () => transport?.send({ t: MsgType.FeedPet }),
 });
 
 const storage = new StoragePanel({
@@ -606,6 +612,7 @@ function handleMessage(msg: ServerMessage): void {
       bestiary.sync(msg.self);
       shop.sync(msg.self);
       crafting.sync(msg.self);
+      petPanel.sync(msg.self);
       quests.sync(msg.self);
       refine.sync(msg.self);
       skills.sync(msg.self);

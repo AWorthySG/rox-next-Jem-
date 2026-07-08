@@ -83,6 +83,7 @@ export interface SelfState {
   killCounts: Array<{ id: string; count: number }>; // Monster Codex tallies
   buffs: Array<{ type: string; remainingMs: number }>;
   pet: string | null;
+  petInfo: { id: string; name: string; level: number; intimacy: number; skillName: string | null; skillReady: boolean } | null;
   mountId: string | null;
   costumeId: string | null;
   lifeSkills: Array<{ id: string; level: number; exp: number; expToNext: number }>;

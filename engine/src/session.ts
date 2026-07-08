@@ -280,6 +280,13 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       }
       break;
     }
+    case MsgType.FeedPet: {
+      const p = playerOf(world, link);
+      if (p && p.feedPet()) {
+        link.send({ t: MsgType.SelfSync, self: p.toSelfState() });
+      }
+      break;
+    }
     case MsgType.Warp: {
       const p = playerOf(world, link);
       const npc = world.npcs.get(msg.npcId);

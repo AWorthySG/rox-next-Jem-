@@ -146,6 +146,10 @@ export interface EnterTowerMsg {
   npcId: number;
 }
 
+export interface FeedPetMsg {
+  t: MsgType.FeedPet;
+}
+
 export interface EnterCastleMsg {
   t: MsgType.EnterCastle;
   npcId: number;
@@ -347,6 +351,7 @@ export type ClientMessage =
   | DuelCancelMsg
   | GatherMsg
   | CraftMsg
+  | FeedPetMsg
   | EnterTowerMsg
   | EnterCastleMsg
   | DeclareSiegeMsg

@@ -84,6 +84,16 @@ export const SIEGE_REWARD_INTERVAL_MS = 60_000; // occupancy payout cadence
 export const SIEGE_REWARD_ZENY = 500; // per payout, per online owning member
 export const SIEGE_OWNER_EXP_BONUS = 0.05; // +5% member EXP while holding the castle
 
+// Pets: an active pet gains intimacy from feeding, which raises its level.
+// Higher levels scale its passive bonus and, past a threshold, let it join the
+// owner's attacks with its own signature skill.
+export const PET_LEVEL_CAP = 10;
+export const PET_INTIMACY_PER_FEED = 20; // intimacy gained per treat
+export const PET_FEED_COOLDOWN_MS = 3000; // one feed per few seconds
+export const PET_INTIMACY_PER_LEVEL = 100; // intimacy needed for each level
+export const PET_LEVEL_STAT_BONUS = 0.1; // +10% to the pet's passive bonus per level over 1
+export const PET_SKILL_UNLOCK_LEVEL = 3; // pet learns its active skill at this level
+
 // Social bonds: mentorship (a veteran guides a newcomer) and couples (two
 // partners adventuring together). Bonded players earn bonus EXP while near one
 // another, mirroring the real game's cooperative social systems.
