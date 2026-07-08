@@ -19,6 +19,7 @@ export interface MonsterTemplate {
   worldBoss?: boolean; // shared-HP raid boss: global HP bar + contribution rewards
   mechanics?: BossMechanic[];
   element?: Element; // defensive element (defaults to Neutral)
+  passive?: boolean; // never wanders/aggros/attacks (e.g. the siege Emperium)
 }
 
 // A small bestiary of classic-feeling field monsters plus an MVP-style boss.
@@ -660,6 +661,19 @@ Object.assign(MONSTER_TEMPLATES, {
       { kind: "summon", intervalMs: 8500, templateId: "void_seraph", count: 2, max: 6 },
       { kind: "heal", intervalMs: 13000, pct: 0.04 },
     ],
+  },
+  // The Emperium: the crystal at a castle's heart. Passive — it never moves,
+  // aggros, or attacks; guilds destroy it during a siege window to claim the
+  // castle. High HP so a break takes a coordinated push.
+  emperium: {
+    id: "emperium",
+    name: "Emperium",
+    level: 90,
+    stats: makeStats({ str: 1, agi: 1, vit: 180, int: 1, dex: 1, luk: 1 }),
+    baseHp: 120000,
+    baseExp: 0,
+    element: Element.Holy,
+    passive: true,
   },
 });
 

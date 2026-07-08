@@ -1,4 +1,12 @@
-import { getItem, GUILD_EXP_BONUS_PER_LEVEL, GUILD_LEVEL_CAP, guildXpToNext, MsgType, type GuildInfo } from "@rox/shared";
+import {
+  getItem,
+  GUILD_EXP_BONUS_PER_LEVEL,
+  GUILD_LEVEL_CAP,
+  guildXpToNext,
+  MsgType,
+  SIEGE_OWNER_EXP_BONUS,
+  type GuildInfo,
+} from "@rox/shared";
 import type { World } from "./World.js";
 import type { Player } from "./Player.js";
 
@@ -10,6 +18,7 @@ export interface Guild {
   level: number;
   exp: number;
   storage: Record<string, number>; // itemId -> qty, shared by every member
+  ownedCastle: string | null; // name of a held War-of-Emperium castle, if any
 }
 
 // Named, join-by-name social groups (larger and more persistent-feeling than a
@@ -23,6 +32,17 @@ export class GuildSystem {
 
   constructor(private world: World) {}
 
+  // Public lookup by id (used by SiegeSystem to award castle ownership).
+  getById(id: number | null): Guild | undefined {
+    return id != null ? this.guilds.get(id) : undefined;
+  }
+
+  // Re-send guild info to every online member (used when castle ownership changes).
+  refresh(id: number | null): void {
+    const guild = this.getById(id);
+    if (guild) this.broadcast(guild);
+  }
+
   private sanitize(raw: string): string {
     return (raw ?? "").toString().replace(/[^\w \-]/g, "").trim().slice(0, 20);
   }
@@ -31,7 +51,7 @@ export class GuildSystem {
     if (player.guildId != null) return;
     const name = this.sanitize(rawName);
     if (!name || this.byName.has(name.toLowerCase())) return; // empty or taken
-    const guild: Guild = { id: this.nextId++, name, masterId: player.id, members: [player.id], level: 1, exp: 0, storage: {} };
+    const guild: Guild = { id: this.nextId++, name, masterId: player.id, members: [player.id], level: 1, exp: 0, storage: {}, ownedCastle: null };
     this.guilds.set(guild.id, guild);
     this.byName.set(name.toLowerCase(), guild.id);
     this.attach(player, guild);
@@ -71,7 +91,9 @@ export class GuildSystem {
   // (1.0 = no bonus). Called by CombatSystem when awarding kill EXP.
   expMultiplier(guildId: number | null): number {
     const guild = guildId != null ? this.guilds.get(guildId) : undefined;
-    return guild ? 1 + (guild.level - 1) * GUILD_EXP_BONUS_PER_LEVEL : 1;
+    if (!guild) return 1;
+    const castleBonus = guild.ownedCastle ? SIEGE_OWNER_EXP_BONUS : 0;
+    return 1 + (guild.level - 1) * GUILD_EXP_BONUS_PER_LEVEL + castleBonus;
   }
 
   // Feed a slice of a member's kill EXP into their guild's level pool.
@@ -148,6 +170,7 @@ export class GuildSystem {
       exp: guild.exp,
       expToNext: guildXpToNext(guild.level),
       storage: Object.entries(guild.storage).map(([id, qty]) => ({ id, qty })),
+      ownedCastle: guild.ownedCastle,
     };
   }
 

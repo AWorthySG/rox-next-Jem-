@@ -41,6 +41,7 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Garden Plot", role: "gather_crop", x: 8, z: -7 },
       { name: "Cook", role: "cook", x: -8, z: -7, facing: Math.PI },
       { name: "Tower Keeper", role: "tower", x: 8, z: 14, facing: Math.PI },
+      { name: "Castle Herald", role: "castle", x: 12, z: 14, facing: Math.PI },
       { name: "Cave Portal", role: "portal", x: 14, z: 0, dest: { toMap: "cave", toX: 0, toZ: 18 } },
       { name: "Arena Portal", role: "portal", x: -14, z: 0, dest: { toMap: "arena", toX: 0, toZ: 0 } },
       { name: "Payon Portal", role: "portal", x: 0, z: 14, dest: { toMap: "payon", toX: 0, toZ: 18 } },
@@ -1339,6 +1340,16 @@ export const MAPS: Record<string, GameMap> = {
     zones: [],
     npcs: [{ name: "Arena Exit", role: "portal", x: 0, z: 22, dest: { toMap: "field", toX: -16, toZ: 2 } }],
     pvp: true,
+  },
+  valkyrie_castle: {
+    id: "valkyrie_castle",
+    name: "Valkyrie Castle",
+    theme: { ground: 0x4a4664, fog: 0x14121f, sky: 0x2a2740 },
+    spawn: { x: 0, z: 22 },
+    // The Emperium is spawned/removed dynamically by SiegeSystem, not a static
+    // zone. PvP here is gated by the siege window (World.isPvp consults siege).
+    zones: [],
+    npcs: [{ name: "Castle Exit", role: "portal", x: 0, z: 26, dest: { toMap: "field", toX: 8, toZ: 12 } }],
   },
 };
 

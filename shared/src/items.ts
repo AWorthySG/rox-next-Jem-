@@ -173,6 +173,9 @@ export const ITEMS: Record<string, ItemDef> = {
   elunium: { id: "elunium", name: "Elunium", type: ItemType.Material, desc: "Refine ore for armor & accessories.", price: 1200, sellPrice: 300 },
   mithril_ore: { id: "mithril_ore", name: "Mithril Ore", type: ItemType.Material, desc: "A rare ore prized by miners. Not sold — only mined.", sellPrice: 2500 },
 
+  // War of Emperium occupancy reward
+  emperium_fragment: { id: "emperium_fragment", name: "Emperium Fragment", type: ItemType.Material, desc: "A shard of a conquered Emperium. Proof of a castle held. Not sold.", sellPrice: 1500 },
+
   // smelted ingots (life-skill Smelting outputs; Crafting's inputs)
   oridecon_ingot: { id: "oridecon_ingot", name: "Oridecon Ingot", type: ItemType.Material, desc: "A bar of weapon-grade metal. Smelted from Oridecon.", sellPrice: 700 },
   elunium_ingot: { id: "elunium_ingot", name: "Elunium Ingot", type: ItemType.Material, desc: "A bar of armor-grade metal. Smelted from Elunium.", sellPrice: 700 },

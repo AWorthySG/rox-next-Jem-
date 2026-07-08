@@ -59,6 +59,9 @@ export class MonsterAI {
       // Stunned monsters can't act.
       if (m.isStunned(now)) continue;
 
+      // Passive objectives (the siege Emperium) never wander, aggro, or attack.
+      if (m.template.passive) continue;
+
       switch (m.aiState) {
         case MonsterAIState.Idle:
           this.tickIdle(m, now, mapPlayers);

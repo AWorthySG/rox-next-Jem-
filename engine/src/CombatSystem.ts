@@ -487,6 +487,13 @@ export class CombatSystem {
   }
 
   private killMonster(target: Monster, killer: Player): void {
+    // The Emperium is a siege objective, not a normal kill: hand it to the siege
+    // system (which claims the castle for the breaker's guild and removes it).
+    if (this.world.siege.isEmperium(target.id)) {
+      this.world.siege.onEmperiumBroken(killer);
+      this.clearKillTargets(target);
+      return;
+    }
     // Snapshot the damage tally before slay() clears it (shared-HP world bosses).
     const contributors = [...target.damageByPlayer.entries()].sort((a, b) => b[1] - a[1]);
     this.slay(target);
