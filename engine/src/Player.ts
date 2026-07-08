@@ -10,6 +10,7 @@ import {
   itemEquippableBy,
   getMount,
   getPet,
+  getHomun,
   petBonusScale,
   petLevelFromIntimacy,
   petSkillUnlocked,
@@ -95,6 +96,8 @@ export class Player {
   petIntimacy: Record<string, number> = {}; // petId -> accumulated intimacy (drives pet level)
   petSkillCooldown = 0; // ms until the active pet may use its skill again
   lastPetFeedAt = 0; // ms timestamp of the last feed (feed cooldown)
+  activeHomun: string | null = null; // active homunculus id (Alchemist line only)
+  homunCooldown = 0; // ms until the homunculus may act again
   activeMountId: string | null = null;
   activeCostumeId: string | null = null;
   lifeSkillLevels: Record<string, number> = {}; // life skill id -> level (default 1)
@@ -265,6 +268,12 @@ export class Player {
       flatMatk += Math.round((pet.matk ?? 0) * scale);
       flatHp += Math.round((pet.maxHp ?? 0) * scale);
     }
+    // guardian homunculus (Amistr) passive bonus
+    const homun = getHomun(this.activeHomun);
+    if (homun?.kind === "guard") {
+      if (homun.bonusStats) effective = addStats(effective, fullStats(homun.bonusStats));
+      flatHp += homun.maxHp ?? 0;
+    }
     // active mount bonus
     const mount = getMount(this.activeMountId);
     if (mount?.bonusStats) effective = addStats(effective, fullStats(mount.bonusStats));
@@ -416,6 +425,14 @@ export class Player {
       this.activeCostumeId = this.activeCostumeId === item.costume ? null : item.costume;
       return true;
     }
+    // A homunculus cell is reusable and toggles the familiar — Alchemist line only.
+    if (item.homunculus) {
+      if (!this.canSummonHomunculus()) return false;
+      this.activeHomun = this.activeHomun === item.homunculus ? null : item.homunculus;
+      this.homunCooldown = 0;
+      this.recompute();
+      return true;
+    }
     this.removeItem(itemId, 1);
     if (item.pet) {
       this.activePet = item.pet;
@@ -457,6 +474,11 @@ export class Player {
     this.petIntimacy[this.activePet] = this.petIntimacyOf(this.activePet) + PET_INTIMACY_PER_FEED;
     this.recompute();
     return true;
+  }
+
+  // Only the Merchant → Alchemist → Creator → Begetter branch may call a homunculus.
+  canSummonHomunculus(): boolean {
+    return this.job === JobId.Alchemist || this.job === JobId.Creator || this.job === JobId.Begetter;
   }
 
   private petInfoState(): SelfState["petInfo"] {
@@ -776,6 +798,7 @@ export class Player {
     this.mapId = s.mapId ?? "field";
     this.activePet = s.pet ?? null;
     if (s.petInfo) this.petIntimacy[s.petInfo.id] = s.petInfo.intimacy;
+    this.activeHomun = s.homunculus ?? null;
     this.activeMountId = s.mountId ?? null;
     this.activeCostumeId = s.costumeId ?? null;
     this.lifeSkillLevels = {};
@@ -874,6 +897,7 @@ export class Player {
       ],
       pet: this.activePet,
       petInfo: this.petInfoState(),
+      homunculus: this.activeHomun,
       mountId: this.activeMountId,
       costumeId: this.activeCostumeId,
       lifeSkills: LIFE_SKILLS.map((id) => {

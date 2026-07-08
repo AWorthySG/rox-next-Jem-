@@ -39,6 +39,7 @@ import {
   STAMINA_REGEN_MS,
   SIEGE_REWARD_INTERVAL_MS,
   SIEGE_WINDOW_MS,
+  getHomun,
   petLevelFromIntimacy,
   petBonusScale,
   petSkillUnlocked,
@@ -49,7 +50,7 @@ import {
   type DerivedStats,
   type ServerMessage,
 } from "@rox/shared";
-import { ExchangeSystem, MAPS, Monster, MONSTER_TEMPLATES, Player, TOWER_ENTRY_ZENY, World } from "@rox/engine";
+import { ExchangeSystem, GameLoop, MAPS, Monster, MONSTER_TEMPLATES, Player, TOWER_ENTRY_ZENY, World } from "@rox/engine";
 import { LocalServer } from "../client/src/net/LocalServer.js";
 import { lodTier, labelVisible } from "../client/src/entities/lod.js";
 
@@ -959,6 +960,45 @@ async function main(): Promise<void> {
   const petInfo = owner.toSelfState().petInfo;
   check(petInfo?.id === "ifrit_pet" && petInfo.level >= 3, "pet: pet info is surfaced in self state");
   check(petInfo?.skillName != null, "pet: the pet's active skill is learned and surfaced once leveled");
+
+  // ---- homunculus: Alchemist-line combat familiar ----
+  check(getHomun("filir")?.kind === "physical" && getHomun("lif")?.kind === "heal", "homun: the registry defines the familiars");
+  const hw = new World();
+  const hLoop = new GameLoop(hw);
+  // job gate: only the Merchant → Alchemist branch may summon
+  const knight = new Player(hw.allocId(), 1, "Knight", JobId.Knight, 5, 5);
+  knight.addItem("homun_filir", 1);
+  check(knight.useItem("homun_filir") === false && knight.activeHomun === null, "homun: a non-Alchemist cannot summon a familiar");
+  const alch = new Player(hw.allocId(), 2, "Alch", JobId.Alchemist, 0, 0);
+  hw.addPlayer(alch);
+  alch.addItem("homun_filir", 2);
+  check(alch.useItem("homun_filir") && alch.activeHomun === "filir", "homun: an Alchemist summons a familiar");
+  check(alch.useItem("homun_filir") && alch.activeHomun === null, "homun: using the cell again dismisses it");
+  alch.addItem("homun_filir", 1);
+  alch.useItem("homun_filir");
+  check(alch.toSelfState().homunculus === "filir", "homun: the active familiar is surfaced in self state");
+  // Filir autonomously strikes a nearby foe (damage credited via the combat loop)
+  const foe = new Monster(hw.allocId(), MONSTER_TEMPLATES.drops, "z", "field", 1, 1);
+  hw.monsters.set(foe.id, foe);
+  const foeHpBefore = foe.hp;
+  hLoop.combatSystem.update(3000);
+  check(foe.hp < foeHpBefore, "homun: Filir autonomously strikes a nearby enemy");
+  // Amistr's guard passive raises the master's survivability
+  const creator = new Player(hw.allocId(), 3, "Creator", JobId.Creator, 0, 0);
+  creator.recompute();
+  const hpNoHomun = creator.derived.maxHp;
+  creator.addItem("homun_amistr", 1);
+  creator.useItem("homun_amistr");
+  check(creator.derived.maxHp > hpNoHomun, "homun: Amistr's guard passive raises the master's max HP");
+  // Lif mends its wounded master
+  const begetter = new Player(hw.allocId(), 4, "Begetter", JobId.Begetter, 0, 0);
+  hw.addPlayer(begetter);
+  begetter.recompute();
+  begetter.hp = 1;
+  begetter.addItem("homun_lif", 1);
+  begetter.useItem("homun_lif");
+  hLoop.combatSystem.update(6000);
+  check(begetter.hp > 1, "homun: Lif mends its wounded master");
 
   // ---- day/night + weather environment ----
   check(daylight(0.5) > 0.9, "env: noon is bright");

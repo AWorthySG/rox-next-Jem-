@@ -18,6 +18,7 @@ import { Hud } from "./ui/Hud.js";
 import { ChatBox } from "./ui/ChatBox.js";
 import { DamageNumbers } from "./ui/DamageNumbers.js";
 import { PetCompanion } from "./entities/PetCompanion.js";
+import { HomunculusCompanion } from "./entities/HomunculusCompanion.js";
 import { SkillBar } from "./ui/SkillBar.js";
 import { InventoryPanel } from "./ui/InventoryPanel.js";
 import { StoragePanel } from "./ui/StoragePanel.js";
@@ -58,6 +59,7 @@ const hud = new Hud((stat) => transport?.send({ t: MsgType.AllocateStat, stat })
 const damageNumbers = new DamageNumbers(scene.scene);
 const miniMap = new MiniMap();
 const petCompanion = new PetCompanion(scene.scene);
+const homunCompanion = new HomunculusCompanion(scene.scene);
 
 // Skill bar: casts on the current target (or nearest monster); heals target self.
 const skillPopup = new SkillPopup();
@@ -620,6 +622,7 @@ function handleMessage(msg: ServerMessage): void {
       aesir.sync(msg.self);
       guildPanel.sync(msg.self);
       petCompanion.setPet(msg.self.pet);
+      homunCompanion.setHomunculus(msg.self.homunculus);
       gameState.self?.setMount(msg.self.mountId);
       gameState.self?.setCostume(msg.self.costumeId);
       selfMounted = !!msg.self.mountId;
@@ -888,6 +891,7 @@ new Loop((dt) => {
   const self = gameState.self;
   if (self) followPos.copy(self.group.position);
   petCompanion.update(self ? self.group.position : null, dt);
+  homunCompanion.update(self ? self.group.position : null, dt);
   cameraRig.follow(followPos, dt);
   scene.render(cameraRig.camera);
 }).start();

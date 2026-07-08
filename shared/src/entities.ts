@@ -84,6 +84,7 @@ export interface SelfState {
   buffs: Array<{ type: string; remainingMs: number }>;
   pet: string | null;
   petInfo: { id: string; name: string; level: number; intimacy: number; skillName: string | null; skillReady: boolean } | null;
+  homunculus: string | null; // active homunculus id (Alchemist line), or null
   mountId: string | null;
   costumeId: string | null;
   lifeSkills: Array<{ id: string; level: number; exp: number; expToNext: number }>;
