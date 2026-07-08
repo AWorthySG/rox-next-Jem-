@@ -40,6 +40,7 @@ export enum MsgType {
   Warp = "warp",
   Gather = "gather",
   Craft = "craft",
+  FeedPet = "feedPet",
   EnterCastle = "enterCastle",
   DeclareSiege = "declareSiege",
   SocialAction = "socialAction",

@@ -4,9 +4,12 @@ import {
   effectiveCastMs,
   environmentMultiplier,
   EXP_SHARE_RANGE,
+  getPet,
   getSkill,
   GUILD_EXP_SHARE,
   HP_REGEN_PER_SEC,
+  petBonusScale,
+  petSkillUnlocked,
   jobHasSkill,
   MonsterAIState,
   PARTY_EXP_BONUS,
@@ -46,6 +49,7 @@ export class CombatSystem {
       this.regen(p, dt);
       p.tickFoodBuffs(now);
       if (p.attackCooldown > 0) p.attackCooldown -= dtMs;
+      if (p.petSkillCooldown > 0) p.petSkillCooldown -= dtMs;
       for (const id of Object.keys(p.skillCooldowns)) {
         if (p.skillCooldowns[id] > 0) p.skillCooldowns[id] = Math.max(0, p.skillCooldowns[id] - dtMs);
       }
@@ -428,7 +432,33 @@ export class CombatSystem {
       target.aggroTargetId = p.id;
       target.aiState = MonsterAIState.Aggro;
     }
+    if (target.hp > 0) this.tryPetSkill(p, target);
     if (target.hp <= 0) this.killMonster(target, p);
+  }
+
+  // A leveled pet joins its owner's attack, striking the same target with its
+  // signature skill on its own cooldown (extra damage attributed to the owner).
+  private tryPetSkill(p: Player, target: Monster): void {
+    if (p.petSkillCooldown > 0) return;
+    const pet = p.activePet ? getPet(p.activePet) : undefined;
+    if (!pet?.skill || !petSkillUnlocked(p.activePetLevel())) return;
+    p.petSkillCooldown = pet.skill.cooldownMs;
+    const magic = pet.skill.kind === DamageKind.Magic;
+    const base = magic ? p.derived.matk : p.derived.atk;
+    const raw = base * 0.5 * pet.skill.power * petBonusScale(p.activePetLevel());
+    const dmg = Math.max(1, Math.round(raw - (magic ? 0 : target.derived.def * 0.5)));
+    this.world.broadcastToMap(p.mapId, {
+      t: MsgType.DamageEvent,
+      sourceId: p.id,
+      targetId: target.id,
+      amount: dmg,
+      crit: false,
+      miss: false,
+      kind: pet.skill.kind,
+      skillId: pet.skill.id,
+    });
+    target.hp -= dmg;
+    target.recordDamage(p.id, dmg);
   }
 
   // Player-vs-player auto-attack in a PvP map.

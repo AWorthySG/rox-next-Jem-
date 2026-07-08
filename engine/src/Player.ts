@@ -10,6 +10,11 @@ import {
   itemEquippableBy,
   getMount,
   getPet,
+  petBonusScale,
+  petLevelFromIntimacy,
+  petSkillUnlocked,
+  PET_INTIMACY_PER_FEED,
+  PET_FEED_COOLDOWN_MS,
   getQuest,
   getRecipe,
   getRune,
@@ -87,6 +92,9 @@ export class Player {
   guildId: number | null = null;
   guildName: string | null = null;
   activePet: string | null = null;
+  petIntimacy: Record<string, number> = {}; // petId -> accumulated intimacy (drives pet level)
+  petSkillCooldown = 0; // ms until the active pet may use its skill again
+  lastPetFeedAt = 0; // ms timestamp of the last feed (feed cooldown)
   activeMountId: string | null = null;
   activeCostumeId: string | null = null;
   lifeSkillLevels: Record<string, number> = {}; // life skill id -> level (default 1)
@@ -248,13 +256,14 @@ export class Player {
       flatHp += card.maxHp ?? 0;
       flatSp += card.maxSp ?? 0;
     }
-    // active pet bonus
+    // active pet bonus, scaled up by the pet's level (from intimacy)
     const pet = this.activePet ? getPet(this.activePet) : undefined;
     if (pet) {
-      if (pet.bonusStats) effective = addStats(effective, fullStats(pet.bonusStats));
-      flatAtk += pet.atk ?? 0;
-      flatMatk += pet.matk ?? 0;
-      flatHp += pet.maxHp ?? 0;
+      const scale = petBonusScale(this.activePetLevel());
+      if (pet.bonusStats) effective = addStats(effective, fullStats(scaleStats(pet.bonusStats, scale)));
+      flatAtk += Math.round((pet.atk ?? 0) * scale);
+      flatMatk += Math.round((pet.matk ?? 0) * scale);
+      flatHp += Math.round((pet.maxHp ?? 0) * scale);
     }
     // active mount bonus
     const mount = getMount(this.activeMountId);
@@ -420,6 +429,49 @@ export class Player {
     if (item.healHp) this.hp = Math.min(this.derived.maxHp, this.hp + item.healHp);
     if (item.healSp) this.sp = Math.min(this.derived.maxSp, this.sp + item.healSp);
     return true;
+  }
+
+  // ---- pets: intimacy, level, feeding ----
+
+  petIntimacyOf(petId: string): number {
+    return this.petIntimacy[petId] ?? 0;
+  }
+
+  petLevelOf(petId: string): number {
+    return petLevelFromIntimacy(this.petIntimacyOf(petId));
+  }
+
+  activePetLevel(): number {
+    return this.activePet ? this.petLevelOf(this.activePet) : 1;
+  }
+
+  // Feed the active pet a treat from the bag: raises its intimacy (and, at
+  // thresholds, its level), gated by a short cooldown. Recomputes because a
+  // level-up scales the pet's passive bonus.
+  feedPet(now: number = Date.now()): boolean {
+    if (!this.activePet) return false;
+    if (now - this.lastPetFeedAt < PET_FEED_COOLDOWN_MS) return false;
+    if ((this.inventory["pet_treat"] ?? 0) <= 0) return false;
+    this.removeItem("pet_treat", 1);
+    this.lastPetFeedAt = now;
+    this.petIntimacy[this.activePet] = this.petIntimacyOf(this.activePet) + PET_INTIMACY_PER_FEED;
+    this.recompute();
+    return true;
+  }
+
+  private petInfoState(): SelfState["petInfo"] {
+    const pet = this.activePet ? getPet(this.activePet) : undefined;
+    if (!pet) return null;
+    const level = this.activePetLevel();
+    const learned = petSkillUnlocked(level) && !!pet.skill;
+    return {
+      id: pet.id,
+      name: pet.name,
+      level,
+      intimacy: this.petIntimacyOf(pet.id),
+      skillName: learned ? (pet.skill?.name ?? null) : null,
+      skillReady: learned && this.petSkillCooldown <= 0,
+    };
   }
 
   // ---- life skills (gathering: fishing / mining / gardening; crafting: cooking / smelting / crafting) ----
@@ -723,6 +775,7 @@ export class Player {
     for (const k of s.killCounts ?? []) this.killCounts[k.id] = k.count;
     this.mapId = s.mapId ?? "field";
     this.activePet = s.pet ?? null;
+    if (s.petInfo) this.petIntimacy[s.petInfo.id] = s.petInfo.intimacy;
     this.activeMountId = s.mountId ?? null;
     this.activeCostumeId = s.costumeId ?? null;
     this.lifeSkillLevels = {};
@@ -820,6 +873,7 @@ export class Player {
           .map((b) => ({ type: getItem(b.id)?.name ?? "Food", remainingMs: Math.round(b.expiresAt - Date.now()) })),
       ],
       pet: this.activePet,
+      petInfo: this.petInfoState(),
       mountId: this.activeMountId,
       costumeId: this.activeCostumeId,
       lifeSkills: LIFE_SKILLS.map((id) => {
@@ -844,6 +898,13 @@ function fullStats(p: Partial<Stats>): Stats {
     dex: p.dex ?? 0,
     luk: p.luk ?? 0,
   };
+}
+
+// Scale a partial stat block by a factor, rounding each field.
+function scaleStats(p: Partial<Stats>, factor: number): Partial<Stats> {
+  const out: Partial<Stats> = {};
+  for (const k of Object.keys(p) as (keyof Stats)[]) out[k] = Math.round((p[k] ?? 0) * factor);
+  return out;
 }
 
 function round2(n: number): number {
