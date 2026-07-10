@@ -40,6 +40,9 @@ import {
   SIEGE_REWARD_INTERVAL_MS,
   SIEGE_WINDOW_MS,
   getHomun,
+  passLevelFromExp,
+  PASS_EXP_PER_TIER,
+  PASS_MAX_TIER,
   petLevelFromIntimacy,
   petBonusScale,
   petSkillUnlocked,
@@ -999,6 +1002,42 @@ async function main(): Promise<void> {
   begetter.useItem("homun_lif");
   hLoop.combatSystem.update(6000);
   check(begetter.hp > 1, "homun: Lif mends its wounded master");
+
+  // ---- Glory Pass (battle pass) ----
+  check(passLevelFromExp(0) === 0, "pass: no EXP is pass level 0");
+  check(passLevelFromExp(PASS_EXP_PER_TIER * 3) === 3, "pass: the pass level advances one per tier of EXP");
+  check(passLevelFromExp(PASS_EXP_PER_TIER * 999) === PASS_MAX_TIER, "pass: the pass level caps at the final tier");
+
+  const passer = new Player(920, 1, "Passer", JobId.Knight, 0, 0);
+  passer.gainPassExp(PASS_EXP_PER_TIER * 2);
+  check(passer.passLevel() === 2, "pass: gaining pass EXP raises the pass level");
+  check(passer.claimPassTier(3, "free") === null, "pass: cannot claim a tier above the current level");
+  const passR1 = passer.claimPassTier(1, "free");
+  check(passR1 !== null && passer.countItem(passR1.itemId) >= passR1.qty, "pass: claiming a reached tier grants its free reward");
+  check(passer.claimPassTier(1, "free") === null, "pass: a tier's reward can only be claimed once");
+  check(passer.claimPassTier(2, "premium") === null, "pass: the premium track is locked without a Glory Pass");
+  passer.addItem("glory_pass", 1);
+  passer.useItem("glory_pass");
+  check(passer.passPremium, "pass: using a Glory Pass unlocks the premium track");
+  check(passer.claimPassTier(2, "premium") !== null, "pass: a premium reward can be claimed once unlocked");
+  const passState = passer.toSelfState().pass;
+  check(
+    passState.level === 2 && passState.premium && passState.claimedFree.includes(1) && passState.claimedPremium.includes(2),
+    "pass: pass progress is surfaced in self state",
+  );
+
+  // kills feed the Glory Pass through the real combat loop
+  const pw = new World();
+  const pLoop = new GameLoop(pw);
+  const passHunter = new Player(pw.allocId(), 1, "Hunter", JobId.Knight, 0, 0);
+  pw.addPlayer(passHunter);
+  const prey = new Monster(pw.allocId(), MONSTER_TEMPLATES.poring, "z", "field", 0.5, 0.5);
+  prey.hp = 1;
+  pw.monsters.set(prey.id, prey);
+  passHunter.attackTargetId = prey.id;
+  const passExpBefore = passHunter.passExp;
+  pLoop.combatSystem.update(200);
+  check(passHunter.passExp > passExpBefore, "pass: kills award Glory Pass EXP");
 
   // ---- day/night + weather environment ----
   check(daylight(0.5) > 0.9, "env: noon is bright");

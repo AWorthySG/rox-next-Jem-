@@ -7,6 +7,7 @@ import {
   getHomun,
   getPet,
   getSkill,
+  PASS_EXP_PER_KILL,
   GUILD_EXP_SHARE,
   HP_REGEN_PER_SEC,
   petBonusScale,
@@ -656,6 +657,7 @@ export class CombatSystem {
       }
       if (r.guildId != null) this.world.guild.addExp(r.guildId, Math.round(share * GUILD_EXP_SHARE));
       this.world.social.onKill(r); // build mentorship value; graduate a maxed student
+      r.gainPassExp(PASS_EXP_PER_KILL); // every kill nudges the Glory Pass forward
     }
 
     // Unlock any achievements newly satisfied by this kill / level-up.

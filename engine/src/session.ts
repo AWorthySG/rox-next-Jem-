@@ -287,6 +287,17 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       }
       break;
     }
+    case MsgType.ClaimPassTier: {
+      const p = playerOf(world, link);
+      if (p) {
+        const reward = p.claimPassTier(msg.level, msg.track);
+        if (reward) {
+          link.send({ t: MsgType.Loot, items: [{ id: reward.itemId, qty: reward.qty }], zeny: 0 });
+          link.send({ t: MsgType.SelfSync, self: p.toSelfState() });
+        }
+      }
+      break;
+    }
     case MsgType.Warp: {
       const p = playerOf(world, link);
       const npc = world.npcs.get(msg.npcId);

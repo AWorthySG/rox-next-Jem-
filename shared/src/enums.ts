@@ -41,6 +41,7 @@ export enum MsgType {
   Gather = "gather",
   Craft = "craft",
   FeedPet = "feedPet",
+  ClaimPassTier = "claimPassTier",
   EnterCastle = "enterCastle",
   DeclareSiege = "declareSiege",
   SocialAction = "socialAction",

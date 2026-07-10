@@ -150,6 +150,12 @@ export interface FeedPetMsg {
   t: MsgType.FeedPet;
 }
 
+export interface ClaimPassTierMsg {
+  t: MsgType.ClaimPassTier;
+  level: number;
+  track: "free" | "premium";
+}
+
 export interface EnterCastleMsg {
   t: MsgType.EnterCastle;
   npcId: number;
@@ -352,6 +358,7 @@ export type ClientMessage =
   | GatherMsg
   | CraftMsg
   | FeedPetMsg
+  | ClaimPassTierMsg
   | EnterTowerMsg
   | EnterCastleMsg
   | DeclareSiegeMsg
