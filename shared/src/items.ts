@@ -94,6 +94,7 @@ export interface ItemDef {
   pet?: string; // summons this pet when used
   mount?: string; // toggles riding this mount (by id, see mounts.ts) when used
   costume?: string; // toggles wearing this cosmetic outfit (by id, see costumes.ts) when used
+  homunculus?: string; // toggles this homunculus (Alchemist line only, see homunculus.ts)
   // progression tier (1 Worn … 6 Mythic). Optional: when set it pins the rarity
   // tint and is shown as a label; otherwise rarity is derived from sell value.
   tier?: number;
@@ -196,6 +197,12 @@ export const ITEMS: Record<string, ItemDef> = {
   grilled_sardine: { id: "grilled_sardine", name: "Grilled Sardine", type: ItemType.Consumable, desc: "Eat: DEX +5, ATK +12 for 5 min.", food: { durationMs: 300000, bonusStats: { dex: 5 }, atk: 12 }, sellPrice: 30 },
   pumpkin_stew: { id: "pumpkin_stew", name: "Pumpkin Stew", type: ItemType.Consumable, desc: "Eat: VIT +7, Max HP +140 for 8 min.", food: { durationMs: 480000, bonusStats: { vit: 7 }, maxHp: 140 }, sellPrice: 60 },
   moonflower_tonic: { id: "moonflower_tonic", name: "Moonflower Tonic", type: ItemType.Consumable, desc: "Eat: INT +10, Max SP +140 for 10 min.", food: { durationMs: 600000, bonusStats: { int: 10 }, maxSp: 140 }, sellPrice: 400 },
+
+  // homunculus cells (Alchemist line only; reusable — toggles the familiar)
+  homun_lif: { id: "homun_lif", name: "Lif Cell", type: ItemType.Consumable, desc: "Alchemist line: call/dismiss Lif, a healing familiar.", homunculus: "lif", sellPrice: 400 },
+  homun_amistr: { id: "homun_amistr", name: "Amistr Cell", type: ItemType.Consumable, desc: "Alchemist line: call/dismiss Amistr, a guardian familiar (VIT +8, Max HP +240).", homunculus: "amistr", sellPrice: 400 },
+  homun_filir: { id: "homun_filir", name: "Filir Cell", type: ItemType.Consumable, desc: "Alchemist line: call/dismiss Filir, a physical attacker familiar.", homunculus: "filir", sellPrice: 400 },
+  homun_vanilmirth: { id: "homun_vanilmirth", name: "Vanilmirth Cell", type: ItemType.Consumable, desc: "Alchemist line: call/dismiss Vanilmirth, a magic attacker familiar.", homunculus: "vanilmirth", sellPrice: 400 },
 
   // pet eggs (use to summon a companion)
   poring_egg: { id: "poring_egg", name: "Poring Egg", type: ItemType.Consumable, desc: "Summons a Poring pet (LUK +3, Max HP +50).", pet: "poring_pet", price: 800, sellPrice: 100 },
@@ -1490,6 +1497,10 @@ export const SHOP_STOCK: string[] = [
   "spicy_skewer",
   "steamed_tuna",
   "pet_treat",
+  "homun_lif",
+  "homun_amistr",
+  "homun_filir",
+  "homun_vanilmirth",
   "novice_knife",
   "apprentice_rod",
   "cotton_shirt",

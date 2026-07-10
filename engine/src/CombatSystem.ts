@@ -4,6 +4,7 @@ import {
   effectiveCastMs,
   environmentMultiplier,
   EXP_SHARE_RANGE,
+  getHomun,
   getPet,
   getSkill,
   GUILD_EXP_SHARE,
@@ -50,6 +51,8 @@ export class CombatSystem {
       p.tickFoodBuffs(now);
       if (p.attackCooldown > 0) p.attackCooldown -= dtMs;
       if (p.petSkillCooldown > 0) p.petSkillCooldown -= dtMs;
+      if (p.homunCooldown > 0) p.homunCooldown -= dtMs;
+      this.updateHomunculus(p);
       for (const id of Object.keys(p.skillCooldowns)) {
         if (p.skillCooldowns[id] > 0) p.skillCooldowns[id] = Math.max(0, p.skillCooldowns[id] - dtMs);
       }
@@ -433,6 +436,73 @@ export class CombatSystem {
       target.aiState = MonsterAIState.Aggro;
     }
     if (target.hp > 0) this.tryPetSkill(p, target);
+    if (target.hp <= 0) this.killMonster(target, p);
+  }
+
+  // The nearest live monster within `range` of a player on their map, if any.
+  private nearestMonsterNear(p: Player, range: number): Monster | null {
+    let best: Monster | null = null;
+    let bestD = range;
+    for (const m of this.world.monsters.values()) {
+      if (m.mapId !== p.mapId || m.isDead) continue;
+      const d = dist2d(p.x, p.z, m.x, m.z);
+      if (d <= bestD) {
+        bestD = d;
+        best = m;
+      }
+    }
+    return best;
+  }
+
+  // An Alchemist-line homunculus acts autonomously each cadence: Lif mends its
+  // master, and Filir/Vanilmirth strike the nearest foe (damage attributed to
+  // the master). Amistr is a passive guardian (handled in Player.recompute).
+  private updateHomunculus(p: Player): void {
+    if (p.homunCooldown > 0) return;
+    const h = getHomun(p.activeHomun);
+    if (!h || h.kind === "guard") return;
+
+    if (h.kind === "heal") {
+      if (p.hp >= p.derived.maxHp) return; // nothing to mend; don't burn the cooldown
+      p.homunCooldown = h.cooldownMs;
+      const heal = Math.max(1, Math.round(p.derived.maxHp * h.power));
+      p.hp = Math.min(p.derived.maxHp, p.hp + heal);
+      this.world.broadcastToMap(p.mapId, {
+        t: MsgType.DamageEvent,
+        sourceId: p.id,
+        targetId: p.id,
+        amount: heal,
+        crit: false,
+        miss: false,
+        kind: DamageKind.Magic,
+        skillId: `homun_${h.id}`,
+        heal: true,
+      });
+      return;
+    }
+
+    const target = this.nearestMonsterNear(p, h.range);
+    if (!target) return;
+    p.homunCooldown = h.cooldownMs;
+    const magic = h.kind === "magic";
+    const base = magic ? p.derived.matk : p.derived.atk;
+    const dmg = Math.max(1, Math.round(base * 0.5 * h.power - (magic ? 0 : target.derived.def * 0.5)));
+    this.world.broadcastToMap(p.mapId, {
+      t: MsgType.DamageEvent,
+      sourceId: p.id,
+      targetId: target.id,
+      amount: dmg,
+      crit: false,
+      miss: false,
+      kind: magic ? DamageKind.Magic : DamageKind.Physical,
+      skillId: `homun_${h.id}`,
+    });
+    target.hp -= dmg;
+    target.recordDamage(p.id, dmg);
+    if (target.aiState !== MonsterAIState.Attack) {
+      target.aggroTargetId = p.id;
+      target.aiState = MonsterAIState.Aggro;
+    }
     if (target.hp <= 0) this.killMonster(target, p);
   }
 
