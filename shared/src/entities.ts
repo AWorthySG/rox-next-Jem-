@@ -86,6 +86,7 @@ export interface SelfState {
   petInfo: { id: string; name: string; level: number; intimacy: number; skillName: string | null; skillReady: boolean } | null;
   homunculus: string | null; // active homunculus id (Alchemist line), or null
   pass: { level: number; exp: number; expToNext: number; premium: boolean; claimedFree: number[]; claimedPremium: number[] };
+  album: { registered: string[]; total: number }; // Card Album collection index
   mountId: string | null;
   costumeId: string | null;
   lifeSkills: Array<{ id: string; level: number; exp: number; expToNext: number }>;
