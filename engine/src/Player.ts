@@ -16,6 +16,11 @@ import {
   petSkillUnlocked,
   PET_INTIMACY_PER_FEED,
   PET_FEED_COOLDOWN_MS,
+  passLevelFromExp,
+  passRewardAt,
+  PASS_MAX_TIER,
+  PASS_EXP_PER_TIER,
+  PASS_EXP_PER_QUEST,
   getQuest,
   getRecipe,
   getRune,
@@ -98,6 +103,10 @@ export class Player {
   lastPetFeedAt = 0; // ms timestamp of the last feed (feed cooldown)
   activeHomun: string | null = null; // active homunculus id (Alchemist line only)
   homunCooldown = 0; // ms until the homunculus may act again
+  passExp = 0; // accumulated Glory Pass EXP this season
+  passPremium = false; // has the premium Glory Pass been unlocked
+  passClaimedFree: number[] = []; // pass tiers claimed on the free track
+  passClaimedPremium: number[] = []; // pass tiers claimed on the premium track
   activeMountId: string | null = null;
   activeCostumeId: string | null = null;
   lifeSkillLevels: Record<string, number> = {}; // life skill id -> level (default 1)
@@ -434,6 +443,10 @@ export class Player {
       return true;
     }
     this.removeItem(itemId, 1);
+    if (item.unlocksPass) {
+      this.unlockPremiumPass();
+      return true;
+    }
     if (item.pet) {
       this.activePet = item.pet;
       this.recompute();
@@ -479,6 +492,48 @@ export class Player {
   // Only the Merchant → Alchemist → Creator → Begetter branch may call a homunculus.
   canSummonHomunculus(): boolean {
     return this.job === JobId.Alchemist || this.job === JobId.Creator || this.job === JobId.Begetter;
+  }
+
+  // ---- Glory Pass (battle pass) ----
+
+  passLevel(): number {
+    return passLevelFromExp(this.passExp);
+  }
+
+  gainPassExp(amount: number): void {
+    if (amount > 0) this.passExp += amount;
+  }
+
+  unlockPremiumPass(): void {
+    this.passPremium = true;
+  }
+
+  // Claim a pass tier's reward. Requires the tier be reached, not already
+  // claimed, and (for premium) the Glory Pass unlocked. Returns the granted
+  // reward, or null if the claim was invalid.
+  claimPassTier(level: number, track: "free" | "premium"): { itemId: string; qty: number } | null {
+    if (level > this.passLevel()) return null;
+    if (track === "premium" && !this.passPremium) return null;
+    const claimed = track === "free" ? this.passClaimedFree : this.passClaimedPremium;
+    if (claimed.includes(level)) return null;
+    const reward = passRewardAt(level, track);
+    if (!reward) return null;
+    claimed.push(level);
+    this.addItem(reward.itemId, reward.qty);
+    return { itemId: reward.itemId, qty: reward.qty };
+  }
+
+  private passState(): SelfState["pass"] {
+    const level = this.passLevel();
+    const expToNext = level >= PASS_MAX_TIER ? 0 : PASS_EXP_PER_TIER;
+    return {
+      level,
+      exp: this.passExp % PASS_EXP_PER_TIER,
+      expToNext,
+      premium: this.passPremium,
+      claimedFree: [...this.passClaimedFree],
+      claimedPremium: [...this.passClaimedPremium],
+    };
   }
 
   private petInfoState(): SelfState["petInfo"] {
@@ -719,6 +774,7 @@ export class Player {
     if (!quest.repeatable) this.completedQuests.push(id);
     this.zeny += quest.reward.zeny;
     for (const it of quest.reward.items ?? []) this.addItem(it.id, it.qty);
+    this.gainPassExp(PASS_EXP_PER_QUEST);
     const leveled = this.gainExp(quest.reward.exp);
     return { leveled };
   }
@@ -799,6 +855,12 @@ export class Player {
     this.activePet = s.pet ?? null;
     if (s.petInfo) this.petIntimacy[s.petInfo.id] = s.petInfo.intimacy;
     this.activeHomun = s.homunculus ?? null;
+    if (s.pass) {
+      this.passExp = s.pass.exp + s.pass.level * PASS_EXP_PER_TIER;
+      this.passPremium = s.pass.premium;
+      this.passClaimedFree = [...s.pass.claimedFree];
+      this.passClaimedPremium = [...s.pass.claimedPremium];
+    }
     this.activeMountId = s.mountId ?? null;
     this.activeCostumeId = s.costumeId ?? null;
     this.lifeSkillLevels = {};
@@ -898,6 +960,7 @@ export class Player {
       pet: this.activePet,
       petInfo: this.petInfoState(),
       homunculus: this.activeHomun,
+      pass: this.passState(),
       mountId: this.activeMountId,
       costumeId: this.activeCostumeId,
       lifeSkills: LIFE_SKILLS.map((id) => {

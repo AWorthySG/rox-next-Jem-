@@ -1,5 +1,6 @@
 import { DamageKind, JobId, MsgType } from "./enums.js";
 import type { EntityFull, EntitySnapshot, SelfState } from "./entities.js";
+import type { RankingEntry } from "./rankings.js";
 import type { Stats } from "./stats.js";
 import type { Weather } from "./world.js";
 
@@ -148,6 +149,17 @@ export interface EnterTowerMsg {
 
 export interface FeedPetMsg {
   t: MsgType.FeedPet;
+}
+
+export interface ClaimPassTierMsg {
+  t: MsgType.ClaimPassTier;
+  level: number;
+  track: "free" | "premium";
+}
+
+export interface RequestRankingsMsg {
+  t: MsgType.RequestRankings;
+  npcId: number;
 }
 
 export interface EnterCastleMsg {
@@ -352,6 +364,8 @@ export type ClientMessage =
   | GatherMsg
   | CraftMsg
   | FeedPetMsg
+  | ClaimPassTierMsg
+  | RequestRankingsMsg
   | EnterTowerMsg
   | EnterCastleMsg
   | DeclareSiegeMsg
@@ -505,6 +519,13 @@ export interface SocialUpdateMsg {
   social: SocialInfo;
 }
 
+export interface RankingUpdateMsg {
+  t: MsgType.RankingUpdate;
+  season: string;
+  mvp: RankingEntry[]; // top MVP hunters (players) by score
+  siege: RankingEntry[]; // top guilds by siege-win score
+}
+
 export interface DamageEventMsg {
   t: MsgType.DamageEvent;
   sourceId: number;
@@ -593,6 +614,7 @@ export type ServerMessage =
   | SiegeUpdateMsg
   | SocialRequestRecvMsg
   | SocialUpdateMsg
+  | RankingUpdateMsg
   | MapChangeMsg
   | DefeatedMsg
   | RefineResultMsg

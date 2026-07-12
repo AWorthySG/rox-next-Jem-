@@ -40,6 +40,11 @@ import {
   SIEGE_REWARD_INTERVAL_MS,
   SIEGE_WINDOW_MS,
   getHomun,
+  mvpKillPoints,
+  SIEGE_WIN_POINTS,
+  passLevelFromExp,
+  PASS_EXP_PER_TIER,
+  PASS_MAX_TIER,
   petLevelFromIntimacy,
   petBonusScale,
   petSkillUnlocked,
@@ -999,6 +1004,80 @@ async function main(): Promise<void> {
   begetter.useItem("homun_lif");
   hLoop.combatSystem.update(6000);
   check(begetter.hp > 1, "homun: Lif mends its wounded master");
+
+  // ---- Glory Pass (battle pass) ----
+  check(passLevelFromExp(0) === 0, "pass: no EXP is pass level 0");
+  check(passLevelFromExp(PASS_EXP_PER_TIER * 3) === 3, "pass: the pass level advances one per tier of EXP");
+  check(passLevelFromExp(PASS_EXP_PER_TIER * 999) === PASS_MAX_TIER, "pass: the pass level caps at the final tier");
+
+  const passer = new Player(920, 1, "Passer", JobId.Knight, 0, 0);
+  passer.gainPassExp(PASS_EXP_PER_TIER * 2);
+  check(passer.passLevel() === 2, "pass: gaining pass EXP raises the pass level");
+  check(passer.claimPassTier(3, "free") === null, "pass: cannot claim a tier above the current level");
+  const passR1 = passer.claimPassTier(1, "free");
+  check(passR1 !== null && passer.countItem(passR1.itemId) >= passR1.qty, "pass: claiming a reached tier grants its free reward");
+  check(passer.claimPassTier(1, "free") === null, "pass: a tier's reward can only be claimed once");
+  check(passer.claimPassTier(2, "premium") === null, "pass: the premium track is locked without a Glory Pass");
+  passer.addItem("glory_pass", 1);
+  passer.useItem("glory_pass");
+  check(passer.passPremium, "pass: using a Glory Pass unlocks the premium track");
+  check(passer.claimPassTier(2, "premium") !== null, "pass: a premium reward can be claimed once unlocked");
+  const passState = passer.toSelfState().pass;
+  check(
+    passState.level === 2 && passState.premium && passState.claimedFree.includes(1) && passState.claimedPremium.includes(2),
+    "pass: pass progress is surfaced in self state",
+  );
+
+  // kills feed the Glory Pass through the real combat loop
+  const pw = new World();
+  const pLoop = new GameLoop(pw);
+  const passHunter = new Player(pw.allocId(), 1, "Hunter", JobId.Knight, 0, 0);
+  pw.addPlayer(passHunter);
+  const prey = new Monster(pw.allocId(), MONSTER_TEMPLATES.poring, "z", "field", 0.5, 0.5);
+  prey.hp = 1;
+  pw.monsters.set(prey.id, prey);
+  passHunter.attackTargetId = prey.id;
+  const passExpBefore = passHunter.passExp;
+  pLoop.combatSystem.update(200);
+  check(passHunter.passExp > passExpBefore, "pass: kills award Glory Pass EXP");
+
+  // ---- rankings: MVP-hunt + siege leaderboards ----
+  check(mvpKillPoints(100, true) === 100 && mvpKillPoints(40, false) === 20, "rank: MVP points scale with the boss's tier");
+  const rw = new World();
+  const rLoop = new GameLoop(rw);
+  // Over-level the slayer so its auto-attack reliably lands (the hit roll is
+  // random; a Lv1 attacker misses a boss too often for a deterministic test),
+  // then drive the kill through the real combat loop, re-targeting each tick.
+  const slayer = new Player(rw.allocId(), 1, "Slayer", JobId.Knight, 0, 0);
+  slayer.level = 200;
+  slayer.recompute();
+  slayer.hp = slayer.derived.maxHp;
+  rw.addPlayer(slayer);
+  const boss = new Monster(rw.allocId(), MONSTER_TEMPLATES.poring_king, "z", "field", 0.5, 0.5);
+  boss.hp = 1;
+  rw.monsters.set(boss.id, boss);
+  for (let i = 0; i < 200 && !boss.isDead; i++) {
+    slayer.attackTargetId = boss.id;
+    rLoop.combatSystem.update(1000);
+  }
+  check(boss.isDead, "rank: (setup) the MVP was slain in the combat loop");
+  const mvpBoard = rw.ranking.mvpBoard();
+  check(mvpBoard.length === 1 && mvpBoard[0].name === "Slayer" && mvpBoard[0].score > 0, "rank: slaying an MVP puts you on the hunt board");
+  rw.ranking.recordMvpKill(slayer, boss); // a second kill widens the lead
+  const rival = new Player(rw.allocId(), 2, "Rival", JobId.Mage, 3, 3);
+  rw.ranking.recordMvpKill(rival, boss);
+  const mvpBoard2 = rw.ranking.mvpBoard();
+  check(mvpBoard2[0].name === "Slayer" && mvpBoard2.some((e) => e.name === "Rival"), "rank: the hunt board is sorted highest-first");
+  check(rw.ranking.recordMvpKill(slayer, prey) === undefined && rw.ranking.mvpScoreOf(slayer.id) > 0, "rank: a non-boss kill scores nothing but leaves the ranking intact");
+  // capturing the castle scores the guild on the siege ladder
+  const gmaster = new Player(rw.allocId(), 3, "GMaster", JobId.Knight, 0, 0);
+  gmaster.level = 40;
+  rw.addPlayer(gmaster);
+  rw.guild.create(gmaster, "Champions");
+  rw.siege.startSiege();
+  rw.siege.onEmperiumBroken(gmaster);
+  const siegeBoard = rw.ranking.siegeBoard();
+  check(siegeBoard.length === 1 && siegeBoard[0].name === "Champions" && siegeBoard[0].score === SIEGE_WIN_POINTS, "rank: capturing the castle scores the guild on the siege ladder");
 
   // ---- day/night + weather environment ----
   check(daylight(0.5) > 0.9, "env: noon is bright");

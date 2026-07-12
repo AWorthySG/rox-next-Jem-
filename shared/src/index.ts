@@ -9,6 +9,8 @@ export * from "./skills.js";
 export * from "./items.js";
 export * from "./pets.js";
 export * from "./homunculus.js";
+export * from "./battlepass.js";
+export * from "./rankings.js";
 export * from "./mounts.js";
 export * from "./costumes.js";
 export * from "./lifeSkills.js";

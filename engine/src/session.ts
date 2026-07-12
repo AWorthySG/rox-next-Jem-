@@ -287,6 +287,30 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       }
       break;
     }
+    case MsgType.ClaimPassTier: {
+      const p = playerOf(world, link);
+      if (p) {
+        const reward = p.claimPassTier(msg.level, msg.track);
+        if (reward) {
+          link.send({ t: MsgType.Loot, items: [{ id: reward.itemId, qty: reward.qty }], zeny: 0 });
+          link.send({ t: MsgType.SelfSync, self: p.toSelfState() });
+        }
+      }
+      break;
+    }
+    case MsgType.RequestRankings: {
+      const p = playerOf(world, link);
+      const npc = world.npcs.get(msg.npcId);
+      if (p && npc && npc.role === "rankings" && npc.mapId === p.mapId) {
+        link.send({
+          t: MsgType.RankingUpdate,
+          season: world.ranking.season,
+          mvp: world.ranking.mvpBoard(),
+          siege: world.ranking.siegeBoard(),
+        });
+      }
+      break;
+    }
     case MsgType.Warp: {
       const p = playerOf(world, link);
       const npc = world.npcs.get(msg.npcId);

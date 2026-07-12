@@ -99,6 +99,7 @@ export class SiegeSystem {
       }
       this.ownerGuildId = guild.id;
       guild.ownedCastle = MAPS[CASTLE_MAP].name;
+      this.world.ranking.recordSiegeWin(guild); // climb the guild-siege ladder
       this.world.guild.refresh(guild.id);
       // Immediate conquest bounty to the online members present.
       for (const p of this.world.guild.getById(guild.id)!.members) {

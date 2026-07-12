@@ -95,6 +95,7 @@ export interface ItemDef {
   mount?: string; // toggles riding this mount (by id, see mounts.ts) when used
   costume?: string; // toggles wearing this cosmetic outfit (by id, see costumes.ts) when used
   homunculus?: string; // toggles this homunculus (Alchemist line only, see homunculus.ts)
+  unlocksPass?: boolean; // unlocks the season's premium Glory Pass track when used
   // progression tier (1 Worn … 6 Mythic). Optional: when set it pins the rarity
   // tint and is shown as a label; otherwise rarity is derived from sell value.
   tier?: number;
@@ -179,6 +180,9 @@ export const ITEMS: Record<string, ItemDef> = {
 
   // pet feed: raises the active pet's intimacy (and, at thresholds, its level)
   pet_treat: { id: "pet_treat", name: "Pet Treat", type: ItemType.Consumable, desc: "Feed your active pet to raise its intimacy.", price: 120, sellPrice: 20 },
+
+  // Glory Pass: unlocks the premium reward track of the current season
+  glory_pass: { id: "glory_pass", name: "Glory Pass", type: ItemType.Consumable, desc: "Unlocks the premium reward track of this season's Glory Pass.", unlocksPass: true, sellPrice: 0 },
 
   // smelted ingots (life-skill Smelting outputs; Crafting's inputs)
   oridecon_ingot: { id: "oridecon_ingot", name: "Oridecon Ingot", type: ItemType.Material, desc: "A bar of weapon-grade metal. Smelted from Oridecon.", sellPrice: 700 },
@@ -1497,6 +1501,7 @@ export const SHOP_STOCK: string[] = [
   "spicy_skewer",
   "steamed_tuna",
   "pet_treat",
+  "glory_pass",
   "homun_lif",
   "homun_amistr",
   "homun_filir",
