@@ -1045,14 +1045,22 @@ async function main(): Promise<void> {
   check(mvpKillPoints(100, true) === 100 && mvpKillPoints(40, false) === 20, "rank: MVP points scale with the boss's tier");
   const rw = new World();
   const rLoop = new GameLoop(rw);
+  // Over-level the slayer so its auto-attack reliably lands (the hit roll is
+  // random; a Lv1 attacker misses a boss too often for a deterministic test),
+  // then drive the kill through the real combat loop, re-targeting each tick.
   const slayer = new Player(rw.allocId(), 1, "Slayer", JobId.Knight, 0, 0);
+  slayer.level = 200;
+  slayer.recompute();
+  slayer.hp = slayer.derived.maxHp;
   rw.addPlayer(slayer);
-  const bossTmpl = Object.values(MONSTER_TEMPLATES).find((t) => t.boss && !t.worldBoss)!;
-  const boss = new Monster(rw.allocId(), bossTmpl, "z", "field", 0.5, 0.5);
+  const boss = new Monster(rw.allocId(), MONSTER_TEMPLATES.poring_king, "z", "field", 0.5, 0.5);
   boss.hp = 1;
   rw.monsters.set(boss.id, boss);
-  slayer.attackTargetId = boss.id;
-  rLoop.combatSystem.update(200);
+  for (let i = 0; i < 200 && !boss.isDead; i++) {
+    slayer.attackTargetId = boss.id;
+    rLoop.combatSystem.update(1000);
+  }
+  check(boss.isDead, "rank: (setup) the MVP was slain in the combat loop");
   const mvpBoard = rw.ranking.mvpBoard();
   check(mvpBoard.length === 1 && mvpBoard[0].name === "Slayer" && mvpBoard[0].score > 0, "rank: slaying an MVP puts you on the hunt board");
   rw.ranking.recordMvpKill(slayer, boss); // a second kill widens the lead
