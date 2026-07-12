@@ -595,6 +595,9 @@ export class CombatSystem {
       this.clearKillTargets(target);
       return;
     }
+    // MVP-hunt rankings: crediting the finisher covers both ordinary MVPs and
+    // world bosses (world bosses return early below, so this must run first).
+    this.world.ranking.recordMvpKill(killer, target);
     // Snapshot the damage tally before slay() clears it (shared-HP world bosses).
     const contributors = [...target.damageByPlayer.entries()].sort((a, b) => b[1] - a[1]);
     this.slay(target);

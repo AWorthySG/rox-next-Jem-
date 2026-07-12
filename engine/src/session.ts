@@ -298,6 +298,19 @@ export function handleClientMessage(world: World, link: ClientLink, msg: ClientM
       }
       break;
     }
+    case MsgType.RequestRankings: {
+      const p = playerOf(world, link);
+      const npc = world.npcs.get(msg.npcId);
+      if (p && npc && npc.role === "rankings" && npc.mapId === p.mapId) {
+        link.send({
+          t: MsgType.RankingUpdate,
+          season: world.ranking.season,
+          mvp: world.ranking.mvpBoard(),
+          siege: world.ranking.siegeBoard(),
+        });
+      }
+      break;
+    }
     case MsgType.Warp: {
       const p = playerOf(world, link);
       const npc = world.npcs.get(msg.npcId);

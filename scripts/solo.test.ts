@@ -40,6 +40,8 @@ import {
   SIEGE_REWARD_INTERVAL_MS,
   SIEGE_WINDOW_MS,
   getHomun,
+  mvpKillPoints,
+  SIEGE_WIN_POINTS,
   passLevelFromExp,
   PASS_EXP_PER_TIER,
   PASS_MAX_TIER,
@@ -1038,6 +1040,36 @@ async function main(): Promise<void> {
   const passExpBefore = passHunter.passExp;
   pLoop.combatSystem.update(200);
   check(passHunter.passExp > passExpBefore, "pass: kills award Glory Pass EXP");
+
+  // ---- rankings: MVP-hunt + siege leaderboards ----
+  check(mvpKillPoints(100, true) === 100 && mvpKillPoints(40, false) === 20, "rank: MVP points scale with the boss's tier");
+  const rw = new World();
+  const rLoop = new GameLoop(rw);
+  const slayer = new Player(rw.allocId(), 1, "Slayer", JobId.Knight, 0, 0);
+  rw.addPlayer(slayer);
+  const bossTmpl = Object.values(MONSTER_TEMPLATES).find((t) => t.boss && !t.worldBoss)!;
+  const boss = new Monster(rw.allocId(), bossTmpl, "z", "field", 0.5, 0.5);
+  boss.hp = 1;
+  rw.monsters.set(boss.id, boss);
+  slayer.attackTargetId = boss.id;
+  rLoop.combatSystem.update(200);
+  const mvpBoard = rw.ranking.mvpBoard();
+  check(mvpBoard.length === 1 && mvpBoard[0].name === "Slayer" && mvpBoard[0].score > 0, "rank: slaying an MVP puts you on the hunt board");
+  rw.ranking.recordMvpKill(slayer, boss); // a second kill widens the lead
+  const rival = new Player(rw.allocId(), 2, "Rival", JobId.Mage, 3, 3);
+  rw.ranking.recordMvpKill(rival, boss);
+  const mvpBoard2 = rw.ranking.mvpBoard();
+  check(mvpBoard2[0].name === "Slayer" && mvpBoard2.some((e) => e.name === "Rival"), "rank: the hunt board is sorted highest-first");
+  check(rw.ranking.recordMvpKill(slayer, prey) === undefined && rw.ranking.mvpScoreOf(slayer.id) > 0, "rank: a non-boss kill scores nothing but leaves the ranking intact");
+  // capturing the castle scores the guild on the siege ladder
+  const gmaster = new Player(rw.allocId(), 3, "GMaster", JobId.Knight, 0, 0);
+  gmaster.level = 40;
+  rw.addPlayer(gmaster);
+  rw.guild.create(gmaster, "Champions");
+  rw.siege.startSiege();
+  rw.siege.onEmperiumBroken(gmaster);
+  const siegeBoard = rw.ranking.siegeBoard();
+  check(siegeBoard.length === 1 && siegeBoard[0].name === "Champions" && siegeBoard[0].score === SIEGE_WIN_POINTS, "rank: capturing the castle scores the guild on the siege ladder");
 
   // ---- day/night + weather environment ----
   check(daylight(0.5) > 0.9, "env: noon is bright");

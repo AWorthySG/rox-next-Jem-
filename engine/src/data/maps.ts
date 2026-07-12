@@ -42,6 +42,7 @@ export const MAPS: Record<string, GameMap> = {
       { name: "Cook", role: "cook", x: -8, z: -7, facing: Math.PI },
       { name: "Tower Keeper", role: "tower", x: 8, z: 14, facing: Math.PI },
       { name: "Castle Herald", role: "castle", x: 12, z: 14, facing: Math.PI },
+      { name: "Hall of Glory", role: "rankings", x: -12, z: 14, facing: Math.PI },
       { name: "Cave Portal", role: "portal", x: 14, z: 0, dest: { toMap: "cave", toX: 0, toZ: 18 } },
       { name: "Arena Portal", role: "portal", x: -14, z: 0, dest: { toMap: "arena", toX: 0, toZ: 0 } },
       { name: "Payon Portal", role: "portal", x: 0, z: 14, dest: { toMap: "payon", toX: 0, toZ: 18 } },

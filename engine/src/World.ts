@@ -11,6 +11,7 @@ import { DuelSystem } from "./DuelSystem.js";
 import { InstanceSystem } from "./InstanceSystem.js";
 import { SiegeSystem } from "./SiegeSystem.js";
 import { SocialSystem } from "./SocialSystem.js";
+import { RankingSystem } from "./RankingSystem.js";
 import { MONSTER_TEMPLATES } from "./data/spawns.js";
 import { MAPS } from "./data/maps.js";
 
@@ -28,6 +29,7 @@ export class World {
   readonly instances = new InstanceSystem(this);
   readonly siege = new SiegeSystem(this);
   readonly social = new SocialSystem(this);
+  readonly ranking = new RankingSystem();
   readonly mapIds = Object.keys(MAPS);
   private nextEntityId = 1;
 

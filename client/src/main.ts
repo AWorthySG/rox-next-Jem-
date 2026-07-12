@@ -27,6 +27,7 @@ import { ShopPanel } from "./ui/ShopPanel.js";
 import { CraftingPanel } from "./ui/CraftingPanel.js";
 import { PetPanel } from "./ui/PetPanel.js";
 import { BattlePassPanel } from "./ui/BattlePassPanel.js";
+import { RankingsPanel } from "./ui/RankingsPanel.js";
 import { ExchangePanel } from "./ui/ExchangePanel.js";
 import { QuestPanel } from "./ui/QuestPanel.js";
 import { RefinePanel } from "./ui/RefinePanel.js";
@@ -234,6 +235,8 @@ const petPanel = new PetPanel({
 const passPanel = new BattlePassPanel({
   onClaim: (level, track) => transport?.send({ t: MsgType.ClaimPassTier, level, track }),
 });
+
+const rankingsPanel = new RankingsPanel();
 
 const storage = new StoragePanel({
   onStore: (itemId, qty) => transport?.send({ t: MsgType.StoreItem, itemId, qty }),
@@ -514,6 +517,10 @@ const input = new InputController(
         showCastleMenu(id);
         return;
       }
+      if (role === "rankings") {
+        transport?.send({ t: MsgType.RequestRankings, npcId: id });
+        return;
+      }
       if (role === "gather_fish" || role === "gather_ore" || role === "gather_crop") {
         // Walk to the gathering spot and request a gather (server checks proximity).
         const pos = gameState.worldPosOf(id);
@@ -677,6 +684,9 @@ function handleMessage(msg: ServerMessage): void {
       break;
     case MsgType.SocialUpdate:
       setSocialHud(msg.social);
+      break;
+    case MsgType.RankingUpdate:
+      rankingsPanel.show(msg);
       break;
     case MsgType.BossTelegraph:
       novaTelegraph.spawn(msg.x, msg.z, msg.radius, msg.delayMs);

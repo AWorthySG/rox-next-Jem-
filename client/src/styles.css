@@ -1569,6 +1569,47 @@ body {
 .pass-empty {
   opacity: 0.4;
 }
+.rank-cols {
+  display: flex;
+  gap: 10px;
+  padding: 12px 14px;
+}
+.rank-col {
+  flex: 1;
+  min-width: 0;
+}
+.rank-title {
+  font-size: 12px;
+  font-weight: 800;
+  margin-bottom: 6px;
+  opacity: 0.85;
+}
+.rank-row {
+  display: grid;
+  grid-template-columns: 28px 1fr auto;
+  gap: 6px;
+  align-items: center;
+  padding: 5px 8px;
+  font-size: 12px;
+  border-bottom: 1px solid var(--panel-border);
+}
+.rank-pos {
+  text-align: center;
+}
+.rank-name {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.rank-score {
+  font-weight: 700;
+  color: #ffcf6a;
+}
+.rank-empty {
+  font-size: 12px;
+  opacity: 0.55;
+  padding: 6px 2px;
+}
 .craft-list {
   display: flex;
   flex-direction: column;
