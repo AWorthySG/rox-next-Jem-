@@ -28,6 +28,7 @@ import { CraftingPanel } from "./ui/CraftingPanel.js";
 import { PetPanel } from "./ui/PetPanel.js";
 import { BattlePassPanel } from "./ui/BattlePassPanel.js";
 import { RankingsPanel } from "./ui/RankingsPanel.js";
+import { CardAlbumPanel } from "./ui/CardAlbumPanel.js";
 import { ExchangePanel } from "./ui/ExchangePanel.js";
 import { QuestPanel } from "./ui/QuestPanel.js";
 import { RefinePanel } from "./ui/RefinePanel.js";
@@ -107,6 +108,7 @@ window.addEventListener("keydown", (e) => {
   if (e.key === "h" || e.key === "H") toggleHelp();
   else if (e.key === "j" || e.key === "J") petPanel.toggle();
   else if (e.key === "b" || e.key === "B") passPanel.toggle();
+  else if (e.key === "k" || e.key === "K") cardAlbum.toggle();
   else if (e.key === "Tab") {
     // cycle to the next-nearest enemy and engage it
     e.preventDefault();
@@ -237,6 +239,7 @@ const passPanel = new BattlePassPanel({
 });
 
 const rankingsPanel = new RankingsPanel();
+const cardAlbum = new CardAlbumPanel();
 
 const storage = new StoragePanel({
   onStore: (itemId, qty) => transport?.send({ t: MsgType.StoreItem, itemId, qty }),
@@ -629,6 +632,7 @@ function handleMessage(msg: ServerMessage): void {
       crafting.sync(msg.self);
       petPanel.sync(msg.self);
       passPanel.sync(msg.self);
+      cardAlbum.sync(msg.self);
       quests.sync(msg.self);
       refine.sync(msg.self);
       skills.sync(msg.self);

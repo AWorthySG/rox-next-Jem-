@@ -14,7 +14,8 @@ function toon(color: number, opts: { transparent?: boolean; opacity?: number; em
   const m = new THREE.MeshToonMaterial({
     color,
     gradientMap: makeToonGradient(),
-    transparent: opts.transparent,
+    // Default to opaque: passing `transparent: undefined` makes three.js warn.
+    transparent: opts.transparent ?? false,
     opacity: opts.opacity ?? 1,
     emissive: opts.emissive ?? 0x000000,
   });

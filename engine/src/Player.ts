@@ -21,6 +21,12 @@ import {
   PASS_MAX_TIER,
   PASS_EXP_PER_TIER,
   PASS_EXP_PER_QUEST,
+  isCardComplete,
+  CARD_ALBUM_TOTAL,
+  CARD_ALBUM_HP_PER,
+  CARD_ALBUM_SP_PER,
+  CARD_ALBUM_COMPLETE_HP,
+  CARD_ALBUM_COMPLETE_SP,
   getQuest,
   getRecipe,
   getRune,
@@ -92,6 +98,7 @@ export class Player {
   storage: Record<string, number> = {}; // Kafra storage: itemId -> qty
   equipped: Partial<Record<EquipSlot, string>> = {}; // slot -> itemId
   cards: Partial<Record<EquipSlot, string>> = {}; // slot -> socketed card itemId
+  cardAlbum = new Set<string>(); // every distinct card the player has ever owned
   refineByItem: Record<string, number> = {}; // itemId -> refine level
   enchantByItem: Record<string, EnchantLine[]> = {}; // itemId -> rolled enchant lines
   partyId: number | null = null;
@@ -268,6 +275,15 @@ export class Player {
       flatHp += card.maxHp ?? 0;
       flatSp += card.maxSp ?? 0;
     }
+    // Card Album collector's bonus: scales with distinct cards registered, with
+    // an extra reward for completing the whole set.
+    const albumCount = this.cardAlbum.size;
+    flatHp += albumCount * CARD_ALBUM_HP_PER;
+    flatSp += albumCount * CARD_ALBUM_SP_PER;
+    if (isCardComplete(albumCount)) {
+      flatHp += CARD_ALBUM_COMPLETE_HP;
+      flatSp += CARD_ALBUM_COMPLETE_SP;
+    }
     // active pet bonus, scaled up by the pet's level (from intimacy)
     const pet = this.activePet ? getPet(this.activePet) : undefined;
     if (pet) {
@@ -394,8 +410,14 @@ export class Player {
   // ---- inventory / equipment ----
 
   addItem(itemId: string, qty = 1): void {
-    if (!getItem(itemId)) return;
+    const item = getItem(itemId);
+    if (!item) return;
     this.inventory[itemId] = (this.inventory[itemId] ?? 0) + qty;
+    // Register any card in the Card Album the first time it's owned.
+    if (item.type === ItemType.Card && !this.cardAlbum.has(itemId)) {
+      this.cardAlbum.add(itemId);
+      this.recompute(); // the collector's bonus scales with distinct cards owned
+    }
   }
 
   countItem(itemId: string): number {
@@ -855,6 +877,7 @@ export class Player {
     this.activePet = s.pet ?? null;
     if (s.petInfo) this.petIntimacy[s.petInfo.id] = s.petInfo.intimacy;
     this.activeHomun = s.homunculus ?? null;
+    this.cardAlbum = new Set(s.album?.registered ?? []);
     if (s.pass) {
       this.passExp = s.pass.exp + s.pass.level * PASS_EXP_PER_TIER;
       this.passPremium = s.pass.premium;
@@ -961,6 +984,7 @@ export class Player {
       petInfo: this.petInfoState(),
       homunculus: this.activeHomun,
       pass: this.passState(),
+      album: { registered: [...this.cardAlbum], total: CARD_ALBUM_TOTAL },
       mountId: this.activeMountId,
       costumeId: this.activeCostumeId,
       lifeSkills: LIFE_SKILLS.map((id) => {

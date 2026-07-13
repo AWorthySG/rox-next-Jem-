@@ -42,6 +42,10 @@ import {
   getHomun,
   mvpKillPoints,
   SIEGE_WIN_POINTS,
+  CARD_IDS,
+  CARD_ALBUM_TOTAL,
+  CARD_ALBUM_HP_PER,
+  CARD_ALBUM_COMPLETE_HP,
   passLevelFromExp,
   PASS_EXP_PER_TIER,
   PASS_MAX_TIER,
@@ -1078,6 +1082,28 @@ async function main(): Promise<void> {
   rw.siege.onEmperiumBroken(gmaster);
   const siegeBoard = rw.ranking.siegeBoard();
   check(siegeBoard.length === 1 && siegeBoard[0].name === "Champions" && siegeBoard[0].score === SIEGE_WIN_POINTS, "rank: capturing the castle scores the guild on the siege ladder");
+
+  // ---- card album collection index ----
+  check(CARD_IDS.length > 0 && CARD_ALBUM_TOTAL === CARD_IDS.length, "album: the album indexes every card in the game");
+  const collector = new Player(910, 1, "Collector", JobId.Knight, 0, 0);
+  collector.recompute();
+  const albumBaseHp = collector.derived.maxHp;
+  const firstCard = CARD_IDS[0];
+  collector.addItem(firstCard, 1);
+  check(collector.cardAlbum.has(firstCard), "album: owning a card registers it in the album");
+  check(collector.derived.maxHp === albumBaseHp + CARD_ALBUM_HP_PER, "album: each registered card grants a collector's HP bonus");
+  collector.addItem(firstCard, 3);
+  check(collector.cardAlbum.size === 1, "album: re-acquiring a card doesn't double-register it");
+  collector.addItem("red_potion", 1);
+  check(collector.cardAlbum.size === 1, "album: non-card items never enter the album");
+  for (const id of CARD_IDS) collector.addItem(id, 1);
+  check(collector.cardAlbum.size === CARD_ALBUM_TOTAL, "album: collecting every card completes the set");
+  check(
+    collector.derived.maxHp === albumBaseHp + CARD_ALBUM_TOTAL * CARD_ALBUM_HP_PER + CARD_ALBUM_COMPLETE_HP,
+    "album: completing the set grants the full-collection bonus",
+  );
+  const albumState = collector.toSelfState().album;
+  check(albumState.registered.length === CARD_ALBUM_TOTAL && albumState.total === CARD_ALBUM_TOTAL, "album: album progress is surfaced in self state");
 
   // ---- day/night + weather environment ----
   check(daylight(0.5) > 0.9, "env: noon is bright");

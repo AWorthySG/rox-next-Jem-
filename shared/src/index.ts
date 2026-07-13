@@ -11,6 +11,7 @@ export * from "./pets.js";
 export * from "./homunculus.js";
 export * from "./battlepass.js";
 export * from "./rankings.js";
+export * from "./cardAlbum.js";
 export * from "./mounts.js";
 export * from "./costumes.js";
 export * from "./lifeSkills.js";
