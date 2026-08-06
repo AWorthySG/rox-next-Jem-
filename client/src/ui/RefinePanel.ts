@@ -12,6 +12,7 @@ import {
   type EnchantLine,
   type SelfState,
 } from "@rox/shared";
+import { panelManager } from "./PanelManager.js";
 
 export interface RefineHandlers {
   onRefine(slot: EquipSlot): void;
@@ -36,6 +37,7 @@ export class RefinePanel {
   private last: SelfState | null = null;
 
   constructor(private handlers: RefineHandlers) {
+    panelManager.register(this);
     document.getElementById("refine-close")!.addEventListener("click", () => this.close());
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && this.isOpen) this.close();
@@ -47,6 +49,7 @@ export class RefinePanel {
   }
 
   open(): void {
+    panelManager.closeOthers(this);
     this.root.classList.remove("hidden");
     if (this.last) this.render(this.last);
   }

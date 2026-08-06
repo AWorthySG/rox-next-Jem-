@@ -1,4 +1,5 @@
 import { RUNE_LINES, runesByLine, type SelfState } from "@rox/shared";
+import { panelManager } from "./PanelManager.js";
 
 export interface AesirHandlers {
   onUnlock(runeId: string): void;
@@ -12,6 +13,7 @@ export class AesirPanel {
   private last: SelfState | null = null;
 
   constructor(private handlers: AesirHandlers) {
+    panelManager.register(this);
     document.getElementById("aesir-close")!.addEventListener("click", () => this.close());
     window.addEventListener("keydown", (e) => {
       if (isTyping()) return;
@@ -20,13 +22,16 @@ export class AesirPanel {
     });
   }
 
-  private get isOpen(): boolean {
+  get isOpen(): boolean {
     return !this.root.classList.contains("hidden");
   }
 
   toggle(): void {
     this.root.classList.toggle("hidden");
-    if (this.isOpen && this.last) this.render(this.last);
+    if (this.isOpen) {
+      panelManager.closeOthers(this);
+      if (this.last) this.render(this.last);
+    }
   }
 
   close(): void {

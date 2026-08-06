@@ -1,4 +1,5 @@
 import { getItem, QUESTS, type SelfState } from "@rox/shared";
+import { panelManager } from "./PanelManager.js";
 
 export interface QuestHandlers {
   onAccept(questId: string): void;
@@ -13,6 +14,7 @@ export class QuestPanel {
   private last: SelfState | null = null;
 
   constructor(private handlers: QuestHandlers) {
+    panelManager.register(this);
     document.getElementById("quests-close")!.addEventListener("click", () => this.close());
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && this.isOpen) this.close();
@@ -24,6 +26,7 @@ export class QuestPanel {
   }
 
   open(): void {
+    panelManager.closeOthers(this);
     this.root.classList.remove("hidden");
     if (this.last) this.render(this.last);
   }

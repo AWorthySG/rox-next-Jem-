@@ -1,4 +1,5 @@
 import { MAPS } from "@rox/engine";
+import { panelManager } from "./PanelManager.js";
 
 // Warp Girl: pick a destination map for quick travel. Opened by clicking the
 // warp NPC; the chosen map is sent to the server (which performs the travel).
@@ -8,11 +9,16 @@ export class WarpPanel {
   private npcId = -1;
 
   constructor(private onWarp: (npcId: number, mapId: string) => void) {
+    panelManager.register(this);
     document.getElementById("warp-close")!.addEventListener("click", () => this.close());
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && !this.root.classList.contains("hidden")) this.close();
     });
     this.render();
+  }
+
+  get isOpen(): boolean {
+    return !this.root.classList.contains("hidden");
   }
 
   private render(): void {
@@ -31,6 +37,7 @@ export class WarpPanel {
 
   open(npcId: number): void {
     this.npcId = npcId;
+    panelManager.closeOthers(this);
     this.root.classList.remove("hidden");
   }
 

@@ -29,6 +29,7 @@ import { PetPanel } from "./ui/PetPanel.js";
 import { BattlePassPanel } from "./ui/BattlePassPanel.js";
 import { RankingsPanel } from "./ui/RankingsPanel.js";
 import { CardAlbumPanel } from "./ui/CardAlbumPanel.js";
+import { panelManager } from "./ui/PanelManager.js";
 import { ExchangePanel } from "./ui/ExchangePanel.js";
 import { QuestPanel } from "./ui/QuestPanel.js";
 import { RefinePanel } from "./ui/RefinePanel.js";
@@ -97,9 +98,23 @@ const novaTelegraph = new NovaTelegraph(scene.scene);
 const skillVfx = new SkillVfx(scene.scene);
 const screenFx = new ScreenFx();
 
-// Help panel toggle (button + key H).
+// Help panel toggle (button + key H). Registered with the panel manager like
+// every other centered window, so opening it while e.g. the bag is up closes
+// the bag instead of drawing both dead-center on top of each other.
 const helpPanel = document.getElementById("help-panel")!;
-const toggleHelp = () => helpPanel.classList.toggle("hidden");
+const helpPanelHandle = {
+  get isOpen() {
+    return !helpPanel.classList.contains("hidden");
+  },
+  close() {
+    helpPanel.classList.add("hidden");
+  },
+};
+panelManager.register(helpPanelHandle);
+const toggleHelp = () => {
+  helpPanel.classList.toggle("hidden");
+  if (helpPanelHandle.isOpen) panelManager.closeOthers(helpPanelHandle);
+};
 document.getElementById("help-btn")!.addEventListener("click", toggleHelp);
 document.getElementById("help-close")!.addEventListener("click", () => helpPanel.classList.add("hidden"));
 window.addEventListener("keydown", (e) => {
@@ -107,8 +122,12 @@ window.addEventListener("keydown", (e) => {
   if (a && (a.tagName === "INPUT" || a.tagName === "TEXTAREA")) return;
   if (e.key === "h" || e.key === "H") toggleHelp();
   else if (e.key === "j" || e.key === "J") petPanel.toggle();
-  else if (e.key === "b" || e.key === "B") passPanel.toggle();
-  else if (e.key === "k" || e.key === "K") cardAlbum.toggle();
+  // Note: "B" and "K" are already claimed by StoragePanel and SkillsPanel
+  // respectively (each panel owns its own keydown listener) — Battle Pass
+  // and Card Album use unclaimed letters to avoid double-toggling two
+  // panels on one keypress.
+  else if (e.key === "p" || e.key === "P") passPanel.toggle();
+  else if (e.key === "c" || e.key === "C") cardAlbum.toggle();
   else if (e.key === "Tab") {
     // cycle to the next-nearest enemy and engage it
     e.preventDefault();

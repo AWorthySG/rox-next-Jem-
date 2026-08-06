@@ -1,4 +1,5 @@
 import type { RankingUpdateMsg } from "@rox/shared";
+import { panelManager } from "./PanelManager.js";
 
 // The Hall of Glory panel: two seasonal leaderboards — MVP hunters (players by
 // boss-kill score) and guild sieges (guilds by castle captures). Populated by a
@@ -10,6 +11,7 @@ export class RankingsPanel {
   private siegeEl = document.getElementById("rankings-siege")!;
 
   constructor() {
+    panelManager.register(this);
     document.getElementById("rankings-close")!.addEventListener("click", () => this.close());
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && this.isOpen) this.close();
@@ -26,6 +28,7 @@ export class RankingsPanel {
 
   // Show the panel with the latest board data from the server.
   show(msg: RankingUpdateMsg): void {
+    panelManager.closeOthers(this);
     this.seasonEl.textContent = msg.season;
     this.mvpEl.innerHTML = this.board(msg.mvp, "No MVP has fallen yet.");
     this.siegeEl.innerHTML = this.board(msg.siege, "No castle has been claimed yet.");

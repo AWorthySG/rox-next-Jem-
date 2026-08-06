@@ -1,4 +1,5 @@
 import { getItem, ItemType, rarityOf, type ItemDef, type SelfState } from "@rox/shared";
+import { panelManager } from "./PanelManager.js";
 
 export interface StorageHandlers {
   onStore(itemId: string, qty: number): void;
@@ -28,6 +29,7 @@ export class StoragePanel {
   private last: SelfState | null = null;
 
   constructor(private handlers: StorageHandlers) {
+    panelManager.register(this);
     document.getElementById("storage-close")!.addEventListener("click", () => this.close());
     window.addEventListener("keydown", (e) => {
       if (isTyping()) return;
@@ -42,7 +44,10 @@ export class StoragePanel {
 
   toggle(): void {
     this.root.classList.toggle("hidden");
-    if (this.isOpen && this.last) this.render(this.last);
+    if (this.isOpen) {
+      panelManager.closeOthers(this);
+      if (this.last) this.render(this.last);
+    }
   }
 
   close(): void {

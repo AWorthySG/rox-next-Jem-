@@ -8,6 +8,7 @@ import {
   isCardComplete,
   type SelfState,
 } from "@rox/shared";
+import { panelManager } from "./PanelManager.js";
 
 // The Card Album panel: a grid of every card in the game, with the ones the
 // player has collected lit up and the rest shown as locked silhouettes. A
@@ -20,6 +21,7 @@ export class CardAlbumPanel {
   private last: SelfState | null = null;
 
   constructor() {
+    panelManager.register(this);
     document.getElementById("card-album-close")!.addEventListener("click", () => this.close());
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && this.isOpen) this.close();
@@ -36,6 +38,7 @@ export class CardAlbumPanel {
   }
 
   open(): void {
+    panelManager.closeOthers(this);
     this.root.classList.remove("hidden");
     if (this.last) this.render(this.last);
   }

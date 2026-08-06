@@ -9,6 +9,7 @@ import {
   type ItemDef,
   type SelfState,
 } from "@rox/shared";
+import { panelManager } from "./PanelManager.js";
 
 export interface InventoryHandlers {
   onUse(itemId: string): void;
@@ -63,6 +64,7 @@ export class InventoryPanel {
   private filter: Filter = "all";
 
   constructor(private handlers: InventoryHandlers) {
+    panelManager.register(this);
     document.getElementById("inv-close")!.addEventListener("click", () => this.close());
     this.buildTabs();
     window.addEventListener("keydown", (e) => {
@@ -94,7 +96,10 @@ export class InventoryPanel {
 
   toggle(): void {
     this.root.classList.toggle("hidden");
-    if (this.isOpen && this.last) this.render(this.last);
+    if (this.isOpen) {
+      panelManager.closeOthers(this);
+      if (this.last) this.render(this.last);
+    }
   }
 
   close(): void {

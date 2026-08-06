@@ -1,4 +1,5 @@
 import { getItem, type ExchangeListing, type SelfState } from "@rox/shared";
+import { panelManager } from "./PanelManager.js";
 
 export interface ExchangeHandlers {
   onBrowse(): void;
@@ -24,6 +25,7 @@ export class ExchangePanel {
   private sellPrice = 100;
 
   constructor(private handlers: ExchangeHandlers) {
+    panelManager.register(this);
     document.getElementById("exchange-close")!.addEventListener("click", () => this.close());
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && this.isOpen) this.close();
@@ -45,6 +47,7 @@ export class ExchangePanel {
   }
 
   open(): void {
+    panelManager.closeOthers(this);
     this.root.classList.remove("hidden");
     this.handlers.onBrowse();
     this.render();

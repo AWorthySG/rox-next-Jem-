@@ -1,4 +1,5 @@
 import { SKILL_MAX_LEVEL, SKILLS_BY_JOB, skillPower, skillSpCost, type SelfState } from "@rox/shared";
+import { panelManager } from "./PanelManager.js";
 
 export interface SkillsHandlers {
   onLevel(skillId: string): void;
@@ -13,6 +14,7 @@ export class SkillsPanel {
   private last: SelfState | null = null;
 
   constructor(private handlers: SkillsHandlers) {
+    panelManager.register(this);
     document.getElementById("skills-close")!.addEventListener("click", () => this.close());
     window.addEventListener("keydown", (e) => {
       if (isTyping()) return;
@@ -27,7 +29,10 @@ export class SkillsPanel {
 
   toggle(): void {
     this.root.classList.toggle("hidden");
-    if (this.isOpen && this.last) this.render(this.last);
+    if (this.isOpen) {
+      panelManager.closeOthers(this);
+      if (this.last) this.render(this.last);
+    }
   }
 
   close(): void {

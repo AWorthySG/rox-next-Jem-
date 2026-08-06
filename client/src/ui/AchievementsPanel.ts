@@ -1,4 +1,5 @@
 import { allAchievements, type SelfState } from "@rox/shared";
+import { panelManager } from "./PanelManager.js";
 
 // Achievements window (key "V"): shows unlocked/locked milestones. Read-only;
 // progress is tracked server-side and surfaced via SelfState.
@@ -10,6 +11,7 @@ export class AchievementsPanel {
   private toastHost: HTMLElement;
 
   constructor() {
+    panelManager.register(this);
     document.getElementById("ach-close")!.addEventListener("click", () => this.close());
     window.addEventListener("keydown", (e) => {
       if (isTyping()) return;
@@ -21,13 +23,16 @@ export class AchievementsPanel {
     document.body.appendChild(this.toastHost);
   }
 
-  private get isOpen(): boolean {
+  get isOpen(): boolean {
     return !this.root.classList.contains("hidden");
   }
 
   toggle(): void {
     this.root.classList.toggle("hidden");
-    if (this.isOpen && this.last) this.render(this.last);
+    if (this.isOpen) {
+      panelManager.closeOthers(this);
+      if (this.last) this.render(this.last);
+    }
   }
 
   close(): void {

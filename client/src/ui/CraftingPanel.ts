@@ -6,6 +6,7 @@ import {
   type CraftSkillId,
   type SelfState,
 } from "@rox/shared";
+import { panelManager } from "./PanelManager.js";
 
 export interface CraftingHandlers {
   onCraft(recipeId: string): void;
@@ -24,6 +25,7 @@ export class CraftingPanel {
   private last: SelfState | null = null;
 
   constructor(private handlers: CraftingHandlers) {
+    panelManager.register(this);
     document.getElementById("crafting-close")!.addEventListener("click", () => this.close());
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && this.isOpen) this.close();
@@ -35,6 +37,7 @@ export class CraftingPanel {
   }
 
   open(): void {
+    panelManager.closeOthers(this);
     this.root.classList.remove("hidden");
     if (this.last) this.render(this.last);
   }

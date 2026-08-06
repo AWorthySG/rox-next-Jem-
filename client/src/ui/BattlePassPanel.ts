@@ -5,6 +5,7 @@ import {
   type PassTrack,
   type SelfState,
 } from "@rox/shared";
+import { panelManager } from "./PanelManager.js";
 
 export interface BattlePassHandlers {
   onClaim(level: number, track: PassTrack): void;
@@ -21,6 +22,7 @@ export class BattlePassPanel {
   private last: SelfState | null = null;
 
   constructor(private handlers: BattlePassHandlers) {
+    panelManager.register(this);
     document.getElementById("pass-close")!.addEventListener("click", () => this.close());
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && this.isOpen) this.close();
@@ -37,6 +39,7 @@ export class BattlePassPanel {
   }
 
   open(): void {
+    panelManager.closeOthers(this);
     this.root.classList.remove("hidden");
     if (this.last) this.render(this.last);
   }

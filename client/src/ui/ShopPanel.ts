@@ -1,4 +1,5 @@
 import { getItem, SHOP_STOCK, type SelfState } from "@rox/shared";
+import { panelManager } from "./PanelManager.js";
 
 export interface ShopHandlers {
   onBuy(itemId: string): void;
@@ -15,6 +16,7 @@ export class ShopPanel {
   private last: SelfState | null = null;
 
   constructor(private handlers: ShopHandlers) {
+    panelManager.register(this);
     document.getElementById("shop-close")!.addEventListener("click", () => this.close());
     window.addEventListener("keydown", (e) => {
       if (e.key === "Escape" && this.isOpen) this.close();
@@ -26,6 +28,7 @@ export class ShopPanel {
   }
 
   open(): void {
+    panelManager.closeOthers(this);
     this.root.classList.remove("hidden");
     if (this.last) this.render(this.last);
   }

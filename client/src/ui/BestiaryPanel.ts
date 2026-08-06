@@ -1,5 +1,6 @@
 import { Element, ELEMENT_ICON, ELEMENT_LABEL, type SelfState } from "@rox/shared";
 import type { DexEntry, GameState } from "../state/GameState.js";
+import { panelManager } from "./PanelManager.js";
 
 // Monster Codex (key "N"): a handbook of every species the player has met, with
 // their level, element and a running kill tally. Reads the live monster registry
@@ -11,6 +12,7 @@ export class BestiaryPanel {
   private kills = new Map<string, number>();
 
   constructor(private gameState: GameState) {
+    panelManager.register(this);
     document.getElementById("bestiary-close")!.addEventListener("click", () => this.close());
     window.addEventListener("keydown", (e) => {
       if (isTyping()) return;
@@ -25,7 +27,10 @@ export class BestiaryPanel {
 
   toggle(): void {
     this.root.classList.toggle("hidden");
-    if (this.isOpen) this.render();
+    if (this.isOpen) {
+      panelManager.closeOthers(this);
+      this.render();
+    }
   }
 
   close(): void {

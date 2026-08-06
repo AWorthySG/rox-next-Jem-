@@ -1,4 +1,5 @@
 import { getItem, ItemType, JOB_NAME, rarityOf, type GuildInfo, type ItemDef, type SelfState } from "@rox/shared";
+import { panelManager } from "./PanelManager.js";
 
 export interface GuildHandlers {
   onCreate(name: string): void;
@@ -32,6 +33,7 @@ export class GuildPanel {
   private inventory: Array<{ id: string; qty: number }> = [];
 
   constructor(private handlers: GuildHandlers) {
+    panelManager.register(this);
     document.getElementById("guild-close")!.addEventListener("click", () => this.close());
     window.addEventListener("keydown", (e) => {
       if (isTyping() && (e.key === "g" || e.key === "G")) return;
@@ -55,7 +57,10 @@ export class GuildPanel {
 
   toggle(): void {
     this.root.classList.toggle("hidden");
-    if (this.isOpen) this.render();
+    if (this.isOpen) {
+      panelManager.closeOthers(this);
+      this.render();
+    }
   }
 
   close(): void {
