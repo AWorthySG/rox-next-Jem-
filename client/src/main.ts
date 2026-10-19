@@ -1,5 +1,7 @@
 import * as THREE from "three";
-import { Element, ELEMENT_COLOR, JobId, MsgType, getSkill, isNight, PLAYER_ATTACK_RANGE, WEATHER_ICON, WEATHER_LABEL, Weather, type ServerMessage } from "@rox/shared";
+import "@phosphor-icons/web/bold";
+import { Element, ELEMENT_COLOR, JobId, MsgType, getSkill, isNight, PLAYER_ATTACK_RANGE, WEATHER_LABEL, Weather, type ServerMessage } from "@rox/shared";
+import { ph, setIconText, WEATHER_ICON_PH } from "./ui/icons.js";
 import { SceneManager } from "./engine/SceneManager.js";
 import { CameraRig } from "./engine/CameraRig.js";
 import { InputController } from "./engine/InputController.js";
@@ -296,7 +298,9 @@ const guildPanel = new GuildPanel({
 function showInvite(fromName: string, partyId: number): void {
   const el = document.getElementById("invite-prompt")!;
   el.classList.remove("hidden");
-  el.innerHTML = `<span>${fromName} invites you to a party.</span>`;
+  const label = document.createElement("span");
+  setIconText(label, "users-three", `${fromName} invites you to a party.`);
+  el.replaceChildren(label);
   const accept = document.createElement("button");
   accept.className = "ip-btn accept";
   accept.textContent = "Accept";
@@ -317,7 +321,9 @@ function showInvite(fromName: string, partyId: number): void {
 function showDuelInvite(fromName: string, fromId: number): void {
   const el = document.getElementById("invite-prompt")!;
   el.classList.remove("hidden");
-  el.innerHTML = `<span>${fromName} challenges you to a duel.</span>`;
+  const label = document.createElement("span");
+  setIconText(label, "sword", `${fromName} challenges you to a duel.`);
+  el.replaceChildren(label);
   const accept = document.createElement("button");
   accept.className = "ip-btn accept";
   accept.textContent = "Accept";
@@ -340,8 +346,10 @@ function showDuelInvite(fromName: string, fromId: number): void {
 function showSocialInvite(kind: "mentor" | "couple", fromName: string, fromId: number): void {
   const el = document.getElementById("invite-prompt")!;
   el.classList.remove("hidden");
-  const verb = kind === "mentor" ? "offers to mentor you" : "wants to be your partner 💞";
-  el.innerHTML = `<span>${fromName} ${verb}.</span>`;
+  const verb = kind === "mentor" ? "offers to mentor you" : "wants to be your partner";
+  const label = document.createElement("span");
+  setIconText(label, kind === "mentor" ? "graduation-cap" : "heart", `${fromName} ${verb}.`);
+  el.replaceChildren(label);
   const accept = document.createElement("button");
   accept.className = "ip-btn accept";
   accept.textContent = "Accept";
@@ -360,17 +368,24 @@ function showSocialInvite(kind: "mentor" | "couple", fromName: string, fromId: n
 // Show/hide the social-bonds banner (mentor, students, partner).
 function setSocialHud(social: import("@rox/shared").SocialInfo): void {
   const el = document.getElementById("social-hud")!;
-  const parts: string[] = [];
-  if (social.mentorName) parts.push(`🎓 Mentor: ${social.mentorName}`);
-  if (social.students.length) parts.push(`📚 Students: ${social.students.map((s) => `${s.name} (${s.value})`).join(", ")}`);
-  if (social.partnerName) parts.push(`💞 Partner: ${social.partnerName}`);
+  const parts: Array<[string, string]> = [];
+  if (social.mentorName) parts.push(["graduation-cap", `Mentor: ${social.mentorName}`]);
+  if (social.students.length) parts.push(["books", `Students: ${social.students.map((s) => `${s.name} (${s.value})`).join(", ")}`]);
+  if (social.partnerName) parts.push(["heart", `Partner: ${social.partnerName}`]);
   if (parts.length === 0) {
     el.classList.add("hidden");
     el.textContent = "";
     return;
   }
   el.classList.remove("hidden");
-  el.textContent = parts.join("   ·   ");
+  el.replaceChildren(
+    ...parts.map(([icon, text], i) => {
+      const span = document.createElement("span");
+      setIconText(span, icon, text);
+      if (i > 0) span.style.marginLeft = "14px";
+      return span;
+    }),
+  );
 }
 
 // Present the Castle Herald's two options: visit the castle, or declare a
@@ -378,17 +393,17 @@ function setSocialHud(social: import("@rox/shared").SocialInfo): void {
 function showCastleMenu(npcId: number): void {
   const el = document.getElementById("invite-prompt")!;
   el.classList.remove("hidden");
-  el.innerHTML = `<span>Valkyrie Castle — War of Emperium</span>`;
+  el.innerHTML = `<span>${ph("castle-turret")} Valkyrie Castle — War of Emperium</span>`;
   const enter = document.createElement("button");
   enter.className = "ip-btn accept";
-  enter.textContent = "Enter Castle";
+  enter.textContent = "Enter castle";
   enter.addEventListener("click", () => {
     transport?.send({ t: MsgType.EnterCastle, npcId });
     el.classList.add("hidden");
   });
   const declare = document.createElement("button");
   declare.className = "ip-btn";
-  declare.textContent = "Declare Siege";
+  declare.textContent = "Declare siege";
   declare.addEventListener("click", () => {
     transport?.send({ t: MsgType.DeclareSiege, npcId });
     el.classList.add("hidden");
@@ -406,7 +421,7 @@ function setTowerHud(floor: number | null, remaining = 0): void {
     return;
   }
   el.classList.remove("hidden");
-  el.textContent = `🗼 Endless Tower — Floor ${floor} · ${remaining} ${remaining === 1 ? "foe" : "foes"} remain`;
+  setIconText(el, "stairs", `Endless Tower — Floor ${floor} · ${remaining} ${remaining === 1 ? "foe" : "foes"} remain`);
 }
 
 // Show/hide the War of Emperium banner while standing in the castle.
@@ -422,9 +437,9 @@ function setSiegeHud(msg: import("@rox/shared").SiegeUpdateMsg | null): void {
   if (msg.active) {
     const hpPct = msg.emperiumMaxHp > 0 ? Math.round((msg.emperiumHp / msg.emperiumMaxHp) * 100) : 0;
     const secs = Math.ceil(msg.endsInMs / 1000);
-    el.textContent = `⚔ Siege on! Emperium ${hpPct}% · ${secs}s left · ${owner}`;
+    setIconText(el, "sword", `Siege under way · Emperium ${hpPct}% · ${secs}s left · ${owner}`);
   } else {
-    el.textContent = `🏰 ${msg.castle} — ${owner}`;
+    setIconText(el, "castle-turret", `${msg.castle} — ${owner}`);
   }
 }
 
@@ -437,7 +452,9 @@ function setDuelHud(opponentId: number | null, opponentName: string | null): voi
     return;
   }
   el.classList.remove("hidden");
-  el.innerHTML = `<span>⚔ Dueling ${opponentName}</span>`;
+  const label = document.createElement("span");
+  setIconText(label, "sword", `Dueling ${opponentName}`);
+  el.replaceChildren(label);
   const forfeit = document.createElement("button");
   forfeit.className = "ip-btn";
   forfeit.textContent = "Forfeit";
@@ -771,8 +788,8 @@ const skyBadge = document.getElementById("sky-badge");
 const skyText = document.getElementById("sky-text");
 function updateSkyBadge(timeOfDay: number, weather: Weather): void {
   if (!skyBadge || !skyText) return;
-  const phase = isNight(timeOfDay) ? "🌙 Night" : "🌞 Day";
-  skyText.textContent = `${phase} · ${WEATHER_ICON[weather]} ${WEATHER_LABEL[weather]}`;
+  const night = isNight(timeOfDay);
+  skyText.innerHTML = `${ph(night ? "moon" : "sun")} ${night ? "Night" : "Day"} · ${ph(WEATHER_ICON_PH[weather])} ${WEATHER_LABEL[weather]}`;
   skyBadge.classList.remove("hidden");
 }
 

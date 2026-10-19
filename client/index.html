@@ -72,15 +72,15 @@
             <div class="bar hp"><div class="bar-ghost" id="hp-ghost"></div><div class="bar-fill" id="hp-fill"></div><span class="bar-label" id="hp-label">0/0</span></div>
             <div class="bar sp"><div class="bar-ghost" id="sp-ghost"></div><div class="bar-fill" id="sp-fill"></div><span class="bar-label" id="sp-label">0/0</span></div>
             <div class="bar exp"><div class="bar-fill" id="exp-fill"></div><span class="bar-label" id="exp-label">EXP</span></div>
-            <div class="zeny">💰 <span id="hud-zeny">0</span></div>
+            <div class="zeny"><i class="ph-bold ph-coins" aria-hidden="true"></i> <span id="hud-zeny">0</span></div>
             <div class="buffs" id="buffs"></div>
           </div>
         </div>
       </div>
 
       <div class="topbar" id="topbar">
-        <span class="cur zeny">🪙 <b id="top-zeny">0</b></span>
-        <button class="mute-btn" id="mute-btn">🔊</button>
+        <span class="cur zeny"><i class="ph-bold ph-coins" aria-hidden="true"></i> <b id="top-zeny">0</b></span>
+        <button class="mute-btn" id="mute-btn" aria-label="Sound on or off"><i class="ph-bold ph-speaker-high" aria-hidden="true"></i></button>
       </div>
 
       <div class="target-frame hidden" id="target-frame">
@@ -113,7 +113,7 @@
 
       <button class="help-btn" id="help-btn">?</button>
       <div class="help-panel hidden" id="help-panel">
-        <div class="inv-header"><span>How to Play</span><button class="inv-close" id="help-close">✕</button></div>
+        <div class="inv-header"><span>How to Play</span><button class="inv-close" id="help-close" aria-label="Close"><i class="ph-bold ph-x" aria-hidden="true"></i></button></div>
         <div class="help-body">
           <p><b>Move</b> — click the ground. <b>Attack</b> — click a monster.</p>
           <p><b>Skills</b> — number keys 1–7 or tap the round skill buttons (bottom-right).</p>
@@ -126,7 +126,7 @@
       </div>
 
       <button class="auto-btn" id="auto-btn">Auto ▶</button>
-      <button class="market-btn" id="exchange-btn">🏪 Market</button>
+      <button class="market-btn" id="exchange-btn"><i class="ph-bold ph-storefront" aria-hidden="true"></i> Market</button>
       <div class="skillbar" id="skillbar"></div>
 
       <div class="party hidden" id="party">
@@ -145,25 +145,25 @@
       <div class="hud-stats" id="stat-panel"></div>
 
       <div class="achievements hidden" id="achievements">
-        <div class="inv-header"><span>Achievements</span><button class="inv-close" id="ach-close">✕</button></div>
+        <div class="inv-header"><span>Achievements</span><button class="inv-close" id="ach-close" aria-label="Close"><i class="ph-bold ph-x" aria-hidden="true"></i></button></div>
         <div class="ach-list" id="ach-list"></div>
       </div>
 
       <div class="warp hidden" id="warp">
-        <div class="inv-header"><span>Warp Service</span><button class="inv-close" id="warp-close">✕</button></div>
+        <div class="inv-header"><span>Warp Service</span><button class="inv-close" id="warp-close" aria-label="Close"><i class="ph-bold ph-x" aria-hidden="true"></i></button></div>
         <div class="warp-list" id="warp-list"></div>
       </div>
 
       <div class="guild hidden" id="guild">
         <div class="inv-header">
           <span>Guild</span>
-          <button class="inv-close" id="guild-close">✕</button>
+          <button class="inv-close" id="guild-close" aria-label="Close"><i class="ph-bold ph-x" aria-hidden="true"></i></button>
         </div>
         <div class="guild-body" id="guild-body"></div>
       </div>
 
       <div class="aesir hidden" id="aesir">
-        <div class="inv-header"><span>⚜ Aesir Monument</span><span class="inv-zeny">Rune Points: <b id="rune-points">0</b></span><button class="inv-close" id="aesir-close">✕</button></div>
+        <div class="inv-header"><span>Aesir Monument</span><span class="inv-zeny">Rune Points: <b id="rune-points">0</b></span><button class="inv-close" id="aesir-close" aria-label="Close"><i class="ph-bold ph-x" aria-hidden="true"></i></button></div>
         <div class="aesir-body" id="aesir-body"></div>
       </div>
 
@@ -171,7 +171,7 @@
         <div class="inv-header">
           <span>Skills</span>
           <span class="inv-zeny">Points: <b id="skills-points">0</b></span>
-          <button class="inv-close" id="skills-close">✕</button>
+          <button class="inv-close" id="skills-close" aria-label="Close"><i class="ph-bold ph-x" aria-hidden="true"></i></button>
         </div>
         <div class="skills-list" id="skills-list"></div>
       </div>
@@ -179,8 +179,8 @@
       <div class="refine hidden" id="refine">
         <div class="inv-header">
           <span>Blacksmith</span>
-          <span class="inv-zeny">💰 <b id="refine-zeny">0</b></span>
-          <button class="inv-close" id="refine-close">✕</button>
+          <span class="inv-zeny"><i class="ph-bold ph-coins" aria-hidden="true"></i> <b id="refine-zeny">0</b></span>
+          <button class="inv-close" id="refine-close" aria-label="Close"><i class="ph-bold ph-x" aria-hidden="true"></i></button>
         </div>
         <div class="refine-list" id="refine-list"></div>
       </div>
@@ -190,7 +190,7 @@
       <div class="quests hidden" id="quests">
         <div class="inv-header">
           <span>Guide — Quest Board</span>
-          <button class="inv-close" id="quests-close">✕</button>
+          <button class="inv-close" id="quests-close" aria-label="Close"><i class="ph-bold ph-x" aria-hidden="true"></i></button>
         </div>
         <div class="quest-list" id="quest-list"></div>
       </div>
@@ -198,8 +198,8 @@
       <div class="shop hidden" id="shop">
         <div class="inv-header">
           <span>Kafra Shop</span>
-          <span class="inv-zeny">💰 <b id="shop-zeny">0</b></span>
-          <button class="inv-close" id="shop-close">✕</button>
+          <span class="inv-zeny"><i class="ph-bold ph-coins" aria-hidden="true"></i> <b id="shop-zeny">0</b></span>
+          <button class="inv-close" id="shop-close" aria-label="Close"><i class="ph-bold ph-x" aria-hidden="true"></i></button>
         </div>
         <div class="shop-cols">
           <div class="shop-col"><h4>Buy</h4><div class="shop-list" id="shop-buy-list"></div></div>
@@ -210,7 +210,7 @@
       <div class="crafting hidden" id="crafting">
         <div class="inv-header">
           <span>Cooking</span>
-          <button class="inv-close" id="crafting-close">✕</button>
+          <button class="inv-close" id="crafting-close" aria-label="Close"><i class="ph-bold ph-x" aria-hidden="true"></i></button>
         </div>
         <div class="life-skill-levels" id="crafting-levels"></div>
         <div class="craft-list" id="crafting-list"></div>
@@ -219,7 +219,7 @@
       <div class="crafting hidden" id="pet-panel">
         <div class="inv-header">
           <span>Pet</span>
-          <button class="inv-close" id="pet-close">✕</button>
+          <button class="inv-close" id="pet-close" aria-label="Close"><i class="ph-bold ph-x" aria-hidden="true"></i></button>
         </div>
         <div class="pet-body" id="pet-body"></div>
       </div>
@@ -227,7 +227,7 @@
       <div class="crafting hidden" id="pass-panel">
         <div class="inv-header">
           <span id="pass-title">Glory Pass</span>
-          <button class="inv-close" id="pass-close">✕</button>
+          <button class="inv-close" id="pass-close" aria-label="Close"><i class="ph-bold ph-x" aria-hidden="true"></i></button>
         </div>
         <div class="pass-head" id="pass-head"></div>
         <div class="pass-list" id="pass-list"></div>
@@ -236,15 +236,15 @@
       <div class="crafting hidden" id="rankings">
         <div class="inv-header">
           <span>Hall of Glory — <span id="rankings-season"></span></span>
-          <button class="inv-close" id="rankings-close">✕</button>
+          <button class="inv-close" id="rankings-close" aria-label="Close"><i class="ph-bold ph-x" aria-hidden="true"></i></button>
         </div>
         <div class="rank-cols">
           <div class="rank-col">
-            <div class="rank-title">⚔ MVP Hunters</div>
+            <div class="rank-title"><i class="ph-bold ph-sword" aria-hidden="true"></i> MVP hunters</div>
             <div id="rankings-mvp"></div>
           </div>
           <div class="rank-col">
-            <div class="rank-title">🏰 Guild Sieges</div>
+            <div class="rank-title"><i class="ph-bold ph-castle-turret" aria-hidden="true"></i> Guild sieges</div>
             <div id="rankings-siege"></div>
           </div>
         </div>
@@ -253,7 +253,7 @@
       <div class="crafting hidden" id="card-album">
         <div class="inv-header">
           <span>Card Album</span>
-          <button class="inv-close" id="card-album-close">✕</button>
+          <button class="inv-close" id="card-album-close" aria-label="Close"><i class="ph-bold ph-x" aria-hidden="true"></i></button>
         </div>
         <div class="album-head" id="card-album-head"></div>
         <div class="album-grid" id="card-album-grid"></div>
@@ -262,8 +262,8 @@
       <div class="exchange hidden" id="exchange">
         <div class="inv-header">
           <span>Exchange Centre</span>
-          <span class="inv-zeny">💰 <b id="exchange-zeny">0</b></span>
-          <button class="inv-close" id="exchange-close">✕</button>
+          <span class="inv-zeny"><i class="ph-bold ph-coins" aria-hidden="true"></i> <b id="exchange-zeny">0</b></span>
+          <button class="inv-close" id="exchange-close" aria-label="Close"><i class="ph-bold ph-x" aria-hidden="true"></i></button>
         </div>
         <div class="exchange-body">
           <div class="exchange-col">
@@ -282,8 +282,8 @@
       <div class="inventory hidden" id="inventory">
         <div class="inv-header">
           <span>Inventory</span>
-          <span class="inv-zeny">💰 <b id="inv-zeny">0</b></span>
-          <button class="inv-close" id="inv-close">✕</button>
+          <span class="inv-zeny"><i class="ph-bold ph-coins" aria-hidden="true"></i> <b id="inv-zeny">0</b></span>
+          <button class="inv-close" id="inv-close" aria-label="Close"><i class="ph-bold ph-x" aria-hidden="true"></i></button>
         </div>
         <div class="equip-slots" id="equip-slots"></div>
         <div class="inv-tabs" id="inv-tabs"></div>
@@ -294,7 +294,7 @@
         <div class="inv-header">
           <span>Monster Codex</span>
           <span class="inv-zeny">Discovered: <b id="bestiary-count">0</b></span>
-          <button class="inv-close" id="bestiary-close">✕</button>
+          <button class="inv-close" id="bestiary-close" aria-label="Close"><i class="ph-bold ph-x" aria-hidden="true"></i></button>
         </div>
         <div class="bestiary-list" id="bestiary-list"></div>
       </div>
@@ -302,7 +302,7 @@
       <div class="storage hidden" id="storage">
         <div class="inv-header">
           <span>Kafra Storage</span>
-          <button class="inv-close" id="storage-close">✕</button>
+          <button class="inv-close" id="storage-close" aria-label="Close"><i class="ph-bold ph-x" aria-hidden="true"></i></button>
         </div>
         <div class="storage-cols">
           <div class="storage-col"><h4>Bag</h4><div class="storage-grid" id="storage-bag"></div></div>

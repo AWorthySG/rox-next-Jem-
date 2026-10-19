@@ -9,26 +9,13 @@ import {
   type ItemDef,
   type SelfState,
 } from "@rox/shared";
+import { itemIcon, ph } from "./icons.js";
 
 export interface InventoryHandlers {
   onUse(itemId: string): void;
   onEquip(itemId: string): void;
   onUnequip(slot: EquipSlot): void;
   onSocket(cardId: string): void;
-}
-
-// A small glyph per item, ROX-icon style.
-function iconFor(item: ItemDef): string {
-  if (item.pet) return "🥚";
-  if (item.mount) return "🐎";
-  if (item.costume) return "👘";
-  if (item.type === ItemType.Card) return "🃏";
-  if (item.type === ItemType.Material) return "⛏️";
-  if (item.type === ItemType.Consumable) return item.food ? "🍙" : item.healSp ? "🔷" : "🧪";
-  if (item.type === ItemType.Weapon) return item.matk ? "🪄" : "⚔️";
-  if (item.type === ItemType.Headgear) return "🎩";
-  if (item.type === ItemType.Armor) return "🛡️";
-  return "💍"; // accessory
 }
 
 const SLOT_ORDER: EquipSlot[] = [EquipSlot.Weapon, EquipSlot.Headgear, EquipSlot.Armor, EquipSlot.Accessory];
@@ -120,7 +107,7 @@ export class InventoryPanel {
       const cell = document.createElement("button");
       cell.className = `equip-cell${item ? ` filled rar-${rarityOf(item)}` : ""}`;
       const refine = item && (refineOf.get(item.id) ?? 0) > 0 ? `<span class="refine-badge">+${refineOf.get(item.id)}</span>` : "";
-      const icon = item ? `<span class="iicon">${iconFor(item)}</span>` : "";
+      const icon = item ? `<span class="iicon">${ph(itemIcon(item))}</span>` : "";
       const cardId = cardOf.get(slot);
       const cardName = cardId ? getItem(cardId)?.name : undefined;
       const socket = cardName ? `<span class="socket">🃏 ${cardName}</span>` : "";
@@ -166,13 +153,13 @@ export class InventoryPanel {
           : isConsumable
             ? "Use"
             : classLocked && reqFam
-              ? `🔒 ${FAMILY_LABEL[reqFam]}`
+              ? `${ph("lock-simple")} ${FAMILY_LABEL[reqFam]}`
               : "Equip";
       const cell = document.createElement("button");
       cell.className = `inv-cell ${item.type} rar-${rarityOf(item)}${isMaterial ? " inert" : ""}${classLocked ? " locked" : ""}`;
       cell.title = classLocked && reqFam ? `${item.desc}\nRequires the ${FAMILY_LABEL[reqFam]} class line.` : item.desc;
       cell.innerHTML =
-        `<span class="iicon">${iconFor(item)}</span>` +
+        `<span class="iicon">${ph(itemIcon(item))}</span>` +
         `<span class="iname">${item.name}${lvl > 0 ? ` <span class="refine-badge">+${lvl}</span>` : ""}</span>` +
         `<span class="iqty">×${entry.qty}</span>` +
         `<span class="iact">${action}</span>`;

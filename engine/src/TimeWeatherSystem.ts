@@ -1,4 +1,4 @@
-import { DAY_LENGTH_MS, rollWeather, WEATHER_ICON, WEATHER_LABEL, WEATHER_PERIOD_MS, MsgType } from "@rox/shared";
+import { DAY_LENGTH_MS, rollWeather, WEATHER_LABEL, WEATHER_PERIOD_MS, MsgType } from "@rox/shared";
 import type { World } from "./World.js";
 
 // Advances the global day/night clock and re-rolls weather periodically, then
@@ -26,7 +26,7 @@ export class TimeWeatherSystem {
           t: MsgType.ChatBroadcast,
           fromId: 0,
           name: "Sky",
-          text: `${WEATHER_ICON[next]} The weather turns to ${WEATHER_LABEL[next]}.`,
+          text: `The weather turns to ${WEATHER_LABEL[next]}.`,
         });
       }
     }

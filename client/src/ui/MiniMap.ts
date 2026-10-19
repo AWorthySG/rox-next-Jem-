@@ -2,12 +2,15 @@ import { MAP_HALF } from "@rox/shared";
 
 type Blip = { x: number; z: number; type: "self" | "player" | "monster" | "boss" | "npc"; facing?: number };
 
+// A-Worthy palette: you are the rust action colour, everyone else a marker pop,
+// every blip outlined in navy ink so it reads on the cream paper disc.
+const INK = "#22304a";
 const COLORS: Record<Blip["type"], string> = {
-  self: "#ffd24a",
-  player: "#7fb2ff",
-  monster: "#ff8aa8",
-  boss: "#ffcf3a",
-  npc: "#8fe0b0",
+  self: "#c0392b",
+  player: "#5faee3",
+  monster: "#ef476f",
+  boss: "#f5b82e",
+  npc: "#3daa5c",
 };
 
 // Top-down radar of the map. Pure canvas, redrawn each frame from GameState blips.
@@ -26,7 +29,7 @@ export class MiniMap {
     ctx.clearRect(0, 0, size, size);
 
     // background disc
-    ctx.fillStyle = "rgba(20, 28, 18, 0.7)";
+    ctx.fillStyle = "#faf6ee";
     ctx.beginPath();
     ctx.arc(r, r, r - 1, 0, Math.PI * 2);
     ctx.fill();
@@ -38,26 +41,25 @@ export class MiniMap {
       ctx.fillStyle = COLORS[b.type];
       const dot = b.type === "self" || b.type === "boss" ? 3.4 : 2.2;
       if (b.type === "self") {
-        // a soft pulsing halo so the self-blip stays easy to find at a glance
-        const pulse = Math.sin(performance.now() / 400) * 0.5 + 0.5;
+        // a soft halo so the self-blip stays easy to find at a glance
         ctx.beginPath();
-        ctx.arc(px, py, dot + 2 + pulse * 1.5, 0, Math.PI * 2);
-        ctx.fillStyle = `rgba(255, 210, 74, ${0.22 + pulse * 0.12})`;
+        ctx.arc(px, py, dot + 3, 0, Math.PI * 2);
+        ctx.fillStyle = "rgba(192, 57, 43, 0.22)";
         ctx.fill();
         ctx.fillStyle = COLORS[b.type];
       }
       ctx.beginPath();
       ctx.arc(px, py, dot, 0, Math.PI * 2);
       ctx.fill();
+      ctx.strokeStyle = INK;
+      ctx.lineWidth = 1;
+      ctx.stroke();
       if (b.type === "boss") {
-        ctx.strokeStyle = "#fff3c0";
-        ctx.lineWidth = 1;
-        ctx.stroke();
         // expanding radar "ping" so bosses draw the eye on the minimap
         const t = (performance.now() % 1200) / 1200;
         ctx.beginPath();
         ctx.arc(px, py, dot + 2 + t * 5, 0, Math.PI * 2);
-        ctx.strokeStyle = `rgba(255, 220, 90, ${0.6 * (1 - t)})`;
+        ctx.strokeStyle = `rgba(245, 184, 46, ${0.8 * (1 - t)})`;
         ctx.lineWidth = 1.5;
         ctx.stroke();
       }
@@ -73,27 +75,27 @@ export class MiniMap {
         ctx.lineTo(tipX, tipY);
         ctx.lineTo(px + Math.sin(b.facing + spread) * dot, py + Math.cos(b.facing + spread) * dot);
         ctx.closePath();
-        ctx.fillStyle = "rgba(255, 210, 74, 0.55)";
+        ctx.fillStyle = "rgba(192, 57, 43, 0.55)";
         ctx.fill();
       }
     }
 
     // border ring
-    ctx.strokeStyle = "rgba(230, 200, 120, 0.5)";
+    ctx.strokeStyle = INK;
     ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.arc(r, r, r - 1, 0, Math.PI * 2);
     ctx.stroke();
 
     // compass tick + "N" label at the top, so the radar reads as oriented
-    ctx.strokeStyle = "rgba(230, 200, 120, 0.7)";
+    ctx.strokeStyle = INK;
     ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.moveTo(r, 2);
     ctx.lineTo(r, 9);
     ctx.stroke();
-    ctx.fillStyle = "rgba(240, 220, 170, 0.8)";
-    ctx.font = "9px sans-serif";
+    ctx.fillStyle = INK;
+    ctx.font = "800 10px Nunito, sans-serif";
     ctx.textAlign = "center";
     ctx.fillText("N", r, 19);
   }

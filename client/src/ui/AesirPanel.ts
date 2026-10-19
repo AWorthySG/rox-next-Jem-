@@ -1,4 +1,5 @@
 import { RUNE_LINES, runesByLine, type SelfState } from "@rox/shared";
+import { ph } from "./icons.js";
 
 export interface AesirHandlers {
   onUnlock(runeId: string): void;
@@ -52,7 +53,7 @@ export class AesirPanel {
         const available = !unlocked && prereqMet && self.runePoints >= rune.cost;
         const cls = unlocked ? "done" : available ? "avail" : "locked";
         const attr = available ? ` data-rune="${rune.id}"` : "";
-        html += `<button class="aesir-node ${cls}"${attr} title="${rune.desc}"><b>${rune.name}</b><i>${rune.desc}</i><span class="rn-cost">${unlocked ? "✓" : rune.cost + "p"}</span></button>`;
+        html += `<button class="aesir-node ${cls}"${attr} title="${rune.desc}"><b>${rune.name}</b><i>${rune.desc}</i><span class="rn-cost">${unlocked ? ph("check") : rune.cost + "p"}</span></button>`;
       }
       html += "</div>";
       row.innerHTML = html;

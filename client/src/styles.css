@@ -1,10 +1,78 @@
+/* ---- A-Worthy design system (light theme: cream paper + die-cut stickers) ----
+   Token values are copied from the A-Worthy system's tokens.json. */
+@font-face {
+  font-family: "Nunito";
+  src: url("/fonts/nunito-latin-wght-normal.woff2") format("woff2");
+  font-weight: 200 1000;
+  font-style: normal;
+  font-display: swap;
+}
+
 :root {
-  --gold: #ffd970;
-  --panel: rgba(46, 32, 22, 0.86);
-  --panel-border: #b98a3e;
-  --hp: linear-gradient(180deg, #6bd96b, #2e9e3e);
-  --sp: linear-gradient(180deg, #5aa9ff, #2c6fc0);
-  --exp: linear-gradient(180deg, #ffd86b, #e0a93a);
+  /* paper + surfaces */
+  --bg: #faf6ee;
+  --bg-sidebar: #f3ede0;
+  --bg-card: #ffffff;
+  --bg-muted: #f5f0e6;
+  --bg-hover: #eee7d6;
+  /* text */
+  --text: #1c1b19;
+  --text-sec: #6b6760;
+  --text-ter: #a09c94;
+  /* lines */
+  --border: rgba(28, 27, 25, 0.13);
+  --ink: #22304a;
+  --ink-shadow: rgba(34, 48, 74, 0.14);
+  --ink-faint: rgba(34, 48, 74, 0.28);
+  --field-border: #22304a;
+  /* the one action colour */
+  --accent: #c0392b;
+  --accent-dark: #962d22;
+  --accent-bg: #fff0ee;
+  --accent-ink: #c0392b;
+  /* marker pops (fills, rings, dots: never text) and their text-safe partners */
+  --sun: #f5b82e;
+  --grass: #3daa5c;
+  --bloom: #ef476f;
+  --sky: #5faee3;
+  --grape: #9b52ad;
+  --sun-deep: #8a6205;
+  --grass-deep: #1f7a3d;
+  --bloom-deep: #b32048;
+  --sky-deep: #1f6fa8;
+  --grape-deep: #6a3678;
+  --sun-bg: #fdf3de;
+  --grass-bg: #e5f5e9;
+  --bloom-bg: #fde8ee;
+  --sky-bg: #e6f1fb;
+  --stone: #c9c1af;
+  --stone-deep: #5e594f;
+  --stone-bg: #f1ede3;
+  --danger-bg: #fff0ee;
+  --charcoal: #1c1b19;
+  /* type */
+  --font-sans: "Nunito", system-ui, sans-serif;
+  /* shape */
+  --r1: 10px;
+  --r2: 14px;
+  --r3: 20px;
+  --r4: 26px;
+  --r-pill: 999px;
+  /* sticker shadows */
+  --shadow-sticker-sm: 0 3px 0 rgba(34, 48, 74, 0.14);
+  --shadow-sticker: 0 4px 0 rgba(34, 48, 74, 0.14);
+  --shadow-sticker-lg: 0 5px 0 rgba(34, 48, 74, 0.14), 0 14px 28px rgba(70, 50, 20, 0.1);
+  --shadow-primary: 0 4px 0 #962d22;
+  --shadow-soft: 0 12px 32px rgba(70, 50, 20, 0.1);
+  --ease: cubic-bezier(0.22, 1, 0.36, 1);
+
+  /* legacy names still referenced across this file, now pointing at tokens */
+  --gold: var(--sun-deep);
+  --panel: var(--bg-card);
+  --panel-border: var(--ink-faint);
+  --hp: var(--grass);
+  --sp: var(--sky);
+  --exp: var(--sun);
 }
 
 * {
@@ -16,9 +84,9 @@ body {
   margin: 0;
   height: 100%;
   overflow: hidden;
-  background: #0a0a12;
-  font-family: "Segoe UI", system-ui, sans-serif;
-  color: #f3eede;
+  background: var(--bg);
+  font-family: var(--font-sans);
+  color: var(--text);
   user-select: none;
 }
 
@@ -187,56 +255,6 @@ body {
   filter: drop-shadow(0 0 6px rgba(255, 40, 40, 0.7));
 }
 
-/* ---- active-quest HUD tracker ---- */
-#quest-tracker {
-  position: fixed;
-  top: 130px;
-  right: 12px;
-  width: 190px;
-  padding: 7px 9px;
-  background: var(--panel);
-  border: 1px solid var(--panel-border);
-  border-radius: 8px;
-  z-index: 18;
-  pointer-events: none;
-  font-size: 11px;
-}
-.qt-title {
-  color: var(--gold);
-  font-weight: 800;
-  font-size: 11px;
-  letter-spacing: 0.5px;
-  margin-bottom: 5px;
-}
-.qt-row { margin-bottom: 6px; }
-.qt-row:last-child { margin-bottom: 0; }
-.qt-name { font-weight: 600; margin-bottom: 2px; }
-.qt-bar {
-  height: 5px;
-  background: rgba(0, 0, 0, 0.45);
-  border-radius: 3px;
-  overflow: hidden;
-}
-.qt-bar > i {
-  display: block;
-  height: 100%;
-  background: linear-gradient(180deg, #ffd86b, #e0a93a);
-  transition: width 0.25s ease-out;
-}
-.qt-count { opacity: 0.8; margin-top: 2px; font-size: 10px; }
-.qt-row.ready .qt-count { color: #8fe0a0; opacity: 1; }
-.qt-row.ready .qt-bar > i { background: linear-gradient(180deg, #9be88f, #4cae3e); }
-/* one-shot flash the moment a quest first becomes turn-in ready, so hitting
-   the objective count reads as a small reward rather than a quiet color swap */
-.qt-row.just-completed {
-  animation: qt-complete-flash 0.7s ease-out;
-  border-radius: 4px;
-}
-@keyframes qt-complete-flash {
-  0% { background: rgba(140, 230, 140, 0.35); box-shadow: 0 0 10px rgba(140, 230, 140, 0.5); }
-  100% { background: transparent; box-shadow: none; }
-}
-
 /* ---- mounted speed lines (radial streaks at the screen edges) ---- */
 #speed-lines {
   position: fixed;
@@ -309,6 +327,56 @@ body {
   100% { opacity: 0; }
 }
 
+/* ---- active-quest HUD tracker ---- */
+#quest-tracker {
+  position: fixed;
+  top: 130px;
+  right: 12px;
+  width: 190px;
+  padding: 7px 9px;
+  background: var(--panel);
+  border: 2px solid var(--ink-faint);
+  border-radius: 8px;
+  z-index: 18;
+  pointer-events: none;
+  font-size: 11px;
+}
+.qt-title {
+  color: var(--gold);
+  font-weight: 800;
+  font-size: 11px;
+  letter-spacing: 0.5px;
+  margin-bottom: 5px;
+}
+.qt-row { margin-bottom: 6px; }
+.qt-row:last-child { margin-bottom: 0; }
+.qt-name { font-weight: 600; margin-bottom: 2px; }
+.qt-bar {
+  height: 5px;
+  background: var(--bg-muted);
+  border-radius: 3px;
+  overflow: hidden;
+}
+.qt-bar > i {
+  display: block;
+  height: 100%;
+  background: linear-gradient(180deg, #ffd86b, #e0a93a);
+  transition: width 0.25s ease-out;
+}
+.qt-count { opacity: 0.8; margin-top: 2px; font-size: 10px; }
+.qt-row.ready .qt-count { color: var(--grass-deep); opacity: 1; }
+.qt-row.ready .qt-bar > i { background: var(--grass-bg); }
+/* one-shot flash the moment a quest first becomes turn-in ready, so hitting
+   the objective count reads as a small reward rather than a quiet color swap */
+.qt-row.just-completed {
+  animation: qt-complete-flash 0.7s ease-out;
+  border-radius: 4px;
+}
+@keyframes qt-complete-flash {
+  0% { background: rgba(140, 230, 140, 0.35); box-shadow: 0 0 10px rgba(140, 230, 140, 0.5); }
+  100% { background: transparent; box-shadow: none; }
+}
+
 /* ---- Login overlay ---- */
 .overlay {
   position: fixed;
@@ -348,7 +416,7 @@ body {
   margin: 0 0 16px;
   border-radius: 12px;
   background: radial-gradient(circle at 50% 35%, rgba(120, 96, 180, 0.35), rgba(20, 16, 34, 0.6) 70%);
-  border: 1px solid rgba(244, 217, 138, 0.18);
+  border: 2px solid var(--ink-faint);
   overflow: hidden;
 }
 .login-preview canvas {
@@ -371,8 +439,8 @@ body {
 .chat-input {
   width: 100%;
   padding: 11px 12px;
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid var(--panel-border);
+  background: var(--bg-muted);
+  border: 2px solid var(--ink-faint);
   border-radius: 8px;
   color: #fff;
   font-size: 15px;
@@ -391,10 +459,10 @@ body {
   flex-direction: column;
   gap: 3px;
   padding: 10px 6px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--panel-border);
+  background: var(--bg-muted);
+  border: 2px solid var(--ink-faint);
   border-radius: 8px;
-  color: #f3eede;
+  color: var(--text);
   cursor: pointer;
   transition: all 0.12s;
 }
@@ -418,7 +486,7 @@ body {
   font-weight: 700;
   letter-spacing: 1px;
   color: #1a1430;
-  background: linear-gradient(180deg, #f4d98a, #d8af44);
+  background: var(--accent);
   border: none;
   border-radius: 9px;
   cursor: pointer;
@@ -432,9 +500,9 @@ body {
   margin-top: 8px;
   padding: 8px;
   font-size: 11px;
-  color: #c9c0e0;
+  color: var(--text-sec);
   background: transparent;
-  border: 1px solid var(--panel-border);
+  border: 2px solid var(--ink-faint);
   border-radius: 8px;
   cursor: pointer;
 }
@@ -449,10 +517,10 @@ body {
   min-height: 16px;
 }
 .conn-status.ok {
-  color: #8fe28f;
+  color: var(--grass-deep);
 }
 .conn-status.err {
-  color: #ff8a8a;
+  color: var(--accent-ink);
 }
 
 /* ---- HUD ---- */
@@ -524,7 +592,7 @@ body {
 .bar.tf-hp {
   position: relative;
   height: 12px;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--bg-muted);
   border-radius: 6px;
   overflow: hidden;
 }
@@ -577,7 +645,7 @@ body {
 .bar.wb-hp {
   position: relative;
   height: 16px;
-  background: rgba(0, 0, 0, 0.6);
+  background: var(--bg-muted);
   border-radius: 8px;
   overflow: hidden;
 }
@@ -604,7 +672,7 @@ body {
 .wb-sub {
   margin-top: 4px;
   font-size: 11px;
-  color: #e8b8c2;
+  color: var(--text-sec);
 }
 
 /* skill cast bar */
@@ -622,14 +690,14 @@ body {
   display: block;
   font-size: 12px;
   font-weight: 700;
-  color: #e6ecff;
+  color: var(--text);
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.8);
   margin-bottom: 3px;
 }
 .cast-bar-track {
   height: 9px;
-  background: rgba(0, 0, 0, 0.55);
-  border: 1px solid var(--panel-border);
+  background: var(--bg-muted);
+  border: 2px solid var(--ink-faint);
   border-radius: 5px;
   overflow: hidden;
 }
@@ -657,11 +725,11 @@ body {
   transform: translateX(-50%);
   padding: 4px 12px;
   background: var(--panel);
-  border: 1px solid var(--panel-border);
+  border: 2px solid var(--ink-faint);
   border-radius: 14px;
   font-size: 12px;
   font-weight: 600;
-  color: #dce8f6;
+  color: var(--text);
   z-index: 5;
 }
 
@@ -674,7 +742,7 @@ body {
   height: 26px;
   border-radius: 7px;
   font-size: 15px;
-  background: rgba(0, 0, 0, 0.35);
+  background: var(--bg-muted);
   border: 1px solid var(--rar, var(--panel-border));
   flex: 0 0 auto;
 }
@@ -791,7 +859,7 @@ body {
   position: relative;
   height: 15px;
   margin-bottom: 5px;
-  background: rgba(0, 0, 0, 0.45);
+  background: var(--bg-muted);
   border: 1px solid rgba(0, 0, 0, 0.6);
   border-radius: 7px;
   overflow: hidden;
@@ -901,7 +969,7 @@ body {
   padding: 2px 6px;
   border-radius: 8px;
   color: #1a1430;
-  background: linear-gradient(180deg, #9be88f, #4cae3e);
+  background: var(--grass-bg);
 }
 
 /* ---- job advance banner ---- */
@@ -935,7 +1003,7 @@ body {
   font-weight: 700;
   font-size: 13px;
   color: #1a1430;
-  background: linear-gradient(180deg, #f4d98a, #d8af44);
+  background: var(--accent);
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -989,7 +1057,7 @@ body {
   font-weight: 800;
   font-size: 15px;
   color: #2a1c10;
-  background: linear-gradient(180deg, #ffe6a8, #d8af44);
+  background: var(--accent);
   border: 2px solid var(--gold);
   cursor: pointer;
   pointer-events: auto;
@@ -1028,7 +1096,7 @@ body {
   padding: 9px 16px;
   font-weight: 700;
   font-size: 13px;
-  color: #f3eede;
+  color: var(--text);
   background: var(--panel);
   border: 2px solid var(--panel-border);
   border-radius: 10px;
@@ -1037,7 +1105,7 @@ body {
 }
 .auto-btn.on {
   color: #1a1430;
-  background: linear-gradient(180deg, #9be88f, #4cae3e);
+  background: var(--grass-bg);
   border-color: #4cae3e;
   animation: auto-pulse 1.8s ease-in-out infinite;
 }
@@ -1052,7 +1120,7 @@ body {
   padding: 9px 16px;
   font-weight: 700;
   font-size: 13px;
-  color: #f3eede;
+  color: var(--text);
   background: var(--panel);
   border: 2px solid var(--gold);
   border-radius: 10px;
@@ -1089,7 +1157,7 @@ body {
   background: radial-gradient(circle at 50% 35%, rgba(90, 64, 36, 0.95), rgba(40, 28, 18, 0.95));
   border: 2px solid var(--gold);
   border-radius: 50%;
-  color: #fff6e0;
+  color: var(--text);
   cursor: pointer;
   overflow: hidden;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.5);
@@ -1197,7 +1265,7 @@ body {
   font-size: 10px;
   padding: 2px 8px;
   background: rgba(255, 107, 107, 0.18);
-  color: #ff9a9a;
+  color: var(--accent-ink);
   border: 1px solid #7a3b3b;
   border-radius: 8px;
   cursor: pointer;
@@ -1215,7 +1283,7 @@ body {
 .pm-bar {
   height: 6px;
   margin-top: 2px;
-  background: rgba(0, 0, 0, 0.5);
+  background: var(--bg-muted);
   border-radius: 3px;
   overflow: hidden;
 }
@@ -1301,7 +1369,7 @@ body {
   transform: translateX(-50%);
   padding: 6px 12px;
   background: var(--panel);
-  border: 1px solid var(--panel-border);
+  border: 2px solid var(--ink-faint);
   border-radius: 10px;
   font-size: 12px;
   font-weight: 600;
@@ -1311,14 +1379,14 @@ body {
   padding: 6px 12px;
   font-weight: 700;
   font-size: 12px;
-  border: 1px solid var(--panel-border);
+  border: 2px solid var(--ink-faint);
   border-radius: 8px;
-  background: rgba(0, 0, 0, 0.3);
-  color: #f3eede;
+  background: var(--bg-muted);
+  color: var(--text);
   cursor: pointer;
 }
 .ip-btn.accept {
-  background: linear-gradient(180deg, #f4d98a, #d8af44);
+  background: var(--accent);
   color: #1a1430;
   border: none;
 }
@@ -1353,8 +1421,8 @@ body {
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  background: rgba(0, 0, 0, 0.28);
-  border: 1px solid var(--panel-border);
+  background: var(--bg-muted);
+  border: 2px solid var(--ink-faint);
   border-radius: 8px;
 }
 .quest-row.ready {
@@ -1378,7 +1446,7 @@ body {
   font-size: 10px;
   font-weight: 700;
   color: #1a1430;
-  background: linear-gradient(180deg, #9fe0a0, #59b85e);
+  background: var(--grass-bg);
   padding: 1px 6px;
   border-radius: 8px;
   vertical-align: middle;
@@ -1403,13 +1471,13 @@ body {
   font-weight: 700;
   font-size: 12px;
   color: #1a1430;
-  background: linear-gradient(180deg, #f4d98a, #d8af44);
+  background: var(--accent);
   border: none;
   border-radius: 8px;
   cursor: pointer;
 }
 .quest-btn.claim {
-  background: linear-gradient(180deg, #9be88f, #4cae3e);
+  background: var(--grass-bg);
 }
 
 /* ---- shop panel ---- */
@@ -1453,7 +1521,7 @@ body {
   flex-wrap: wrap;
   gap: 8px;
   padding: 8px 12px;
-  border-bottom: 1px solid var(--panel-border);
+  border-bottom: 2px dashed var(--border);
 }
 .ls-chip {
   font-size: 11px;
@@ -1461,7 +1529,7 @@ body {
   padding: 3px 8px;
   border-radius: 8px;
   background: rgba(230, 200, 120, 0.14);
-  border: 1px solid var(--panel-border);
+  border: 2px solid var(--ink-faint);
 }
 .ls-stamina {
   background: rgba(110, 200, 140, 0.16);
@@ -1492,7 +1560,7 @@ body {
 .pet-bar {
   height: 10px;
   border-radius: 6px;
-  background: rgba(0, 0, 0, 0.35);
+  background: var(--bg-muted);
   overflow: hidden;
 }
 .pet-bar-fill {
@@ -1510,7 +1578,7 @@ body {
 }
 .pass-head {
   padding: 10px 14px;
-  border-bottom: 1px solid var(--panel-border);
+  border-bottom: 2px dashed var(--border);
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -1520,7 +1588,7 @@ body {
   font-weight: 700;
 }
 .pass-prem {
-  color: #ffcf6a;
+  color: var(--sun-deep);
 }
 .pass-lvl {
   font-size: 12px;
@@ -1545,8 +1613,8 @@ body {
   align-items: center;
   gap: 8px;
   padding: 6px 8px;
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid var(--panel-border);
+  background: var(--bg-muted);
+  border: 2px solid var(--ink-faint);
   border-radius: 8px;
 }
 .pass-row.dim {
@@ -1564,7 +1632,7 @@ body {
   font-size: 11px;
 }
 .pass-premium .pass-reward {
-  color: #ffcf6a;
+  color: var(--sun-deep);
 }
 .pass-empty {
   opacity: 0.4;
@@ -1591,7 +1659,7 @@ body {
   align-items: center;
   padding: 5px 8px;
   font-size: 12px;
-  border-bottom: 1px solid var(--panel-border);
+  border-bottom: 2px dashed var(--border);
 }
 .rank-pos {
   text-align: center;
@@ -1603,7 +1671,7 @@ body {
 }
 .rank-score {
   font-weight: 700;
-  color: #ffcf6a;
+  color: var(--sun-deep);
 }
 .rank-empty {
   font-size: 12px;
@@ -1612,14 +1680,14 @@ body {
 }
 .album-head {
   padding: 10px 14px;
-  border-bottom: 1px solid var(--panel-border);
+  border-bottom: 2px dashed var(--border);
 }
 .album-count {
   font-size: 13px;
   font-weight: 800;
 }
 .album-done {
-  color: #ffcf6a;
+  color: var(--sun-deep);
 }
 .album-bonus {
   font-size: 11px;
@@ -1640,8 +1708,8 @@ body {
   align-items: center;
   gap: 3px;
   padding: 8px 4px;
-  background: rgba(0, 0, 0, 0.25);
-  border: 1px solid var(--panel-border);
+  background: var(--bg-muted);
+  border: 2px solid var(--ink-faint);
   border-radius: 8px;
   text-align: center;
 }
@@ -1670,8 +1738,8 @@ body {
   align-items: center;
   gap: 10px;
   padding: 10px 12px;
-  background: rgba(0, 0, 0, 0.28);
-  border: 1px solid var(--panel-border);
+  background: var(--bg-muted);
+  border: 2px solid var(--ink-faint);
   border-radius: 8px;
 }
 .craft-main {
@@ -1690,7 +1758,7 @@ body {
   margin-top: 3px;
 }
 .craft-short {
-  color: #e05a5a;
+  color: var(--accent-ink);
 }
 
 /* ---- Exchange Centre ---- */
@@ -1734,18 +1802,18 @@ body {
   flex-direction: column;
   gap: 4px;
   padding: 7px 9px;
-  background: rgba(0, 0, 0, 0.28);
-  border: 1px solid var(--panel-border);
+  background: var(--bg-muted);
+  border: 2px solid var(--ink-faint);
   border-radius: 8px;
 }
 .ex-name { font-size: 13px; font-weight: 700; }
-.ex-meta { font-size: 11px; color: #b9c4d2; }
+.ex-meta { font-size: 11px; color: var(--text-sec); }
 .ex-controls { display: flex; align-items: center; gap: 6px; margin-top: 2px; }
 .ex-num {
   width: 64px;
   padding: 3px 5px;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid var(--panel-border);
+  background: var(--bg-muted);
+  border: 2px solid var(--ink-faint);
   border-radius: 6px;
   color: #fff;
   font-size: 12px;
@@ -1754,8 +1822,8 @@ body {
   width: 100%;
   padding: 5px 6px;
   margin-bottom: 6px;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid var(--panel-border);
+  background: var(--bg-muted);
+  border: 2px solid var(--ink-faint);
   border-radius: 6px;
   color: #fff;
   font-size: 12px;
@@ -1766,7 +1834,7 @@ body {
   justify-content: space-between;
   gap: 8px;
   font-size: 12px;
-  color: #c8d2de;
+  color: var(--text-sec);
   margin-bottom: 6px;
 }
 .ex-btn {
@@ -1785,8 +1853,8 @@ body {
 .ex-btn:hover { filter: brightness(1.1); }
 .exchange-sell {
   padding: 8px 9px;
-  background: rgba(0, 0, 0, 0.28);
-  border: 1px solid var(--panel-border);
+  background: var(--bg-muted);
+  border: 2px solid var(--ink-faint);
   border-radius: 8px;
   margin-bottom: 10px;
 }
@@ -1830,8 +1898,8 @@ body {
   gap: 10px;
   padding: 7px 10px;
   font-size: 12px;
-  background: rgba(0, 0, 0, 0.2);
-  border: 1px solid rgba(244, 217, 138, 0.12);
+  background: var(--bg-muted);
+  border: 2px solid var(--ink-faint);
   border-radius: 7px;
 }
 .bestiary-row.boss {
@@ -1885,7 +1953,7 @@ body {
   min-height: 0;
 }
 .storage-col:first-child {
-  border-right: 1px solid var(--panel-border);
+  border-right: 2px dashed var(--border);
 }
 .storage-col h4 {
   margin: 0;
@@ -1894,7 +1962,7 @@ body {
   text-transform: uppercase;
   letter-spacing: 1px;
   opacity: 0.7;
-  border-bottom: 1px solid var(--panel-border);
+  border-bottom: 2px dashed var(--border);
 }
 .storage-grid {
   display: flex;
@@ -1916,10 +1984,10 @@ body {
   text-transform: uppercase;
   letter-spacing: 1px;
   opacity: 0.7;
-  border-bottom: 1px solid var(--panel-border);
+  border-bottom: 2px dashed var(--border);
 }
 .shop-col:first-child {
-  border-right: 1px solid var(--panel-border);
+  border-right: 2px dashed var(--border);
 }
 .shop-list {
   display: flex;
@@ -1934,10 +2002,10 @@ body {
   align-items: center;
   gap: 8px;
   padding: 7px 9px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--panel-border);
+  background: var(--bg-muted);
+  border: 2px solid var(--ink-faint);
   border-radius: 7px;
-  color: #f3eede;
+  color: var(--text);
   cursor: pointer;
   text-align: left;
 }
@@ -1953,7 +2021,7 @@ body {
 }
 @keyframes shop-row-flash-anim {
   0% { background: rgba(230, 200, 120, 0.35); }
-  100% { background: rgba(0, 0, 0, 0.3); }
+  100% { background: var(--bg-muted); }
 }
 .shop-row .sr-name {
   flex: 1;
@@ -1975,15 +2043,15 @@ body {
   padding: 5px 12px;
   font-size: 12px;
   font-weight: 700;
-  color: #f3eede;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--panel-border);
+  color: var(--text);
+  background: var(--bg-muted);
+  border: 2px solid var(--ink-faint);
   border-radius: 14px;
   cursor: pointer;
 }
 .inv-tab.active {
   color: #2a1c10;
-  background: linear-gradient(180deg, #ffe6a8, #d8af44);
+  background: var(--accent);
   border-color: var(--gold);
 }
 .refine-badge {
@@ -2001,7 +2069,7 @@ body {
 }
 .rr-preview {
   font-size: 10px;
-  color: #8fe28f;
+  color: var(--grass-deep);
   margin-top: 2px;
 }
 .rr-preview i {
@@ -2032,7 +2100,7 @@ body {
   gap: 8px;
   padding: 10px 12px;
   font-weight: 700;
-  border-bottom: 1px solid var(--panel-border);
+  border-bottom: 2px dashed var(--border);
 }
 .inv-header .inv-zeny {
   margin-left: auto;
@@ -2042,7 +2110,7 @@ body {
 .inv-close {
   background: none;
   border: none;
-  color: #f3eede;
+  color: var(--text);
   font-size: 15px;
   cursor: pointer;
   opacity: 0.7;
@@ -2055,7 +2123,7 @@ body {
   grid-template-columns: repeat(3, 1fr);
   gap: 6px;
   padding: 10px 12px;
-  border-bottom: 1px solid var(--panel-border);
+  border-bottom: 2px dashed var(--border);
 }
 .equip-cell {
   position: relative;
@@ -2065,9 +2133,9 @@ body {
   padding: 8px 4px;
   min-height: 56px;
   background: radial-gradient(circle at 50% 30%, rgba(70, 50, 32, 0.6), rgba(0, 0, 0, 0.4));
-  border: 2px dashed var(--panel-border);
+  border: 2px dashed var(--ink-faint);
   border-radius: 12px;
-  color: #f3eede;
+  color: var(--text);
   cursor: default;
 }
 .equip-cell .refine-badge {
@@ -2092,11 +2160,11 @@ body {
 }
 .equip-cell .socket {
   font-size: 9px;
-  color: #5fd1ff;
+  color: var(--sky-deep);
   margin-top: 1px;
 }
 .inv-cell.card .iname {
-  color: #5fd1ff;
+  color: var(--sky-deep);
 }
 .inv-grid {
   display: flex;
@@ -2110,10 +2178,10 @@ body {
   align-items: center;
   gap: 8px;
   padding: 8px 10px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--panel-border);
+  background: var(--bg-muted);
+  border: 2px solid var(--ink-faint);
   border-radius: 8px;
-  color: #f3eede;
+  color: var(--text);
   cursor: pointer;
   text-align: left;
 }
@@ -2128,7 +2196,7 @@ body {
   border-color: #c0584a;
 }
 .inv-cell.locked .iact {
-  color: #e08a7a;
+  color: var(--accent-ink);
 }
 .inv-cell .iname {
   flex: 1;
@@ -2147,7 +2215,7 @@ body {
 }
 .inv-cell.consumable .iact {
   background: rgba(120, 230, 140, 0.18);
-  color: #8fe28f;
+  color: var(--grass-deep);
 }
 .inv-empty {
   font-size: 12px;
@@ -2197,7 +2265,7 @@ body {
   padding: 0;
   font-weight: 800;
   color: #1a1430;
-  background: linear-gradient(180deg, #f4d98a, #d8af44);
+  background: var(--accent);
   border: none;
   border-radius: 5px;
   cursor: pointer;
@@ -2243,8 +2311,8 @@ body {
   align-items: center;
   gap: 10px;
   padding: 9px 11px;
-  background: rgba(0, 0, 0, 0.28);
-  border: 1px solid var(--panel-border);
+  background: var(--bg-muted);
+  border: 2px solid var(--ink-faint);
   border-radius: 8px;
   opacity: 0.6;
 }
@@ -2304,7 +2372,7 @@ body {
 .ach-toast-name {
   font-size: 15px;
   font-weight: 800;
-  color: #fff6d8;
+  color: var(--text);
   margin: 2px 0;
 }
 .ach-toast-reward {
@@ -2336,7 +2404,7 @@ body {
 .loot-toast {
   min-width: 160px;
   padding: 6px 14px;
-  background: rgba(20, 18, 26, 0.92);
+  background: var(--bg-card);
   border: 2px solid var(--rar, #9aa0a8);
   border-radius: 8px;
   text-align: right;
@@ -2394,7 +2462,7 @@ body {
   font-size: 13px;
   font-weight: 700;
   color: #1a1430;
-  background: linear-gradient(180deg, #f4d98a, #d8af44);
+  background: var(--accent);
   border: none;
   border-radius: 8px;
   cursor: pointer;
@@ -2435,8 +2503,8 @@ body {
 .guild-row input {
   flex: 1;
   padding: 8px;
-  background: rgba(0, 0, 0, 0.35);
-  border: 1px solid var(--panel-border);
+  background: var(--bg-muted);
+  border: 2px solid var(--ink-faint);
   border-radius: 7px;
   color: #fff;
   outline: none;
@@ -2466,8 +2534,8 @@ body {
 .guild-exp-bar {
   height: 8px;
   margin: 4px 0;
-  background: rgba(0, 0, 0, 0.4);
-  border: 1px solid var(--panel-border);
+  background: var(--bg-muted);
+  border: 2px solid var(--ink-faint);
   border-radius: 5px;
   overflow: hidden;
 }
@@ -2529,8 +2597,8 @@ body {
   padding: 7px 4px;
   border-radius: 10px;
   border: 2px solid var(--panel-border);
-  background: rgba(0, 0, 0, 0.3);
-  color: #f3eede;
+  background: var(--bg-muted);
+  color: var(--text);
   cursor: default;
 }
 .aesir-node b {
@@ -2590,8 +2658,8 @@ body {
   align-items: center;
   gap: 10px;
   padding: 9px 11px;
-  background: rgba(0, 0, 0, 0.28);
-  border: 1px solid var(--panel-border);
+  background: var(--bg-muted);
+  border: 2px solid var(--ink-faint);
   border-radius: 8px;
 }
 .sk-main {
@@ -2612,7 +2680,7 @@ body {
 }
 .sk-meta {
   font-size: 11px;
-  color: #9be8c0;
+  color: var(--grass-deep);
 }
 
 /* ---- refine panel ---- */
@@ -2644,8 +2712,8 @@ body {
   justify-content: space-between;
   gap: 8px;
   padding: 9px 11px;
-  background: rgba(0, 0, 0, 0.3);
-  border: 1px solid var(--panel-border);
+  background: var(--bg-muted);
+  border: 2px solid var(--ink-faint);
   border-radius: 8px;
   font-size: 13px;
 }
@@ -2665,7 +2733,7 @@ body {
   font-size: 11px;
   font-weight: 700;
   color: #1a1430;
-  background: linear-gradient(180deg, #f4d98a, #d8af44);
+  background: var(--accent);
   border: none;
   border-radius: 7px;
   cursor: pointer;
@@ -2679,7 +2747,7 @@ body {
   margin-top: 2px;
 }
 .rr-meta .rr-risk {
-  color: #ff8a6a;
+  color: var(--accent-ink);
   font-weight: 700;
 }
 .refine-toast {
@@ -2717,8 +2785,8 @@ body {
 .ench-block {
   margin: 2px 0 10px;
   padding: 8px 10px;
-  background: rgba(0, 0, 0, 0.22);
-  border: 1px solid rgba(244, 217, 138, 0.18);
+  background: var(--bg-muted);
+  border: 2px solid var(--ink-faint);
   border-radius: 8px;
   display: flex;
   flex-direction: column;
@@ -2735,9 +2803,9 @@ body {
   gap: 8px;
   padding: 5px 9px;
   font-size: 11px;
-  color: #f0e6c8;
+  color: var(--text);
   background: rgba(60, 48, 92, 0.55);
-  border: 1px solid rgba(244, 217, 138, 0.16);
+  border: 2px solid var(--ink-faint);
   border-radius: 6px;
   cursor: pointer;
   text-align: left;
@@ -2781,7 +2849,7 @@ body {
   transform: translateX(-50%);
   font-size: 12px;
   opacity: 0.55;
-  background: rgba(0, 0, 0, 0.3);
+  background: var(--bg-muted);
   padding: 5px 12px;
   border-radius: 14px;
 }
@@ -2821,7 +2889,7 @@ body {
   to { opacity: 1; transform: none; }
 }
 .chat-line.system {
-  color: #cfe0ff;
+  color: var(--sky-deep);
   font-style: normal;
   opacity: 0.95;
   background: rgba(90, 120, 180, 0.18);
@@ -2838,3 +2906,782 @@ body {
   font-size: 11px;
   opacity: 0.5;
 }
+
+/* ==========================================================================
+   A-Worthy component layer
+   The sticker-book look applied to every interface surface: solid white
+   die-cut cards with a 2px navy ink outline on a hard offset shadow, pill
+   buttons that press in, one rust action colour, marker pops for state.
+   Comes last so it wins over the per-panel rules above.
+   ========================================================================== */
+
+button,
+input,
+select,
+textarea {
+  font-family: inherit;
+}
+
+/* ---- surfaces: modal panels ---- */
+.login-card,
+.help-panel,
+.quests,
+.shop,
+.crafting,
+.exchange,
+.bestiary,
+.storage,
+.inventory,
+.achievements,
+.warp,
+.guild,
+.aesir,
+.skills,
+.refine {
+  background: var(--bg-card);
+  color: var(--text);
+  border: 2px solid var(--ink);
+  border-radius: var(--r3);
+  box-shadow: var(--shadow-sticker-sm), var(--shadow-soft);
+}
+
+/* ---- surfaces: HUD stickers that sit on the 3D scene ---- */
+.char-frame,
+.party,
+.hud-stats,
+.target-frame,
+#quest-tracker,
+.invite-prompt,
+.duel-hud,
+.tower-hud,
+.siege-hud,
+.social-hud,
+.job-advance,
+.ach-toast,
+.loot-toast {
+  background: var(--bg-card);
+  color: var(--text);
+  border: 2px solid var(--ink);
+  border-radius: var(--r2);
+  box-shadow: var(--shadow-sticker-sm);
+  animation-name: none;
+}
+.char-frame {
+  border-radius: var(--r-pill) var(--r2) var(--r2) var(--r-pill);
+}
+/* a HUD sticker carries its tone in the outline, never a tinted panel */
+.duel-hud { border-color: var(--accent); }
+.tower-hud { border-color: var(--sky-deep); }
+.siege-hud { border-color: var(--sun-deep); }
+.job-advance { border-color: var(--sun-deep); }
+.target-frame.boss { border-color: var(--accent); box-shadow: var(--shadow-sticker-sm); }
+.target-frame.boss .tf-name { color: var(--accent-ink); }
+.ach-toast { animation: ach-toast-in 0.22s var(--ease); }
+.ach-toast.out { animation: ach-toast-out 0.3s ease-in forwards; }
+.loot-toast {
+  border-color: var(--rar, var(--ink));
+  animation: loot-toast-in 0.22s var(--ease);
+}
+.loot-toast.out { animation: loot-toast-out 0.3s ease-in forwards; }
+
+/* small pills pinned to the top of the screen */
+.sky-badge,
+.topbar .cur,
+.hud-help,
+.latency {
+  background: var(--bg-card);
+  color: var(--text);
+  border: 2px solid var(--ink);
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-sticker-sm);
+  font-weight: 800;
+}
+.topbar .cur { color: var(--sun-deep); }
+.latency {
+  padding: 2px 10px;
+  opacity: 1;
+  color: var(--text-sec);
+  font-size: 11px;
+  font-weight: 700;
+}
+/* the controls hint used to sit on top of the day/weather badge: drop it below,
+   and let it fade once the player has had a chance to read it */
+.hud-help {
+  top: 50px;
+  max-width: min(720px, 70vw);
+  text-align: center;
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-sec);
+  opacity: 1;
+  animation: hud-help-fade 0.6s ease 25s forwards;
+}
+@keyframes hud-help-fade {
+  to { opacity: 0; visibility: hidden; }
+}
+
+/* ---- world-boss raid bar: a page-wide notice, so a charcoal Banner ---- */
+.worldboss-bar {
+  background: var(--charcoal);
+  border: 0;
+  border-left: 6px solid var(--sun);
+  border-radius: var(--r2);
+  box-shadow: var(--shadow-sticker-lg);
+}
+.wb-title { color: #f0eee8; text-shadow: none; font-weight: 900; }
+.wb-sub { color: #b3aea3; }
+.bar.wb-hp { background: rgba(255, 255, 255, 0.14); border: 0; }
+.bar.wb-hp > i { background: var(--bloom); }
+#wb-chip { background: var(--bloom-bg); }
+
+/* ---- panel header row ---- */
+.inv-header {
+  padding: 12px 14px 12px 18px;
+  font-size: 17px;
+  font-weight: 800;
+  letter-spacing: -0.01em;
+  border-bottom: 2px dashed var(--border);
+}
+.inv-header .inv-zeny {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--sun-deep);
+}
+.inv-close {
+  width: 34px;
+  height: 34px;
+  border-radius: var(--r-pill);
+  border: 2px solid var(--ink-faint);
+  background: var(--bg-card);
+  color: var(--text-sec);
+  font-size: 14px;
+  opacity: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.inv-close:hover { background: var(--bg-hover); color: var(--text); border-color: var(--ink); }
+
+/* micro-labels / eyebrows */
+.storage-col h4,
+.shop-col h4,
+.craft-section,
+.party-header,
+.field > span,
+.qt-title,
+.slot-label,
+.ach-toast-title,
+.loot-toast-rarity,
+.rank-title {
+  font-size: 12px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--text-sec);
+  opacity: 1;
+}
+.exchange-col h4 { color: var(--text); font-weight: 800; }
+
+/* ---- buttons ---- */
+.enter-btn,
+.ja-btn,
+.quest-btn,
+.warp-btn,
+.refine-btn,
+.ex-btn,
+.ip-btn.accept,
+.inv-tab.active,
+.stat-plus {
+  background: var(--accent);
+  color: #fff;
+  border: 2px solid var(--ink);
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-primary);
+  font-weight: 800;
+  filter: none;
+  transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+}
+.enter-btn:hover:not(:disabled),
+.ja-btn:hover,
+.quest-btn:hover,
+.warp-btn:hover,
+.refine-btn:hover,
+.ex-btn:hover,
+.ip-btn.accept:hover,
+.stat-plus:hover {
+  background: var(--accent-dark);
+  filter: none;
+}
+.enter-btn {
+  min-height: 48px;
+  font-size: 16px;
+  letter-spacing: 0;
+}
+.quest-btn.claim { background: var(--accent); }
+
+.auto-btn,
+.market-btn,
+.ip-btn,
+.reset-btn,
+.inv-tab,
+.enchant-btn,
+.help-btn,
+.mute-btn {
+  background: var(--bg-card);
+  color: var(--text);
+  border: 2px solid var(--ink);
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-sticker);
+  font-weight: 800;
+  transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+}
+.auto-btn:hover,
+.market-btn:hover,
+.ip-btn:hover,
+.reset-btn:hover,
+.inv-tab:hover,
+.enchant-btn:hover,
+.help-btn:hover,
+.mute-btn:hover {
+  background: var(--bg-hover);
+  box-shadow: var(--shadow-sticker);
+}
+.auto-btn,
+.market-btn {
+  min-height: 44px;
+  padding: 0 18px;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+.help-btn {
+  width: 38px;
+  height: 38px;
+  padding: 0;
+  font-size: 18px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.mute-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 10px;
+}
+/* an on/off button shows its state on the button: sun pastel with an ink edge */
+.auto-btn.on {
+  background: var(--sun-bg);
+  color: var(--sun-deep);
+  border-color: var(--ink);
+  animation: none;
+}
+/* destructive: the pale variant inside the same ink pill */
+.ex-btn.cancel,
+.party-leave {
+  background: var(--danger-bg);
+  color: var(--accent-ink);
+  border: 2px solid var(--ink);
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-sticker);
+  font-weight: 800;
+}
+.party-leave { padding: 2px 10px; font-size: 11px; }
+
+/* pressing moves a button in; buttons never lift */
+.enter-btn:active:not(:disabled),
+.ja-btn:active,
+.quest-btn:active,
+.warp-btn:active,
+.refine-btn:active,
+.ex-btn:active,
+.ip-btn:active,
+.inv-tab:active,
+.stat-plus:active,
+.auto-btn:active,
+.market-btn:active,
+.reset-btn:active,
+.enchant-btn:active,
+.help-btn:active,
+.mute-btn:active,
+.party-leave:active {
+  transform: translateY(3px);
+  box-shadow: 0 0 0 transparent;
+}
+.enter-btn:focus-visible,
+.quest-btn:focus-visible,
+.auto-btn:focus-visible,
+.market-btn:focus-visible,
+.inv-tab:focus-visible,
+.job-btn:focus-visible,
+.skill-slot:focus-visible {
+  outline: 2px solid var(--accent-ink);
+  outline-offset: 2px;
+}
+.quest-btn.dim,
+.refine-btn.dim,
+.enchant-btn.dim,
+.ex-btn.dim,
+.quest-btn:disabled {
+  opacity: 0.5;
+  box-shadow: none;
+}
+
+/* ---- fields ---- */
+#name-input,
+.chat-input,
+.ex-num,
+.ex-select,
+.guild-row input {
+  background: var(--bg-muted);
+  color: var(--text);
+  border: 2px solid var(--field-border);
+  border-radius: var(--r2);
+  font-size: 15px;
+}
+#name-input,
+.chat-input {
+  min-height: 44px;
+  padding: 0 14px;
+}
+#name-input::placeholder,
+.chat-input::placeholder,
+.guild-row input::placeholder {
+  color: var(--text-sec);
+}
+#name-input:focus,
+.chat-input:focus,
+.ex-num:focus,
+.ex-select:focus,
+.guild-row input:focus {
+  outline: none;
+  border-color: var(--accent);
+  box-shadow: 0 0 0 3px rgba(192, 57, 43, 0.18);
+}
+
+/* ---- list rows inside a panel ---- */
+.quest-row,
+.craft-row,
+.ex-row,
+.exchange-sell,
+.shop-row,
+.inv-cell,
+.ach-row,
+.skill-card,
+.refine-row,
+.pass-row,
+.album-cell,
+.bestiary-row,
+.ench-block,
+.equip-cell {
+  background: var(--bg-muted);
+  color: var(--text);
+  border: 2px solid var(--ink-faint);
+  border-radius: var(--r2);
+  box-shadow: none;
+}
+.shop-row:hover,
+.inv-cell:hover {
+  border-color: var(--ink);
+  background: var(--bg-hover);
+}
+.shop-row-flash { animation: none; }
+.quest-row.ready,
+.ach-row.done {
+  border-color: var(--ink);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sticker-sm);
+}
+.equip-cell { border-style: dashed; color: var(--text); }
+.equip-cell.filled {
+  border-style: solid;
+  border-color: var(--ink);
+  background: var(--bg-card);
+}
+.bestiary-row.boss {
+  border-color: var(--sun-deep);
+  background: var(--sun-bg);
+}
+.ench-line {
+  background: var(--bg-card);
+  color: var(--text);
+  border: 2px solid var(--ink-faint);
+  border-radius: var(--r1);
+}
+.ench-line.locked {
+  background: var(--sun-bg);
+  border-color: var(--sun-deep);
+}
+.ench-line .el-val { color: var(--sun-deep); }
+
+/* rune tree nodes */
+.aesir-node {
+  background: var(--bg-muted);
+  color: var(--text);
+  border: 2px solid var(--ink-faint);
+  border-radius: var(--r2);
+}
+.aesir-node.done {
+  background: var(--grass-bg);
+  border-color: var(--grass-deep);
+}
+.aesir-node.avail {
+  background: var(--bg-card);
+  border-color: var(--ink);
+  box-shadow: var(--shadow-sticker-sm);
+}
+.aesir-line-name { color: var(--text); font-weight: 800; }
+
+/* ---- chips (pastel fill, -deep text) ---- */
+.buff-chip,
+.quest-repeat,
+.ls-chip,
+.refine-badge,
+.inv-cell .iact,
+.portrait-lv {
+  border-radius: var(--r-pill);
+  font-weight: 700;
+  border: 1.5px solid currentColor;
+  background-image: none;
+}
+.buff-chip { background: var(--grass-bg); color: var(--grass-deep); }
+.quest-repeat { background: var(--grass-bg); color: var(--grass-deep); }
+.ls-chip { background: var(--stone-bg); color: var(--stone-deep); }
+.ls-stamina { background: var(--grass-bg); color: var(--grass-deep); }
+.refine-badge { background: var(--sky-bg); color: var(--sky-deep); }
+.inv-cell .iact { background: var(--accent-bg); color: var(--accent-dark); }
+.inv-cell.consumable .iact { background: var(--grass-bg); color: var(--grass-deep); }
+.inv-cell.locked .iact { background: var(--danger-bg); color: var(--accent-ink); }
+
+/* ---- tabs ---- */
+.inv-tab { padding: 6px 14px; color: var(--text); }
+.inv-tab.active { color: #fff; }
+
+/* ---- vitals bars: flat pop fills on a muted track, no gloss ---- */
+.bar,
+.qt-bar,
+.pm-bar,
+.pet-bar,
+.guild-exp-bar,
+.cast-bar-track,
+.bar.tf-hp {
+  background: var(--bg-muted);
+  border: 2px solid var(--ink);
+  border-radius: var(--r-pill);
+}
+.bar { height: 18px; }
+.bar.exp { height: 12px; }
+.bar-fill::after,
+.bar.tf-hp > i::after,
+.bar.wb-hp > i::after,
+.bar.hp .bar-fill::before,
+.bar.sp .bar-fill::before,
+.bar.exp .bar-fill::before {
+  content: none;
+}
+.bar.hp .bar-fill { background: var(--grass); }
+.bar.sp .bar-fill { background: var(--sky); }
+.bar.exp .bar-fill { background: var(--sun); }
+.bar.hp.low .bar-fill { background: var(--bloom); }
+.bar.hp .bar-ghost { background: var(--bloom-bg); }
+.bar.sp .bar-ghost { background: var(--sky-bg); }
+.bar-label {
+  color: var(--text);
+  font-size: 11px;
+  font-weight: 800;
+  text-shadow: none;
+}
+.bar.tf-hp > i { background: var(--bloom); }
+#tf-chip { background: var(--bloom-bg); }
+.qt-bar > i { background: var(--sun); }
+.qt-row.ready .qt-bar > i { background: var(--grass); }
+.pm-bar > i { background: var(--grass); }
+.pm-bar.low > i { background: var(--bloom); }
+.pet-bar-fill { background: var(--bloom); }
+.guild-exp-fill { background: var(--sun); }
+.cast-bar-track > i { background: var(--sky); }
+.cast-bar-label {
+  display: inline-block;
+  padding: 2px 12px;
+  margin-bottom: 4px;
+  color: var(--text);
+  background: var(--bg-card);
+  border: 2px solid var(--ink);
+  border-radius: var(--r-pill);
+  font-weight: 800;
+  text-shadow: none;
+}
+@keyframes cast-flash {
+  0% { background: var(--sun); }
+  100% { background: var(--sky); }
+}
+
+/* ---- character frame ---- */
+.portrait {
+  background: var(--sun-bg);
+  border: 2px solid var(--ink);
+  color: var(--text);
+  box-shadow: none;
+  font-weight: 900;
+}
+.portrait-lv {
+  background: var(--accent);
+  color: #fff;
+  border: 2px solid var(--ink);
+}
+.char-name { font-weight: 800; font-size: 15px; }
+.char-job { color: var(--text-sec); opacity: 1; font-weight: 700; }
+.zeny { color: var(--sun-deep); font-weight: 800; }
+
+/* ---- skill buttons: round stickers ---- */
+.skill-slot {
+  background: var(--bg-card);
+  color: var(--text);
+  border: 2px solid var(--ink);
+  box-shadow: var(--shadow-sticker);
+  transition: transform 0.1s, box-shadow 0.1s, background 0.1s;
+}
+.skill-slot:hover { background: var(--bg-hover); box-shadow: var(--shadow-sticker); }
+.skill-slot:active { transform: translateY(3px); box-shadow: 0 0 0 transparent; }
+.skill-slot .key {
+  color: var(--accent-ink);
+  text-shadow: none;
+  font-weight: 900;
+}
+.skill-slot .sname { text-shadow: none; font-weight: 800; }
+.skill-slot .sp { color: var(--text-sec); opacity: 1; font-weight: 700; }
+.skill-slot .cd { background: rgba(28, 27, 25, 0.5); }
+.skill-slot.nosp { border-color: var(--accent); }
+@keyframes skill-ready {
+  0% { box-shadow: 0 0 0 0 rgba(245, 184, 46, 0); }
+  35% { box-shadow: 0 0 0 5px rgba(245, 184, 46, 0.7); }
+  100% { box-shadow: var(--shadow-sticker); }
+}
+
+/* ---- text colour clean-up for states the palette pass couldn't see ---- */
+.pass-prem,
+.album-done,
+.rank-score,
+.pass-premium .pass-reward,
+.rr-lv,
+.rr-max,
+.sk-lv,
+.ach-reward,
+.ach-count,
+.stat-points,
+.shop-row .sr-price,
+.bestiary-row .bx-kills,
+.aesir-node .rn-cost,
+.quest-meta,
+.ach-toast-reward {
+  color: var(--sun-deep);
+  font-weight: 800;
+}
+.guild-title { color: var(--text); font-weight: 900; }
+.help-body b { color: var(--accent-ink); }
+.ja-title { color: var(--text); font-weight: 800; }
+.ach-toast-name { color: var(--text); }
+.chat-line .who { color: var(--accent-ink); font-weight: 800; }
+.inv-cell.card .iname,
+.equip-cell .socket { color: var(--sky-deep); }
+
+/* item icon tiles */
+.iicon {
+  background: var(--bg-card);
+  border: 2px solid var(--rar, var(--ink-faint));
+  border-radius: var(--r1);
+  color: var(--rar-text, var(--text));
+  font-size: 15px;
+}
+
+/* ---- rarity: pop colour for edges, a text-safe partner for names ---- */
+.rar-common { --rar: var(--stone); --rar-text: var(--stone-deep); }
+.rar-uncommon { --rar: var(--grass); --rar-text: var(--grass-deep); }
+.rar-rare { --rar: var(--sky); --rar-text: var(--sky-deep); }
+.rar-epic { --rar: var(--grape); --rar-text: var(--grape-deep); }
+.rar-legendary { --rar: var(--sun); --rar-text: var(--sun-deep); }
+.rar-mythic { --rar: var(--bloom); --rar-text: var(--bloom-deep); }
+.inv-cell[class*="rar-"] .iname,
+.equip-cell.filled[class*="rar-"] .slot-item,
+.loot-toast-name {
+  color: var(--rar-text, var(--text));
+}
+.equip-cell.filled[class*="rar-"] { box-shadow: none; }
+/* no endless glows on anything that stays on screen */
+.inv-cell.rar-legendary,
+.inv-cell.rar-mythic,
+.equip-cell.filled.rar-legendary,
+.equip-cell.filled.rar-mythic {
+  animation: none;
+}
+
+/* ---- toasts ---- */
+.refine-toast {
+  border: 2px solid var(--ink);
+  border-radius: var(--r-pill);
+  box-shadow: var(--shadow-sticker);
+}
+.refine-toast.ok { background: var(--grass-bg); color: var(--grass-deep); }
+.refine-toast.fail { background: var(--danger-bg); color: var(--accent-ink); }
+
+/* ---- chat: a sticker card so it reads over any scene ---- */
+.chat-log {
+  background: var(--bg-card);
+  border: 2px solid var(--ink);
+  border-radius: var(--r2);
+  box-shadow: var(--shadow-sticker-sm);
+  padding: 8px 12px;
+  color: var(--text);
+  text-shadow: none;
+}
+.chat-log:empty { display: none; }
+.chat-log::-webkit-scrollbar-thumb { background: var(--ink-faint); }
+.chat-line.system {
+  color: var(--sky-deep);
+  background: none;
+  border-left: 3px solid var(--sky);
+  border-radius: 0;
+  font-weight: 700;
+}
+
+/* ---- login: cream paper with a faint dot texture ---- */
+.overlay {
+  background-color: var(--bg);
+  background-image: radial-gradient(circle at 1px 1px, rgba(70, 50, 20, 0.06) 1px, transparent 0);
+  background-size: 22px 22px;
+}
+.login-card {
+  border-radius: var(--r4);
+  box-shadow: var(--shadow-sticker-lg);
+}
+.login-card h1 {
+  font-size: 40px;
+  font-weight: 900;
+  letter-spacing: -0.02em;
+  color: var(--text);
+}
+/* the hand-drawn red squiggle under a heading */
+.login-card h1::after {
+  content: "";
+  display: block;
+  width: 84px;
+  height: 10px;
+  margin: 6px auto 0;
+  background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 84 10'%3E%3Cpath d='M2 6 Q 12 1 22 6 T 42 6 T 62 6 T 82 6' fill='none' stroke='%23C0392B' stroke-width='3' stroke-linecap='round'/%3E%3C/svg%3E") no-repeat center / contain;
+}
+.login-card .accent { color: var(--accent-ink); }
+.tagline { color: var(--text-sec); opacity: 1; font-size: 14px; font-weight: 600; }
+.login-preview {
+  background: var(--bg-muted);
+  border: 2px solid var(--ink-faint);
+  border-radius: var(--r3);
+}
+.job-btn {
+  background: var(--bg-card);
+  color: var(--text);
+  border: 2px solid var(--ink-faint);
+  border-radius: var(--r2);
+  font-weight: 800;
+  min-height: 52px;
+}
+.job-btn em { color: var(--text-sec); opacity: 1; font-weight: 600; font-size: 11px; }
+.job-btn:hover { border-color: var(--ink); background: var(--bg-hover); }
+.job-btn.selected {
+  background: var(--sun-bg);
+  border-color: var(--ink);
+  box-shadow: var(--shadow-sticker-sm);
+}
+.reset-btn { min-height: 36px; font-size: 12px; color: var(--text-sec); }
+.reset-btn:hover { color: var(--text); }
+.conn-status { opacity: 1; color: var(--text-sec); font-weight: 700; }
+.conn-status.ok { color: var(--grass-deep); }
+.conn-status.err { color: var(--accent-ink); }
+
+/* ---- defeat: a cream wash with a sticker message, not a blood-red screen ---- */
+.death-overlay {
+  background: rgba(250, 246, 238, 0.72);
+}
+.death-title {
+  padding: 14px 32px;
+  color: var(--accent-ink);
+  background: var(--bg-card);
+  border: 2px solid var(--ink);
+  border-radius: var(--r4);
+  box-shadow: var(--shadow-sticker-lg);
+  text-shadow: none;
+  font-size: 40px;
+  letter-spacing: -0.02em;
+}
+.death-sub { color: var(--text); opacity: 1; font-weight: 700; }
+.death-resp { color: var(--text-sec); font-weight: 700; }
+
+/* ---- big skill-name callout over the scene: white with an ink sticker edge ---- */
+.skill-popup {
+  font-weight: 900;
+  color: #fff;
+  text-shadow:
+    -2px -2px 0 var(--ink), 2px -2px 0 var(--ink), -2px 2px 0 var(--ink), 2px 2px 0 var(--ink),
+    0 5px 0 var(--ink);
+}
+
+/* Phosphor bold glyphs sit on the text baseline like a letter */
+.ph-bold { vertical-align: -0.12em; }
+
+@media (prefers-reduced-motion: reduce) {
+  .hud-help,
+  .ach-toast,
+  .loot-toast,
+  .skill-popup.anim,
+  .chat-line {
+    animation: none;
+  }
+}
+
+/* ranking medals and achievement stars: marker pops on a glyph, never text */
+.rank-medal { font-size: 16px; }
+.rank-medal.m1 { color: var(--sun); }
+.rank-medal.m2 { color: var(--stone-deep); }
+.rank-medal.m3 { color: #d2691e; }
+.ach-star { color: var(--stone); }
+.ach-star.on { color: var(--sun); }
+.album-icon { color: var(--grape-deep); }
+.album-cell.locked .album-icon { color: var(--text-ter); }
+.minimap { border-radius: 50%; box-shadow: var(--shadow-sticker-sm); }
+
+/* ---- layout fixes found in the restyle screenshots ---- */
+/* the login card must fit a 720px screen, and scroll rather than clip below that */
+.overlay {
+  overflow-y: auto;
+  align-items: safe center;
+  padding: 16px 0;
+}
+.login-card { padding: 22px 28px 18px; }
+.login-card h1 { font-size: 36px; margin-bottom: 0; }
+.login-card h1::after { margin-top: 2px; }
+.tagline { margin-bottom: 12px; }
+.field { margin-bottom: 12px; }
+.job-btn { min-height: 0; padding: 8px 6px; }
+.enter-btn { min-height: 44px; }
+
+/* the currency + sound pills used to hide behind the day/weather badge:
+   park them beside the help button instead */
+.topbar {
+  left: auto;
+  right: 230px;
+  top: 18px;
+  transform: none;
+}
+.topbar .cur { padding: 4px 12px; }
+
+/* close buttons sit at the right edge of the header row */
+.inv-close { margin-left: auto; flex: 0 0 auto; }
+.inv-zeny ~ .inv-close { margin-left: 0; }
+
+/* your own nameplate over the scene: the sun pop, outlined so it reads on grass */
+.nameplate.self {
+  color: var(--sun);
+  text-shadow: -1px -1px 0 var(--ink), 1px -1px 0 var(--ink), -1px 1px 0 var(--ink), 1px 1px 0 var(--ink), 0 2px 2px rgba(0, 0, 0, 0.4);
+}
+.login-preview { height: 160px; margin-bottom: 12px; }
+.job-picker { grid-template-columns: repeat(4, 1fr); gap: 6px; }
+.job-btn em { font-size: 10.5px; }

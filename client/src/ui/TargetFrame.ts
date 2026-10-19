@@ -1,4 +1,4 @@
-import { Element, ELEMENT_ICON, ELEMENT_LABEL } from "@rox/shared";
+import { Element, ELEMENT_LABEL } from "@rox/shared";
 
 interface TargetInfo {
   name: string;
@@ -22,7 +22,7 @@ export class TargetFrame {
     this.root.classList.toggle("boss", info.boss);
     const el = info.element as Element;
     const elemTag =
-      el && el !== Element.Neutral ? `  ${ELEMENT_ICON[el] ?? ""}${ELEMENT_LABEL[el] ?? ""}` : "";
+      el && el !== Element.Neutral ? `  · ${ELEMENT_LABEL[el] ?? ""}` : "";
     this.nameEl.textContent = `${info.name}  Lv${info.level}${elemTag}`;
     const pct = info.maxHp ? Math.max(0, Math.min(1, info.hp / info.maxHp)) : 0;
     const widthPct = `${pct * 100}%`;

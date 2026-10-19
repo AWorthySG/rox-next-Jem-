@@ -1,4 +1,5 @@
 import { JOB_NAME, type PartyInfo } from "@rox/shared";
+import { ph } from "./icons.js";
 
 interface MemberRow {
   id: number;
@@ -41,7 +42,7 @@ export class PartyHud {
       const isLeader = m.id === party.leaderId;
       const isSelf = m.id === this.selfId;
       row.innerHTML =
-        `<div class="pm-name">${isLeader ? "★ " : ""}${m.name}${isSelf ? " (you)" : ""} ` +
+        `<div class="pm-name">${isLeader ? ph("crown") + " " : ""}${m.name}${isSelf ? " (you)" : ""} ` +
         `<span class="pm-job">Lv${m.level} ${JOB_NAME[m.job]}</span></div>` +
         `<div class="pm-bar"><i></i></div>`;
       const fill = row.querySelector(".pm-bar > i") as HTMLElement;

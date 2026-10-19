@@ -12,6 +12,7 @@ import {
   type EnchantLine,
   type SelfState,
 } from "@rox/shared";
+import { ph } from "./icons.js";
 
 export interface RefineHandlers {
   onRefine(slot: EquipSlot): void;
@@ -69,7 +70,7 @@ export class RefinePanel {
       this.root.appendChild(toast);
     }
     toast.className = `refine-toast ${success ? "ok" : "fail"}`;
-    toast.textContent = success ? `✦ Success!  ${itemName} +${level}` : `✗ Refine failed — ${itemName} stays +${level}`;
+    toast.textContent = success ? `Success · ${itemName} +${level}` : `Refine failed · ${itemName} stays +${level}`;
     // restart the fade animation
     toast.classList.remove("show");
     void toast.offsetWidth;
@@ -111,12 +112,12 @@ export class RefinePanel {
       const preview = maxed || deltas.length === 0 ? "" : `<div class="rr-preview">${deltas.join(" · ")}</div>`;
       const meta = maxed
         ? ""
-        : `<div class="rr-meta"><span class="${chance < 100 ? "rr-risk" : ""}">${chance}%</span> · ⛏ ${oreName} <b class="${oreHave >= 1 ? "" : "rr-risk"}">${oreHave}</b></div>`;
+        : `<div class="rr-meta"><span class="${chance < 100 ? "rr-risk" : ""}">${chance}%</span> · ${ph("cube")} ${oreName} <b class="${oreHave >= 1 ? "" : "rr-risk"}">${oreHave}</b></div>`;
       row.innerHTML =
         `<div class="rr-info"><span class="rr-name">${item.name} <b class="rr-lv">+${level}</b></span>${preview}${meta}</div>` +
         (maxed
           ? `<span class="rr-max">MAX</span>`
-          : `<button class="refine-btn${afford ? "" : " dim"}" data-slot="${slot}">⚒ ${cost.toLocaleString()}z</button>`);
+          : `<button class="refine-btn${afford ? "" : " dim"}" data-slot="${slot}">${ph("hammer")} ${cost.toLocaleString()}z</button>`);
       this.list.appendChild(row);
       this.list.appendChild(this.enchantBlock(slot, enchantMap.get(id) ?? [], self.zeny >= ENCHANT_COST));
     }
@@ -145,7 +146,7 @@ export class RefinePanel {
       if (line) {
         rows.push(
           `<button class="ench-line${line.locked ? " locked" : ""}" data-slot="${slot}" data-idx="${i}">` +
-            `<span class="el-lock">${line.locked ? "🔒" : "🔓"}</span>` +
+            `<span class="el-lock">${ph(line.locked ? "lock-simple" : "lock-simple-open")}</span>` +
             `<span class="el-stat">${enchantStatLabel(line.stat)}</span>` +
             `<span class="el-val">+${line.value}</span></button>`,
         );
@@ -156,7 +157,7 @@ export class RefinePanel {
     const verb = lines.length ? "Re-roll" : "Enchant";
     wrap.innerHTML =
       `<div class="ench-lines">${rows.join("")}</div>` +
-      `<button class="enchant-btn${afford ? "" : " dim"}" data-slot="${slot}">✦ ${verb} · ${ENCHANT_COST.toLocaleString()}z</button>`;
+      `<button class="enchant-btn${afford ? "" : " dim"}" data-slot="${slot}">${ph("sparkle")} ${verb} · ${ENCHANT_COST.toLocaleString()}z</button>`;
     return wrap;
   }
 }

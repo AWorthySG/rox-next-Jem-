@@ -1,4 +1,5 @@
 import { getItem, ItemType, JOB_NAME, rarityOf, type GuildInfo, type ItemDef, type SelfState } from "@rox/shared";
+import { itemIcon, ph } from "./icons.js";
 
 export interface GuildHandlers {
   onCreate(name: string): void;
@@ -6,19 +7,6 @@ export interface GuildHandlers {
   onLeave(): void;
   onStore(itemId: string, qty: number): void;
   onRetrieve(itemId: string, qty: number): void;
-}
-
-// A small glyph per item, matching the bag/storage panels.
-function iconFor(item: ItemDef): string {
-  if (item.pet) return "🥚";
-  if (item.mount) return "🐎";
-  if (item.costume) return "👘";
-  if (item.type === ItemType.Card) return "🃏";
-  if (item.type === ItemType.Consumable) return item.healSp ? "🔷" : "🧪";
-  if (item.type === ItemType.Weapon) return item.matk ? "🪄" : "⚔️";
-  if (item.type === ItemType.Headgear) return "🎩";
-  if (item.type === ItemType.Armor) return "🛡️";
-  return "💍";
 }
 
 // Guild window (key "G"): create or join a guild by name, or view the roster,
@@ -93,14 +81,14 @@ export class GuildPanel {
 
     const rows = this.guild.members
       .map((m) => {
-        const lead = m.id === this.guild!.masterId ? "★ " : "";
+        const lead = m.id === this.guild!.masterId ? ph("crown") + " " : "";
         const you = m.id === this.selfId ? " (you)" : "";
         return `<div class="guild-member">${lead}${m.name}${you} <span class="pm-job">Lv${m.level} ${JOB_NAME[m.job]}</span></div>`;
       })
       .join("");
     const expPct = this.guild.expToNext > 0 && isFinite(this.guild.expToNext) ? Math.min(100, Math.round((this.guild.exp / this.guild.expToNext) * 100)) : 100;
     this.body.innerHTML =
-      `<div class="guild-title">⚑ ${this.guild.name} <span class="pm-job">(${this.guild.members.length})</span></div>` +
+      `<div class="guild-title">${ph("flag-banner")} ${this.guild.name} <span class="pm-job">(${this.guild.members.length})</span></div>` +
       `<div class="guild-level">Guild Lv ${this.guild.level}` +
       `<div class="guild-exp-bar"><div class="guild-exp-fill" style="width:${expPct}%"></div></div>` +
       `<span class="pm-job">${this.guild.exp}/${isFinite(this.guild.expToNext) ? this.guild.expToNext : "MAX"} EXP</span></div>` +
@@ -130,7 +118,7 @@ export class GuildPanel {
       cell.className = `inv-cell ${item.type} rar-${rarityOf(item)}`;
       cell.title = `${item.desc}\n(click: 1 · shift-click: all)`;
       cell.innerHTML =
-        `<span class="iicon">${iconFor(item)}</span>` +
+        `<span class="iicon">${ph(itemIcon(item))}</span>` +
         `<span class="iname">${item.name}</span>` +
         `<span class="iqty">×${entry.qty}</span>` +
         `<span class="iact">${action === "store" ? "Deposit ▸" : "◂ Withdraw"}</span>`;

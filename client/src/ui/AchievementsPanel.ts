@@ -1,4 +1,5 @@
 import { allAchievements, type SelfState } from "@rox/shared";
+import { ph } from "./icons.js";
 
 // Achievements window (key "V"): shows unlocked/locked milestones. Read-only;
 // progress is tracked server-side and surfaced via SelfState.
@@ -61,7 +62,7 @@ export class AchievementsPanel {
     toast.className = "ach-toast";
     toast.innerHTML =
       `<div class="ach-toast-title">Achievement Unlocked</div>` +
-      `<div class="ach-toast-name">★ ${def.name}</div>` +
+      `<div class="ach-toast-name">${ph("star")} ${def.name}</div>` +
       `<div class="ach-toast-reward">+${def.rewardZeny}z</div>`;
     this.toastHost.appendChild(toast);
     setTimeout(() => {
@@ -79,7 +80,7 @@ export class AchievementsPanel {
       const row = document.createElement("div");
       row.className = `ach-row${unlocked ? " done" : ""}`;
       row.innerHTML =
-        `<div class="ach-main"><div class="ach-name">${unlocked ? "★ " : "☆ "}${a.name}</div>` +
+        `<div class="ach-main"><div class="ach-name">${ph("star", unlocked ? "ach-star on" : "ach-star")} ${a.name}</div>` +
         `<div class="ach-desc">${a.desc}</div></div>` +
         `<div class="ach-reward">${a.rewardZeny}z</div>`;
       this.list.appendChild(row);

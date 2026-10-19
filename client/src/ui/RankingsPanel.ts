@@ -1,4 +1,5 @@
 import type { RankingUpdateMsg } from "@rox/shared";
+import { ph } from "./icons.js";
 
 // The Hall of Glory panel: two seasonal leaderboards — MVP hunters (players by
 // boss-kill score) and guild sieges (guilds by castle captures). Populated by a
@@ -36,7 +37,7 @@ export class RankingsPanel {
     if (entries.length === 0) return `<div class="rank-empty">${empty}</div>`;
     return entries
       .map((e, i) => {
-        const medal = i === 0 ? "🥇" : i === 1 ? "🥈" : i === 2 ? "🥉" : `${i + 1}.`;
+        const medal = i < 3 ? ph("medal", `rank-medal m${i + 1}`) : `${i + 1}.`;
         return `<div class="rank-row"><span class="rank-pos">${medal}</span><span class="rank-name">${e.name}</span><span class="rank-score">${e.score}</span></div>`;
       })
       .join("");
