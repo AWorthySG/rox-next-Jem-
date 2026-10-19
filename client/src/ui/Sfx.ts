@@ -1,3 +1,4 @@
+import { ph } from "./icons.js";
 // Tiny procedural sound effects via the Web Audio API — no audio assets. The
 // AudioContext is resumed on the first user gesture (autoplay policy), and a
 // mute toggle button is wired up.
@@ -43,7 +44,7 @@ export class Sfx {
   }
 
   private render(): void {
-    if (this.btn) this.btn.textContent = this.muted ? "🔇" : "🔊";
+    if (this.btn) this.btn.innerHTML = ph(this.muted ? "speaker-slash" : "speaker-high");
   }
 
   private tone(freq: number, durMs: number, type: OscillatorType = "square", gain = 0.06): void {

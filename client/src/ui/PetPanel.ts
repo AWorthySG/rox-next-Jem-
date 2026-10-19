@@ -5,6 +5,7 @@ import {
   PET_SKILL_UNLOCK_LEVEL,
   type SelfState,
 } from "@rox/shared";
+import { ph } from "./icons.js";
 
 export interface PetHandlers {
   onFeed(): void;
@@ -60,7 +61,7 @@ export class PetPanel {
     const pct = info.level >= PET_LEVEL_CAP ? 100 : Math.round((intoLevel / PET_INTIMACY_PER_LEVEL) * 100);
     const pet = getPet(info.id);
     const skillLine = info.skillName
-      ? `<div class="pet-skill">⚔ ${info.skillName}${info.skillReady ? " · ready" : ""}</div>`
+      ? `<div class="pet-skill">${ph("sword")} ${info.skillName}${info.skillReady ? " · ready" : ""}</div>`
       : `<div class="pet-skill dim">Learns ${pet?.skill?.name ?? "its skill"} at Lv${PET_SKILL_UNLOCK_LEVEL}</div>`;
     this.body.innerHTML =
       `<div class="pet-name">${info.name} <span class="pet-lvl">Lv${info.level}${info.level >= PET_LEVEL_CAP ? " (max)" : ""}</span></div>` +

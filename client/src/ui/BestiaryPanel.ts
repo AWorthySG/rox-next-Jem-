@@ -1,5 +1,6 @@
-import { Element, ELEMENT_ICON, ELEMENT_LABEL, type SelfState } from "@rox/shared";
+import { Element, ELEMENT_LABEL, type SelfState } from "@rox/shared";
 import type { DexEntry, GameState } from "../state/GameState.js";
+import { ELEMENT_ICON_PH, ph } from "./icons.js";
 
 // Monster Codex (key "N"): a handbook of every species the player has met, with
 // their level, element and a running kill tally. Reads the live monster registry
@@ -55,15 +56,15 @@ export class BestiaryPanel {
 
   private row(e: DexEntry): HTMLElement {
     const el = e.element as Element;
-    const elemTag = el && el !== Element.Neutral ? `${ELEMENT_ICON[el] ?? ""} ${ELEMENT_LABEL[el] ?? ""}` : "Neutral";
+    const elemTag = el && el !== Element.Neutral ? `${ph(ELEMENT_ICON_PH[el])} ${ELEMENT_LABEL[el] ?? ""}` : "Neutral";
     const kills = this.kills.get(e.templateId) ?? 0;
     const row = document.createElement("div");
     row.className = `bestiary-row${e.boss ? " boss" : ""}`;
     row.innerHTML =
-      `<span class="bx-name">${e.boss ? "👑 " : ""}${e.name}</span>` +
+      `<span class="bx-name">${e.boss ? ph("crown") + " " : ""}${e.name}</span>` +
       `<span class="bx-lv">Lv${e.level}</span>` +
       `<span class="bx-elem">${elemTag}</span>` +
-      `<span class="bx-kills">${kills > 0 ? `☠ ${kills}` : "—"}</span>`;
+      `<span class="bx-kills">${kills > 0 ? `${ph("skull")} ${kills}` : "—"}</span>`;
     return row;
   }
 }

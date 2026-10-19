@@ -1,4 +1,5 @@
 import { QUESTS, type SelfState } from "@rox/shared";
+import { ph } from "./icons.js";
 
 // A compact always-on HUD list of the player's active quests with progress, so
 // objectives are visible without opening the quest board. Re-rendered on each
@@ -48,7 +49,7 @@ export class QuestTracker {
             `<div class="qt-row${ready ? " ready" : ""}${justCompleted ? " just-completed" : ""}">` +
             `<div class="qt-name">${def.name}</div>` +
             `<div class="qt-bar"><i style="width:${pct}%"></i></div>` +
-            `<div class="qt-count">${done}/${def.count} ${def.targetName}${ready ? " ✓" : ""}</div>` +
+            `<div class="qt-count">${done}/${def.count} ${def.targetName}${ready ? " " + ph("check") : ""}</div>` +
             `</div>`
           );
         })

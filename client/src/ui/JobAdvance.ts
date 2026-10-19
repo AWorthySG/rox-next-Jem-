@@ -1,5 +1,6 @@
 import { advanceOptions, JOB_NAME, type JobId, type SelfState } from "@rox/shared";
 import type { ScreenFx } from "./ScreenFx.js";
+import { ph } from "./icons.js";
 
 // Shows a job-change banner when the player is eligible to advance. Clicking an
 // option requests the change; the banner hides itself once applied.
@@ -28,7 +29,7 @@ export class JobAdvance {
     if (!this.wasVisible) this.screenFx?.levelUp();
     this.wasVisible = true;
     this.root.classList.remove("hidden");
-    this.root.innerHTML = `<span class="ja-title">⚜ Job Change available!</span>`;
+    this.root.innerHTML = `<span class="ja-title">${ph("star")} Job change available</span>`;
     for (const job of options) {
       const btn = document.createElement("button");
       btn.className = "ja-btn";

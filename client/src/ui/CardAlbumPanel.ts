@@ -8,6 +8,7 @@ import {
   isCardComplete,
   type SelfState,
 } from "@rox/shared";
+import { ph } from "./icons.js";
 
 // The Card Album panel: a grid of every card in the game, with the ones the
 // player has collected lit up and the rest shown as locked silhouettes. A
@@ -67,7 +68,7 @@ export class CardAlbumPanel {
       cell.className = "album-cell" + (has ? "" : " locked");
       const name = getItem(id)?.name ?? id;
       cell.title = name;
-      cell.innerHTML = `<div class="album-icon">${has ? "🃏" : "❔"}</div><div class="album-name">${has ? name : "???"}</div>`;
+      cell.innerHTML = `<div class="album-icon">${ph(has ? "cards" : "question")}</div><div class="album-name">${has ? name : "???"}</div>`;
       this.grid.appendChild(cell);
     }
   }

@@ -54,7 +54,7 @@ export class QuestPanel {
       let action = "";
       if (completed.has(quest.id)) {
         row.classList.add("done");
-        status = "✓ Completed";
+        status = "Completed";
       } else if (activeMap.has(quest.id)) {
         const progress = activeMap.get(quest.id)!;
         const ready = progress >= quest.count;

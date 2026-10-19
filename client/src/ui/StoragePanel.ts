@@ -1,21 +1,9 @@
 import { getItem, ItemType, rarityOf, type ItemDef, type SelfState } from "@rox/shared";
+import { itemIcon, ph } from "./icons.js";
 
 export interface StorageHandlers {
   onStore(itemId: string, qty: number): void;
   onRetrieve(itemId: string, qty: number): void;
-}
-
-// A small glyph per item, matching the bag panel.
-function iconFor(item: ItemDef): string {
-  if (item.pet) return "🥚";
-  if (item.mount) return "🐎";
-  if (item.costume) return "👘";
-  if (item.type === ItemType.Card) return "🃏";
-  if (item.type === ItemType.Consumable) return item.healSp ? "🔷" : "🧪";
-  if (item.type === ItemType.Weapon) return item.matk ? "🪄" : "⚔️";
-  if (item.type === ItemType.Headgear) return "🎩";
-  if (item.type === ItemType.Armor) return "🛡️";
-  return "💍";
 }
 
 // Kafra Storage (key "B"): a persistent item bank. Left column is your bag
@@ -79,7 +67,7 @@ export class StoragePanel {
       cell.className = `inv-cell ${item.type} rar-${rarityOf(item)}`;
       cell.title = `${item.desc}\n(click: 1 · shift-click: all)`;
       cell.innerHTML =
-        `<span class="iicon">${iconFor(item)}</span>` +
+        `<span class="iicon">${ph(itemIcon(item))}</span>` +
         `<span class="iname">${item.name}</span>` +
         `<span class="iqty">×${entry.qty}</span>` +
         `<span class="iact">${action === "store" ? "Deposit ▸" : "◂ Withdraw"}</span>`;
